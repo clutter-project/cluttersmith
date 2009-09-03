@@ -1,0 +1,48 @@
+{"type":"NbtkBoxLayout", "style-class":"parasite",
+ "id":"actor",
+ "vertical":true,
+ "reactive":true,
+ "height":400,
+ 
+ "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+  
+  "children":
+    [
+      { "type":"NbtkBoxLayout",
+        
+        "children":
+          [
+            { "type":"NbtkButton", "signals": [ {"name":"clicked", "handler":"cb_collapse"} ] "label":"+/-"}
+            { "type":"NbtkButton", "signals": [ {"name":"clicked", "handler":"cb_select"} ] "label":"Select"}
+          ]
+      }
+
+      { "type":"NbtkScrollView",
+        "width":230,
+        "children":
+         [
+           { "type":"NbtkViewport",
+             "children":
+              [
+                { "type":"NbtkBoxLayout", "vertical":true,
+                   "children":[
+                     {"type":"ClutterText", "id":"name", "color":"green", "text":"NbtkButton"},
+                     {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
+                     { "type":"NbtkGrid",  "id":"parents", "column-gap":4, "row-gap":4, "width":200
+                       "children":[
+                         {"type":"ClutterText", "color":"white", "text":"foo"}
+                         {"type":"ClutterText", "color":"white", "text":"bar"}
+                         {"type":"ClutterText", "color":"white", "text":"baz"}
+                       ]
+                     }
+
+                     {"type":"ClutterText", "color":"gray", "text":"properties:"},
+                     {"type":"ClutterText", "color":"white", "id":"properties", "text":"", "font-name":"Sans 12px"},
+                   ]
+                 }
+              ]
+           }
+        ]
+      }
+    ]
+}

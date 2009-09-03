@@ -1,0 +1,49 @@
+/* generic classes, the top bits of styling here should be inherited
+ * from a system wide CSS
+ */
+
+
+
+*.parasite NbtkButton,
+*.parasite NbtkButton:active,
+*.parasite NbtkButton:hover,
+*.parasite NbtkButton:checked {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: 10px;
+}
+
+NbtkLabel, NbtkIMLabel
+{
+  font-family: "Droid Sans";
+  font-size: 12px;
+  color: black;
+}
+
+*.parasite NbtkButton {
+  border-image: url("file://button-bg.png") 0 0 0 0;
+  color: white;
+}
+
+*.parasite NbtkButton:active {
+  border-image: url("file://button-bg.png") 0 0 0 0;
+  color: white;
+}
+
+
+*.parasite  {
+  background-color: #444444ee;
+}
+
+*.parasite NbtkButton:hover {
+  border-image: url("file://button-bg.png") 0 0 0 0;
+  color: yellow;
+}
+
+
+*.parasite NbtkButton:checked {
+  border-image: url("file://button-checked-bg.png") 0 0 0 0;
+  color: white;
+}
