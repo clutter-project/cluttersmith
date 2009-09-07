@@ -208,3 +208,15 @@ gboolean util_movable_press (ClutterActor  *actor,
   return TRUE;
 }
 
+
+gboolean util_has_ancestor (ClutterActor *actor,
+                            ClutterActor *ancestor)
+{
+  while (actor)
+    {
+      if (actor == ancestor)
+        return TRUE;
+      actor = clutter_actor_get_parent (actor);
+    }
+  return FALSE;
+}

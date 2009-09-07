@@ -6,6 +6,13 @@
 #include <dlfcn.h>
 #include "util.h"
 
+#define PKGDATADIR "/home/pippin/src/clutterbug/"
+
+static ClutterColor  white = {0xff,0xff,0xff,0xff};
+static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
+
+static void select_item (ClutterActor *button, ClutterActor *item);
+
 static gboolean keep_on_top (gpointer actor)
 {
   clutter_actor_raise_top (actor);
@@ -53,18 +60,18 @@ cb_overlay_paint (ClutterActor *actor,
 
 }
 
-#define PKGDATADIR "/home/pippin/src/clutterbug/"
 
 static gboolean idle_add_stage (gpointer stage)
 {
-  ClutterActor *actor = util_load_json (PKGDATADIR "parasite.json");
-    //cp_parasite_new (CLUTTER_STAGE (stage));
+  ClutterActor *actor;
+ 
+
+  actor = util_load_json (PKGDATADIR "parasite.json");
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   g_timeout_add (400, keep_on_top, actor);
 
+  g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "clutterbug.css", NULL);
-
   return FALSE;
 }
 
@@ -90,7 +97,7 @@ static void _clutterbug_fini(void) {
 }
 
 static guint stage_capture_handler = 0;
-static ClutterActor  *name, *parents, *property_editors;
+static ClutterActor  *name, *parents, *property_editors, *scene_graph, *parasite_root;
 
 
 typedef struct UpdateClosure
@@ -171,6 +178,68 @@ static gboolean update_boolean (NbtkButton *button,
 
 gboolean cb_filter_properties = TRUE;
 
+#define INDENTATION_AMOUNT  20
+
+
+static void select_item_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
+{
+  select_item (NULL, item);
+}
+
+static void
+tree_populate_iter (ClutterActor *iter,
+                    gfloat *x,
+                    gfloat *y)
+{
+  ClutterActor *label;
+
+  if (iter == NULL ||
+      util_has_ancestor (iter, parasite_root))
+    {
+      return;
+    }
+
+  label = clutter_text_new_with_text ("Sans 12px", G_OBJECT_TYPE_NAME (iter));
+  if (iter == selected_actor)
+    {
+      clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
+    }
+  else
+    {
+      clutter_text_set_color (CLUTTER_TEXT (label), &white);
+    }
+  g_signal_connect (label, "button-press-event", G_CALLBACK (select_item_event), iter);
+  clutter_actor_set_reactive (label, TRUE);
+
+  clutter_container_add_actor (CLUTTER_CONTAINER (scene_graph), label);
+  clutter_actor_set_position (label, *x, *y);
+
+  *y += clutter_actor_get_height (label);
+
+  if (CLUTTER_IS_CONTAINER (iter))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (iter));
+      *x += INDENTATION_AMOUNT;
+      for (c = children; c; c=c->next)
+        {
+          tree_populate_iter (c->data, x, y);
+        }
+      *x -= INDENTATION_AMOUNT;
+      g_list_free (children);
+    }
+}
+
+static void
+tree_populate (ClutterActor *actor)
+{
+  gfloat x=0;
+  gfloat y=0;
+  util_remove_children (scene_graph);
+
+  tree_populate_iter (clutter_actor_get_stage (actor), &x, &y);
+}
+
 
 static void
 props_populate (ClutterActor *actor)
@@ -204,14 +273,14 @@ props_populate (ClutterActor *actor)
               /* ClutterActor contains so many properties that we restrict our view a bit */
               if (actor_properties[j]==properties[i])
                 {
-                  gchar *whitelist[]={"x","y", "depth", "opacity", "width","heigth",
-                                      "scale-x","scale-y", "anchor-x", "color", 
+                  gchar *whitelist[]={"x","y", "depth", "opacity", "width", "height",
+                                      "scale-x","scale-y", "anchor-x", "color",
                                       "anchor-y", "rotation-angle-z",
                                       "name", 
                                       NULL};
                   gint k;
                   skip = TRUE;
-                  for (k=0;keep[k];k++)
+                  for (k=0;whitelist[k];k++)
                     if (g_str_equal (properties[i]->name, whitelist[k]))
                       skip = FALSE;
                 }
@@ -225,7 +294,6 @@ props_populate (ClutterActor *actor)
         continue;
 
       {
-        ClutterColor  white = {0xff,0xff,0xff,0xff};
         ClutterActor *label = clutter_text_new_with_text ("Sans 12px", properties[i]->name);
         ClutterActor *editor = NULL;
 
@@ -364,6 +432,13 @@ props_populate (ClutterActor *actor)
   g_free (properties);
 }
 
+static void selected_vanished (gpointer data,
+                               GObject *where_the_object_was)
+{
+  g_warning ("SELECTED vanished\n");
+  selected_actor = NULL;
+}
+
 static void select_item (ClutterActor *button, ClutterActor *item)
 {
   clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
@@ -387,16 +462,29 @@ static void select_item (ClutterActor *button, ClutterActor *item)
         }
 
       util_remove_children (property_editors);
+
+      if (selected_actor)
+        {
+          g_object_weak_unref (G_OBJECT (selected_actor), selected_vanished, NULL);
+          selected_actor = NULL;
+        }
+
       if (CLUTTER_IS_ACTOR (item))
         {
           selected_actor = item;
+          
+          g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
+
           props_populate (selected_actor); 
+          tree_populate (selected_actor);
         }
     }
 }
 
+
+
 static gboolean
-pick_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
+pick_all_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
 {
   switch (event->any.type)
     {
@@ -407,7 +495,10 @@ pick_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
           hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                 CLUTTER_PICK_ALL,
                                                 event->motion.x, event->motion.y);
-          select_item (NULL, hit);
+          if (!util_has_ancestor (hit, parasite_root))
+            select_item (NULL, hit);
+          else
+            g_print ("child of foo!\n");
         }
         break;
       case CLUTTER_BUTTON_PRESS:
@@ -419,24 +510,68 @@ pick_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
   return TRUE;
 }
 
-void cb_select (ClutterActor *actor)
+static gboolean
+pick_reactive_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
+{
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          ClutterActor *hit;
+
+          hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                                                CLUTTER_PICK_REACTIVE,
+                                                event->motion.x, event->motion.y);
+          if (!util_has_ancestor (hit, parasite_root))
+            select_item (NULL, hit);
+          else
+            g_print ("child of foo!\n");
+        }
+        break;
+      case CLUTTER_BUTTON_PRESS:
+        g_signal_handler_disconnect (clutter_actor_get_stage (actor),
+                                     stage_capture_handler);
+        stage_capture_handler = 0;
+        break;
+    }
+  return TRUE;
+}
+
+void cb_select_all (ClutterActor *actor)
+{
+  ClutterScript *script = util_get_script (actor);
+
+  name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
+  parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
+  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
+  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
+
+  stage_capture_handler = 
+     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                       G_CALLBACK (pick_all_capture), NULL);
+}
+
+
+void cb_select_reactive (ClutterActor *actor)
 {
   ClutterScript *script = util_get_script (actor);
 
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
+  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
 
   stage_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (pick_capture), NULL);
+                       G_CALLBACK (pick_reactive_capture), NULL);
 
 }
 
-void cb_collapse (ClutterActor *actor)
+void cb_collapse_propeditor (ClutterActor *actor)
 {
   ClutterScript *script = util_get_script (actor);
-  ClutterActor  *parasite = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
+  ClutterActor  *parasite = CLUTTER_ACTOR (clutter_script_get_object (script, "prop-editor"));
   static gboolean collapsed = FALSE;
 
   collapsed = !collapsed;
@@ -447,3 +582,17 @@ void cb_collapse (ClutterActor *actor)
     clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 400.0, NULL);
 }
 
+
+void cb_collapse_tree (ClutterActor *actor)
+{
+  ClutterScript *script = util_get_script (actor);
+  ClutterActor  *parasite = CLUTTER_ACTOR (clutter_script_get_object (script, "tree"));
+  static gboolean collapsed = FALSE;
+
+  collapsed = !collapsed;
+
+  if (collapsed)
+    clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 22.0, NULL);
+  else
+    clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 400.0, NULL);
+}

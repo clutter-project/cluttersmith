@@ -6,3 +6,5 @@ ClutterScript *util_get_script (ClutterActor *actor);
 void util_replace_content2 (ClutterActor *actor,
                            const gchar  *name);
 void util_remove_children (ClutterActor *actor);
+gboolean util_has_ancestor (ClutterActor *actor,
+                            ClutterActor *ancestor);
