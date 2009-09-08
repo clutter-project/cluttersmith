@@ -127,32 +127,52 @@ ClutterScript *util_get_script (ClutterActor *actor)
  * with a newly loaded script.
  */
 void util_replace_content2 (ClutterActor  *actor,
-                           const gchar *name)
+                            const gchar *name,
+                            const gchar *new_script)
 {
+  ClutterActor *iter;
   ClutterScript *script = util_get_script (actor);
   ClutterActor *content;
 
-  content = CLUTTER_ACTOR (clutter_script_get_object (script, "content"));
+  content = CLUTTER_ACTOR (clutter_script_get_object (script, name));
+
 
   if (!content)
     {
-      actor = util_get_root (actor);
-      g_assert (actor);
+      iter = util_get_root (actor);
+      g_assert (iter);
       /* check the parent script, if any, as well */
-      if (actor)
+      if (iter)
         {
-          actor = clutter_actor_get_parent (actor);
-          script = util_get_script (actor);
-          content = CLUTTER_ACTOR (clutter_script_get_object (script, "content"));
+          iter = clutter_actor_get_parent (iter);
+          if (iter)
+            {
+              script = util_get_script (iter);
+              if (script)
+                content = CLUTTER_ACTOR (clutter_script_get_object (script, name));
+            }
         }
     }
   if (!content)
     {
-      g_warning ("failed to find id content");
+      GList *children, *c;
+      content = clutter_stage_get_default ();
+      children = clutter_container_get_children (CLUTTER_CONTAINER (content));
+
+      for (c=children; c; c = c->next)
+        {
+          g_print ("%p\n", c->data);
+          if (g_object_get_data (c->data, "clutter-bug") == NULL)
+            clutter_actor_destroy (c->data);
+        }
+      g_list_free (children);
+      clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
+
       return;
     }
+
   util_remove_children (content);
-  clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (name));
+  clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
   return;
 }
 
@@ -162,7 +182,7 @@ void util_replace_content2 (ClutterActor  *actor,
 gboolean util_replace_content (ClutterActor  *actor)
 {
   g_print ("%s!\n", G_STRFUNC);
-  util_replace_content2 (actor, clutter_actor_get_name (actor));
+  util_replace_content2 (actor, "content", clutter_actor_get_name (actor));
   return TRUE;
 }
 
@@ -182,6 +202,7 @@ movable_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
           x-= movable_x-event->motion.x;
           y-= movable_y-event->motion.y;
           clutter_actor_set_position (data, x, y);
+          g_print ("%f %f\n", x, y);
 
           movable_x=event->motion.x;
           movable_y=event->motion.y;
@@ -205,6 +226,7 @@ gboolean util_movable_press (ClutterActor  *actor,
   movable_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                        G_CALLBACK (movable_capture), actor);
+  clutter_actor_raise_top (actor);
   return TRUE;
 }
 
