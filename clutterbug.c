@@ -13,7 +13,7 @@ static ClutterColor  white = {0xff,0xff,0xff,0xff};
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
 void init_types (void);
 
-gchar *whitelist[]={"x","y", "depth", "opacity", "width", "height",
+gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
                     "anchor-y", "rotation-angle-z",
                     "name", 
@@ -116,82 +116,8 @@ static guint stage_capture_handler = 0;
 static ClutterActor  *name, *parents, *property_editors, *scene_graph;
 ClutterActor *parasite_root;
 
-
-typedef struct UpdateClosure
-{
-  ClutterActor *actor;
-  gchar *name;
-} UpdateClosure;
-
-static void update_closure_free (gpointer data, GClosure *closure)
-{
-  UpdateClosure *uc = data;
-  g_free (uc->name);
-  g_free (uc);
-}
-
-static gboolean update_float_from_entry (ClutterText *text,
-                                         gpointer     data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->actor, uc->name, atof (clutter_text_get_text (text)), NULL);
-}
-
-static gboolean update_int_from_entry (ClutterText *text,
-                                         gpointer     data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->actor, uc->name, atoi (clutter_text_get_text (text)), NULL);
-}
-
-
-static gboolean update_uint_from_entry (ClutterText *text,
-                                         gpointer     data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->actor, uc->name, atoi (clutter_text_get_text (text)), NULL);
-}
-
-static gboolean update_string_from_entry (ClutterText *text,
-                                         gpointer     data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->actor, uc->name, clutter_text_get_text (text), NULL);
-}
-
-static gboolean update_generic_from_entry (ClutterText *text,
-                                           gpointer     data)
-{
-  GParamSpec *pspec;
-  GValue value = {0,};
-  GValue str_value = {0,};
-  UpdateClosure *uc = data;
-
-  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (uc->actor), uc->name);
-
-  g_value_init (&str_value, G_TYPE_STRING);
-  g_value_set_string (&str_value, clutter_text_get_text (text));
-
-  g_value_init (&value, pspec->value_type);
-
-  if (g_value_transform (&str_value, &value))
-    {
-      g_object_set_property (G_OBJECT (uc->actor), uc->name, &value);
-    }
-  g_value_unset (&value);
-  g_value_unset (&str_value);
-}
-
-
-static gboolean update_boolean (NbtkButton *button,
-                                gpointer    data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->actor, uc->name, nbtk_button_get_checked (button), NULL);
-    {
-      nbtk_button_set_label (button,  nbtk_button_get_checked (button)?" 1 ":" 0 ");
-    }
-}
+ClutterActor *property_editor_new (GObject *object,
+                                   const gchar *property_name);
 
 gboolean cb_filter_properties = TRUE;
 
@@ -257,7 +183,6 @@ tree_populate (ClutterActor *actor)
   tree_populate_iter (clutter_actor_get_stage (actor), &x, &y);
 }
 
-
 static void
 props_populate (ClutterActor *actor)
 {
@@ -276,6 +201,40 @@ props_populate (ClutterActor *actor)
   actor_properties = g_object_class_list_properties (
             G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
             &n_actor_properties);
+
+  {
+    ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+    ClutterActor *label;
+    ClutterActor *editor; 
+
+    label = clutter_text_new_with_text ("Sans 12px", "pos:");
+    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+    clutter_actor_set_size (label, 25, 32);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+
+    editor = property_editor_new (G_OBJECT (actor), "x");
+    clutter_actor_set_size (editor, 50, 32);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+
+    editor = property_editor_new (G_OBJECT (actor), "y");
+    clutter_actor_set_size (editor, 50, 32);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+
+    label = clutter_text_new_with_text ("Sans 12px", "size:");
+    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+    clutter_actor_set_size (label, 25, 32);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+
+    editor = property_editor_new (G_OBJECT (actor), "width");
+    clutter_actor_set_size (editor, 50, 32);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+
+    editor = property_editor_new (G_OBJECT (actor), "height");
+    clutter_actor_set_size (editor, 50, 32);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+
+    clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
+  }
 
 
   for (i = 0; i < n_properties; i++)
@@ -306,138 +265,15 @@ props_populate (ClutterActor *actor)
         continue;
 
       {
+        ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
         ClutterActor *label = clutter_text_new_with_text ("Sans 12px", properties[i]->name);
-        ClutterActor *editor = NULL;
-
-        UpdateClosure *uc = g_new0 (UpdateClosure, 1);
-        uc->name = g_strdup (properties[i]->name);
-        uc->actor = actor;
-
+        ClutterActor *editor = property_editor_new (G_OBJECT (actor), properties[i]->name);
         clutter_text_set_color (CLUTTER_TEXT (label), &white);
-        if (properties[i]->value_type == G_TYPE_FLOAT)
-          {
-
-            gchar *initial;
-            gfloat value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            initial = g_strdup_printf ("%2.3f", value);
-            editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
-            g_free (initial);
-
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_float_from_entry), uc, update_closure_free, 0);
-          }
-        else if (properties[i]->value_type == G_TYPE_DOUBLE)
-          {
-            gchar *initial;
-            gdouble value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            initial = g_strdup_printf ("%2.2f", value);
-            editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
-            g_free (initial);
-
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_float_from_entry), uc, update_closure_free, 0);
-
-          }
-        else if (properties[i]->value_type == G_TYPE_UCHAR)
-          {
-            gchar *initial;
-            guchar value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            initial = g_strdup_printf ("%i", (gint)value);
-            editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
-            g_free (initial);
-
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_int_from_entry), uc, update_closure_free, 0);
-
-          }
-        else if (properties[i]->value_type == G_TYPE_INT)
-          {
-            gchar *initial;
-            gint value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            initial = g_strdup_printf ("%i", value);
-            editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
-            g_free (initial);
-
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_int_from_entry), uc, update_closure_free, 0);
-
-          }
-        else if (properties[i]->value_type == G_TYPE_UINT)
-          {
-            gchar *initial;
-            guint value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            initial = g_strdup_printf ("%u", value);
-            editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
-            g_free (initial);
-
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_uint_from_entry), uc, update_closure_free, 0);
-
-          }
-        else if (properties[i]->value_type == G_TYPE_STRING)
-          {
-            gchar *value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            editor = CLUTTER_ACTOR (nbtk_entry_new (value));
-            g_free (value);
-
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_string_from_entry), uc, update_closure_free, 0);
-
-          }
-        else if (properties[i]->value_type == G_TYPE_BOOLEAN)
-          {
-            gboolean value;
-            g_object_get (actor, properties[i]->name, &value, NULL);
-            editor = CLUTTER_ACTOR (nbtk_button_new_with_label (value?" 1 ":" 0 "));
-            g_object_set (editor, "toggle-mode", TRUE, "checked", value, NULL);
-
-            g_signal_connect_data (editor, "clicked",
-                                   G_CALLBACK (update_boolean), uc, update_closure_free, 0);
-
-          }
-        else
-          {
-            GValue value = {0,};
-            GValue str_value = {0,};
-            gchar *initial;
-            g_value_init (&value, properties[i]->value_type);
-            g_value_init (&str_value, G_TYPE_STRING);
-            g_object_get_property (G_OBJECT (actor), properties[i]->name, &value);
-            if (g_value_transform (&value, &str_value))
-              {
-                initial = g_strdup_printf ("%s", g_value_get_string (&str_value));
-                editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
-
-                g_free (initial);
-
-                g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
-                                       G_CALLBACK (update_generic_from_entry), uc, update_closure_free, 0);
-              }
-            else
-              {
-                initial = g_strdup_printf ("%s", g_type_name (properties[i]->value_type));
-                editor = clutter_text_new_with_text ("Sans 12px", initial);
-                update_closure_free (uc, NULL);
-              }
-            /*g_value_unset (&value);
-            g_value_unset (&str_value);
-            g_free (initial);*/
-          }
-
-        {
-          ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-          clutter_actor_set_size (label, 130, 32);
-          clutter_actor_set_size (editor, 130, 32);
-          clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-          clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-          clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
-        }
+        clutter_actor_set_size (label, 130, 32);
+        clutter_actor_set_size (editor, 130, 32);
+        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+        clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
       }
     }
 
@@ -448,7 +284,6 @@ static void select_item (ClutterActor *button, ClutterActor *item);
 static void selected_vanished (gpointer data,
                                GObject *where_the_object_was)
 {
-  g_warning ("SELECTED vanished\n");
   selected_actor = NULL;
   select_item (NULL, NULL);
 }
@@ -573,7 +408,6 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
           x-= manipulate_x-event->motion.x;
           y-= manipulate_y-event->motion.y;
           clutter_actor_set_position (data, x, y);
-          g_print ("%f %f\n", x, y);
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -643,6 +477,22 @@ static gboolean manipulate_resize_press (ClutterActor  *actor,
   return TRUE;
 }
 
+
+static gboolean manipulate_select_press (ClutterActor  *actor,
+                                         ClutterEvent  *event)
+{
+   ClutterActor *hit;
+
+   hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                                         CLUTTER_PICK_ALL,
+                                         event->button.x, event->button.y);
+   if (!util_has_ancestor (hit, parasite_root))
+     select_item (NULL, hit);
+   else
+     g_print ("child of foo!\n");
+  return TRUE;
+}
+
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
 {
@@ -650,8 +500,6 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
     {
       return FALSE;
     }
-  if (!selected_actor)
-    return TRUE;
   switch (event->any.type)
     {
       case CLUTTER_MOTION:
@@ -674,11 +522,23 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
           gfloat x = event->button.x;
           gfloat y = event->button.y;
           gfloat w,h;
-          clutter_actor_get_size (selected_actor, &w, &h);
-          clutter_actor_transform_stage_point (selected_actor, x, y, &x, &y);
-          x/=w;
-          y/=h;
-          if (x>0.5 && y>0.5)
+
+
+          if (selected_actor)
+            {
+              clutter_actor_get_size (selected_actor, &w, &h);
+              clutter_actor_transform_stage_point (selected_actor, x, y, &x, &y);
+              x/=w;
+              y/=h;
+            }
+
+          if (x<0.0 || y < 0.0 || x > 1.0 || y > 1.0 ||
+              selected_actor == NULL ||
+              (selected_actor && (selected_actor == clutter_actor_get_stage (selected_actor))))
+            {
+              manipulate_select_press (parasite_root, event);
+            }
+          else if (x>0.5 && y>0.5)
             {
               manipulate_resize_press (selected_actor, event);
             }
@@ -772,8 +632,16 @@ void cb_remove_selected (ClutterActor *actor)
 {
   if (selected_actor)
     {
-      clutter_actor_destroy (selected_actor);
-      selected_actor = NULL;
+      ClutterActor *old_selected = selected_actor;
+      select_item (NULL, clutter_stage_get_default());
+      util_remove_children (property_editors);
+      clutter_actor_destroy (old_selected);
+
+      /* hack needed, nbtk_entry() causes segfault when updating
+       * pseudo state based on notify:: that we'd expect not
+       * to occur otherwise.
+       */
+      clutter_actor_paint (clutter_actor_get_stage (actor));
     }
 }
 
@@ -908,13 +776,19 @@ build_transient (ClutterActor *actor)
         {
           for (j=0;j<n_actor_properties;j++)
             {
-              /* ClutterActor contains so many properties that we restrict our view a bit */
+              /* ClutterActor contains so many properties that we restrict our view a bit,
+               * applying all values seems to make clutter hick-up as well. 
+               */
               if (actor_properties[j]==properties[i])
                 {
+                  gchar *whitelist2[]={"x","y","width","height", NULL};
                   gint k;
                   skip = TRUE;
                   for (k=0;whitelist[k];k++)
                     if (g_str_equal (properties[i]->name, whitelist[k]))
+                      skip = FALSE;
+                  for (k=0;whitelist2[k];k++)
+                    if (g_str_equal (properties[i]->name, whitelist2[k]))
                       skip = FALSE;
                 }
             }
@@ -973,7 +847,6 @@ apply_transient (ClutterActor *actor)
                           value->value_type == properties[i]->value_type)
             {
               g_object_set_property (G_OBJECT (actor), properties[i]->name, &value->value);
-              continue;
             }
         }
     }
@@ -997,7 +870,7 @@ static void change_type (ClutterActor *actor,
 
     build_transient (selected_actor);
 
-    if (CLUTTER_IS_CONTAINER (selected_actor))
+    if (CLUTTER_IS_CONTAINER (selected_actor) && CLUTTER_IS_CONTAINER (new_actor))
       {
         GList *c, *children;
         children = clutter_container_get_children (CLUTTER_CONTAINER (selected_actor));
@@ -1054,6 +927,6 @@ void cb_change_type (ClutterActor *actor)
   actor = CLUTTER_ACTOR (nbtk_grid_new ());
   g_object_set (actor, "height", 600.0, "column-major", TRUE, "homogenous-columns", TRUE, NULL);
   g_list_foreach (types, (void*)printname, actor);
-  hrn_popup_actor_fixed (clutter_stage_get_default(), 0,0, actor);
+  hrn_popup_actor_fixed (parasite_root, 0,0, actor);
 }
 

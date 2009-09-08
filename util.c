@@ -110,6 +110,18 @@ void util_remove_children (ClutterActor *actor)
   children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
   for (c=children; c; c = c->next)
     {
+#if 0
+      if (CLUTTER_IS_CONTAINER (c->data))
+        {
+          GList *children, *b;
+          children = clutter_container_get_children (CLUTTER_CONTAINER (c->data));
+          for (b=children; b; b = b->next)
+            {
+              clutter_actor_destroy (b->data);
+            }
+          g_list_free (children);
+        }
+#endif
       clutter_actor_destroy (c->data);
     }
   g_list_free (children);
