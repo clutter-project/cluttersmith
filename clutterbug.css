@@ -23,12 +23,12 @@ NbtkLabel, NbtkIMLabel
 }
 
 *.parasite NbtkButton {
-  border-image: url("file://button-bg.png") 0 0 0 0;
+  border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
 
 *.parasite NbtkButton:active {
-  border-image: url("file://button-bg.png") 0 0 0 0;
+  border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
 
@@ -38,12 +38,12 @@ NbtkLabel, NbtkIMLabel
 }
 
 *.parasite NbtkButton:hover {
-  border-image: url("file://button-bg.png") 0 0 0 0;
+  border-image: url("file://button-bg.png") 8 8 8 8;
   color: yellow;
 }
 
 
 *.parasite NbtkButton:checked {
-  border-image: url("file://button-checked-bg.png") 0 0 0 0;
+  border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }

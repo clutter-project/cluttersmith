@@ -27,8 +27,8 @@
          }
 
          { "type":"NbtkGrid",
-           "row-gap":5,
-           "column-gap":5,
+           "row-gap": 5.0,
+           "column-gap": 5.0,
            "children":
              [
                { "type":"NbtkButton",
@@ -53,7 +53,7 @@
                { "type":"NbtkButton",
                  "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] "label":"Lower"}
 
-             ]
+             ],
          }
 
          { "type":"NbtkScrollView",

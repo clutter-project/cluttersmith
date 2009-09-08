@@ -19,6 +19,10 @@ gchar *whitelist[]={"x","y", "depth", "opacity", "width", "height",
                     "name", 
                     NULL};
 
+
+gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGLX", "ClutterStageX11", 
+                          NULL};
+
 gchar *subtree_to_string (ClutterActor *root);
 static void select_item (ClutterActor *button, ClutterActor *item);
 
@@ -501,7 +505,7 @@ pick_all_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
           hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                 CLUTTER_PICK_ALL,
                                                 event->motion.x, event->motion.y);
-          if (!util_has_ancestor (hit, parasite_root) || 1)
+          if (!util_has_ancestor (hit, parasite_root))
             select_item (NULL, hit);
           else
             g_print ("child of foo!\n");
@@ -705,8 +709,9 @@ void cb_manipulate (ClutterActor *actor)
 
   if (stage_capture_handler)
     {
-        g_signal_handler_disconnect (clutter_actor_get_stage (actor),
-                                     stage_capture_handler);
+      g_signal_handler_disconnect (clutter_actor_get_stage (actor),
+                                   stage_capture_handler);
+      stage_capture_handler = 0;
     }
 
   stage_capture_handler = 
@@ -1006,16 +1011,29 @@ static void change_type (ClutterActor *actor,
         g_list_free (children);
       }
 
-    apply_transient (new_actor);
-    clutter_container_remove_actor (CLUTTER_CONTAINER (parent), selected_actor);
-    clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+  apply_transient (new_actor);
+  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), selected_actor);
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+
+  if (g_str_equal (new_type, "ClutterText"))
+    {
+      g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
+    }
+
   select_item (NULL, new_actor);
   select_item (NULL, new_actor);
 }
 
 void printname (gchar *name, ClutterActor *container)
 {
-  ClutterActor *button = CLUTTER_ACTOR (nbtk_button_new_with_label (name));
+  ClutterActor *button;
+  gint i;
+  for (i=0;blacklist_types[i];i++)
+    {
+      if (g_str_equal (blacklist_types[i], name))
+        return;
+    }
+  button = CLUTTER_ACTOR (nbtk_button_new_with_label (name));
   clutter_container_add_actor (CLUTTER_CONTAINER (container), button);
   clutter_actor_set_width (button, 200);
   g_signal_connect (button, "clicked", G_CALLBACK (change_type), name);
