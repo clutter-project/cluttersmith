@@ -220,3 +220,11 @@ gboolean util_has_ancestor (ClutterActor *actor,
     }
   return FALSE;
 }
+
+
+void parasite_pick (ClutterActor       *actor,
+                    const ClutterColor *color)
+{
+  clutter_container_foreach (CLUTTER_CONTAINER (actor), CLUTTER_CALLBACK (clutter_actor_paint), NULL);
+  g_signal_stop_emission_by_name (actor, "pick");
+}

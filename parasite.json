@@ -27,8 +27,12 @@
                { "type":"NbtkButton", "signals": [ {"name":"clicked", "handler":"cb_collapse_propeditor"} ] "label":" +/- "}
                { "type":"NbtkButton",
                  "signals": [ {"name":"clicked", "handler":"cb_select_reactive"} ] "label":"Select Reactive"}
+
                { "type":"NbtkButton",
                  "signals": [ {"name":"clicked", "handler":"cb_select_all"} ] "label":"Select Any"}
+
+               { "type":"NbtkButton",
+                 "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] "label":"Remove selected"}
              ]
          }
 
@@ -110,4 +114,5 @@
        ]
      }
   ]
+  "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
 }

@@ -11,6 +11,7 @@
 static ClutterColor  white = {0xff,0xff,0xff,0xff};
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
 
+gchar *subtree_to_string (ClutterActor *root);
 static void select_item (ClutterActor *button, ClutterActor *item);
 
 static gboolean keep_on_top (gpointer actor)
@@ -97,7 +98,8 @@ static void _clutterbug_fini(void) {
 }
 
 static guint stage_capture_handler = 0;
-static ClutterActor  *name, *parents, *property_editors, *scene_graph, *parasite_root;
+static ClutterActor  *name, *parents, *property_editors, *scene_graph;
+ClutterActor *parasite_root;
 
 
 typedef struct UpdateClosure
@@ -595,4 +597,14 @@ void cb_collapse_tree (ClutterActor *actor)
     clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 22.0, NULL);
   else
     clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 400.0, NULL);
+}
+
+void cb_remove_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      clutter_actor_destroy (selected_actor);
+      selected_actor = NULL;
+    }
+
 }
