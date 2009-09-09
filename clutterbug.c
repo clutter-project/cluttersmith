@@ -513,7 +513,8 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
 {
-  if (util_has_ancestor (event->any.source, parasite_root))
+  if ((clutter_get_motion_events_enabled()==FALSE) ||
+      util_has_ancestor (event->any.source, parasite_root))
     {
       return FALSE;
     }
