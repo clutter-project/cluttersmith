@@ -21,7 +21,7 @@
      
      "children":
        [
-         { "type":"NbtkEntry",  "text": "main", "width":300,
+         { "type":"NbtkEntry",  "text": "", "width":300,
            "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
            
          }
@@ -57,6 +57,10 @@
              ],
          }
 
+         { "type":"NbtkButton",
+           "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+           "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
+         },
          { "type":"NbtkScrollView",
            "width":300,
            "height":300,
@@ -67,10 +71,6 @@
                  [
                    { "type":"NbtkBoxLayout", "vertical":true,
                       "children":[
-                        { "type":"NbtkButton",
-                          "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
-                          "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
-                        },
 
                         {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors"},
 

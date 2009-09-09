@@ -712,11 +712,17 @@ gchar *subtree_to_string (ClutterActor *root);
 void entry_text_changed (ClutterActor *actor)
 {
   const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
-  gchar *filename;
+  static gchar *filename = NULL;
 
   if (CB_REV != CB_SAVED_REV)
     {
-      g_print ("Should save those changes\n%s\n", subtree_to_string (clutter_actor_get_stage (actor)));
+      gchar *content = subtree_to_string (clutter_actor_get_stage (actor));
+      if (filename)
+        {
+          g_print ("Saved changes...\n", content);
+          g_file_set_contents (filename, content, -1, NULL);
+        }
+
     }
 
   filename = g_strdup_printf ("json/%s.json", title);
