@@ -33,25 +33,25 @@
            "children":
              [
                { "type":"NbtkButton",
-                 "label":"⨁", "tooltip-text":"add an actor (a rectancle for now)",
+                 "label":"⨁",
                  "signals": [ {"name":"clicked", "handler":"cb_add"} ] }
                { "type":"NbtkButton",
-                 "label":"☠", "tooltip-text":"remove selected actor",
+                 "label":"⨯",
                  "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
                { "type":"NbtkButton",
-                 "label":"↟", "tooltip-text":"send to front",
+                 "label":"↟",
                  "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] }
                { "type":"NbtkButton",
-                 "label":"↥", "tooltip-text":"raise",
+                 "label":"↥",
                  "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] }
                { "type":"NbtkButton",
-                 "label":"↧", "tooltip-text":"lower",
+                 "label":"↧",
                  "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] }
                { "type":"NbtkButton",
-                 "label":"↡", "tooltip-text":"send to bottom",
+                 "label":"↡",
                  "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] }
                { "type":"NbtkButton",
-                 "label":"⨀", "tooltip-text":"reset size",
+                 "label":"⨀", 
                  "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
 
              ],
@@ -68,7 +68,6 @@
                    { "type":"NbtkBoxLayout", "vertical":true,
                       "children":[
                         { "type":"NbtkButton",
-                          "tooltip-text":"change type",
                           "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
                           "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
                         },
