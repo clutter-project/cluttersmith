@@ -13,6 +13,9 @@ static ClutterColor  white = {0xff,0xff,0xff,0xff};
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
 void init_types (void);
 
+static ClutterActor  *name, *parents, *property_editors, *scene_graph;
+ClutterActor *parasite_root;
+
 gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
                     "anchor-y", "rotation-angle-z",
@@ -68,6 +71,20 @@ cb_overlay_paint (ClutterActor *actor,
       cogl_path_polyline (coords, 5);
       cogl_set_source_color4ub (255, 0, 0, 128);
       cogl_path_stroke ();
+
+        {
+          gint i;
+          for (i=-1;i<3;i++)
+            {
+              gfloat coords[]={ 
+             (verts[1].x+verts[3].x)/2+i, (verts[1].y+verts[3].y)/2+i, 
+             verts[3].x+1, verts[3].y+i, 
+             (verts[2].x+verts[3].x)/2+i, (verts[2].y+verts[3].y)/2+i};
+             cogl_path_polyline (coords, 3);
+             cogl_set_source_color4ub (255, 0, 0, 128);
+             cogl_path_stroke ();
+        }
+        }
     }
   }
 
@@ -77,7 +94,7 @@ cb_overlay_paint (ClutterActor *actor,
 static gboolean idle_add_stage (gpointer stage)
 {
   ClutterActor *actor;
- 
+  ClutterScript *script;
 
   actor = util_load_json (PKGDATADIR "parasite.json");
   g_object_set_data (G_OBJECT (actor), "clutter-bug", (void*)TRUE);
@@ -86,6 +103,14 @@ static gboolean idle_add_stage (gpointer stage)
 
   g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "clutterbug.css", NULL);
+  script = util_get_script (actor);
+
+  /* initializing globals */
+  name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
+  parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
+  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
+  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
+  property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
 
   init_types ();
   return FALSE;
@@ -113,8 +138,6 @@ static void _clutterbug_fini(void) {
 }
 
 static guint stage_capture_handler = 0;
-static ClutterActor  *name, *parents, *property_editors, *scene_graph;
-ClutterActor *parasite_root;
 
 ClutterActor *property_editor_new (GObject *object,
                                    const gchar *property_name);
@@ -327,74 +350,9 @@ static void select_item (ClutterActor *button, ClutterActor *item)
 }
 
 
-
-static gboolean
-pick_all_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
-{
-  switch (event->any.type)
-    {
-      case CLUTTER_MOTION:
-        {
-          ClutterActor *hit;
-
-          hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                                CLUTTER_PICK_ALL,
-                                                event->motion.x, event->motion.y);
-          if (!util_has_ancestor (hit, parasite_root))
-            select_item (NULL, hit);
-          else
-            g_print ("child of foo!\n");
-        }
-        break;
-      case CLUTTER_BUTTON_PRESS:
-        g_signal_handler_disconnect (clutter_actor_get_stage (actor),
-                                     stage_capture_handler);
-        stage_capture_handler = 0;
-        break;
-      case CLUTTER_BUTTON_RELEASE:
-      case CLUTTER_ENTER:
-      case CLUTTER_LEAVE:
-        return FALSE;
-    }
-  return TRUE;
-}
-
-static gboolean
-pick_reactive_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
-{
-  switch (event->any.type)
-    {
-      case CLUTTER_MOTION:
-        {
-          ClutterActor *hit;
-
-          hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                                CLUTTER_PICK_REACTIVE,
-                                                event->motion.x, event->motion.y);
-          if (!util_has_ancestor (hit, parasite_root))
-            select_item (NULL, hit);
-          else
-            g_print ("child of foo!\n");
-        }
-        break;
-      case CLUTTER_BUTTON_PRESS:
-        g_signal_handler_disconnect (clutter_actor_get_stage (actor),
-                                     stage_capture_handler);
-        stage_capture_handler = 0;
-        break;
-      case CLUTTER_BUTTON_RELEASE:
-      case CLUTTER_ENTER:
-      case CLUTTER_LEAVE:
-        return FALSE;
-    }
-  return TRUE;
-}
-
-
-
 static guint manipulate_capture_handler = 0;
-static gint manipulate_x;
-static gint manipulate_y;
+static gfloat manipulate_x;
+static gfloat manipulate_y;
 
 static gboolean
 manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
@@ -430,15 +388,19 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
     {
       case CLUTTER_MOTION:
         {
+          gfloat ex, ey;
+          clutter_actor_transform_stage_point (data, event->motion.x, event->motion.y,
+                                               &ex, &ey);
           gfloat x, y;
           clutter_actor_get_size (data, &x, &y);
-          x-= manipulate_x-event->motion.x;
-          y-= manipulate_y-event->motion.y;
-          clutter_actor_set_size (data, x, y);
-          g_print ("%f %f\n", x, y);
 
-          manipulate_x=event->motion.x;
-          manipulate_y=event->motion.y;
+
+          x-= manipulate_x-ex;
+          y-= manipulate_y-ey;
+          clutter_actor_set_size (data, x, y);
+
+          manipulate_x=ex;
+          manipulate_y=ey;
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
@@ -459,7 +421,6 @@ static gboolean manipulate_move_press (ClutterActor  *actor,
   manipulate_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                        G_CALLBACK (manipulate_move_capture), actor);
-  clutter_actor_raise_top (actor);
   return TRUE;
 }
 
@@ -470,10 +431,11 @@ static gboolean manipulate_resize_press (ClutterActor  *actor,
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
 
+  clutter_actor_transform_stage_point (actor, event->button.x, event->button.y, &manipulate_x, &manipulate_y);
+
   manipulate_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                        G_CALLBACK (manipulate_resize_capture), actor);
-  clutter_actor_raise_top (actor);
   return TRUE;
 }
 
@@ -561,11 +523,6 @@ void cb_manipulate (ClutterActor *actor)
 {
   ClutterScript *script = util_get_script (actor);
 
-  name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
-  parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
-  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
-  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
-  property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
 
   if (stage_capture_handler)
     {
@@ -577,39 +534,6 @@ void cb_manipulate (ClutterActor *actor)
   stage_capture_handler = 
      g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
                              G_CALLBACK (manipulate_capture), NULL);
-}
-
-
-void cb_select_all (ClutterActor *actor)
-{
-  ClutterScript *script = util_get_script (actor);
-
-  name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
-  parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
-  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
-  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
-  property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
-
-  stage_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (pick_all_capture), NULL);
-}
-
-
-void cb_select_reactive (ClutterActor *actor)
-{
-  ClutterScript *script = util_get_script (actor);
-
-  name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
-  parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
-  property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
-  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
-  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
-
-  stage_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (pick_reactive_capture), NULL);
-
 }
 
 void cb_collapse_panel (ClutterActor *actor)
@@ -658,6 +582,32 @@ void cb_lower_selected (ClutterActor *actor)
   if (selected_actor)
     {
       clutter_actor_lower (selected_actor, NULL);
+    }
+}
+
+
+void cb_raise_top_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      clutter_actor_raise_top (selected_actor);
+    }
+}
+
+void cb_lower_bottom_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      clutter_actor_lower_bottom (selected_actor);
+    }
+}
+
+
+void cb_reset_size (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      clutter_actor_set_size (selected_actor, -1, -1);
     }
 }
 
