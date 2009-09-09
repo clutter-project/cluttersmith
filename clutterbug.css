@@ -22,6 +22,28 @@ NbtkLabel, NbtkIMLabel
   color: black;
 }
 
+
+NbtkBoxLayout.ParasiteTreeA1 {
+  background-color: #000;
+}
+
+NbtkBoxLayout.ParasiteTreeB1 {
+  background-color: #999;
+}
+
+NbtkBoxLayout.ParasiteTreeA2 {
+  background-color: #333;
+}
+
+NbtkBoxLayout.ParasiteTreeB2 {
+  background-color: #666;
+}
+
+*.parasite NbtkButton {
+  border-image: url("file://button-bg.png") 8 8 8 8;
+  color: white;
+}
+
 *.parasite NbtkButton {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;

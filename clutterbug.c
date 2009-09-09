@@ -112,6 +112,8 @@ static gboolean idle_add_stage (gpointer stage)
   parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
 
+  cb_manipulate (parasite_root);
+
   init_types ();
   return FALSE;
 }
@@ -152,11 +154,38 @@ static void select_item_event (ClutterActor *button, ClutterEvent *event, Clutte
   select_item (NULL, item);
 }
 
-static void
-tree_populate_iter (ClutterActor *iter,
-                    gfloat *x,
-                    gfloat *y)
+
+static gboolean vbox_press (ClutterActor *group,
+                            ClutterEvent *event,
+                            ClutterActor *item)
 {
+  if (CLUTTER_ACTOR_IS_VISIBLE (item))
+    {
+      clutter_actor_hide (item);
+    }
+  else
+    {
+      clutter_actor_show (item);
+      clutter_actor_queue_relayout (group); /* XXX: this should not be needed */
+    }
+  return TRUE;
+}
+
+
+static gboolean vbox_nop (ClutterActor *group,
+                          ClutterEvent *event,
+                          ClutterActor *item)
+{
+  return TRUE;
+}
+
+static void
+tree_populate_iter (ClutterActor *current_container,
+                    ClutterActor *iter,
+                    gint   *count,
+                    gint   *level)
+{
+  ClutterActor *vbox;
   ClutterActor *label;
 
   if (iter == NULL ||
@@ -165,7 +194,19 @@ tree_populate_iter (ClutterActor *iter,
       return;
     }
 
+  vbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, "min-width", 100.0, "natural-width", 500.0, "vertical", TRUE,
+                       "style-class", 
+                
+                       ((*count)%2==0)?
+                          ((*level)%2==0)?"ParasiteTreeA1":"ParasiteTreeB1":
+                          ((*level)%2==0)?"ParasiteTreeA2":"ParasiteTreeB2",
+                      
+                       NULL);
+
+                       //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",
+
   label = clutter_text_new_with_text ("Sans 12px", G_OBJECT_TYPE_NAME (iter));
+  clutter_actor_set_anchor_point (label, -24.0, 0.0);
   if (iter == selected_actor)
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
@@ -177,33 +218,47 @@ tree_populate_iter (ClutterActor *iter,
   g_signal_connect (label, "button-press-event", G_CALLBACK (select_item_event), iter);
   clutter_actor_set_reactive (label, TRUE);
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (scene_graph), label);
-  clutter_actor_set_position (label, *x, *y);
+  clutter_container_add_actor (CLUTTER_CONTAINER (vbox), label);
 
-  *y += clutter_actor_get_height (label);
+  clutter_container_add_actor (CLUTTER_CONTAINER (current_container), vbox);
 
   if (CLUTTER_IS_CONTAINER (iter))
     {
+      ClutterActor *child_vbox;
       GList *children, *c;
       children = clutter_container_get_children (CLUTTER_CONTAINER (iter));
-      *x += INDENTATION_AMOUNT;
+
+      child_vbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, "vertical", TRUE, NULL);
+      clutter_container_add_actor (CLUTTER_CONTAINER (vbox), child_vbox);
+      clutter_actor_set_anchor_point (child_vbox, -24.0, 0.0);
+
+      g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_press), child_vbox);
+
+      (*level) = (*level)+1;
       for (c = children; c; c=c->next)
         {
-          tree_populate_iter (c->data, x, y);
+          tree_populate_iter (child_vbox, c->data, level, count);
         }
-      *x -= INDENTATION_AMOUNT;
+      (*level) = (*level)-1;
       g_list_free (children);
     }
+  else
+    {
+      g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_nop), NULL);
+    }
+  clutter_actor_set_reactive (vbox, TRUE);
+  (*count) = (*count)+1;
 }
 
 static void
 tree_populate (ClutterActor *actor)
 {
-  gfloat x=0;
-  gfloat y=0;
+  gint level = 0;
+  gint count = 0;
   util_remove_children (scene_graph);
 
-  tree_populate_iter (clutter_actor_get_stage (actor), &x, &y);
+  clutter_actor_set_width (scene_graph, 230);
+  tree_populate_iter (scene_graph, clutter_actor_get_stage (actor), &level, &count);
 }
 
 static void
