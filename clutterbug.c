@@ -13,6 +13,12 @@ static ClutterColor  white = {0xff,0xff,0xff,0xff};
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
 void init_types (void);
 
+guint CB_REV       = 0; /* everything that changes state and could be determined
+                         * a user change should increment this.
+                         */
+guint CB_SAVED_REV = 0;
+
+
 static ClutterActor  *name, *parents, *property_editors, *scene_graph;
 ClutterActor *parasite_root;
 
@@ -90,6 +96,7 @@ cb_overlay_paint (ClutterActor *actor,
 
 }
 
+void cb_manipulate_init (ClutterActor *actor);
 
 static gboolean idle_add_stage (gpointer stage)
 {
@@ -99,7 +106,7 @@ static gboolean idle_add_stage (gpointer stage)
   actor = util_load_json (PKGDATADIR "parasite.json");
   g_object_set_data (G_OBJECT (actor), "clutter-bug", (void*)TRUE);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
-  g_timeout_add (400, keep_on_top, actor);
+  g_timeout_add (4000, keep_on_top, actor);
 
   g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "clutterbug.css", NULL);
@@ -112,7 +119,7 @@ static gboolean idle_add_stage (gpointer stage)
   parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
 
-  cb_manipulate (parasite_root);
+  cb_manipulate_init (parasite_root);
 
   init_types ();
   return FALSE;
@@ -421,6 +428,7 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
           x-= manipulate_x-event->motion.x;
           y-= manipulate_y-event->motion.y;
           clutter_actor_set_position (data, x, y);
+          CB_REV++;
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -453,6 +461,7 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
           x-= manipulate_x-ex;
           y-= manipulate_y-ey;
           clutter_actor_set_size (data, x, y);
+          CB_REV++;
 
           manipulate_x=ex;
           manipulate_y=ey;
@@ -575,7 +584,7 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
   return TRUE;
 }
 
-void cb_manipulate (ClutterActor *actor)
+void cb_manipulate_init (ClutterActor *actor)
 {
   ClutterScript *script = util_get_script (actor);
 
@@ -622,6 +631,7 @@ void cb_remove_selected (ClutterActor *actor)
        * to occur otherwise.
        */
       clutter_actor_paint (clutter_actor_get_stage (actor));
+      CB_REV++;
     }
 }
 
@@ -630,6 +640,7 @@ void cb_raise_selected (ClutterActor *actor)
   if (selected_actor)
     {
       clutter_actor_raise (selected_actor, NULL);
+      CB_REV++;
     }
 }
 
@@ -638,6 +649,7 @@ void cb_lower_selected (ClutterActor *actor)
   if (selected_actor)
     {
       clutter_actor_lower (selected_actor, NULL);
+      CB_REV++;
     }
 }
 
@@ -647,6 +659,7 @@ void cb_raise_top_selected (ClutterActor *actor)
   if (selected_actor)
     {
       clutter_actor_raise_top (selected_actor);
+      CB_REV++;
     }
 }
 
@@ -655,6 +668,7 @@ void cb_lower_bottom_selected (ClutterActor *actor)
   if (selected_actor)
     {
       clutter_actor_lower_bottom (selected_actor);
+      CB_REV++;
     }
 }
 
@@ -664,6 +678,7 @@ void cb_reset_size (ClutterActor *actor)
   if (selected_actor)
     {
       clutter_actor_set_size (selected_actor, -1, -1);
+      CB_REV++;
     }
 }
 
@@ -689,16 +704,33 @@ void cb_add (ClutterActor *actor)
   clutter_actor_set_size (new, 100, 100);
   clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
   select_item (NULL, new);
+  CB_REV++;
 }
+
+gchar *subtree_to_string (ClutterActor *root);
 
 void entry_text_changed (ClutterActor *actor)
 {
   const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
   gchar *filename;
+
+  if (CB_REV != CB_SAVED_REV)
+    {
+      g_print ("Should save those changes\n%s\n", subtree_to_string (clutter_actor_get_stage (actor)));
+    }
+
   filename = g_strdup_printf ("json/%s.json", title);
+  util_remove_children (property_editors);
+  util_remove_children (scene_graph);
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       util_replace_content2 (actor, "content", filename);
+      CB_REV = CB_SAVED_REV = 0;
+    }
+  else
+    {
+      util_replace_content2 (actor, "content", NULL);
+      CB_REV = CB_SAVED_REV = 0;
     }
 }
 
@@ -891,7 +923,8 @@ static void change_type (ClutterActor *actor,
       }
 
   apply_transient (new_actor);
-  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), selected_actor);
+  util_remove_children (property_editors);
+  clutter_actor_destroy (selected_actor);
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
 
   if (g_str_equal (new_type, "ClutterText"))
@@ -899,7 +932,6 @@ static void change_type (ClutterActor *actor,
       g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
     }
 
-  select_item (NULL, new_actor);
   select_item (NULL, new_actor);
 }
 

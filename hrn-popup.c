@@ -20,6 +20,7 @@
 #include "hrn-popup.h"
 
 static ClutterActor *popup        = NULL;
+static ClutterActor *popup_parent = NULL;
 static guint         popuphandler = 0;
 
 gboolean
@@ -58,7 +59,7 @@ hrn_popup_close (void)
     return;
   if (popuphandler)
     {
-      g_signal_handler_disconnect (clutter_actor_get_stage (popup), popuphandler);
+      g_signal_handler_disconnect (popup_parent, popuphandler);
       popuphandler = 0;
     }
   clutter_actor_animate (popup, CLUTTER_LINEAR, 150, "scale-x", 0.001,
@@ -178,9 +179,9 @@ hrn_popup_actor (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
                          1.0,
                          NULL);
   popup = actor;
-
+  popup_parent = stage;
   popuphandler =
-    g_signal_connect_after (stage, "captured-event", G_CALLBACK (
+    g_signal_connect_after (popup_parent, "captured-event", G_CALLBACK (
                               popup_capture), actor);
 }
 
@@ -201,6 +202,7 @@ hrn_popup_actor_fixed (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
   clutter_actor_set_position (actor, x, y);
   popup = actor;
 
+  popup_parent = stage;
   popuphandler =
     g_signal_connect_after (stage, "captured-event", G_CALLBACK (
                               popup_capture), actor);

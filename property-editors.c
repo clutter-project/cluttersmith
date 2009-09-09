@@ -24,6 +24,7 @@ static void update_closure_free (gpointer data, GClosure *closure)
     {
       if (uc->update_editor_handler)
         g_signal_handler_disconnect (uc->object, uc->update_editor_handler);
+      g_print ("%p %s\n", uc->object, uc->property_name);
       g_object_weak_unref (uc->object, object_vanished, uc);
       uc->object = NULL;
     }

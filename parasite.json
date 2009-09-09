@@ -29,32 +29,30 @@
          { "type":"NbtkGrid",
            "row-gap": 5.0,
            "column-gap": 5.0,
+           "style-class":"ParasiteToolbar",
            "children":
              [
-               { "type":"NbtkButton", "toggle-mode":true,
-                 "signals": [ {"name":"clicked", "handler":"cb_manipulate"} ] "label":"Manipulate"}
-
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] "label":"Remove"}
-
+                 "label":"⨁", "tooltip-text":"add an actor (a rectancle for now)",
+                 "signals": [ {"name":"clicked", "handler":"cb_add"} ] }
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_add"} ] "label":"Add"}
-
-
+                 "label":"☠", "tooltip-text":"remove selected actor",
+                 "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] "label":"Raise"}
-
+                 "label":"↟", "tooltip-text":"send to front",
+                 "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] }
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] "label":"Lower"}
-
+                 "label":"↥", "tooltip-text":"raise",
+                 "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] }
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] "label":"Raise top"}
-
+                 "label":"↧", "tooltip-text":"lower",
+                 "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] }
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] "label":"Lower bottom"}
-
+                 "label":"↡", "tooltip-text":"send to bottom",
+                 "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] }
                { "type":"NbtkButton",
-                 "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] "label":"Reset size"}
+                 "label":"⨀", "tooltip-text":"reset size",
+                 "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
 
              ],
          }
@@ -70,7 +68,8 @@
                    { "type":"NbtkBoxLayout", "vertical":true,
                       "children":[
                         { "type":"NbtkButton",
-                          "children":[{"type":"ClutterText", "id":"name", "color":"green", "text":"-"}]
+                          "tooltip-text":"change type",
+                          "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
                           "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
                         },
 

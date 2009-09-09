@@ -22,6 +22,17 @@ NbtkLabel, NbtkIMLabel
   color: black;
 }
 
+*.ParasiteToolbar NbtkButton,
+*.ParasiteToolbar NbtkButton:active,
+*.ParasiteToolbar NbtkButton:hover,
+*.ParasiteToolbar NbtkButton:checked 
+{
+  font-size: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
 
 NbtkBoxLayout.ParasiteTreeA1 {
   background-color: #000;

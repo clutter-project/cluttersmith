@@ -178,13 +178,15 @@ void util_replace_content2 (ClutterActor  *actor,
             clutter_actor_destroy (c->data);
         }
       g_list_free (children);
-      clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
+      if (new_script)
+        clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
 
       return;
     }
 
   util_remove_children (content);
-  clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
+  if (new_script)
+    clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
   return;
 }
 
@@ -214,7 +216,6 @@ movable_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
           x-= movable_x-event->motion.x;
           y-= movable_y-event->motion.y;
           clutter_actor_set_position (data, x, y);
-          g_print ("%f %f\n", x, y);
 
           movable_x=event->motion.x;
           movable_y=event->motion.y;
