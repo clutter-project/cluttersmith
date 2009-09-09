@@ -57,6 +57,8 @@ ClutterActor *util_load_json (const gchar *name)
 
   actor = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
   if (!actor)
+    actor = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite"));
+  if (!actor)
     {
       g_warning ("failed loading from json %s\n", name);
     }
@@ -129,7 +131,10 @@ void util_remove_children (ClutterActor *actor)
 
 ClutterScript *util_get_script (ClutterActor *actor)
 {
-  ClutterScript *script = g_object_get_data (G_OBJECT (util_get_root (actor)),
+  ClutterScript *script;
+  if (!actor)
+    return NULL;
+  script = g_object_get_data (G_OBJECT (util_get_root (actor)),
                                              "clutter-script");
   return script;
 }

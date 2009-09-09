@@ -116,8 +116,8 @@ static gboolean idle_add_stage (gpointer stage)
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
-  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+  parasite_root = actor;
 
   cb_manipulate_init (parasite_root);
 
@@ -268,6 +268,13 @@ tree_populate (ClutterActor *actor)
   tree_populate_iter (scene_graph, clutter_actor_get_stage (actor), &level, &count);
 }
 
+static gboolean
+update_id (ClutterText *text,
+           gpointer     data)
+{
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), clutter_text_get_text (text));
+}
+
 static void
 props_populate (ClutterActor *actor)
 {
@@ -291,6 +298,8 @@ props_populate (ClutterActor *actor)
     ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
     ClutterActor *label;
     ClutterActor *editor; 
+
+    /* special casing of x,y,w,h to make it take up less space and always be first */
 
     label = clutter_text_new_with_text ("Sans 12px", "pos:");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
@@ -318,6 +327,26 @@ props_populate (ClutterActor *actor)
     clutter_actor_set_size (editor, 50, 32);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
+    clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
+
+    /* virtual 'id' property */
+
+    hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+    label = clutter_text_new_with_text ("Sans 12px", "id");
+
+    {
+      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      g_signal_connect (nbtk_entry_get_clutter_text (
+                             NBTK_ENTRY (editor)), "text-changed",
+                             G_CALLBACK (update_id), actor);
+      nbtk_entry_set_text (NBTK_ENTRY (editor), clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor)));
+    }
+
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+    clutter_actor_set_size (label, 130, 32);
+    clutter_actor_set_size (editor, 130, 32);
     clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
   }
 
@@ -716,13 +745,40 @@ void entry_text_changed (ClutterActor *actor)
 
   if (CB_REV != CB_SAVED_REV)
     {
-      gchar *content = subtree_to_string (clutter_actor_get_stage (actor));
-      if (filename)
+      ClutterActor *root;
+      gchar *content;
+
+      root = clutter_actor_get_stage (actor);
+      {
+        GList *children, *c;
+        children = clutter_container_get_children (CLUTTER_CONTAINER (root));
+        for (c=children;c;c=c->next)
+          {
+            const gchar *id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (c->data));
+            if (id && g_str_equal (id, "actor"))
+              {
+                root = c->data;
+                g_print ("Found it!\n");
+                break;
+              }
+          }
+      }
+
+      if (root == clutter_actor_get_stage (actor))
         {
-          g_print ("Saved changes...\n", content);
-          g_file_set_contents (filename, content, -1, NULL);
+          g_print ("didn't find nuthin but root\n");
+        }
+      else
+        {
         }
 
+      content  = subtree_to_string (root);
+      if (filename)
+        {
+          g_print ("Saved changes to %s:\n%s\n\n", filename, content);
+          g_file_set_contents (filename, content, -1, NULL);
+        }
+      g_free (content);
     }
 
   filename = g_strdup_printf ("json/%s.json", title);
