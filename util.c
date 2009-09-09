@@ -109,6 +109,8 @@ gboolean util_show_cb (ClutterActor  *actor,
 void util_remove_children (ClutterActor *actor)
 {
   GList *children, *c;
+  if (!actor || !CLUTTER_IS_CONTAINER (actor))
+    return;
   children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
   for (c=children; c; c = c->next)
     {
@@ -132,10 +134,13 @@ void util_remove_children (ClutterActor *actor)
 ClutterScript *util_get_script (ClutterActor *actor)
 {
   ClutterScript *script;
+  ClutterActor *root;
   if (!actor)
     return NULL;
-  script = g_object_get_data (G_OBJECT (util_get_root (actor)),
-                                             "clutter-script");
+  root = util_get_root (actor);
+  if (!root)
+    return NULL;
+  script = g_object_get_data (G_OBJECT (root), "clutter-script");
   return script;
 }
 
@@ -151,13 +156,13 @@ void util_replace_content2 (ClutterActor  *actor,
   ClutterScript *script = util_get_script (actor);
   ClutterActor *content;
 
-  content = CLUTTER_ACTOR (clutter_script_get_object (script, name));
+  if (script)
+    content = CLUTTER_ACTOR (clutter_script_get_object (script, name));
 
 
   if (!content)
     {
       iter = util_get_root (actor);
-      g_assert (iter);
       /* check the parent script, if any, as well */
       if (iter)
         {

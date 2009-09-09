@@ -29,7 +29,7 @@ gchar *whitelist[]={"depth", "opacity",
                     NULL};
 
 
-gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGLX", "ClutterStageX11", 
+gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGLX", "ClutterStageX11", "ClutterActor", "NbtkWidget",
                           NULL};
 
 gchar *subtree_to_string (ClutterActor *root);
@@ -606,6 +606,8 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
+        return TRUE;
+
       case CLUTTER_ENTER:
       case CLUTTER_LEAVE:
         return FALSE;
@@ -791,7 +793,7 @@ void entry_text_changed (ClutterActor *actor)
     }
   else
     {
-      util_replace_content2 (actor, "content", NULL);
+      util_replace_content2 (clutter_stage_get_default(), "content", NULL);
       CB_REV = CB_SAVED_REV = 0;
     }
 }
