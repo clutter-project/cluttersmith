@@ -412,17 +412,19 @@ props_populate (ClutterActor *actor)
                                &n_child_properties);
             for (i = 0; i < n_child_properties; i++)
               {
-                {
-                  ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-                  ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
-                  ClutterActor *editor = property_editor_new (G_OBJECT (actor), child_properties[i]->name);
-                  clutter_text_set_color (CLUTTER_TEXT (label), &white);
-                  clutter_actor_set_size (label, 130, 32);
-                  clutter_actor_set_size (editor, 130, 32);
-                  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-                  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-                  clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
-                }
+                if (!G_TYPE_IS_OBJECT (child_properties[i]->value_type) &&
+                    child_properties[i]->value_type != CLUTTER_TYPE_CONTAINER)
+                  {
+                    ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+                    ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
+                    ClutterActor *editor = property_editor_new (G_OBJECT (actor), child_properties[i]->name);
+                    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+                    clutter_actor_set_size (label, 130, 32);
+                    clutter_actor_set_size (editor, 130, 32);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
+                  }
               }
             g_free (child_properties);
           }
