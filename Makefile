@@ -101,7 +101,7 @@ install: $(BINARY)
 
 
 clean:
-	@rm -fvr *.o */*.o $(BINARY) *~ */*~ *.patch $(CLEAN_LOCAL)
+	@rm -fvr *.o */*.o *.so $(BINARY) *~ */*~ *.patch $(CLEAN_LOCAL)
 	@test -d docs && make -C docs clean || true
 
 
