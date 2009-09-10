@@ -17,7 +17,6 @@ static void object_vanished (gpointer data,
                              GObject *where_the_object_was)
 {
   UpdateClosure *uc = data;
-  g_print ("object for %s gone\n", uc->property_name);
   uc->object = NULL;
 }
 

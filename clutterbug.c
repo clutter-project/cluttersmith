@@ -822,9 +822,7 @@ get_parent (ClutterActor *actor)
       while (!CLUTTER_IS_CONTAINER (container))
        {
          container = clutter_actor_get_parent (container);
-         g_print ("%p\n", container);
        }
-      g_print ("gone for: %p\n", container);
     }
   else
     {
@@ -838,11 +836,9 @@ get_parent (ClutterActor *actor)
             if (id && g_str_equal (id, "actor"))
               {
                 container= c->data;
-                g_print ("Found it!\n");
                 break;
               }
           }
-        g_print ("%p %p\n", container, c);
         g_list_free (children);
       }
     }
