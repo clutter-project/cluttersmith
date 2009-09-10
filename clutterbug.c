@@ -436,7 +436,7 @@ static void select_item (ClutterActor *button, ClutterActor *item)
 
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
-          props_populate (selected_actor); 
+          props_populate (selected_actor);
           tree_populate (selected_actor);
         }
     }
@@ -731,12 +731,10 @@ void cb_reset_size (ClutterActor *actor)
     }
 }
 
-
-void cb_add (ClutterActor *actor)
+static ClutterActor *
+get_parent (ClutterActor *actor)
 {
   ClutterActor *container = selected_actor;
-  ClutterActor *new;
-
   if (selected_actor && !CLUTTER_IS_STAGE (selected_actor))
     {
       while (!CLUTTER_IS_CONTAINER (container))
@@ -766,9 +764,40 @@ void cb_add (ClutterActor *actor)
         g_list_free (children);
       }
     }
+  return container;
+}
 
+void cb_add (ClutterActor *actor)
+{
+  ClutterActor *container = selected_actor;
+  ClutterActor *new;
+  container = get_parent (actor);
   new = clutter_rectangle_new ();
   clutter_actor_set_size (new, 100, 100);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
+  select_item (NULL, new);
+  CB_REV++;
+}
+
+
+void cb_add_text (ClutterActor *actor)
+{
+  ClutterActor *container = selected_actor;
+  ClutterActor *new;
+  container = get_parent (actor);
+  new = g_object_new (CLUTTER_TYPE_TEXT, "text", "New Text", NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
+  select_item (NULL, new);
+  CB_REV++;
+}
+
+
+void cb_add_button (ClutterActor *actor)
+{
+  ClutterActor *container = selected_actor;
+  ClutterActor *new;
+  container = get_parent (actor);
+  new = g_object_new (NBTK_TYPE_BUTTON, "label", "New Button", NULL);
   clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
   select_item (NULL, new);
   CB_REV++;

@@ -33,9 +33,6 @@
            "children":
              [
                { "type":"NbtkButton",
-                 "label":"⨁",
-                 "signals": [ {"name":"clicked", "handler":"cb_add"} ] }
-               { "type":"NbtkButton",
                  "label":"⨯",
                  "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
                { "type":"NbtkButton",
@@ -53,6 +50,17 @@
                { "type":"NbtkButton",
                  "label":"⨀", 
                  "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
+
+               { "type":"NbtkButton",
+                 "label":"T",
+                 "signals": [ {"name":"clicked", "handler":"cb_add_text"} ] }
+               { "type":"NbtkButton",
+                 "label":"B",
+                 "signals": [ {"name":"clicked", "handler":"cb_add_button"} ] }
+
+               { "type":"NbtkButton",
+                 "label":"R",
+                 "signals": [ {"name":"clicked", "handler":"cb_add"} ] }
 
              ],
          }
