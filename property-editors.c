@@ -1,4 +1,6 @@
 #include <nbtk/nbtk.h>
+#include <stdlib.h>
+#include <math.h>
 
 extern guint CB_REV;
 
@@ -82,6 +84,7 @@ update_object_float (ClutterText *text,
   gdouble value = g_strtod (str, NULL);
   g_object_set (uc->object, uc->property_name, value, NULL);
   CB_REV++;
+  return TRUE;
 }
 
 static void
@@ -128,9 +131,10 @@ update_object_int (ClutterText *text,
 {
   UpdateClosure *uc = data;
   if (!uc->object)
-    return;
+    return TRUE;
   g_object_set (uc->object, uc->property_name, atoi (clutter_text_get_text (text)), NULL);
   CB_REV++;
+  return TRUE;
 }
 
 static void
@@ -158,6 +162,7 @@ update_object_uint (ClutterText *text,
 {
   UpdateClosure *uc = data;
   g_object_set (uc->object, uc->property_name, atoi (clutter_text_get_text (text)), NULL);
+  return TRUE;
 }
 
 static void
@@ -184,6 +189,7 @@ update_object_string (ClutterText *text,
   UpdateClosure *uc = data;
   g_object_set (uc->object, uc->property_name, clutter_text_get_text (text), NULL);
   CB_REV++;
+  return TRUE;
 }
 
 
@@ -216,6 +222,7 @@ update_object_boolean (NbtkButton *button,
       nbtk_button_set_label (button,  nbtk_button_get_checked (button)?" 1 ":" 0 ");
     }
   CB_REV++;
+  return TRUE;
 }
 
 
@@ -242,6 +249,7 @@ update_object_generic (ClutterText *text,
   g_value_unset (&value);
   g_value_unset (&str_value);
   CB_REV++;
+  return TRUE;
 }
 
 

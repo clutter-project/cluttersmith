@@ -175,8 +175,6 @@ actor_to_string (GString      *str,
                  ClutterActor *iter,
                  gint         *indentation)
 {
-  ClutterActor *label;
-  gint i;
 
   if (iter == NULL ||
       util_has_ancestor (iter, parasite_root))
@@ -223,7 +221,7 @@ actor_to_string (GString      *str,
     }
   *indentation-=2;
   INDENT;
-  g_string_append_printf (str, "}\n", G_OBJECT_TYPE_NAME (iter));
+  g_string_append_printf (str, "}\n");
 }
 
 gchar *subtree_to_string (ClutterActor *root)

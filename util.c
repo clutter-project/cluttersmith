@@ -236,6 +236,8 @@ movable_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
                                      movable_capture_handler);
         movable_capture_handler = 0;
         break;
+      default:
+        break;
     }
   return TRUE;
 }
