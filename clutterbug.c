@@ -392,15 +392,13 @@ props_populate (ClutterActor *actor)
       }
     }
 
-
-  do {
+  {
     ClutterActor *parent;
     parent = clutter_actor_get_parent (actor);
-    if (!parent)
-      break;
-    if (CLUTTER_IS_CONTAINER (parent))
+
+    if (parent && CLUTTER_IS_CONTAINER (parent))
       {
-        GObject *child_meta;
+        ClutterChildMeta *child_meta;
         GParamSpec **child_properties = NULL;
         guint        n_child_properties=0;
         child_meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (parent), actor);
@@ -423,9 +421,10 @@ props_populate (ClutterActor *actor)
                   clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
                 }
               }
+            g_free (child_properties);
           }
       }
-  } while (0);
+  }
 
   g_free (properties);
 }
