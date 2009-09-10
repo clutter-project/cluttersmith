@@ -22,8 +22,7 @@ TEST_PARAMS=json/menu.json -id actor   # parameters passed to binary when testin
 
 # the locations used for web, git-sync and snapshot targets:
 
-DOCS_REMOTE=pippin@gimp.org:public_html/$(PROJECT_NAME)
-GIT_RSYNC_REMOTE=$(DOCS_REMOTE)/$(PROJECT_NAME).git
+GIT_RSYNC_REMOTE=pippin@pug.vpn:tmp/$(PROJECT_NAME).git
 SNAPSHOT_REMOTE=$(DOCS_REMOTE)/snapshots
 
 
