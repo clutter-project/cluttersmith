@@ -608,7 +608,43 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
     }
 
   if (!manipulate_enabled)
-    return FALSE;
+    {
+      /* check if it is child of a link, if it is then we override anyways... */
+      if (event->any.type == CLUTTER_BUTTON_PRESS)
+        {
+           ClutterActor *hit;
+           gboolean found;
+
+           hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                                                 CLUTTER_PICK_ALL,
+                                                 event->button.x, event->button.y);
+           while (hit)
+             {
+               const gchar *name;
+               name = clutter_actor_get_name (hit);
+               if (name && g_str_has_prefix (name, "link="))
+                 {
+                   gchar *filename;
+                   g_print ("The link! %s\n", name+5);
+
+                   filename = g_strdup_printf ("json/%s.json", name+5);
+                   util_remove_children (property_editors);
+                   util_remove_children (scene_graph);
+                   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
+                     {
+                       util_replace_content2 (actor, "content", filename);
+                       CB_REV = CB_SAVED_REV = 0;
+                     }
+                   g_free (filename);
+
+                   return TRUE;
+                 }
+               hit = clutter_actor_get_parent (hit);
+             }
+          
+        } 
+      return FALSE;
+    }
   
   if ((clutter_get_motion_events_enabled()==FALSE) ||
       util_has_ancestor (event->any.source, parasite_root))
