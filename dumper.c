@@ -6,8 +6,6 @@
 #include <dlfcn.h>
 #include "util.h"
 
-#define PKGDATADIR "/home/pippin/src/clutterbug/"
-
 static gboolean cb_filter_properties = TRUE;
 extern ClutterActor *parasite_root;
 

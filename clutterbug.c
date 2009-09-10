@@ -7,7 +7,7 @@
 #include "util.h"
 #include "hrn-popup.h"
 
-#define PKGDATADIR "/home/pippin/src/clutterbug/"
+#define PKGDATADIR "./" //"/home/pippin/src/clutterbug/"
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
