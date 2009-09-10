@@ -289,12 +289,11 @@ props_populate (ClutterActor *actor)
   properties = g_object_class_list_properties (
                      G_OBJECT_GET_CLASS (actor),
                      &n_properties);
-  actor_properties = g_object_class_list_properties (
-                     G_OBJECT_GET_CLASS (actor),
-                     &n_properties);
+
   actor_properties = g_object_class_list_properties (
             G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
             &n_actor_properties);
+
 
   {
     ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
@@ -392,6 +391,41 @@ props_populate (ClutterActor *actor)
         clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
       }
     }
+
+
+  do {
+    ClutterActor *parent;
+    parent = clutter_actor_get_parent (actor);
+    if (!parent)
+      break;
+    if (CLUTTER_IS_CONTAINER (parent))
+      {
+        GObject *child_meta;
+        GParamSpec **child_properties = NULL;
+        guint        n_child_properties=0;
+        child_meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (parent), actor);
+        if (child_meta)
+          {
+            child_properties = g_object_class_list_properties (
+                               G_OBJECT_GET_CLASS (child_meta),
+                               &n_child_properties);
+            for (i = 0; i < n_child_properties; i++)
+              {
+                {
+                  ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+                  ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
+                  ClutterActor *editor = property_editor_new (G_OBJECT (actor), child_properties[i]->name);
+                  clutter_text_set_color (CLUTTER_TEXT (label), &white);
+                  clutter_actor_set_size (label, 130, 32);
+                  clutter_actor_set_size (editor, 130, 32);
+                  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+                  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+                  clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
+                }
+              }
+          }
+      }
+  } while (0);
 
   g_free (properties);
 }
@@ -562,6 +596,14 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
         {
           manipulate_enabled = !manipulate_enabled;
           g_print ("Manipulate %s\n", manipulate_enabled?"enabled":"disabled");
+          if (manipulate_enabled)
+            {
+              clutter_actor_show (parasite_root);
+            }
+          else
+            {
+              clutter_actor_hide (parasite_root);
+            }
           return TRUE;
         }
     }
