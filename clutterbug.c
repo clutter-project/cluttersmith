@@ -51,6 +51,8 @@ cb_overlay_paint (ClutterActor *actor,
 
   if (!selected_actor)
     return;
+  if (CLUTTER_IS_STAGE (selected_actor))
+    return;
 
   clutter_actor_get_abs_allocation_vertices (selected_actor,
                                              verts);
@@ -548,9 +550,25 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
   return TRUE;
 }
 
+static gboolean manipulate_enabled = TRUE;
+
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
 {
+  if (event->any.type == CLUTTER_KEY_PRESS)
+    {
+      if (event->key.keyval == CLUTTER_Scroll_Lock ||
+          event->key.keyval == CLUTTER_Caps_Lock)
+        {
+          manipulate_enabled = !manipulate_enabled;
+          g_print ("Manipulate %s\n", manipulate_enabled?"enabled":"disabled");
+          return TRUE;
+        }
+    }
+
+  if (!manipulate_enabled)
+    return FALSE;
+  
   if ((clutter_get_motion_events_enabled()==FALSE) ||
       util_has_ancestor (event->any.source, parasite_root))
     {
@@ -719,16 +737,34 @@ void cb_add (ClutterActor *actor)
   ClutterActor *container = selected_actor;
   ClutterActor *new;
 
-  if (selected_actor)
+  if (selected_actor && !CLUTTER_IS_STAGE (selected_actor))
     {
       while (!CLUTTER_IS_CONTAINER (container))
        {
          container = clutter_actor_get_parent (container);
+         g_print ("%p\n", container);
        }
+      g_print ("gone for: %p\n", container);
     }
   else
     {
       container = clutter_actor_get_stage (actor);
+      {
+        GList *children, *c;
+        children = clutter_container_get_children (CLUTTER_CONTAINER (container));
+        for (c=children;c;c=c->next)
+          {
+            const gchar *id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (c->data));
+            if (id && g_str_equal (id, "actor"))
+              {
+                container= c->data;
+                g_print ("Found it!\n");
+                break;
+              }
+          }
+        g_print ("%p %p\n", container, c);
+        g_list_free (children);
+      }
     }
 
   new = clutter_rectangle_new ();
@@ -764,6 +800,7 @@ void entry_text_changed (ClutterActor *actor)
                 break;
               }
           }
+        g_list_free (children);
       }
 
       if (root == clutter_actor_get_stage (actor))
