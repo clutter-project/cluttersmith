@@ -100,7 +100,7 @@ cb_overlay_paint (ClutterActor *actor,
 
 void cb_manipulate_init (ClutterActor *actor);
 
-static gboolean idle_add_stage (gpointer stage)
+gboolean idle_add_stage (gpointer stage)
 {
   ClutterActor *actor;
   ClutterScript *script;
@@ -127,6 +127,7 @@ static gboolean idle_add_stage (gpointer stage)
   return FALSE;
 }
 
+#ifdef CLUTTERBUG
 static void stage_added (ClutterStageManager *manager,
                          ClutterStage        *stage)
 {
@@ -147,6 +148,7 @@ static void _clutterbug_init(void) {
 
 static void _clutterbug_fini(void) {
 }
+#endif
 
 static guint stage_capture_handler = 0;
 
@@ -275,6 +277,7 @@ update_id (ClutterText *text,
            gpointer     data)
 {
   clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), clutter_text_get_text (text));
+  return TRUE;
 }
 
 static void
@@ -502,6 +505,7 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
         g_signal_handler_disconnect (stage,
                                      manipulate_capture_handler);
         manipulate_capture_handler = 0;
+      default:
         break;
     }
   return TRUE;
@@ -535,6 +539,7 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
         g_signal_handler_disconnect (stage,
                                      manipulate_capture_handler);
         manipulate_capture_handler = 0;
+      default:
         break;
     }
   return TRUE;
@@ -613,7 +618,6 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
       if (event->any.type == CLUTTER_BUTTON_PRESS)
         {
            ClutterActor *hit;
-           gboolean found;
 
            hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                  CLUTTER_PICK_ALL,
@@ -706,15 +710,14 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
       case CLUTTER_ENTER:
       case CLUTTER_LEAVE:
         return FALSE;
+      default:
+        break;
     }
   return TRUE;
 }
 
 void cb_manipulate_init (ClutterActor *actor)
 {
-  ClutterScript *script = util_get_script (actor);
-
-
   if (stage_capture_handler)
     {
       g_signal_handler_disconnect (clutter_actor_get_stage (actor),
@@ -978,12 +981,6 @@ actor_types_build (GList *list, GType type)
   return list;
 }
 
-static gint compare_type_names (gconstpointer a,
-                                gconstpointer b)
-{
-  return strcmp (a, b);
-}
-
 typedef struct TransientValue {
   gchar  *name;
   GValue  value;
@@ -1064,9 +1061,7 @@ static void
 apply_transient (ClutterActor *actor)
 {
   GParamSpec **properties;
-  GParamSpec **actor_properties;
   guint        n_properties;
-  guint        n_actor_properties;
   gint         i;
 
   properties = g_object_class_list_properties (
@@ -1075,7 +1070,6 @@ apply_transient (ClutterActor *actor)
 
   for (i = 0; i < n_properties; i++)
     {
-      gint j;
       gboolean skip = FALSE;
       GList *val;
 
@@ -1106,7 +1100,6 @@ static void change_type (ClutterActor *actor,
                          const gchar  *new_type)
 {
   ClutterActor *new_actor, *parent;
-  gfloat x, y, width, height, depth;
 
   hrn_popup_close ();
 
