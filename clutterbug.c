@@ -1101,7 +1101,6 @@ void cb_remove_selected (ClutterActor *actor)
       if (selected_actor == clutter_stage_get_default ())
         return;
       select_item (NULL, clutter_stage_get_default());
-      util_remove_children (property_editors);
       clutter_actor_destroy (old_selected);
 
       /* hack needed, nbtk_entry() causes segfault when updating
