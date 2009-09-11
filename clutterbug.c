@@ -108,6 +108,7 @@ cb_overlay_paint (ClutterActor *actor,
             gfloat coords[]={ verts[2].x, -2000,
                               verts[2].x, 2000 };
             cogl_path_polyline (coords, 2);
+            cogl_path_stroke ();
          }
          break;
         case 2:
@@ -115,6 +116,7 @@ cb_overlay_paint (ClutterActor *actor,
             gfloat coords[]={ (verts[2].x+verts[1].x)/2, -2000,
                               (verts[2].x+verts[1].x)/2, 2000 };
             cogl_path_polyline (coords, 2);
+            cogl_path_stroke ();
          }
          break;
         case 3:
@@ -122,10 +124,9 @@ cb_overlay_paint (ClutterActor *actor,
             gfloat coords[]={ verts[1].x, -2000,
                               verts[1].x, 2000 };
             cogl_path_polyline (coords, 2);
+            cogl_path_stroke ();
          }
       }
-
-
     switch (ver_pos)
       {
         case 1:
@@ -133,6 +134,7 @@ cb_overlay_paint (ClutterActor *actor,
             gfloat coords[]={ -2000, verts[1].y,
                                2000, verts[1].y};
             cogl_path_polyline (coords, 2);
+            cogl_path_stroke ();
          }
          break;
         case 2:
@@ -140,6 +142,7 @@ cb_overlay_paint (ClutterActor *actor,
             gfloat coords[]={ -2000, (verts[2].y+verts[1].y)/2,
                                2000, (verts[2].y+verts[1].y)/2};
             cogl_path_polyline (coords, 2);
+            cogl_path_stroke ();
          }
          break;
         case 3:
@@ -147,18 +150,9 @@ cb_overlay_paint (ClutterActor *actor,
             gfloat coords[]={ -2000, verts[2].y,
                                2000, verts[2].y};
             cogl_path_polyline (coords, 2);
+            cogl_path_stroke ();
          }
       }
-#if 0
-    if (snap_vertical_end != -1)
-      {
-        gfloat coords[]={ -2000, snap_vertical_end,
-                           2000, snap_vertical_end};
-
-        cogl_path_polyline (coords, 2);
-      }
-#endif
-    cogl_path_stroke ();
 
 
   }
@@ -1104,6 +1098,8 @@ void cb_remove_selected (ClutterActor *actor)
   if (selected_actor)
     {
       ClutterActor *old_selected = selected_actor;
+      if (selected_actor == clutter_stage_get_default ())
+        return;
       select_item (NULL, clutter_stage_get_default());
       util_remove_children (property_editors);
       clutter_actor_destroy (old_selected);
