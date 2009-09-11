@@ -313,7 +313,7 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
                     clutter_container_remove_actor (CLUTTER_CONTAINER (clutter_actor_get_parent (dragged_actor)), dragged_actor);
                     g_print ("[%p]\n", clutter_actor_get_parent (dragged_actor));
 
-                    real_container = g_object_get_data (CLUTTER_CONTAINER(event->any.source),"actor");
+                    real_container = g_object_get_data (G_OBJECT(event->any.source),"actor");
 
                     existing_children = clutter_container_get_children (
                         CLUTTER_CONTAINER (get_nth_child (CLUTTER_CONTAINER(event->any.source),1)));
@@ -340,19 +340,28 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
                         clutter_container_remove_actor (CLUTTER_CONTAINER (real_container), e->data);
                       }
 
-                    g_print ("dropped %i \n", add_self);
                     child_no = 0;
                     for (e=existing_children; e; e = e->next, child_no++)
                       {
-                        if (child_no == use_child || (e->next == NULL && use_child != -1))
+
+                        if (use_child == 0 && child_no == 0)
                           {
-                            g_print ("dropped in %i %i %p\n", child_no, add_self, dragged_actor);
+                            g_print ("droppedA in %i %i %p\n", child_no, add_self, dragged_actor);
                             clutter_container_add_actor (CLUTTER_CONTAINER (real_container), dragged_actor);
                             use_child = -1;
                           }
+
                         g_assert (e->data != dragged_actor);
                         clutter_container_add_actor (CLUTTER_CONTAINER (real_container), e->data);
                         g_object_unref (e->data);
+
+                        if (child_no == use_child-1 - add_self || (e->next == NULL && use_child != -1))
+                          {
+                            g_print ("droppedB in %i %i %p\n", child_no, add_self, dragged_actor);
+                            clutter_container_add_actor (CLUTTER_CONTAINER (real_container), dragged_actor);
+                            use_child = -1;
+                          }
+
                       }
 
                     g_list_free (existing_children);
