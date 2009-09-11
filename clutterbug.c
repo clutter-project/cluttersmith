@@ -19,7 +19,7 @@ guint CB_REV       = 0; /* everything that changes state and could be determined
 guint CB_SAVED_REV = 0;
 
 
-static ClutterActor  *name, *parents, *property_editors, *scene_graph;
+static ClutterActor  *title, *name, *parents, *property_editors, *scene_graph;
 ClutterActor *parasite_root;
 
 gchar *whitelist[]={"depth", "opacity",
@@ -178,6 +178,7 @@ gboolean idle_add_stage (gpointer stage)
   script = util_get_script (actor);
 
   /* initializing globals */
+  title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
@@ -186,6 +187,8 @@ gboolean idle_add_stage (gpointer stage)
 
   cb_manipulate_init (parasite_root);
   select_item (NULL, stage);
+
+  g_object_set (title, "text", "foo", NULL);
 
   init_types ();
   return FALSE;
@@ -1308,9 +1311,8 @@ void cb_add_button (ClutterActor *actor)
 
 gchar *subtree_to_string (ClutterActor *root);
 
-void entry_text_changed (ClutterActor *actor)
+void load_file (ClutterActor *actor, const gchar *title)
 {
-  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
   static gchar *filename = NULL;
 
   if (CB_REV != CB_SAVED_REV)
@@ -1365,6 +1367,12 @@ void entry_text_changed (ClutterActor *actor)
       util_replace_content2 (clutter_stage_get_default(), "content", NULL);
       CB_REV = CB_SAVED_REV = 0;
     }
+}
+
+void entry_text_changed (ClutterActor *actor)
+{
+  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
+  load_file (actor, title);
 }
 
 void search_entry_init_hack (ClutterActor  *actor)

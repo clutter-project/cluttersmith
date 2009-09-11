@@ -21,7 +21,8 @@
      
      "children":
        [
-         { "type":"NbtkEntry",  "text": "", "width":300,
+         { "id":"title",
+           "type":"NbtkEntry",  "text": "", "width":300,
            "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
            
          }
