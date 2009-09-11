@@ -183,6 +183,7 @@ gboolean idle_add_stage (gpointer stage)
   parasite_root = actor;
 
   cb_manipulate_init (parasite_root);
+  select_item (NULL, stage);
 
   init_types ();
   return FALSE;
