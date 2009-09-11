@@ -33,6 +33,9 @@
            "children":
              [
                { "type":"NbtkButton",
+                 "label":"D",
+                 "signals": [ {"name":"clicked", "handler":"cb_duplicate_selected"} ] }
+               { "type":"NbtkButton",
                  "label":"⨯",
                  "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
                { "type":"NbtkButton",

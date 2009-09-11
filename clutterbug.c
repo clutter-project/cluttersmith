@@ -34,6 +34,8 @@ gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGL
 
 gchar *subtree_to_string (ClutterActor *root);
 static void select_item (ClutterActor *button, ClutterActor *item);
+static void build_transient (ClutterActor *actor);
+static void apply_transient (ClutterActor *actor);
 
 static gboolean keep_on_top (gpointer actor)
 {
@@ -1169,6 +1171,25 @@ void cb_remove_selected (ClutterActor *actor)
       CB_REV++;
     }
 }
+
+
+void cb_duplicate_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      ClutterActor *new_actor, *parent;
+
+      hrn_popup_close ();
+
+      new_actor = g_object_new (G_OBJECT_TYPE (selected_actor), NULL);
+      parent = clutter_actor_get_parent (selected_actor);
+      build_transient (selected_actor);
+      apply_transient (new_actor);
+      clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+      select_item (NULL, new_actor);
+    }
+}
+
 
 void cb_raise_selected (ClutterActor *actor)
 {
