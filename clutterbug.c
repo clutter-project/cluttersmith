@@ -1098,16 +1098,11 @@ void cb_remove_selected (ClutterActor *actor)
   if (selected_actor)
     {
       ClutterActor *old_selected = selected_actor;
-      if (selected_actor == clutter_stage_get_default ())
+      if (selected_actor == clutter_actor_get_stage (actor))
         return;
-      select_item (NULL, clutter_stage_get_default());
+      select_item (NULL, clutter_actor_get_stage (actor));
       clutter_actor_destroy (old_selected);
 
-      /* hack needed, nbtk_entry() causes segfault when updating
-       * pseudo state based on notify:: that we'd expect not
-       * to occur otherwise.
-       */
-      clutter_actor_paint (clutter_actor_get_stage (actor));
       CB_REV++;
     }
 }
