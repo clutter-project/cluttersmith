@@ -28,6 +28,7 @@ gchar *whitelist[]={"depth", "opacity",
                     "name", "reactive",
                     NULL};
 
+void load_file (ClutterActor *actor, const gchar *title);
 
 
 gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGLX", "ClutterStageX11", "ClutterActor", "NbtkWidget",
@@ -1036,18 +1037,10 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
                if (name && g_str_has_prefix (name, "link="))
                  {
                    gchar *filename;
-                   g_print ("The link! %s\n", name+5);
-
                    filename = g_strdup_printf ("json/%s.json", name+5);
-                   util_remove_children (property_editors);
-                   util_remove_children (scene_graph);
-                   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
-                     {
-                       util_replace_content2 (actor, "content", filename);
-                       CB_REV = CB_SAVED_REV = 0;
-                     }
-                   g_free (filename);
 
+                   g_object_set (title, "text", name +5, NULL);
+                   select_item (NULL, clutter_actor_get_stage (parasite_root));
                    return TRUE;
                  }
                hit = clutter_actor_get_parent (hit);
@@ -1189,7 +1182,7 @@ ClutterActor *duplicator (ClutterActor *actor, ClutterActor *parent)
   if (CLUTTER_IS_CONTAINER (new_actor))
     {
       GList *children, *c;
-      children = clutter_container_get_children (actor);
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
       for (c = children; c; c = c->next)
         {
           duplicator (c->data, new_actor);
@@ -1210,6 +1203,71 @@ void cb_duplicate_selected (ClutterActor *actor)
 
       parent = clutter_actor_get_parent (selected_actor);
       new_actor = duplicator (selected_actor, parent);
+      {
+        gfloat x, y;
+        clutter_actor_get_position (new_actor, &x, &y);
+        x+=10;y+=10;
+        clutter_actor_set_position (new_actor, x, y);
+      }
+      select_item (NULL, new_actor);
+    }
+}
+
+static ClutterActor *copy_buf = NULL;
+
+void cb_cut_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      ClutterActor *parent;
+
+      parent = clutter_actor_get_parent (selected_actor);
+      g_object_ref (selected_actor);
+      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), selected_actor);
+      if (copy_buf)
+        g_object_unref (copy_buf);
+      copy_buf = selected_actor;
+      select_item (NULL, parent);
+    }
+}
+
+void cb_copy_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      ClutterActor *new_actor, *parent;
+
+      parent = clutter_actor_get_parent (selected_actor);
+      new_actor = duplicator (selected_actor, parent);
+      {
+        gfloat x, y;
+        clutter_actor_get_position (new_actor, &x, &y);
+        x+=10;y+=10;
+        clutter_actor_set_position (new_actor, x, y);
+      }
+      g_object_ref (new_actor);
+      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), new_actor);
+      if (copy_buf)
+        g_object_unref (copy_buf);
+      copy_buf = new_actor;
+    }
+}
+
+void cb_paste_selected (ClutterActor *actor)
+{
+  if (selected_actor && copy_buf)
+    {
+      ClutterActor *new_actor, *parent;
+
+      if (CLUTTER_IS_CONTAINER (selected_actor))
+        {
+          parent = selected_actor;
+        }
+      else
+        {
+          parent = clutter_actor_get_parent (selected_actor);
+        }
+      new_actor = duplicator (copy_buf, parent);
       {
         gfloat x, y;
         clutter_actor_get_position (new_actor, &x, &y);

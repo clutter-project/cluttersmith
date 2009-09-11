@@ -33,6 +33,17 @@
            "style-class":"ParasiteToolbar",
            "children":
              [
+
+               { "type":"NbtkButton",
+                 "label":"Copy",
+                 "signals": [ {"name":"clicked", "handler":"cb_copy_selected"} ] }
+               { "type":"NbtkButton",
+                 "label":"Cut",
+                 "signals": [ {"name":"clicked", "handler":"cb_cut_selected"} ] }
+               { "type":"NbtkButton",
+                 "label":"Paste",
+                 "signals": [ {"name":"clicked", "handler":"cb_paste_selected"} ] }
+
                { "type":"NbtkButton",
                  "label":"D",
                  "signals": [ {"name":"clicked", "handler":"cb_duplicate_selected"} ] }
