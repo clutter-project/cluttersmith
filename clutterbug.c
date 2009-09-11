@@ -42,7 +42,7 @@ static void apply_transient (ClutterActor *actor);
 static gboolean keep_on_top (gpointer actor)
 {
   clutter_actor_raise_top (actor);
-  return TRUE;
+  return FALSE;
 }
 
 static ClutterActor *selected_actor = NULL;
@@ -229,10 +229,98 @@ gboolean cb_filter_properties = TRUE;
 #define INDENTATION_AMOUNT  20
 
 
-static void select_item_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
+static gboolean select_item_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
 {
   select_item (NULL, item);
+  return TRUE;
 }
+
+
+static ClutterActor *clone = NULL;
+static ClutterActor *dragged_item = NULL;
+static ClutterActor *dropped_on_target = NULL;
+static glong  tree_item_capture_handler = 0;
+static gfloat tree_item_x;
+static gfloat tree_item_y;
+
+static ClutterActor *get_drop_target (ClutterActor *actor)
+{
+  if (!actor)
+    return NULL;
+  actor = g_object_get_data (G_OBJECT (actor), "actor");
+  if (util_has_ancestor (actor, dragged_item))
+    return NULL;
+  if (CLUTTER_IS_CONTAINER (actor))
+    return actor;
+  return NULL;
+}
+
+static gboolean
+tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
+{
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          clutter_actor_set_position (clone, event->motion.x, event->motion.y);
+        }
+        break;
+      case CLUTTER_ENTER:
+          {
+            dropped_on_target = get_drop_target (event->any.source);
+          }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+        clutter_actor_destroy (clone);
+        clone = NULL;
+
+        if (dropped_on_target)
+          {
+            ClutterActor *dragged_actor = g_object_get_data (data, "actor");
+            if (dragged_actor)
+              {
+                g_object_ref (dragged_actor);
+                clutter_container_remove_actor (CLUTTER_CONTAINER (clutter_actor_get_parent (dragged_actor)), dragged_actor);
+                clutter_container_add_actor (CLUTTER_CONTAINER (dropped_on_target), dragged_actor);
+                g_object_unref (dragged_actor);
+              }
+            select_item (NULL, dragged_actor);
+          }
+        dropped_on_target = NULL;
+        dragged_item = NULL;
+        g_signal_handler_disconnect (stage,
+                                     tree_item_capture_handler);
+        tree_item_capture_handler = 0;
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+
+static gboolean tree_item_press (ClutterActor  *actor,
+                                 ClutterEvent  *event)
+{
+  tree_item_x = event->button.x;
+  tree_item_y = event->button.y;
+
+  if (CLUTTER_IS_STAGE (g_object_get_data (actor, "actor")))
+    return TRUE;
+
+  tree_item_capture_handler = 
+     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                       G_CALLBACK (tree_item_capture), actor);
+
+  dragged_item = actor;
+  clone = clutter_clone_new (actor);
+  clutter_actor_set_opacity (clone, 0xbb);
+  clutter_actor_set_position (clone, event->button.x, event->button.y);
+  clutter_container_add_actor (CLUTTER_CONTAINER (clutter_actor_get_stage(actor)), clone);
+
+  return TRUE;
+}
+
+
 
 
 static gboolean vbox_press (ClutterActor *group,
@@ -285,7 +373,7 @@ tree_populate_iter (ClutterActor *current_container,
 
                        //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",
 
-  label = clutter_text_new_with_text ("Sans 12px", G_OBJECT_TYPE_NAME (iter));
+  label = clutter_text_new_with_text ("Sans 14px", G_OBJECT_TYPE_NAME (iter));
   clutter_actor_set_anchor_point (label, -24.0, 0.0);
   if (iter == selected_actor)
     {
@@ -301,6 +389,7 @@ tree_populate_iter (ClutterActor *current_container,
   clutter_container_add_actor (CLUTTER_CONTAINER (vbox), label);
 
   clutter_container_add_actor (CLUTTER_CONTAINER (current_container), vbox);
+  g_object_set_data (G_OBJECT (vbox), "actor", iter);
 
   if (CLUTTER_IS_CONTAINER (iter))
     {
@@ -312,7 +401,7 @@ tree_populate_iter (ClutterActor *current_container,
       clutter_container_add_actor (CLUTTER_CONTAINER (vbox), child_vbox);
       clutter_actor_set_anchor_point (child_vbox, -24.0, 0.0);
 
-      g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_press), child_vbox);
+      /*g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_press), child_vbox);*/
 
       (*level) = (*level)+1;
       for (c = children; c; c=c->next)
@@ -324,8 +413,10 @@ tree_populate_iter (ClutterActor *current_container,
     }
   else
     {
-      g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_nop), NULL);
+      /*g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_nop), NULL);*/
     }
+
+  g_signal_connect (vbox, "button-press-event", G_CALLBACK (tree_item_press), NULL);
   clutter_actor_set_reactive (vbox, TRUE);
   (*count) = (*count)+1;
 }
