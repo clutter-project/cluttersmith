@@ -552,8 +552,7 @@ static guint  manipulate_capture_handler = 0;
 static gfloat manipulate_x;
 static gfloat manipulate_y;
 
-#define SNAP_THRESHOLD  3
-
+#define SNAP_THRESHOLD  2
 
 static void snap_position (ClutterActor *actor,
                            gfloat        in_x,
@@ -564,7 +563,6 @@ static void snap_position (ClutterActor *actor,
   *out_x = in_x;
   *out_y = in_y;
 
-{
   ClutterActor *parent;
 
 
@@ -718,16 +716,112 @@ in_x    in_mid_x    in_end_x
     }
 }
 
-}
 
-static void snap_size     (ClutterActor *actor,
-                           gfloat        in_x,
-                           gfloat        in_y,
-                           gfloat       *out_x,
-                           gfloat       *out_y)
+static void snap_size (ClutterActor *actor,
+                       gfloat        in_width,
+                       gfloat        in_height,
+                       gfloat       *out_width,
+                       gfloat       *out_height)
 {
-}
+  *out_width = in_width;
+  *out_height = in_height;
 
+  ClutterActor *parent;
+
+
+  parent = clutter_actor_get_parent (actor);
+
+  if (CLUTTER_IS_CONTAINER (parent))
+    {
+      gfloat in_x = clutter_actor_get_x (actor);
+      gfloat in_y = clutter_actor_get_y (actor);
+      gfloat in_end_x = in_x + in_width;
+      gfloat in_end_y = in_y + in_height;
+
+
+      gfloat best_x = 0;
+      gfloat best_x_diff = 4096;
+      gfloat best_y = 0;
+      gfloat best_y_diff = 4096;
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (parent));
+
+      hor_pos = 0;
+      ver_pos = 0;
+
+      /* We only search our siblings for snapping...
+       * perhaps we should search more.
+       */
+
+      for (c=children; c; c = c->next)
+        {
+          gfloat this_x = clutter_actor_get_x (c->data);
+          gfloat this_width = clutter_actor_get_width (c->data);
+          gfloat this_height = clutter_actor_get_height (c->data);
+          gfloat this_end_x = this_x + this_width;
+          gfloat this_y = clutter_actor_get_y (c->data);
+          gfloat this_end_y = this_y + this_height;
+
+          /* skip self */
+          if (c->data == actor)
+            continue;
+
+/*
+ end aligned with start
+                    this_x     this_mid_x     this_end_x
+in_x    in_mid_x    in_end_x
+*/
+          if (abs (this_x - in_end_x) < best_x_diff)
+            {
+              best_x_diff = abs (this_x - in_end_x);
+              best_x = this_x;
+              hor_pos=3;
+            }
+          if (abs (this_y - in_end_y) < best_y_diff)
+            {
+              best_y_diff = abs (this_y - in_end_y);
+              best_y = this_y;
+              ver_pos=3;
+            }
+/*
+ ends aligned
+                    this_x     this_mid_x     this_end_x
+                          in_x    in_mid_x    in_end_x
+*/
+          if (abs (this_end_x - in_end_x) < best_x_diff)
+            {
+              best_x_diff = abs (this_end_x - in_end_x);
+              best_x = this_end_x;
+              hor_pos=3;
+            }
+          if (abs (this_end_y - in_end_y) < best_y_diff)
+            {
+              best_y_diff = abs (this_end_y - in_end_y);
+              best_y = this_end_y;
+              ver_pos=3;
+            }
+        }
+
+        {
+          if (best_x_diff < SNAP_THRESHOLD)
+            {
+              *out_width = best_x-in_x;
+            }
+          else
+            {
+              hor_pos = 0;
+            }
+          if (best_y_diff < SNAP_THRESHOLD)
+            {
+              *out_height = best_y-in_y;
+            }
+          else
+            {
+              ver_pos = 0;
+            }
+        }
+    }
+}
 
 static gboolean
 manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
@@ -776,13 +870,15 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
           gfloat ex, ey;
           clutter_actor_transform_stage_point (data, event->motion.x, event->motion.y,
                                                &ex, &ey);
-          gfloat x, y;
-          clutter_actor_get_size (data, &x, &y);
+          gfloat w, h;
+          clutter_actor_get_size (data, &w, &h);
 
+          w-= manipulate_x-ex;
+          h-= manipulate_y-ey;
 
-          x-= manipulate_x-ex;
-          y-= manipulate_y-ey;
-          clutter_actor_set_size (data, x, y);
+          snap_size (data, w, h, &w, &h);
+
+          clutter_actor_set_size (data, w, h);
           CB_REV++;
 
           manipulate_x=ex;
@@ -790,6 +886,9 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
+        hor_pos = 0;
+        ver_pos = 0;
+        clutter_actor_queue_redraw (stage);
         g_signal_handler_disconnect (stage,
                                      manipulate_capture_handler);
         manipulate_capture_handler = 0;
