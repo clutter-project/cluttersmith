@@ -29,6 +29,7 @@ gchar *whitelist[]={"depth", "opacity",
                     NULL};
 
 
+
 gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGLX", "ClutterStageX11", "ClutterActor", "NbtkWidget",
                           NULL};
 
@@ -1176,19 +1177,45 @@ void cb_remove_selected (ClutterActor *actor)
 }
 
 
+ClutterActor *duplicator (ClutterActor *actor, ClutterActor *parent)
+{
+  ClutterActor *new_actor;
+
+  new_actor = g_object_new (G_OBJECT_TYPE (actor), NULL);
+  build_transient (actor);
+  apply_transient (new_actor);
+
+  /* recurse through children? */
+  if (CLUTTER_IS_CONTAINER (new_actor))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (actor);
+      for (c = children; c; c = c->next)
+        {
+          duplicator (c->data, new_actor);
+        }
+      g_list_free (children);
+    }
+
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+  return new_actor;
+}
+
+
 void cb_duplicate_selected (ClutterActor *actor)
 {
   if (selected_actor)
     {
       ClutterActor *new_actor, *parent;
 
-      hrn_popup_close ();
-
-      new_actor = g_object_new (G_OBJECT_TYPE (selected_actor), NULL);
       parent = clutter_actor_get_parent (selected_actor);
-      build_transient (selected_actor);
-      apply_transient (new_actor);
-      clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+      new_actor = duplicator (selected_actor, parent);
+      {
+        gfloat x, y;
+        clutter_actor_get_position (new_actor, &x, &y);
+        x+=10;y+=10;
+        clutter_actor_set_position (new_actor, x, y);
+      }
       select_item (NULL, new_actor);
     }
 }
@@ -1466,6 +1493,8 @@ build_transient (ClutterActor *actor)
                 }
             }
         }
+      if (g_str_equal (properties[i]->name, "child"))
+        skip = TRUE; /* to avoid duplicated parenting of NbtkButton children. */
 
       if (!(properties[i]->flags & G_PARAM_READABLE))
         skip = TRUE;

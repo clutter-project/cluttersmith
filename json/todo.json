@@ -15,10 +15,10 @@
   "children":[
   {
     "type":"ClutterText",
-    "x":143,
-    "y":131,
-    "width":425,
-    "height":270,
+    "x":93,
+    "y":116,
+    "width":381,
+    "height":239,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -30,17 +30,17 @@
     "text":"tree drag and drop, 
 cut copy and paste,
 ui for hyperlinks,
-css inspector/editor. 
-Make color roundtrip safe,
+css inspector/editor.
+keybindings,
+color picker
 navigation history, 
-proper json-glib based serialization. color picker, 
-custom property editors for common classes.
-keybindings.",
+proper json-glib based serialization (needed at least for color)
+custom property editors for common classes.",
     "use-markup":false,
     "line-wrap":true,
     "justify":false,
-    "position":40,
-    "selection-bound":40,
+    "position":14,
+    "selection-bound":14,
     "cursor-visible":true,
     "cursor-size":2,
     "editable":false,
