@@ -25,7 +25,7 @@ ClutterActor *parasite_root;
 gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
                     "anchor-y", "rotation-angle-z",
-                    "name", 
+                    "name", "reactive",
                     NULL};
 
 
@@ -938,9 +938,62 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
 
 static gboolean manipulate_enabled = TRUE;
 
+static ClutterActor *edited_text = NULL;
+static gboolean text_was_editable = FALSE;
+static gboolean text_was_reactive = FALSE;
+
+static gboolean edit_text_start (ClutterActor *actor)
+{
+  if (NBTK_IS_LABEL (actor))
+    actor = nbtk_label_get_clutter_text (NBTK_LABEL (actor));
+  edited_text = actor;
+
+  g_object_get (edited_text, "editable", &text_was_editable,
+                             "reactive", &text_was_reactive, NULL);
+  g_object_set (edited_text, "editable", TRUE,
+                             "reactive", TRUE, NULL);
+  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)), actor);
+  return TRUE;
+}
+
+static gboolean edit_text_end (void)
+{
+  g_object_set (edited_text, "editable", text_was_editable,
+                             "reactive", text_was_reactive, NULL);
+  edited_text = NULL;
+  return TRUE;
+}
+
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
 {
+  /* pass events through to text being edited */
+  if (edited_text)
+    { 
+      if (event->any.type == CLUTTER_KEY_PRESS && event->key.keyval == CLUTTER_Escape)
+        {
+          edit_text_end ();
+          return TRUE;
+        }
+      if (event->any.source == edited_text)
+        return FALSE;
+      else
+        {
+          /* break out when presses occur outside the ClutterText,
+           * this currently means that proper mouse movement and
+           * selection is not possible for NbtkLabels and Entries
+           * when edited
+           */
+          switch (event->any.type)
+            {
+              case CLUTTER_BUTTON_PRESS:
+                edit_text_end ();
+              default:
+                return TRUE;
+            }
+        }
+    }
+
   if (event->any.type == CLUTTER_KEY_PRESS)
     {
       if (event->key.keyval == CLUTTER_Scroll_Lock ||
@@ -1026,6 +1079,15 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
           gfloat y = event->button.y;
           gfloat w,h;
 
+          if (selected_actor && clutter_event_get_click_count (event) > 1)
+            {
+              if (CLUTTER_IS_TEXT (selected_actor) ||
+                  NBTK_IS_LABEL (selected_actor))
+                {
+                  edit_text_start (selected_actor);
+                  return TRUE;
+                }
+            }
 
           if (selected_actor)
             {
