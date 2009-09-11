@@ -1165,7 +1165,7 @@ void cb_remove_selected (ClutterActor *actor)
       ClutterActor *old_selected = selected_actor;
       if (selected_actor == clutter_actor_get_stage (actor))
         return;
-      select_item (NULL, clutter_actor_get_stage (actor));
+      select_item (NULL, clutter_actor_get_parent (selected_actor));
       clutter_actor_destroy (old_selected);
 
       CB_REV++;
