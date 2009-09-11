@@ -29,14 +29,14 @@
     "anchor-y":0.000,
     "stylable":true,
     "has-tooltip":false,
-    "hint-text":"NbtkEntry",
     "text":"NbtkEntry",
+    "hint-text":"NbtkEntry",
   }
   ,
   {
     "type":"NbtkExpander",
-    "x":476,
-    "y":16,
+    "x":465,
+    "y":24,
     "width":231,
     "height":157,
     "depth":0.000,
@@ -46,12 +46,11 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "pseudo-class":"active",
     "stylable":true,
     "has-tooltip":false,
     "x-fill":false,
     "y-fill":true,
-    "expanded":true,
+    "expanded":false,
     "label":"NbtkExpander",
     "children":[
     ]
@@ -452,7 +451,8 @@
       "anchor-x":0.000,
       "anchor-y":0.000,
       "font-name":"Sans 10",
-      "text":"New Text",
+      "text":"bar
+",
       "use-markup":false,
       "line-wrap":false,
       "justify":false,
@@ -470,6 +470,7 @@
     ,
     {
       "type":"ClutterText",
+      "name":"link=foo",
       "x": 0,
       "y":116,
       "width":129,
@@ -482,7 +483,7 @@
       "anchor-x":0.000,
       "anchor-y":0.000,
       "font-name":"Sans 10",
-      "text":"New Text",
+      "text":"foo",
       "use-markup":false,
       "line-wrap":false,
       "justify":false,

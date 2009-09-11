@@ -255,6 +255,14 @@ static ClutterActor *get_drop_target (ClutterActor *actor)
   return NULL;
 }
 
+static ClutterActor *get_nth_child (ClutterContainer *container, gint n)
+{
+  GList *list = clutter_container_get_children (container);
+  ClutterActor *ret = g_list_nth_data (list, n);
+  g_list_free (list);
+  return ret;
+}
+
 static gboolean
 tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
 {
@@ -277,11 +285,77 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
         if (dropped_on_target)
           {
             ClutterActor *dragged_actor = g_object_get_data (data, "actor");
-            if (dragged_actor)
+
+            /* Determine where to add the actor, 0 is before existing
+             * children 1 is after first child
+             */
+
+
+            if (dragged_actor &&
+                !util_has_ancestor (dropped_on_target, dragged_actor))
               {
-                g_object_ref (dragged_actor);
-                clutter_container_remove_actor (CLUTTER_CONTAINER (clutter_actor_get_parent (dragged_actor)), dragged_actor);
-                clutter_container_add_actor (CLUTTER_CONTAINER (dropped_on_target), dragged_actor);
+                gfloat x, y;
+
+                clutter_actor_transform_stage_point (event->any.source, event->button.x, event->button.y, &x, &y);
+
+                dropped_on_target = get_drop_target (event->any.source);
+
+                if (dropped_on_target)
+                  {
+                    gint   add_self = 0;
+                    gint   use_child = 0;
+                    gint   child_no = 0;
+                    gint   child_count = 0;
+                    ClutterActor *real_container = NULL;
+                    GList *e, *existing_children;
+
+                    g_object_ref (dragged_actor);
+                    clutter_container_remove_actor (CLUTTER_CONTAINER (clutter_actor_get_parent (dragged_actor)), dragged_actor);
+
+                    real_container = g_object_get_data (CLUTTER_CONTAINER(event->any.source),"actor");
+
+                    existing_children = clutter_container_get_children (
+                        CLUTTER_CONTAINER (get_nth_child (CLUTTER_CONTAINER(event->any.source),1)));
+                    child_count = g_list_length (existing_children);
+                    for (e=existing_children; e; e = e->next, child_no++)
+                      {
+                        gfloat child_y2;
+                        clutter_actor_transform_stage_point (e->data, 0, event->button.y, NULL, &child_y2);
+                        if (use_child == 0 && child_no>=0 &&
+                            g_object_get_data (e->data, "actor") == dragged_actor)
+                          add_self = 1;
+                        if (child_y2 > 0)
+                          {
+                            use_child = child_no + 1;
+                          }
+                      }
+
+                    g_list_free (existing_children);
+
+                    existing_children = clutter_container_get_children (CLUTTER_CONTAINER (real_container));
+
+                    for (e=existing_children; e; e = e->next)
+                      {
+                        g_object_ref (e->data);
+                        clutter_container_remove_actor (CLUTTER_CONTAINER (real_container), e->data);
+                      }
+
+                    g_print ("dropped %i \n", add_self);
+                    child_no = 0;
+                    for (e=existing_children; e; e = e->next, child_no++)
+                      {
+                        if (child_no == use_child || e->next == NULL)
+                          {
+                            g_print ("dropped in %i %i\n", child_no, add_self);
+                            clutter_container_add_actor (CLUTTER_CONTAINER (real_container), dragged_actor);
+                          }
+                        clutter_container_add_actor (CLUTTER_CONTAINER (real_container), e->data);
+                        g_object_unref (e->data);
+                      }
+            
+
+                    g_list_free (existing_children);
+                  }
                 g_object_unref (dragged_actor);
               }
             select_item (NULL, dragged_actor);
@@ -304,7 +378,7 @@ static gboolean tree_item_press (ClutterActor  *actor,
   tree_item_x = event->button.x;
   tree_item_y = event->button.y;
 
-  if (CLUTTER_IS_STAGE (g_object_get_data (actor, "actor")))
+  if (CLUTTER_IS_STAGE (g_object_get_data (G_OBJECT (actor), "actor")))
     return TRUE;
 
   tree_item_capture_handler = 
@@ -317,33 +391,6 @@ static gboolean tree_item_press (ClutterActor  *actor,
   clutter_actor_set_position (clone, event->button.x, event->button.y);
   clutter_container_add_actor (CLUTTER_CONTAINER (clutter_actor_get_stage(actor)), clone);
 
-  return TRUE;
-}
-
-
-
-
-static gboolean vbox_press (ClutterActor *group,
-                            ClutterEvent *event,
-                            ClutterActor *item)
-{
-  if (CLUTTER_ACTOR_IS_VISIBLE (item))
-    {
-      clutter_actor_hide (item);
-    }
-  else
-    {
-      clutter_actor_show (item);
-      clutter_actor_queue_relayout (group); /* XXX: this should not be needed */
-    }
-  return TRUE;
-}
-
-
-static gboolean vbox_nop (ClutterActor *group,
-                          ClutterEvent *event,
-                          ClutterActor *item)
-{
   return TRUE;
 }
 
@@ -1027,7 +1074,7 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
    hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                          CLUTTER_PICK_ALL,
                                          event->button.x, event->button.y);
-   if (!util_has_ancestor (hit, parasite_root))
+   if (!util_has_ancestor (hit, parasite_root) || 1)
      select_item (NULL, hit);
    else
      g_print ("child of foo!\n");

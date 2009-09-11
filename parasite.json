@@ -86,7 +86,7 @@
          },
          { "type":"NbtkScrollView",
            "width":300,
-           "height":300,
+           "height":260,
            "children":
             [
               { "type":"NbtkViewport",
@@ -112,7 +112,7 @@
          }
          { "type":"NbtkScrollView",
            "width":300,
-           "height":200,
+           "height":240,
            "children":
             [
               { "type":"NbtkViewport",
