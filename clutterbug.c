@@ -292,7 +292,8 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
 
 
             if (dragged_actor &&
-                !util_has_ancestor (dropped_on_target, dragged_actor))
+                !util_has_ancestor (dropped_on_target, dragged_actor) &&
+                (dropped_on_target != dragged_actor))
               {
                 gfloat x, y;
 
@@ -368,7 +369,8 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
                   }
                 g_object_unref (dragged_actor);
               }
-            select_item (NULL, dragged_actor);
+            if (dragged_actor)
+              select_item (NULL, dragged_actor);
           }
         dropped_on_target = NULL;
         dragged_item = NULL;
@@ -634,7 +636,7 @@ props_populate (ClutterActor *actor)
                   {
                     ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
                     ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
-                    ClutterActor *editor = property_editor_new (G_OBJECT (actor), child_properties[i]->name);
+                    ClutterActor *editor = property_editor_new (G_OBJECT (child_meta), child_properties[i]->name);
                     clutter_text_set_color (CLUTTER_TEXT (label), &white);
                     clutter_actor_set_size (label, 130, 32);
                     clutter_actor_set_size (editor, 130, 32);
@@ -1546,7 +1548,9 @@ gchar *subtree_to_string (ClutterActor *root);
 
 void load_file (ClutterActor *actor, const gchar *title)
 {
-  static gchar *filename = NULL;
+  static gchar *filename = NULL; /* this needs to be more global and accessable, at
+                                  * least through some form of getter function.
+                                  */
 
   if (CB_REV != CB_SAVED_REV)
     {
@@ -1563,7 +1567,6 @@ void load_file (ClutterActor *actor, const gchar *title)
             if (id && g_str_equal (id, "actor"))
               {
                 root = c->data;
-                g_print ("Found it!\n");
                 break;
               }
           }
@@ -1621,6 +1624,137 @@ void search_entry_init_hack (ClutterActor  *actor)
   g_signal_connect (nbtk_entry_get_clutter_text (NBTK_ENTRY (actor)), "text-changed",
                     G_CALLBACK (entry_text_changed), NULL);
 }
+
+static gboolean add_stencil (ClutterActor *actor,
+                             ClutterEvent *event,
+                             const gchar  *path)
+{
+  ClutterActor *new_actor;
+
+  new_actor = util_load_json (path);
+  if (new_actor)
+    {
+      gfloat sw, sh, w, h;
+      clutter_container_add_actor (CLUTTER_CONTAINER (clutter_actor_get_stage (actor)), new_actor);
+      clutter_actor_get_size (clutter_actor_get_stage (actor), &sw, &sh);
+      clutter_actor_get_size (new_actor, &w, &h);
+      clutter_actor_set_position (new_actor, (sw-w)/2, (sh-h)/2);
+
+      select_item (NULL, new_actor);
+    }
+
+  return TRUE;
+}
+
+
+void stencils_container_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  {
+    GDir *dir = g_dir_open ("stencils", 0, NULL);
+    const gchar *name;
+    while ((name = g_dir_read_name (dir)))
+      {
+        ClutterColor  none = {0,0,0,0};
+        ClutterActor *group = clutter_group_new ();
+        ClutterActor *rectangle = clutter_rectangle_new ();
+        clutter_rectangle_set_color (CLUTTER_RECTANGLE (rectangle), &none);
+        clutter_actor_set_reactive (rectangle, TRUE);
+          {
+            gchar *path;
+            ClutterActor *oi;
+            path = g_strdup_printf ("stencils/%s", name);
+            oi = util_load_json (path);
+            if (oi)
+              {
+                gfloat width, height;
+                gfloat scale;
+                clutter_actor_get_size (oi, &width, &height);
+                scale = 100/width;
+                if (100/height < scale)
+                  scale = 100/height;
+                clutter_actor_set_scale (oi, scale, scale);
+                clutter_actor_set_size (group, width*scale, height*scale);
+                clutter_actor_set_size (rectangle, width*scale, height*scale);
+
+                clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
+                clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
+                g_object_set_data_full (oi, "path", path, g_free);
+                g_signal_connect (rectangle, "button-press-event", add_stencil, path);
+              }
+              else
+              {
+                g_free (path);
+                }
+          }
+        clutter_container_add_actor (CLUTTER_CONTAINER (actor), group);
+      }
+    g_dir_close (dir);
+  }
+}
+
+
+void previews_container_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  {
+    GDir *dir = g_dir_open ("json", 0, NULL);
+    const gchar *name;
+    while ((name = g_dir_read_name (dir)))
+      {
+        ClutterColor  none = {0,0,0,0};
+        ClutterColor  white = {0xff,0xff,0,0xff};
+        ClutterActor *group = clutter_group_new ();
+        clutter_actor_set_size (group, 100, 100);
+        ClutterActor *rectangle = clutter_rectangle_new ();
+        ClutterActor *label = clutter_text_new_with_text ("Sans 10px", name);
+        clutter_rectangle_set_color (CLUTTER_RECTANGLE (rectangle), &none);
+        clutter_text_set_color (CLUTTER_TEXT (label), &white);
+        clutter_actor_set_reactive (rectangle, TRUE);
+          {
+            gchar *path;
+            ClutterActor *oi;
+            path = g_strdup_printf ("json/%s", name);
+            oi = util_load_json (path);
+            g_free (path);
+            if (oi)
+              {
+                gfloat width, height;
+                gfloat scale;
+                clutter_actor_get_size (oi, &width, &height);
+                width = 800;
+                height = 600;
+                scale = 100/width;
+                if (100/height < scale)
+                  scale = 100/height;
+                clutter_actor_set_scale (oi, scale, scale);
+
+                clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
+              }
+            clutter_actor_set_size (rectangle, 100, 100);
+          }
+        clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
+        clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
+        clutter_container_add_actor (CLUTTER_CONTAINER (actor), group);
+      }
+    g_dir_close (dir);
+  }
+}
+
 
 static GList *
 actor_types_build (GList *list, GType type)

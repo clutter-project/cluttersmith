@@ -262,7 +262,12 @@ ClutterActor *property_editor_new (GObject *object,
 
   pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
   if (!pspec)
-    return clutter_rectangle_new ();
+    {
+      ClutterColor red={0xff,0,0,0xff};
+      editor = clutter_rectangle_new ();
+      clutter_rectangle_set_color (CLUTTER_RECTANGLE (editor), &red);
+      return editor;
+    }
  
   uc = g_new0 (UpdateClosure, 1);
   uc->property_name = g_strdup (pspec->name);

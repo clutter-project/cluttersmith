@@ -183,7 +183,6 @@ void util_replace_content2 (ClutterActor  *actor,
 
       for (c=children; c; c = c->next)
         {
-          g_print ("%p\n", c->data);
           if (g_object_get_data (c->data, "clutter-bug") == NULL)
             clutter_actor_destroy (c->data);
         }

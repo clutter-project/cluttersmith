@@ -80,10 +80,18 @@
              ],
          }
 
-         { "type":"NbtkButton",
-           "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
-           "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
-         },
+
+        { "type":"NbtkBoxLayout", 
+          "children":[
+           { "type":"ClutterText", "width":130, "height":32, "text":"type", "color":"white", "font-name":"Sans 12px",
+           },
+
+           { "type":"NbtkButton", "width":130, "height":32,
+             "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+             "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
+           },
+             ]}
+
          { "type":"NbtkScrollView",
            "width":300,
            "height":260,
@@ -129,6 +137,78 @@
          }
        ]
      }
+
+    {
+
+    "type":"NbtkBoxLayout",
+    "style-class":"parasite",
+    "reactive":true,
+    "height":130,
+    "width":700,
+    "spacing":9,
+    "x":0,
+    "y":450,
+    
+    "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+     
+     "children":
+       [
+         { "type":"NbtkScrollView",
+           "width":700,
+           "height":240,
+           "children":
+            [
+              { "type":"NbtkViewport",
+                "children":
+                 [
+                   { "type":"NbtkBoxLayout", "id":"previews-container",
+           "signals": [ {"name":"paint", "handler":"previews_container_init_hack"} ]
+                      "children":[
+                      ]
+                    }
+                 ]
+              }
+           ]
+         }
+       ]
+     }
+
+
+    {
+
+    "type":"NbtkBoxLayout",
+    "style-class":"parasite",
+    "reactive":true,
+    "height":500,
+    "width":130,
+    "spacing":9,
+    "x":0,
+    "y":0,
+    
+    "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+     "children":
+       [
+         { "type":"NbtkScrollView",
+           "width":130,
+           "height":500,
+           "children":
+            [
+              { "type":"NbtkViewport",
+                "children":
+                 [
+                   { "type":"NbtkBoxLayout", "id":"stencils-container",
+                     "vertical":true,
+           "signals": [ {"name":"paint", "handler":"stencils_container_init_hack"} ]
+                      "children":[
+                      ]
+                    }
+                 ]
+              }
+           ]
+         }
+       ]
+     }
+
   ]
   "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
 }
