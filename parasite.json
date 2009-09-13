@@ -1,5 +1,9 @@
-{"type":"NbtkBin",
+{"type":"ClutterGroup",
+ "width":1,
+ "height":1,
  "id":"parasite",
+ "children":[
+{"type":"NbtkBin",
  "width":1024,
  "height":600,
  "x-fill":true,
@@ -17,7 +21,7 @@
         "type":"NbtkBoxLayout",
         "style-class":"parasite",
         "reactive":true,
-        "height":32.0,
+        "height":36.0,
         "spacing":9,
         "x":0,
         "y":0,
@@ -77,16 +81,6 @@
       "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
          "children":
            [
-
-
-        {
-          "type":"ClutterRectangle",
-          "color":"#00000000",
-          "width":400,
-          "signals": [ {"name":"pick", "handler":"no_pick"},
-                       {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
-                     ] 
-        },
 
         {
         "id":"toolbar",
@@ -160,6 +154,14 @@
            ]
          }
 
+        {
+          "type":"ClutterRectangle",
+          "color":"#00000000",
+          "width":400,
+          "signals": [ {"name":"pick", "handler":"no_pick"},
+                       {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
+                     ] 
+        },
         {
         "type":"NbtkBoxLayout",
         "style-class":"parasite",
@@ -237,6 +239,9 @@
       "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
     }
 
+]
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+}
 ]
       "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
 }

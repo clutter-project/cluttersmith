@@ -15,7 +15,7 @@
     "font-name":"Sans 10",
     "text":"New Text",
     "use-markup":false,
-    "line-wrap":false,
+    "line-wrap":true,
     "justify":false,
     "position":-1,
     "selection-bound":-1,

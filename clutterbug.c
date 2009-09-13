@@ -21,6 +21,7 @@ guint CB_REV       = 0; /* everything that changes state and could be determined
 guint CB_SAVED_REV = 0;
 
 
+
 static ClutterActor  *title, *name, *parents, *property_editors, *scene_graph;
 ClutterActor *parasite_root;
 
@@ -718,6 +719,8 @@ static void select_item (ClutterActor *button, ClutterActor *item)
           tree_populate (selected_actor);
         }
     }
+  if (selected_actor)
+  clutter_stage_set_key_focus (clutter_actor_get_stage (selected_actor), NULL);
 }
 
 
@@ -1742,7 +1745,7 @@ void stencils_container_init_hack (ClutterActor  *actor)
                   scale = 100/height;
                 clutter_actor_set_scale (oi, scale, scale);
                 clutter_actor_set_size (group, width*scale, height*scale);
-                clutter_actor_set_size (rectangle, width*scale, height*scale);
+                clutter_actor_set_size (rectangle, 100, height*scale);
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
@@ -1967,6 +1970,7 @@ static void change_type (ClutterActor *actor,
   /* XXX: we need to recreate our correct position in parent as well */
   ClutterActor *new_actor, *parent;
 
+  g_print ("CHANGE type\n");
   hrn_popup_close ();
 
   new_actor = g_object_new (g_type_from_name (new_type), NULL);
@@ -2051,6 +2055,8 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_v,         cb_paste_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cb_duplicate_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_q,         cb_quit},
+  {0,                    CLUTTER_BackSpace, cb_remove_selected},
+  {0,                    CLUTTER_Delete,    cb_remove_selected},
   {0,                    CLUTTER_Page_Up,   cb_raise_selected},
   {0,                    CLUTTER_Page_Down, cb_lower_selected},
   {0,                    CLUTTER_Home,      cb_raise_top_selected},

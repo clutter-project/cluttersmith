@@ -194,6 +194,7 @@ hrn_popup_actor_fixed (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
   gint          w, h;
 
   clutter_actor_raise_top (stage);
+  clutter_actor_raise_top (actor);
   /* install a capture that only allows events destined to
    * children of the popped up actor to come through
    */

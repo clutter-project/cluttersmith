@@ -28,10 +28,10 @@ NbtkLabel, NbtkIMLabel
 *.ParasiteToolbar NbtkButton:checked 
 {
   font-size: 20px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  padding-left: 2px;
-  padding-right: 2px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 NbtkBoxLayout.ParasiteTreeA1 {
@@ -53,6 +53,12 @@ NbtkBoxLayout.ParasiteTreeB2 {
 *.parasite NbtkButton {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
+}
+
+
+*.parasite NbtkEntry {
+  border-image: url("file://entry-bg.png") 8 8 8 8;
+  color: yellow;
 }
 
 *.parasite NbtkButton {
@@ -80,3 +86,77 @@ NbtkBoxLayout.ParasiteTreeB2 {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
+
+
+
+*.parasite NbtkScrollBar
+{
+  background-color: #00000000;
+  padding: 2px;
+}
+
+
+*.parasite NbtkButton#backward-stepper
+{
+  border-image: url("file://button-bg.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#backward-stepper:hover,
+*.parasite NbtkButton#backward-stepper:active
+{
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#forward-stepper
+{
+  border-image: url("file://button-bg.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#forward-stepper:hover,
+*.parasite NbtkButton#forward-stepper:active
+{
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#up-stepper
+{
+  border-image: url("file://button-bg.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#up-stepper:hover,
+*.parasite NbtkButton#up-stepper:active
+{
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#down-stepper
+{
+  border-image: url("file://button-bg.png") 8 8 8 8;
+}
+
+*.parasite NbtkButton#down-stepper:hover,
+*.parasite NbtkButton#down-stepper:active
+{
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
+*.parasite NbtkScrollBar NbtkButton#vhandle
+{
+  border-image: url("file://button-bg.png") 8 8 8 8;
+}
+
+*.parasite NbtkScrollBar NbtkButton#vhandle:hover
+{
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
+*.parasite NbtkScrollBar NbtkButton#hhandle
+{
+  border-image: url("file://button-bg.png") 8 8 8 8;
+}
+
+*.parasite NbtkScrollBar NbtkButton#hhandle:hover
+{
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
