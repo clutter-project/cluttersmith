@@ -142,6 +142,23 @@ properties_to_string (GString      *str,
             INDENT;g_string_append_printf (str,"\"%s\":%s,\n",
                                            properties[i]->name, value?"true":"false");
           }
+        else if (properties[i]->value_type == CLUTTER_TYPE_COLOR)
+          {
+            GValue value = {0,};
+            GValue str_value = {0,};
+            gchar *initial;
+            g_value_init (&value, properties[i]->value_type);
+            g_value_init (&str_value, G_TYPE_STRING);
+            g_object_get_property (G_OBJECT (actor), properties[i]->name, &value);
+            if (g_value_transform (&value, &str_value))
+              {
+                INDENT;g_string_append_printf (str,"\"%s\":\"%s\",\n",
+                                               properties[i]->name, g_value_get_string (&str_value));
+              }
+            else
+              {
+              }
+          }
         else
           {
 #if 0
