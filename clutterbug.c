@@ -9,6 +9,7 @@
 
 /*#define EDIT_SELF*/
 
+static gboolean remove_from_selection = FALSE; /* is this used? */
 #define PKGDATADIR "./" //"/home/pippin/src/clutterbug/"
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};
@@ -20,6 +21,19 @@ guint CB_REV       = 0; /* everything that changes state and could be determined
                          */
 guint CB_SAVED_REV = 0;
 
+ClutterActor      *lasso;
+static gint        lx, ly;
+static GHashTable *selection = NULL; /* what would be added/removed by
+                                        current lasso*/
+static GHashTable *selected  = NULL;
+
+
+static void init_multi_select (void)
+{
+  selection = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+  selected = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+
+}
 
 
 static ClutterActor  *title, *name, *parents, *property_editors, *scene_graph;
@@ -33,8 +47,12 @@ gchar *whitelist[]={"depth", "opacity",
 
 void load_file (ClutterActor *actor, const gchar *title);
 
-
-gchar *blacklist_types[]={"ClutterStage", "ClutterCairoTexture", "ClutterStageGLX", "ClutterStageX11", "ClutterActor", "NbtkWidget",
+gchar *blacklist_types[]={"ClutterStage",
+                          "ClutterCairoTexture",
+                          "ClutterStageGLX",
+                          "ClutterStageX11",
+                          "ClutterActor",
+                          "NbtkWidget",
                           NULL};
 
 gchar *subtree_to_string (ClutterActor *root);
@@ -61,108 +79,159 @@ cb_overlay_paint (ClutterActor *actor,
 {
   ClutterVertex verts[4];
 
-  if (!selected_actor)
-    return;
-  if (CLUTTER_IS_STAGE (selected_actor))
+  if (!selected_actor && g_hash_table_size (selected)==0)
     return;
 
-  clutter_actor_get_abs_allocation_vertices (selected_actor,
-                                             verts);
-
-  cogl_set_source_color4ub (0, 25, 0, 50);
-
-  {
-    CoglTextureVertex tverts[] = 
-       {
-         {verts[0].x, verts[0].y, },
-         {verts[2].x, verts[2].y, },
-         {verts[3].x, verts[3].y, },
-         {verts[1].x, verts[1].y, },
-       };
-    cogl_polygon (tverts, 4, FALSE);
-
+  if (!CLUTTER_IS_STAGE (selected_actor))
     {
-      gfloat coords[]={ verts[0].x, verts[0].y, 
-         verts[1].x, verts[1].y, 
-         verts[3].x, verts[3].y, 
-         verts[2].x, verts[2].y, 
-         verts[0].x, verts[0].y };
+      clutter_actor_get_abs_allocation_vertices (selected_actor,
+                                                 verts);
 
-      cogl_path_polyline (coords, 5);
-      cogl_set_source_color4ub (255, 0, 0, 128);
-      cogl_path_stroke ();
+      cogl_set_source_color4ub (0, 25, 0, 50);
+
+      {
+        CoglTextureVertex tverts[] = 
+           {
+             {verts[0].x, verts[0].y, },
+             {verts[2].x, verts[2].y, },
+             {verts[3].x, verts[3].y, },
+             {verts[1].x, verts[1].y, },
+           };
+        cogl_polygon (tverts, 4, FALSE);
 
         {
-          gint i;
-          for (i=-1;i<3;i++)
+          gfloat coords[]={ verts[0].x, verts[0].y, 
+             verts[1].x, verts[1].y, 
+             verts[3].x, verts[3].y, 
+             verts[2].x, verts[2].y, 
+             verts[0].x, verts[0].y };
+
+          cogl_path_polyline (coords, 5);
+          cogl_set_source_color4ub (255, 0, 0, 128);
+          cogl_path_stroke ();
+
             {
-              gfloat coords[]={ 
-             (verts[1].x+verts[3].x)/2+i, (verts[1].y+verts[3].y)/2+i, 
-             verts[3].x+1, verts[3].y+i, 
-             (verts[2].x+verts[3].x)/2+i, (verts[2].y+verts[3].y)/2+i};
-             cogl_path_polyline (coords, 3);
-             cogl_set_source_color4ub (255, 0, 0, 128);
-             cogl_path_stroke ();
+              gint i;
+              for (i=-1;i<3;i++)
+                {
+                  gfloat coords[]={ 
+                 (verts[1].x+verts[3].x)/2+i, (verts[1].y+verts[3].y)/2+i, 
+                 verts[3].x+1, verts[3].y+i, 
+                 (verts[2].x+verts[3].x)/2+i, (verts[2].y+verts[3].y)/2+i};
+                 cogl_path_polyline (coords, 3);
+                 cogl_set_source_color4ub (255, 0, 0, 128);
+                 cogl_path_stroke ();
+            }
+            }
         }
-        }
+
+        cogl_set_source_color4ub (128, 128, 255, 255);
+        switch (hor_pos)
+          {
+            case 1:
+             {
+                gfloat coords[]={ verts[2].x, -2000,
+                                  verts[2].x, 2000 };
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 2:
+             {
+                gfloat coords[]={ (verts[2].x+verts[1].x)/2, -2000,
+                                  (verts[2].x+verts[1].x)/2, 2000 };
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 3:
+             {
+                gfloat coords[]={ verts[1].x, -2000,
+                                  verts[1].x, 2000 };
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+          }
+        switch (ver_pos)
+          {
+            case 1:
+             {
+                gfloat coords[]={ -2000, verts[1].y,
+                                   2000, verts[1].y};
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 2:
+             {
+                gfloat coords[]={ -2000, (verts[2].y+verts[1].y)/2,
+                                   2000, (verts[2].y+verts[1].y)/2};
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 3:
+             {
+                gfloat coords[]={ -2000, verts[2].y,
+                                   2000, verts[2].y};
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+          }
+      }
     }
 
-    cogl_set_source_color4ub (128, 128, 255, 255);
-    switch (hor_pos)
+  {
+  /* draw selected */
+    GHashTableIter      iter;
+    gpointer            key, value;
+
+    g_hash_table_iter_init (&iter, selected);
+    while (g_hash_table_iter_next (&iter, &key, &value))
       {
-        case 1:
-         {
-            gfloat coords[]={ verts[2].x, -2000,
-                              verts[2].x, 2000 };
-            cogl_path_polyline (coords, 2);
+        clutter_actor_get_abs_allocation_vertices (key,
+                                                   verts);
+
+        cogl_set_source_color4ub (0, 25, 0, 50);
+
+        {
+          {
+            gfloat coords[]={ verts[0].x, verts[0].y, 
+               verts[1].x, verts[1].y, 
+               verts[3].x, verts[3].y, 
+               verts[2].x, verts[2].y, 
+               verts[0].x, verts[0].y };
+
+            cogl_path_polyline (coords, 5);
+            cogl_set_source_color4ub (255, 0, 0, 128);
             cogl_path_stroke ();
-         }
-         break;
-        case 2:
-         {
-            gfloat coords[]={ (verts[2].x+verts[1].x)/2, -2000,
-                              (verts[2].x+verts[1].x)/2, 2000 };
-            cogl_path_polyline (coords, 2);
-            cogl_path_stroke ();
-         }
-         break;
-        case 3:
-         {
-            gfloat coords[]={ verts[1].x, -2000,
-                              verts[1].x, 2000 };
-            cogl_path_polyline (coords, 2);
-            cogl_path_stroke ();
-         }
-      }
-    switch (ver_pos)
-      {
-        case 1:
-         {
-            gfloat coords[]={ -2000, verts[1].y,
-                               2000, verts[1].y};
-            cogl_path_polyline (coords, 2);
-            cogl_path_stroke ();
-         }
-         break;
-        case 2:
-         {
-            gfloat coords[]={ -2000, (verts[2].y+verts[1].y)/2,
-                               2000, (verts[2].y+verts[1].y)/2};
-            cogl_path_polyline (coords, 2);
-            cogl_path_stroke ();
-         }
-         break;
-        case 3:
-         {
-            gfloat coords[]={ -2000, verts[2].y,
-                               2000, verts[2].y};
-            cogl_path_polyline (coords, 2);
-            cogl_path_stroke ();
-         }
+          }
+        }
       }
 
+    g_hash_table_iter_init (&iter, selection);
+    while (g_hash_table_iter_next (&iter, &key, &value))
+      {
+        clutter_actor_get_abs_allocation_vertices (key,
+                                                   verts);
 
-  }
+        cogl_set_source_color4ub (0, 0, 25, 50);
+
+        {
+          {
+            gfloat coords[]={ verts[0].x, verts[0].y, 
+               verts[1].x, verts[1].y, 
+               verts[3].x, verts[3].y, 
+               verts[2].x, verts[2].y, 
+               verts[0].x, verts[0].y };
+
+            cogl_path_polyline (coords, 5);
+            cogl_set_source_color4ub (0, 0, 255, 128);
+            cogl_path_stroke ();
+          }
+        }
+      }
+}
 
 }
 
@@ -206,6 +275,7 @@ gboolean idle_add_stage (gpointer stage)
   stage_size_changed (stage, NULL, actor);
 
   cb_manipulate_init (parasite_root);
+  init_multi_select ();
   select_item (NULL, stage);
 
 
@@ -521,6 +591,8 @@ update_id (ClutterText *text,
   return TRUE;
 }
 
+#define EDITOR_LINE_HEIGHT 24
+
 static void
 props_populate (ClutterActor *actor)
 {
@@ -548,28 +620,28 @@ props_populate (ClutterActor *actor)
 
     label = clutter_text_new_with_text ("Sans 12px", "pos:");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_size (label, 25, 32);
+    clutter_actor_set_size (label, 25, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
 
     editor = property_editor_new (G_OBJECT (actor), "x");
-    clutter_actor_set_size (editor, 50, 32);
+    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     editor = property_editor_new (G_OBJECT (actor), "y");
-    clutter_actor_set_size (editor, 50, 32);
+    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     label = clutter_text_new_with_text ("Sans 12px", "size:");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_size (label, 25, 32);
+    clutter_actor_set_size (label, 25, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
 
     editor = property_editor_new (G_OBJECT (actor), "width");
-    clutter_actor_set_size (editor, 50, 32);
+    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     editor = property_editor_new (G_OBJECT (actor), "height");
-    clutter_actor_set_size (editor, 50, 32);
+    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
@@ -590,8 +662,8 @@ props_populate (ClutterActor *actor)
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_size (label, 130, 32);
-    clutter_actor_set_size (editor, 130, 32);
+    clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
   }
 
@@ -628,8 +700,8 @@ props_populate (ClutterActor *actor)
         ClutterActor *label = clutter_text_new_with_text ("Sans 12px", properties[i]->name);
         ClutterActor *editor = property_editor_new (G_OBJECT (actor), properties[i]->name);
         clutter_text_set_color (CLUTTER_TEXT (label), &white);
-        clutter_actor_set_size (label, 130, 32);
-        clutter_actor_set_size (editor, 130, 32);
+        clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
+        clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
         clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
@@ -660,8 +732,8 @@ props_populate (ClutterActor *actor)
                     ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
                     ClutterActor *editor = property_editor_new (G_OBJECT (child_meta), child_properties[i]->name);
                     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-                    clutter_actor_set_size (label, 130, 32);
-                    clutter_actor_set_size (editor, 130, 32);
+                    clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
+                    clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
                     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
                     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
                     clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
@@ -720,7 +792,7 @@ static void select_item (ClutterActor *button, ClutterActor *item)
         }
     }
   if (selected_actor)
-  clutter_stage_set_key_focus (clutter_actor_get_stage (selected_actor), NULL);
+  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (selected_actor)), NULL);
 }
 
 
@@ -1036,6 +1108,19 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
 }
 
 
+static gboolean manipulate_move_press (ClutterActor  *actor,
+                                  ClutterEvent  *event)
+{
+  manipulate_x = event->button.x;
+  manipulate_y = event->button.y;
+
+  manipulate_capture_handler = 
+     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                       G_CALLBACK (manipulate_move_capture), actor);
+  return TRUE;
+}
+
+
 static gboolean
 manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
 {
@@ -1074,19 +1159,6 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
   return TRUE;
 }
 
-static gboolean manipulate_move_press (ClutterActor  *actor,
-                                  ClutterEvent  *event)
-{
-  manipulate_x = event->button.x;
-  manipulate_y = event->button.y;
-
-  manipulate_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (manipulate_move_capture), actor);
-  return TRUE;
-}
-
-
 static gboolean manipulate_resize_press (ClutterActor  *actor,
                                          ClutterEvent  *event)
 {
@@ -1101,24 +1173,202 @@ static gboolean manipulate_resize_press (ClutterActor  *actor,
   return TRUE;
 }
 
+static void get_all_actors_int (GList **list, ClutterActor *actor)
+{
+  if (util_has_ancestor (actor, parasite_root))
+    return;
+
+  if (!CLUTTER_IS_STAGE (actor))
+    *list = g_list_prepend (*list, actor);
+
+  if (CLUTTER_IS_CONTAINER (actor))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+      for (c = children; c; c=c->next)
+        {
+          get_all_actors_int (list, c->data);
+        }
+      g_list_free (children);
+    }
+}
+static GList *get_all_actors (ClutterActor *actor)
+{
+  GList *ret = NULL;
+  get_all_actors_int (&ret, actor);
+  return ret;
+}
+
+
+static gboolean
+intersects (gint min, gint max, gint minb, gint maxb)
+{
+  if (minb <= max && minb >= min)
+    return TRUE;
+  if (min <= maxb && min >= minb)
+    return TRUE;
+  return FALSE;
+}
+
+#define LASSO_BORDER 1
+
+
+static gboolean
+manipulate_lasso_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
+{
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          gfloat ex=event->motion.x;
+          gfloat ey=event->motion.y;
+
+          gint mx = MIN (ex, lx);
+          gint my = MIN (ey, ly);
+          gint mw = MAX (ex, lx) - mx;
+          gint mh = MAX (ey, ly) - my;
+
+          clutter_actor_set_position (lasso, mx - LASSO_BORDER, my - LASSO_BORDER);
+          clutter_actor_set_size (lasso, mw + LASSO_BORDER*2, mh+LASSO_BORDER*2);
+
+          manipulate_x=ex;
+          manipulate_y=ey;
+
+          g_hash_table_remove_all (selection);
+
+          {
+            gint no;
+            GList *j, *list;
+           
+            list = get_all_actors (stage);
+
+            for (no = 0, j=list; j;no++,j=j->next)
+              {
+                gfloat cx, cy;
+                gfloat cw, ch;
+                clutter_actor_get_transformed_position (j->data, &cx, &cy);
+                clutter_actor_get_transformed_size (j->data, &cw, &ch);
+
+                if (intersects (mx, mx + mw, cx, cx + cw) &&
+                    intersects (my, my + mh, cy, cy + ch))
+                  {
+                    g_hash_table_insert (selection, j->data, j->data);
+                  }
+              }
+            g_list_free (list);
+
+            if (clutter_event_get_state (event) & CLUTTER_CONTROL_MASK)
+              remove_from_selection = TRUE;
+            else
+              remove_from_selection = FALSE;
+          }
+        }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+         {
+          ClutterModifierType state = event->button.modifier_state;
+          GHashTableIter      iter;
+          gpointer            key, value;
+
+          g_hash_table_iter_init (&iter, selection);
+          while (g_hash_table_iter_next (&iter, &key, &value))
+            {
+              if (state & CLUTTER_CONTROL_MASK)
+                {
+                  if (g_hash_table_lookup (selected, key))
+                    {
+                      g_hash_table_remove (selected, key);
+                    }
+                  else
+                    {
+                      g_hash_table_insert (selected, key, value);
+                    }
+                }
+              else
+                {
+                  g_hash_table_insert (selected, key, value);
+                }
+            }
+        }
+        g_hash_table_remove_all (selection);
+
+        clutter_actor_queue_redraw (stage);
+        g_signal_handler_disconnect (stage,
+                                     manipulate_capture_handler);
+        manipulate_capture_handler = 0;
+        clutter_actor_destroy (lasso);
+        lasso = NULL;
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+
 
 static gboolean manipulate_select_press (ClutterActor  *actor,
                                          ClutterEvent  *event)
 {
    ClutterActor *hit;
+   ClutterModifierType state = event->button.modifier_state;
+
 
    hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                          CLUTTER_PICK_ALL,
                                          event->button.x, event->button.y);
 
+  if (!((state & CLUTTER_SHIFT_MASK) ||
+        (state & CLUTTER_CONTROL_MASK)))
+    {
+      g_hash_table_remove_all (selected);
+    }
+
+  if (hit == clutter_actor_get_stage (actor))
+    {
+      if (state & CLUTTER_CONTROL_MASK)
+        {
+          remove_from_selection = TRUE;
+        }
+      else
+        {
+          remove_from_selection = FALSE;
+        }
+
+      if (lasso == NULL)
+        {
+          ClutterColor lassocolor       = {0xff,0x0,0x0,0x11};
+          ClutterColor lassobordercolor = {0xff,0x0,0x0,0x88};
+          lasso = clutter_rectangle_new_with_color (&lassocolor);
+          clutter_rectangle_set_border_color (CLUTTER_RECTANGLE (lasso), &lassobordercolor);
+          clutter_rectangle_set_border_width (CLUTTER_RECTANGLE (lasso), LASSO_BORDER);
+          clutter_container_add_actor (CLUTTER_CONTAINER (parasite_root), lasso);
+        }
+      lx = event->button.x;
+      ly = event->button.y;
+
+      clutter_actor_set_position (lasso, lx-LASSO_BORDER, ly-LASSO_BORDER);
+      clutter_actor_set_size (lasso, LASSO_BORDER*2, LASSO_BORDER*2);
+
+      manipulate_x = event->button.x;
+      manipulate_y = event->button.y;
+
+      manipulate_capture_handler = 
+         g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                           G_CALLBACK (manipulate_lasso_capture), actor);
+    }
+  else
+    {
 #ifdef EDIT_SELF
-   select_item (NULL, hit);
-#else
-   if (!util_has_ancestor (hit, parasite_root) || 1)
      select_item (NULL, hit);
-   else
-     g_print ("child of foo!\n");
+#else
+     if (!util_has_ancestor (hit, parasite_root) || 1)
+       select_item (NULL, hit);
+     else
+       g_print ("child of foo!\n");
 #endif
+    }
+
+
   return TRUE;
 }
 
@@ -1635,6 +1885,7 @@ void load_file (ClutterActor *actor, const gchar *title)
       util_replace_content2 (clutter_stage_get_default(), "content", NULL);
       CB_REV = CB_SAVED_REV = 0;
     }
+  g_hash_table_remove_all (selected);
 }
 
 void entry_text_changed (ClutterActor *actor)
@@ -2064,7 +2315,6 @@ static KeyBinding keybindings[]={
   {0, 0, NULL},
 };
 
-
 static gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
 {
   gint i;
@@ -2078,5 +2328,3 @@ static gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
     }
   return FALSE;
 }
-
-

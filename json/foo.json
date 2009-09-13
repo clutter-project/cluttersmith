@@ -225,10 +225,10 @@
   {
     "type":"NbtkEntry",
     "name":"link=foo",
-    "x":473,
-    "y":324,
-    "width":151,
-    "height":133,
+    "x":397,
+    "y":260,
+    "width":178,
+    "height":63,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -238,8 +238,8 @@
     "anchor-y":0.000,
     "stylable":true,
     "has-tooltip":false,
-    "text":"NbtkEntry",
     "hint-text":"NbtkEntry",
+    "text":"NbtkEntry",
   }
   ,
   {

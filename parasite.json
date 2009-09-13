@@ -36,7 +36,7 @@
              }
 
              { "type":"NbtkGrid",
-               "column-gap": 5.0,
+               "column-gap": 2.0,
                "style-class":"ParasiteToolbar",
                "children":
                  [
@@ -99,10 +99,10 @@
            [
             { "type":"NbtkBoxLayout", 
               "children":[
-               { "type":"ClutterText", "width":130, "height":32, "text":"type", "color":"white", "font-name":"Sans 12px",
+               { "type":"ClutterText", "width":130, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
                },
 
-               { "type":"NbtkButton", "width":130, "height":32,
+               { "type":"NbtkButton", "width":130, "height":24,
                  "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
                  "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
                },
@@ -119,10 +119,11 @@
                        { "type":"NbtkBoxLayout", "vertical":true,
                           "children":[
 
-                            {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors"},
+                            {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors",
+                             "spacing":2},
 
                             {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                            { "type":"NbtkGrid",  "id":"parents", "column-gap":4, "row-gap":4, "width":270
+                            { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":270
                               "children":[
                               ]
                             }
@@ -164,9 +165,10 @@
         },
         {
         "type":"NbtkBoxLayout",
-        "style-class":"parasite",
+        "style-class":"parasite-paste",
         "reactive":true,
         "width":130,
+        "vertical":true,
         "spacing":9,
         "x":0,
         "y":60,
@@ -174,6 +176,14 @@
         "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
          "children":
            [
+             { "type":"ClutterGroup",
+               "id":"pasteboard",
+               "width":100,
+               "height":100,
+               "children":[
+                 {"type":"ClutterRectangle", "width":50, "height":50}
+               ]
+             }
              { "type":"NbtkScrollView",
                "width":130,
                "height":400,
@@ -183,7 +193,7 @@
                     "children":
                      [
                        { "type":"NbtkBoxLayout", "id":"stencils-container",
-                         "vertical":true,
+                         "vertical":true, "spacing":2,
                "signals": [ {"name":"paint", "handler":"stencils_container_init_hack"} ]
                           "children":[
                           ]

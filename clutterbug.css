@@ -71,6 +71,9 @@ NbtkBoxLayout.ParasiteTreeB2 {
   color: white;
 }
 
+NbtkBoxLayout.parasite-paste  {
+  background-color: #444444ee;
+}
 
 *.parasite  {
   background-color: #444444ee;
