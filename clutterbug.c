@@ -190,7 +190,6 @@ gboolean idle_add_stage (gpointer stage)
   cb_manipulate_init (parasite_root);
   select_item (NULL, stage);
 
-  g_object_set (title, "text", "foo", NULL);
 
   init_types ();
   return FALSE;
@@ -1609,6 +1608,7 @@ void entry_text_changed (ClutterActor *actor)
 {
   const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
   load_file (actor, title);
+  clutter_actor_raise_top (parasite_root);
 }
 
 void search_entry_init_hack (ClutterActor  *actor)
@@ -1643,6 +1643,22 @@ static gboolean add_stencil (ClutterActor *actor,
       select_item (NULL, new_actor);
     }
 
+  return TRUE;
+}
+
+
+static gboolean load_layout (ClutterActor *actor,
+                             ClutterEvent *event,
+                             const gchar  *path)
+{
+  gchar *new_title = g_strdup (path);
+  gchar *dot;
+
+  dot = strrchr(new_title, '.');
+  if (dot)
+    *dot='\0';
+  g_object_set (title, "text", new_title +5, NULL);
+  g_free (new_title);
   return TRUE;
 }
 
@@ -1730,7 +1746,6 @@ void previews_container_init_hack (ClutterActor  *actor)
             ClutterActor *oi;
             path = g_strdup_printf ("json/%s", name);
             oi = util_load_json (path);
-            g_free (path);
             if (oi)
               {
                 gfloat width, height;
@@ -1744,6 +1759,12 @@ void previews_container_init_hack (ClutterActor  *actor)
                 clutter_actor_set_scale (oi, scale, scale);
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
+                g_object_set_data_full (oi, "path", path, g_free);
+                g_signal_connect (rectangle, "button-press-event", load_layout, path);
+              }
+            else
+              {
+                g_free (path);
               }
             clutter_actor_set_size (rectangle, 100, 100);
           }
