@@ -78,6 +78,16 @@
          "children":
            [
 
+
+        {
+          "type":"ClutterRectangle",
+          "color":"#00000000",
+          "width":400,
+          "signals": [ {"name":"pick", "handler":"no_pick"},
+                       {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
+                     ] 
+        },
+
         {
         "id":"toolbar",
         "type":"NbtkBoxLayout",
@@ -150,14 +160,6 @@
            ]
          }
 
-        {
-          "type":"ClutterRectangle",
-          "color":"#00000000",
-          "width":400,
-          "signals": [ {"name":"pick", "handler":"no_pick"},
-                       {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
-                     ] 
-        },
         {
         "type":"NbtkBoxLayout",
         "style-class":"parasite",
