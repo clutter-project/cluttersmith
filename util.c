@@ -274,3 +274,9 @@ void parasite_pick (ClutterActor       *actor,
   clutter_container_foreach (CLUTTER_CONTAINER (actor), CLUTTER_CALLBACK (clutter_actor_paint), NULL);
   g_signal_stop_emission_by_name (actor, "pick");
 }
+
+void no_pick (ClutterActor       *actor,
+              const ClutterColor *color)
+{
+  g_signal_stop_emission_by_name (actor, "pick");
+}

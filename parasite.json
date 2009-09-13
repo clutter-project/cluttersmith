@@ -1,214 +1,240 @@
-{"type":"ClutterGroup",
+{"type":"NbtkBin",
  "id":"parasite",
+ "width":1024,
+ "height":600,
+ "x-fill":true,
+ "y-fill":true,
 
  "children":
-   [
+  [
+    {"type":"NbtkBoxLayout",
+     "vertical":true,
 
-    {
-
-    "id":"toolbar",
-    "type":"NbtkBoxLayout",
-    "style-class":"parasite",
-    "vertical":true,
-    "reactive":true,
-    "height":600,
-    "width":300,
-    "spacing":9,
-    "x":724,
-    "y":0,
-    
-    "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
-     
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
      "children":
        [
-         { "id":"title",
-           "type":"NbtkEntry",  "text": "", "width":300,
-           "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
-           
-         }
+        {
+        "type":"NbtkBoxLayout",
+        "style-class":"parasite",
+        "reactive":true,
+        "height":32.0,
+        "spacing":9,
+        "x":0,
+        "y":0,
+        
+        "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+         
+         "children":
+           [
+             { "id":"title",
+               "type":"NbtkEntry",  "text": "", "width":200, "height":10,
+               "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
+             }
 
-         { "type":"NbtkGrid",
-           "row-gap": 5.0,
-           "column-gap": 5.0,
-           "style-class":"ParasiteToolbar",
-           "children":
-             [
-
-               { "type":"NbtkButton",
-                 "label":"Copy",
-                 "signals": [ {"name":"clicked", "handler":"cb_copy_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"Cut",
-                 "signals": [ {"name":"clicked", "handler":"cb_cut_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"Paste",
-                 "signals": [ {"name":"clicked", "handler":"cb_paste_selected"} ] }
-
-               { "type":"NbtkButton",
-                 "label":"D",
-                 "signals": [ {"name":"clicked", "handler":"cb_duplicate_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"⨯",
-                 "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"↟",
-                 "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"↥",
-                 "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"↧",
-                 "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"↡",
-                 "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] }
-               { "type":"NbtkButton",
-                 "label":"⨀", 
-                 "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
-
-               { "type":"NbtkButton",
-                 "label":"T",
-                 "signals": [ {"name":"clicked", "handler":"cb_add_text"} ] }
-               { "type":"NbtkButton",
-                 "label":"B",
-                 "signals": [ {"name":"clicked", "handler":"cb_add_button"} ] }
-
-               { "type":"NbtkButton",
-                 "label":"R",
-                 "signals": [ {"name":"clicked", "handler":"cb_add"} ] }
-
-             ],
-         }
-
-
-        { "type":"NbtkBoxLayout", 
-          "children":[
-           { "type":"ClutterText", "width":130, "height":32, "text":"type", "color":"white", "font-name":"Sans 12px",
-           },
-
-           { "type":"NbtkButton", "width":130, "height":32,
-             "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
-             "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
-           },
-             ]}
-
-         { "type":"NbtkScrollView",
-           "width":300,
-           "height":260,
-           "children":
-            [
-              { "type":"NbtkViewport",
-                "children":
+             { "type":"NbtkGrid",
+               "column-gap": 5.0,
+               "style-class":"ParasiteToolbar",
+               "children":
                  [
-                   { "type":"NbtkBoxLayout", "vertical":true,
-                      "children":[
 
-                        {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors"},
+                   { "type":"NbtkButton",
+                     "label":"⿻",
+                     "signals": [ {"name":"clicked", "handler":"cb_copy_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"✂",
+                     "signals": [ {"name":"clicked", "handler":"cb_cut_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"⟴",
+                     "signals": [ {"name":"clicked", "handler":"cb_paste_selected"} ] }
 
-                        {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                        { "type":"NbtkGrid",  "id":"parents", "column-gap":4, "row-gap":4, "width":270
+                   { "type":"NbtkButton",
+                     "label":"Ꙭ",
+                     "signals": [ {"name":"clicked", "handler":"cb_duplicate_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"×",
+                     "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"⤒",
+                     "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"↥",
+                     "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"↧",
+                     "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"⤓",
+                     "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] }
+                   { "type":"NbtkButton",
+                     "label":"⨀", 
+                     "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
+                 ],
+             }
+           ]
+         }
+
+        {"type":"NbtkBoxLayout",
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+         "children":
+           [
+
+        {
+        "id":"toolbar",
+        "type":"NbtkBoxLayout",
+        "style-class":"parasite",
+        "vertical":true,
+        "reactive":true,
+        "width":300,
+        "spacing":9,
+        "x":724,
+        "y":0,
+        
+        "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+         
+         "children":
+           [
+            { "type":"NbtkBoxLayout", 
+              "children":[
+               { "type":"ClutterText", "width":130, "height":32, "text":"type", "color":"white", "font-name":"Sans 12px",
+               },
+
+               { "type":"NbtkButton", "width":130, "height":32,
+                 "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+                 "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
+               },
+                 ]}
+
+             { "type":"NbtkScrollView",
+               "width":300,
+               "height":220,
+               "children":
+                [
+                  { "type":"NbtkViewport",
+                    "children":
+                     [
+                       { "type":"NbtkBoxLayout", "vertical":true,
+                          "children":[
+
+                            {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors"},
+
+                            {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
+                            { "type":"NbtkGrid",  "id":"parents", "column-gap":4, "row-gap":4, "width":270
+                              "children":[
+                              ]
+                            }
+
+
+                          ]
+                        }
+                     ]
+                  }
+               ]
+             }
+             { "type":"NbtkScrollView",
+               "width":300,
+               "height":240,
+               "children":
+                [
+                  { "type":"NbtkViewport",
+                    "children":
+                     [
+                       { "type":"ClutterGroup", "id":"scene-graph",
+                          "children":[
+                            {"type":"ClutterText", "color":"gray", "text":"......"},
+                          ]
+                        }
+                     ]
+                  }
+               ]
+             }
+           ]
+         }
+
+        {
+          "type":"ClutterRectangle",
+          "color":"#00000000",
+          "width":400,
+          "signals": [ {"name":"pick", "handler":"no_pick"},
+                       {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
+                     ] 
+        },
+        {
+        "type":"NbtkBoxLayout",
+        "style-class":"parasite",
+        "reactive":true,
+        "width":130,
+        "spacing":9,
+        "x":0,
+        "y":60,
+        
+        "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+         "children":
+           [
+             { "type":"NbtkScrollView",
+               "width":130,
+               "height":400,
+               "children":
+                [
+                  { "type":"NbtkViewport",
+                    "children":
+                     [
+                       { "type":"NbtkBoxLayout", "id":"stencils-container",
+                         "vertical":true,
+               "signals": [ {"name":"paint", "handler":"stencils_container_init_hack"} ]
                           "children":[
                           ]
                         }
-
-
-                      ]
-                    }
-                 ]
-              }
+                     ]
+                  }
+               ]
+             }
            ]
          }
-         { "type":"NbtkScrollView",
-           "width":300,
-           "height":240,
-           "children":
-            [
-              { "type":"NbtkViewport",
-                "children":
-                 [
-                   { "type":"ClutterGroup", "id":"scene-graph",
-                      "children":[
-                        {"type":"ClutterText", "color":"gray", "text":"......"},
-                      ]
-                    }
-                 ]
-              }
+
+        ] }
+
+
+        {
+
+        "type":"NbtkBoxLayout",
+        "style-class":"parasite",
+        "reactive":true,
+        "height":130,
+        "width":700,
+        "spacing":9,
+        "x":0,
+        "y":455,
+        
+        "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+         
+         "children":
+           [
+             { "type":"NbtkScrollView",
+               "width":700,
+               "height":240,
+               "children":
+                [
+                  { "type":"NbtkViewport",
+                    "children":
+                     [
+                       { "type":"NbtkBoxLayout", "id":"previews-container",
+               "signals": [ {"name":"paint", "handler":"previews_container_init_hack"} ]
+                          "children":[
+                          ]
+                        }
+                     ]
+                  }
+               ]
+             }
            ]
          }
-       ]
-     }
-
-    {
-
-    "type":"NbtkBoxLayout",
-    "style-class":"parasite",
-    "reactive":true,
-    "height":130,
-    "width":700,
-    "spacing":9,
-    "x":0,
-    "y":450,
-    
-    "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
-     
-     "children":
-       [
-         { "type":"NbtkScrollView",
-           "width":700,
-           "height":240,
-           "children":
-            [
-              { "type":"NbtkViewport",
-                "children":
-                 [
-                   { "type":"NbtkBoxLayout", "id":"previews-container",
-           "signals": [ {"name":"paint", "handler":"previews_container_init_hack"} ]
-                      "children":[
-                      ]
-                    }
-                 ]
-              }
-           ]
-         }
-       ]
-     }
 
 
-    {
 
-    "type":"NbtkBoxLayout",
-    "style-class":"parasite",
-    "reactive":true,
-    "height":500,
-    "width":130,
-    "spacing":9,
-    "x":0,
-    "y":0,
-    
-    "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
-     "children":
-       [
-         { "type":"NbtkScrollView",
-           "width":130,
-           "height":500,
-           "children":
-            [
-              { "type":"NbtkViewport",
-                "children":
-                 [
-                   { "type":"NbtkBoxLayout", "id":"stencils-container",
-                     "vertical":true,
-           "signals": [ {"name":"paint", "handler":"stencils_container_init_hack"} ]
-                      "children":[
-                      ]
-                    }
-                 ]
-              }
-           ]
-         }
-       ]
-     }
+      ]
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+    }
 
-  ]
-  "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+]
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
 }

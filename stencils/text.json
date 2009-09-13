@@ -1,10 +1,6 @@
-{
-  "id":"actor",
-"type":"ClutterGroup",
-  "children":[
-  ,
   {
     "type":"ClutterText",
+    "id":"actor",
     "x": 0,
     "y": 0,
     "width":77,
@@ -32,5 +28,3 @@
     "max-length":0,
     "single-line-mode":false,
   }
-  ]
-}

@@ -1,9 +1,5 @@
-{
-  "id":"actor",
-"type":"ClutterGroup",
-  "children":[
-  ,
   {
+  "id":"actor",
     "type":"ClutterRectangle",
     "x": 0,
     "y": 0,
@@ -19,5 +15,3 @@
     "border-width":0,
     "has-border":false,
   }
-  ]
-}

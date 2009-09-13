@@ -7,6 +7,8 @@
 #include "util.h"
 #include "hrn-popup.h"
 
+/*#define EDIT_SELF*/
+
 #define PKGDATADIR "./" //"/home/pippin/src/clutterbug/"
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};
@@ -165,6 +167,16 @@ cb_overlay_paint (ClutterActor *actor,
 
 void cb_manipulate_init (ClutterActor *actor);
 
+
+void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bin)
+{
+  gfloat width, height;
+  clutter_actor_get_size (stage, &width, &height);
+  clutter_actor_set_size (bin, width, height);
+}
+
+
+
 gboolean idle_add_stage (gpointer stage)
 {
   ClutterActor *actor;
@@ -186,6 +198,11 @@ gboolean idle_add_stage (gpointer stage)
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   parasite_root = actor;
+
+  g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), actor);
+  g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), actor);
+  /* do an initial syncing */
+  stage_size_changed (stage, NULL, actor);
 
   cb_manipulate_init (parasite_root);
   select_item (NULL, stage);
@@ -415,7 +432,12 @@ tree_populate_iter (ClutterActor *current_container,
   ClutterActor *label;
 
   if (iter == NULL ||
-      util_has_ancestor (iter, parasite_root))
+#ifdef EDIT_SELF
+      util_has_ancestor (iter, scene_graph)
+#else
+      util_has_ancestor (iter, parasite_root)
+#endif
+      )
     {
       return;
     }
@@ -1085,10 +1107,15 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
    hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                          CLUTTER_PICK_ALL,
                                          event->button.x, event->button.y);
+
+#ifdef EDIT_SELF
+   select_item (NULL, hit);
+#else
    if (!util_has_ancestor (hit, parasite_root) || 1)
      select_item (NULL, hit);
    else
      g_print ("child of foo!\n");
+#endif
   return TRUE;
 }
 
@@ -1119,6 +1146,8 @@ static gboolean edit_text_end (void)
   edited_text = NULL;
   return TRUE;
 }
+
+static gboolean manipulator_key_pressed (ClutterActor *stage, guint key);
 
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
@@ -1264,7 +1293,8 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
         break;
       case CLUTTER_BUTTON_RELEASE:
         return TRUE;
-
+      case CLUTTER_KEY_PRESS:
+        manipulator_key_pressed (actor, event->key.keyval);
       case CLUTTER_ENTER:
       case CLUTTER_LEAVE:
         return FALSE;
@@ -1402,6 +1432,7 @@ void cb_copy_selected (ClutterActor *actor)
     }
 }
 
+
 void cb_paste_selected (ClutterActor *actor)
 {
   if (selected_actor && copy_buf)
@@ -1426,7 +1457,6 @@ void cb_paste_selected (ClutterActor *actor)
       select_item (NULL, new_actor);
     }
 }
-
 
 void cb_raise_selected (ClutterActor *actor)
 {
@@ -1611,6 +1641,9 @@ void entry_text_changed (ClutterActor *actor)
   clutter_actor_raise_top (parasite_root);
 }
 
+
+
+
 void search_entry_init_hack (ClutterActor  *actor)
 {
   /* we hook this up to the first paint, since no other signal seems to
@@ -1623,6 +1656,17 @@ void search_entry_init_hack (ClutterActor  *actor)
 
   g_signal_connect (nbtk_entry_get_clutter_text (NBTK_ENTRY (actor)), "text-changed",
                     G_CALLBACK (entry_text_changed), NULL);
+}
+
+
+void parasite_rectangle_init_hack (ClutterActor  *actor)
+{
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+  clutter_container_child_set (CLUTTER_CONTAINER (clutter_actor_get_parent (actor)),
+                               actor, "expand", TRUE, NULL);
 }
 
 static gboolean add_stencil (ClutterActor *actor,
@@ -1702,8 +1746,8 @@ void stencils_container_init_hack (ClutterActor  *actor)
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
-                g_object_set_data_full (oi, "path", path, g_free);
-                g_signal_connect (rectangle, "button-press-event", add_stencil, path);
+                g_object_set_data_full (G_OBJECT (oi), "path", path, g_free);
+                g_signal_connect (rectangle, "button-press-event", G_CALLBACK (add_stencil), path);
               }
               else
               {
@@ -1759,8 +1803,8 @@ void previews_container_init_hack (ClutterActor  *actor)
                 clutter_actor_set_scale (oi, scale, scale);
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
-                g_object_set_data_full (oi, "path", path, g_free);
-                g_signal_connect (rectangle, "button-press-event", load_layout, path);
+                g_object_set_data_full (G_OBJECT (oi), "path", path, g_free);
+                g_signal_connect (rectangle, "button-press-event", G_CALLBACK (load_layout), path);
               }
             else
               {
@@ -1920,6 +1964,7 @@ apply_transient (ClutterActor *actor)
 static void change_type (ClutterActor *actor,
                          const gchar  *new_type)
 {
+  /* XXX: we need to recreate our correct position in parent as well */
   ClutterActor *new_actor, *parent;
 
   hrn_popup_close ();
@@ -1988,4 +2033,44 @@ void cb_change_type (ClutterActor *actor)
   g_list_foreach (types, (void*)printname, actor);
   hrn_popup_actor_fixed (parasite_root, 0,0, actor);
 }
+
+void cb_quit (ClutterActor *actor)
+{
+  clutter_main_quit ();
+}
+
+typedef struct KeyBinding {
+  ClutterModifierType modifier;
+  guint key_symbol;
+  void (*callback) (ClutterActor *actor);
+} KeyBinding;
+
+static KeyBinding keybindings[]={
+  {CLUTTER_CONTROL_MASK, CLUTTER_x,         cb_cut_selected},
+  {CLUTTER_CONTROL_MASK, CLUTTER_c,         cb_copy_selected},
+  {CLUTTER_CONTROL_MASK, CLUTTER_v,         cb_paste_selected},
+  {CLUTTER_CONTROL_MASK, CLUTTER_d,         cb_duplicate_selected},
+  {CLUTTER_CONTROL_MASK, CLUTTER_q,         cb_quit},
+  {0,                    CLUTTER_Page_Up,   cb_raise_selected},
+  {0,                    CLUTTER_Page_Down, cb_lower_selected},
+  {0,                    CLUTTER_Home,      cb_raise_top_selected},
+  {0,                    CLUTTER_End,       cb_lower_bottom_selected},
+  {0, 0, NULL},
+};
+
+
+static gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
+{
+  gint i;
+  for (i=0; keybindings[i].key_symbol; i++)
+    {
+      if (keybindings[i].key_symbol == key)
+        {
+          keybindings[i].callback (stage);
+          return TRUE;
+        }
+    }
+  return FALSE;
+}
+
 
