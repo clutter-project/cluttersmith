@@ -608,24 +608,6 @@ void select_item (ClutterActor *button, ClutterActor *item)
   clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (selected_actor)), NULL);
 }
 
-void cb_collapse_panel (ClutterActor *actor)
-{
-  ClutterScript *script = util_get_script (actor);
-  ClutterActor  *parasite = CLUTTER_ACTOR (clutter_script_get_object (script, "prop-editor"));
-  static gboolean collapsed = FALSE;
-
-  parasite = clutter_actor_get_parent (clutter_actor_get_parent (actor));
-  collapsed = !collapsed;
-
-  if (collapsed)
-    clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 22.0, NULL);
-  else
-    clutter_actor_animate (parasite, CLUTTER_LINEAR, 200, "height", 400.0, NULL);
-}
-
-
-
-
 gchar *subtree_to_string (ClutterActor *root);
 
 static GList *actor_types_build (GList *list, GType type)
@@ -729,8 +711,9 @@ void cb_change_type (ClutterActor *actor)
 
 
 
-void load_file (ClutterActor *actor, const gchar *title)
+void entry_text_changed (ClutterActor *actor)
 {
+  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
   static gchar *filename = NULL; /* this needs to be more global and accessable, at
                                   * least through some form of getter function.
                                   */
@@ -787,17 +770,8 @@ void load_file (ClutterActor *actor, const gchar *title)
       CB_REV = CB_SAVED_REV = 0;
     }
   g_hash_table_remove_all (selected);
-}
-
-void entry_text_changed (ClutterActor *actor)
-{
-  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
-  load_file (actor, title);
   clutter_actor_raise_top (parasite_root);
 }
-
-
-
 
 void search_entry_init_hack (ClutterActor  *actor)
 {
