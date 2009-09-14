@@ -2347,6 +2347,13 @@ void cb_quit (ClutterActor *actor)
   clutter_main_quit ();
 }
 
+
+void cb_focus_entry (ClutterActor *actor)
+{
+  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                               title);
+}
+
 typedef struct KeyBinding {
   ClutterModifierType modifier;
   guint key_symbol;
@@ -2359,6 +2366,7 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_v,         cb_paste_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cb_duplicate_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_q,         cb_quit},
+  {CLUTTER_CONTROL_MASK, CLUTTER_l,         cb_focus_entry},
   {0,                    CLUTTER_BackSpace, cb_remove_selected},
   {0,                    CLUTTER_Delete,    cb_remove_selected},
   {0,                    CLUTTER_Page_Up,   cb_raise_selected},
