@@ -20,5 +20,9 @@ void select_item (ClutterActor *button, ClutterActor *item);
 
 extern GHashTable *selected;
 
+void tree_populate (ClutterActor *scene_graph,
+                    ClutterActor *selected_actor);
+
+
 #include "util.h"
 #endif
