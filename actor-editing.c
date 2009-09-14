@@ -776,7 +776,7 @@ static gboolean edit_text_end (void)
   return TRUE;
 }
 
-gboolean manipulator_key_pressed (ClutterActor *stage, guint key);
+gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
@@ -941,7 +941,7 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
       case CLUTTER_BUTTON_RELEASE:
         return TRUE;
       case CLUTTER_KEY_PRESS:
-        manipulator_key_pressed (actor, event->key.keyval);
+        manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval);
       case CLUTTER_ENTER:
       case CLUTTER_LEAVE:
         return FALSE;

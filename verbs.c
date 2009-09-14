@@ -168,6 +168,26 @@ void cb_focus_entry (ClutterActor *actor)
                                  entry);
 }
 
+void cb_select_none (ClutterActor *actor)
+{
+  g_print ("%s NYI\n", G_STRFUNC);
+}
+
+void cb_select_all (ClutterActor *actor)
+{
+  g_print ("%s NYI\n", G_STRFUNC);
+}
+
+void cb_group (ClutterActor *actor)
+{
+  g_print ("%s NYI\n", G_STRFUNC);
+}
+
+void cb_ungroup (ClutterActor *actor)
+{
+  g_print ("%s NYI\n", G_STRFUNC);
+}
+
 
 /******************************************************************************/
 
@@ -184,6 +204,17 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cb_duplicate_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_q,         cb_quit},
   {CLUTTER_CONTROL_MASK, CLUTTER_l,         cb_focus_entry},
+
+  /* check for the more specific modifier state before the more generic ones */
+  {CLUTTER_CONTROL_MASK|
+   CLUTTER_SHIFT_MASK,   CLUTTER_a,         cb_select_none},
+  {CLUTTER_CONTROL_MASK, CLUTTER_a,         cb_select_all},
+
+  /* check for the more specific modifier state before the more generic ones */
+  {CLUTTER_CONTROL_MASK|
+   CLUTTER_SHIFT_MASK,   CLUTTER_g,         cb_group},
+  {CLUTTER_CONTROL_MASK, CLUTTER_g,         cb_ungroup},
+
   {0,                    CLUTTER_BackSpace, cb_remove_selected},
   {0,                    CLUTTER_Delete,    cb_remove_selected},
   {0,                    CLUTTER_Page_Up,   cb_raise_selected},
@@ -193,12 +224,13 @@ static KeyBinding keybindings[]={
   {0, 0, NULL},
 };
 
-gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
+gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key)
 {
   gint i;
   for (i=0; keybindings[i].key_symbol; i++)
     {
-      if (keybindings[i].key_symbol == key)
+      if (keybindings[i].key_symbol == key &&
+          ((keybindings[i].modifier & modifier) == keybindings[i].modifier))
         {
           keybindings[i].callback (stage);
           return TRUE;
