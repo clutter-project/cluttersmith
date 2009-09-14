@@ -1,3 +1,5 @@
+#ifndef UTIL_H
+#define UTIL_H
 
 ClutterActor *util_show (const gchar *name);
 ClutterActor *util_load_json (const gchar *name);
@@ -25,3 +27,5 @@ void util_apply_transient (ClutterActor *actor);
 ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent);
 
 GList * clutter_container_get_children_recursive (ClutterActor *actor);
+
+#endif

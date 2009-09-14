@@ -20,4 +20,5 @@ void select_item (ClutterActor *button, ClutterActor *item);
 
 extern GHashTable *selected;
 
+#include "util.h"
 #endif
