@@ -23,10 +23,8 @@ static void init_multi_select (void)
 
 
 gchar *subtree_to_string (ClutterActor *root);
-void select_item (ClutterActor *button, ClutterActor *item);
 
-
-ClutterActor *selected_actor = NULL;
+ClutterActor *active_actor = NULL;
 
 
 /* snap positions, in relation to actor */
@@ -39,12 +37,12 @@ cb_overlay_paint (ClutterActor *actor,
 {
   ClutterVertex verts[4];
 
-  if (!selected_actor && g_hash_table_size (selected)==0)
+  if (!active_actor && g_hash_table_size (selected)==0)
     return;
 
-  if (!CLUTTER_IS_STAGE (selected_actor))
+  if (!CLUTTER_IS_STAGE (active_actor))
     {
-      clutter_actor_get_abs_allocation_vertices (selected_actor,
+      clutter_actor_get_abs_allocation_vertices (active_actor,
                                                  verts);
 
       cogl_set_source_color4ub (0, 25, 0, 50);
@@ -728,10 +726,10 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
   else
     {
 #ifdef EDIT_SELF
-     select_item (NULL, hit);
+     select_item (hit);
 #else
      if (!util_has_ancestor (hit, parasite_root) || 1)
-       select_item (NULL, hit);
+       select_item (hit);
      else
        g_print ("child of foo!\n");
 #endif
@@ -865,7 +863,7 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
                    filename = g_strdup_printf ("json/%s.json", name+5);
 
                    set_title (name+5);
-                   select_item (NULL, clutter_actor_get_stage (parasite_root));
+                   select_item (clutter_actor_get_stage (parasite_root));
                    return TRUE;
                  }
                hit = clutter_actor_get_parent (hit);
@@ -891,7 +889,7 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
                                                 CLUTTER_PICK_ALL,
                                                 event->motion.x, event->motion.y);
           if (!util_has_ancestor (hit, parasite_root))
-            select_item (NULL, hit);
+            select_item (hit);
           else
             g_print ("child of foo!\n");
 #endif
@@ -903,37 +901,37 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
           gfloat y = event->button.y;
           gfloat w,h;
 
-          if (selected_actor && clutter_event_get_click_count (event) > 1)
+          if (active_actor && clutter_event_get_click_count (event) > 1)
             {
-              if (CLUTTER_IS_TEXT (selected_actor) ||
-                  NBTK_IS_LABEL (selected_actor))
+              if (CLUTTER_IS_TEXT (active_actor) ||
+                  NBTK_IS_LABEL (active_actor))
                 {
-                  edit_text_start (selected_actor);
+                  edit_text_start (active_actor);
                   return TRUE;
                 }
             }
 
-          if (selected_actor)
+          if (active_actor)
             {
-              clutter_actor_get_size (selected_actor, &w, &h);
-              clutter_actor_transform_stage_point (selected_actor, x, y, &x, &y);
+              clutter_actor_get_size (active_actor, &w, &h);
+              clutter_actor_transform_stage_point (active_actor, x, y, &x, &y);
               x/=w;
               y/=h;
             }
 
           if (x<0.0 || y < 0.0 || x > 1.0 || y > 1.0 ||
-              selected_actor == NULL ||
-              (selected_actor && (selected_actor == clutter_actor_get_stage (selected_actor))))
+              active_actor == NULL ||
+              (active_actor && (active_actor == clutter_actor_get_stage (active_actor))))
             {
               manipulate_select_press (parasite_root, event);
             }
           else if (x>0.5 && y>0.5)
             {
-              manipulate_resize_press (selected_actor, event);
+              manipulate_resize_press (active_actor, event);
             }
           else
             {
-              manipulate_move_press (selected_actor, event);
+              manipulate_move_press (active_actor, event);
             }
 
         }

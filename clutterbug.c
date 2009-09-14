@@ -90,7 +90,7 @@ gboolean idle_add_stage (gpointer stage)
   stage_size_changed (stage, NULL, actor);
 
   cb_manipulate_init (parasite_root);
-  select_item (NULL, stage);
+  select_item (stage);
 
 
   init_types ();
@@ -297,11 +297,16 @@ props_populate (ClutterActor *actor)
 static void selected_vanished (gpointer data,
                                GObject *where_the_object_was)
 {
-  selected_actor = NULL;
-  select_item (NULL, NULL);
+  active_actor = NULL;
+  select_item (NULL);
 }
 
-void select_item (ClutterActor *button, ClutterActor *item)
+static void select_item_event (ClutterActor *button, ClutterActor *item)
+{
+  select_item (item);
+}
+
+void select_item (ClutterActor *item)
 {
   if (item)
     clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
@@ -311,13 +316,13 @@ void select_item (ClutterActor *button, ClutterActor *item)
   util_remove_children (scene_graph);
 
     {
-      if (selected_actor)
+      if (active_actor)
         {
-          g_object_weak_unref (G_OBJECT (selected_actor), selected_vanished, NULL);
-          selected_actor = NULL;
+          g_object_weak_unref (G_OBJECT (active_actor), selected_vanished, NULL);
+          active_actor = NULL;
         }
 
-      selected_actor = item;
+      active_actor = item;
       if (CLUTTER_IS_ACTOR (item))
         {
           ClutterActor *iter = clutter_actor_get_parent (item);
@@ -325,20 +330,19 @@ void select_item (ClutterActor *button, ClutterActor *item)
             {
               ClutterActor *new;
               new = CLUTTER_ACTOR (nbtk_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
-              g_signal_connect (new, "clicked", G_CALLBACK (select_item), iter);
+              g_signal_connect (new, "clicked", G_CALLBACK (select_item_event), iter);
               clutter_container_add_actor (CLUTTER_CONTAINER (parents), new);
               iter = clutter_actor_get_parent (iter);
             }
 
-
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
-          props_populate (selected_actor);
-          tree_populate (scene_graph, selected_actor);
+          props_populate (active_actor);
+          tree_populate (scene_graph, active_actor);
         }
     }
-  if (selected_actor)
-  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (selected_actor)), NULL);
+  if (active_actor)
+  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (active_actor)), NULL);
 }
 
 gchar *subtree_to_string (ClutterActor *root);
@@ -375,18 +379,18 @@ static void change_type (ClutterActor *actor,
   hrn_popup_close ();
 
   new_actor = g_object_new (g_type_from_name (new_type), NULL);
-  parent = clutter_actor_get_parent (selected_actor);
+  parent = clutter_actor_get_parent (active_actor);
 
-    util_build_transient (selected_actor);
+    util_build_transient (active_actor);
 
-    if (CLUTTER_IS_CONTAINER (selected_actor) && CLUTTER_IS_CONTAINER (new_actor))
+    if (CLUTTER_IS_CONTAINER (active_actor) && CLUTTER_IS_CONTAINER (new_actor))
       {
         GList *c, *children;
-        children = clutter_container_get_children (CLUTTER_CONTAINER (selected_actor));
+        children = clutter_container_get_children (CLUTTER_CONTAINER (active_actor));
         for (c = children; c; c = c->next)
           {
             ClutterActor *child = g_object_ref (c->data);
-            clutter_container_remove_actor (CLUTTER_CONTAINER (selected_actor), child);
+            clutter_container_remove_actor (CLUTTER_CONTAINER (active_actor), child);
             clutter_container_add_actor (CLUTTER_CONTAINER (new_actor), child);
 
           }
@@ -395,7 +399,7 @@ static void change_type (ClutterActor *actor,
 
   util_apply_transient (new_actor);
   util_remove_children (property_editors);
-  clutter_actor_destroy (selected_actor);
+  clutter_actor_destroy (active_actor);
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
 
   if (g_str_equal (new_type, "ClutterText"))
@@ -403,7 +407,7 @@ static void change_type (ClutterActor *actor,
       g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
     }
 
-  select_item (NULL, new_actor);
+  select_item (new_actor);
 }
 
 
@@ -428,7 +432,7 @@ void cb_change_type (ClutterActor *actor)
 {
   static GList *types = NULL;
 
-  if (!selected_actor)
+  if (!active_actor)
     return;
  
   if (!types)

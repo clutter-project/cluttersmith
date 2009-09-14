@@ -141,7 +141,7 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
                 g_object_unref (dragged_actor);
               }
             if (dragged_actor)
-              select_item (NULL, dragged_actor);
+              select_item (dragged_actor);
           }
         dropped_on_target = NULL;
         dragged_item = NULL;
@@ -179,7 +179,7 @@ static gboolean tree_item_press (ClutterActor  *actor,
 
 static gboolean select_item_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
 {
-  select_item (NULL, item);
+  select_item (item);
   return TRUE;
 }
 
@@ -217,7 +217,7 @@ tree_populate_iter (ClutterActor *current_container,
 
   label = clutter_text_new_with_text ("Sans 14px", G_OBJECT_TYPE_NAME (iter));
   clutter_actor_set_anchor_point (label, -24.0, 0.0);
-  if (iter == selected_actor)
+  if (iter == active_actor)
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
     }
@@ -265,13 +265,13 @@ tree_populate_iter (ClutterActor *current_container,
 
 void
 tree_populate (ClutterActor *scene_graph,
-               ClutterActor *selected_actor)
+               ClutterActor *active_actor)
 {
   gint level = 0;
   gint count = 0;
   util_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
-  tree_populate_iter (scene_graph, clutter_actor_get_stage (selected_actor), &level, &count);
+  tree_populate_iter (scene_graph, clutter_actor_get_stage (active_actor), &level, &count);
 }
 
 

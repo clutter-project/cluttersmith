@@ -3,8 +3,7 @@
 #define CLUTTER_BUG_H
 
 /* Things that need to go in headers / get proper API: */
-void select_item (ClutterActor *button, ClutterActor *item);
-extern ClutterActor *selected_actor;
+extern ClutterActor *active_actor;
 extern guint CB_REV;
 extern guint CB_SAVED_REV;
 
@@ -14,14 +13,14 @@ extern ClutterActor *parasite_root;
 extern ClutterActor *parasite_ui;
 
 void set_title (const gchar *new_title);
-void select_item (ClutterActor *button, ClutterActor *item);
+void select_item (ClutterActor *item);
 
 /* actor-editing: */
 
 extern GHashTable *selected;
 
 void tree_populate (ClutterActor *scene_graph,
-                    ClutterActor *selected_actor);
+                    ClutterActor *active_actor);
 
 
 #include "util.h"
