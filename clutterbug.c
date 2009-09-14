@@ -36,8 +36,9 @@ static void init_multi_select (void)
 }
 
 
-static ClutterActor  *title, *name, *parents, *property_editors, *scene_graph;
-ClutterActor *parasite_root;
+static ClutterActor  *title, *name, *parents,
+                     *property_editors, *scene_graph;
+ClutterActor *parasite_root, *parasite_ui;
 
 gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
@@ -266,6 +267,7 @@ gboolean idle_add_stage (gpointer stage)
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
+  parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   parasite_root = actor;
 
@@ -1372,7 +1374,12 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
   return TRUE;
 }
 
-static gboolean manipulate_enabled = TRUE;
+typedef enum RunMode {
+  RUN_MODE_UI   = 1,
+  RUN_MODE_EDIT = 2
+} RunMode;
+
+static gint run_mode = RUN_MODE_EDIT|RUN_MODE_UI;
 
 static ClutterActor *edited_text = NULL;
 static gboolean text_was_editable = FALSE;
@@ -1437,23 +1444,41 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
       if (event->key.keyval == CLUTTER_Scroll_Lock ||
           event->key.keyval == CLUTTER_Caps_Lock)
         {
-          manipulate_enabled = !manipulate_enabled;
-          g_print ("Manipulate %s\n", manipulate_enabled?"enabled":"disabled");
-          if (manipulate_enabled)
+          switch (run_mode)
             {
-              clutter_actor_show (parasite_root);
+              case 0:
+                run_mode = 2;
+                g_print ("Run mode : edit only\n");
+                break;
+              case 2:
+                run_mode = 3;
+                g_print ("Run mode : ui with edit\n");
+                break;
+              default: 
+                run_mode = 0;
+                g_print ("Run mode : browse\n");
+                break;
+            }
+
+          if (run_mode & RUN_MODE_UI)
+            {
+              clutter_actor_show (parasite_ui);
             }
           else
             {
-              clutter_actor_hide (parasite_root);
+              clutter_actor_hide (parasite_ui);
             }
           return TRUE;
         }
     }
 
-  if (!manipulate_enabled)
+  if (!(run_mode & RUN_MODE_EDIT))
     {
-      /* check if it is child of a link, if it is then we override anyways... */
+      /* check if it is child of a link, if it is then we override anyways...
+       *
+       * Otherwise this is the case that slips contorl through to the
+       * underlying scene graph.
+       */
       if (event->any.type == CLUTTER_BUTTON_PRESS)
         {
            ClutterActor *hit;
