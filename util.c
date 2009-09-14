@@ -405,3 +405,31 @@ util_apply_transient (ClutterActor *actor)
   transient_values = NULL;
   /* XXX: free list of transient values */
 }
+
+
+
+/* XXX: needs rewrite to not take the parent */
+ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
+{
+  ClutterActor *new_actor;
+
+  new_actor = g_object_new (G_OBJECT_TYPE (actor), NULL);
+  util_build_transient (actor);
+  util_apply_transient (new_actor);
+
+  /* recurse through children? */
+  if (CLUTTER_IS_CONTAINER (new_actor))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+      for (c = children; c; c = c->next)
+        {
+          util_duplicator (c->data, new_actor);
+        }
+      g_list_free (children);
+    }
+
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+  return new_actor;
+}
+

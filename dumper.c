@@ -146,7 +146,6 @@ properties_to_string (GString      *str,
           {
             GValue value = {0,};
             GValue str_value = {0,};
-            gchar *initial;
             g_value_init (&value, properties[i]->value_type);
             g_value_init (&str_value, G_TYPE_STRING);
             g_object_get_property (G_OBJECT (actor), properties[i]->name, &value);

@@ -19,3 +19,5 @@ void util_build_transient (ClutterActor *actor);
  * util_apply_transient
  */
 void util_apply_transient (ClutterActor *actor);
+
+ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent);
