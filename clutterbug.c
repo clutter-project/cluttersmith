@@ -58,8 +58,6 @@ gchar *blacklist_types[]={"ClutterStage",
 
 gchar *subtree_to_string (ClutterActor *root);
 static void select_item (ClutterActor *button, ClutterActor *item);
-static void build_transient (ClutterActor *actor);
-static void apply_transient (ClutterActor *actor);
 
 static gboolean keep_on_top (gpointer actor)
 {
@@ -1407,7 +1405,7 @@ static gboolean edit_text_end (void)
   return TRUE;
 }
 
-static gboolean manipulator_key_pressed (ClutterActor *stage, guint key);
+gboolean manipulator_key_pressed (ClutterActor *stage, guint key);
 
 static gboolean
 manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
@@ -1612,6 +1610,57 @@ void cb_collapse_panel (ClutterActor *actor)
 }
 
 
+
+
+gchar *subtree_to_string (ClutterActor *root);
+
+/* XXX: needs rewrite to not take the parent */
+ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
+{
+  ClutterActor *new_actor;
+
+  new_actor = g_object_new (G_OBJECT_TYPE (actor), NULL);
+  util_build_transient (actor);
+  util_apply_transient (new_actor);
+
+  /* recurse through children? */
+  if (CLUTTER_IS_CONTAINER (new_actor))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+      for (c = children; c; c = c->next)
+        {
+          util_duplicator (c->data, new_actor);
+        }
+      g_list_free (children);
+    }
+
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+  return new_actor;
+}
+
+static ClutterActor *copy_buf = NULL; /* XXX: should be a GList */
+
+void cb_duplicate_selected (ClutterActor *actor)
+{
+  if (selected_actor)
+    {
+      ClutterActor *new_actor;
+      ClutterActor *parent;
+      
+      parent = clutter_actor_get_parent (selected_actor);
+      new_actor = util_duplicator (selected_actor, parent);
+      {
+        gfloat x, y;
+        clutter_actor_get_position (new_actor, &x, &y);
+        x+=10;y+=10;
+        clutter_actor_set_position (new_actor, x, y);
+      }
+      select_item (NULL, new_actor);
+    }
+}
+
+
 void cb_remove_selected (ClutterActor *actor)
 {
   if (selected_actor)
@@ -1626,51 +1675,6 @@ void cb_remove_selected (ClutterActor *actor)
     }
 }
 
-
-ClutterActor *duplicator (ClutterActor *actor, ClutterActor *parent)
-{
-  ClutterActor *new_actor;
-
-  new_actor = g_object_new (G_OBJECT_TYPE (actor), NULL);
-  build_transient (actor);
-  apply_transient (new_actor);
-
-  /* recurse through children? */
-  if (CLUTTER_IS_CONTAINER (new_actor))
-    {
-      GList *children, *c;
-      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
-      for (c = children; c; c = c->next)
-        {
-          duplicator (c->data, new_actor);
-        }
-      g_list_free (children);
-    }
-
-  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
-  return new_actor;
-}
-
-
-void cb_duplicate_selected (ClutterActor *actor)
-{
-  if (selected_actor)
-    {
-      ClutterActor *new_actor, *parent;
-
-      parent = clutter_actor_get_parent (selected_actor);
-      new_actor = duplicator (selected_actor, parent);
-      {
-        gfloat x, y;
-        clutter_actor_get_position (new_actor, &x, &y);
-        x+=10;y+=10;
-        clutter_actor_set_position (new_actor, x, y);
-      }
-      select_item (NULL, new_actor);
-    }
-}
-
-static ClutterActor *copy_buf = NULL;
 
 void cb_cut_selected (ClutterActor *actor)
 {
@@ -1695,7 +1699,7 @@ void cb_copy_selected (ClutterActor *actor)
       ClutterActor *new_actor, *parent;
 
       parent = clutter_actor_get_parent (selected_actor);
-      new_actor = duplicator (selected_actor, parent);
+      new_actor = util_duplicator (selected_actor, parent);
       {
         gfloat x, y;
         clutter_actor_get_position (new_actor, &x, &y);
@@ -1709,7 +1713,6 @@ void cb_copy_selected (ClutterActor *actor)
       copy_buf = new_actor;
     }
 }
-
 
 void cb_paste_selected (ClutterActor *actor)
 {
@@ -1725,7 +1728,7 @@ void cb_paste_selected (ClutterActor *actor)
         {
           parent = clutter_actor_get_parent (selected_actor);
         }
-      new_actor = duplicator (copy_buf, parent);
+      new_actor = util_duplicator (copy_buf, parent);
       {
         gfloat x, y;
         clutter_actor_get_position (new_actor, &x, &y);
@@ -1783,75 +1786,117 @@ void cb_reset_size (ClutterActor *actor)
     }
 }
 
-static ClutterActor *
-get_parent (ClutterActor *actor)
+static GList *actor_types_build (GList *list, GType type)
 {
-  ClutterActor *container = selected_actor;
-  if (selected_actor && !CLUTTER_IS_STAGE (selected_actor))
+  GType *ops;
+  guint  children;
+  gint   no;
+
+  if (!type)
+    return list;
+
+  list = g_list_prepend (list, (void*)g_type_name (type));
+
+  ops = g_type_children (type, &children);
+
+  for (no=0; no<children; no++)
     {
-      while (!CLUTTER_IS_CONTAINER (container))
-       {
-         container = clutter_actor_get_parent (container);
-       }
+      list = actor_types_build (list, ops[no]);
     }
-  else
-    {
-      container = clutter_actor_get_stage (actor);
+  if (ops)
+    g_free (ops);
+  return list;
+}
+
+static void change_type (ClutterActor *actor,
+                         const gchar  *new_type)
+{
+  /* XXX: we need to recreate our correct position in parent as well */
+  ClutterActor *new_actor, *parent;
+
+  g_print ("CHANGE type\n");
+  hrn_popup_close ();
+
+  new_actor = g_object_new (g_type_from_name (new_type), NULL);
+  parent = clutter_actor_get_parent (selected_actor);
+
+    util_build_transient (selected_actor);
+
+    if (CLUTTER_IS_CONTAINER (selected_actor) && CLUTTER_IS_CONTAINER (new_actor))
       {
-        GList *children, *c;
-        children = clutter_container_get_children (CLUTTER_CONTAINER (container));
-        for (c=children;c;c=c->next)
+        GList *c, *children;
+        children = clutter_container_get_children (CLUTTER_CONTAINER (selected_actor));
+        for (c = children; c; c = c->next)
           {
-            const gchar *id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (c->data));
-            if (id && g_str_equal (id, "actor"))
-              {
-                container= c->data;
-                break;
-              }
+            ClutterActor *child = g_object_ref (c->data);
+            clutter_container_remove_actor (CLUTTER_CONTAINER (selected_actor), child);
+            clutter_container_add_actor (CLUTTER_CONTAINER (new_actor), child);
+
           }
         g_list_free (children);
       }
+
+  util_apply_transient (new_actor);
+  util_remove_children (property_editors);
+  clutter_actor_destroy (selected_actor);
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+
+  if (g_str_equal (new_type, "ClutterText"))
+    {
+      g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
     }
-  return container;
+
+  select_item (NULL, new_actor);
 }
 
-void cb_add (ClutterActor *actor)
+
+static void printname (gchar *name, ClutterActor *container)
 {
-  ClutterActor *container = selected_actor;
-  ClutterActor *new;
-  container = get_parent (actor);
-  new = clutter_rectangle_new ();
-  clutter_actor_set_size (new, 100, 100);
-  clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
-  select_item (NULL, new);
-  CB_REV++;
+  ClutterActor *button;
+  gint i;
+  for (i=0;blacklist_types[i];i++)
+    {
+      if (g_str_equal (blacklist_types[i], name))
+        return;
+    }
+  button = CLUTTER_ACTOR (nbtk_button_new_with_label (name));
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), button);
+  clutter_actor_set_width (button, 200);
+  g_signal_connect (button, "clicked", G_CALLBACK (change_type), name);
 }
 
 
-void cb_add_text (ClutterActor *actor)
+
+void cb_change_type (ClutterActor *actor)
 {
-  ClutterActor *container = selected_actor;
-  ClutterActor *new;
-  container = get_parent (actor);
-  new = g_object_new (CLUTTER_TYPE_TEXT, "text", "New Text", NULL);
-  clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
-  select_item (NULL, new);
-  CB_REV++;
+  static GList *types = NULL;
+
+  if (!selected_actor)
+    return;
+ 
+  if (!types)
+    {
+       types = actor_types_build (NULL, CLUTTER_TYPE_ACTOR);
+       types = g_list_sort (types, (void*)strcmp);
+    }
+  actor = CLUTTER_ACTOR (nbtk_grid_new ());
+  g_object_set (actor, "height", 600.0, "column-major", TRUE, "homogenous-columns", TRUE, NULL);
+  g_list_foreach (types, (void*)printname, actor);
+  hrn_popup_actor_fixed (parasite_root, 0,0, actor);
 }
 
-
-void cb_add_button (ClutterActor *actor)
+void cb_quit (ClutterActor *actor)
 {
-  ClutterActor *container = selected_actor;
-  ClutterActor *new;
-  container = get_parent (actor);
-  new = g_object_new (NBTK_TYPE_BUTTON, "label", "New Button", NULL);
-  clutter_container_add_actor (CLUTTER_CONTAINER (container), new);
-  select_item (NULL, new);
-  CB_REV++;
+  clutter_main_quit ();
 }
 
-gchar *subtree_to_string (ClutterActor *root);
+
+void cb_focus_entry (ClutterActor *actor)
+{
+  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                               title);
+}
+
 
 void load_file (ClutterActor *actor, const gchar *title)
 {
@@ -2126,266 +2171,3 @@ void previews_container_init_hack (ClutterActor  *actor)
 }
 
 
-static GList *
-actor_types_build (GList *list, GType type)
-{
-  GType *ops;
-  guint  children;
-  gint   no;
-
-  if (!type)
-    return list;
-
-  list = g_list_prepend (list, (void*)g_type_name (type));
-
-  ops = g_type_children (type, &children);
-
-  for (no=0; no<children; no++)
-    {
-      list = actor_types_build (list, ops[no]);
-    }
-  if (ops)
-    g_free (ops);
-  return list;
-}
-
-typedef struct TransientValue {
-  gchar  *name;
-  GValue  value;
-  GType   value_type;
-} TransientValue;
-
-static GList *transient_values = NULL;
-
-static void
-build_transient (ClutterActor *actor)
-{
-  GParamSpec **properties;
-  GParamSpec **actor_properties;
-  guint        n_properties;
-  guint        n_actor_properties;
-  gint         i;
-
-  properties = g_object_class_list_properties (
-                     G_OBJECT_GET_CLASS (actor),
-                     &n_properties);
-  actor_properties = g_object_class_list_properties (
-                     G_OBJECT_GET_CLASS (actor),
-                     &n_properties);
-  actor_properties = g_object_class_list_properties (
-            G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
-            &n_actor_properties);
-
-
-  for (i = 0; i < n_properties; i++)
-    {
-      gint j;
-      gboolean skip = FALSE;
-
-      if (cb_filter_properties)
-        {
-          for (j=0;j<n_actor_properties;j++)
-            {
-              /* ClutterActor contains so many properties that we restrict our view a bit,
-               * applying all values seems to make clutter hick-up as well. 
-               */
-              if (actor_properties[j]==properties[i])
-                {
-                  gchar *whitelist2[]={"x","y","width","height", NULL};
-                  gint k;
-                  skip = TRUE;
-                  for (k=0;whitelist[k];k++)
-                    if (g_str_equal (properties[i]->name, whitelist[k]))
-                      skip = FALSE;
-                  for (k=0;whitelist2[k];k++)
-                    if (g_str_equal (properties[i]->name, whitelist2[k]))
-                      skip = FALSE;
-                }
-            }
-        }
-      if (g_str_equal (properties[i]->name, "child")||
-          g_str_equal (properties[i]->name, "cogl-texture")||
-          g_str_equal (properties[i]->name, "cogl-handle"))
-        skip = TRUE; /* to avoid duplicated parenting of NbtkButton children. */
-
-      if (!(properties[i]->flags & G_PARAM_READABLE))
-        skip = TRUE;
-
-      if (skip)
-        continue;
-
-        {
-          TransientValue *value = g_new0 (TransientValue, 1);
-          value->name = properties[i]->name;
-          value->value_type = properties[i]->value_type;
-          g_value_init (&value->value, properties[i]->value_type);
-          g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
-
-          transient_values = g_list_prepend (transient_values, value);
-        }
-    }
-
-  g_free (properties);
-}
-
-
-static void
-apply_transient (ClutterActor *actor)
-{
-  GParamSpec **properties;
-  guint        n_properties;
-  gint         i;
-
-  properties = g_object_class_list_properties (
-                     G_OBJECT_GET_CLASS (actor),
-                     &n_properties);
-
-  for (i = 0; i < n_properties; i++)
-    {
-      gboolean skip = FALSE;
-      GList *val;
-
-      if (!(properties[i]->flags & G_PARAM_WRITABLE))
-        skip = TRUE;
-
-      if (skip)
-        continue;
-
-      for (val=transient_values;val;val=val->next)
-        {
-          TransientValue *value = val->data;
-          if (g_str_equal (value->name, properties[i]->name) &&
-                          value->value_type == properties[i]->value_type)
-            {
-              g_object_set_property (G_OBJECT (actor), properties[i]->name, &value->value);
-            }
-        }
-    }
-
-  g_free (properties);
-  transient_values = NULL;
-  /* XXX: free list of transient values */
-}
-
-
-static void change_type (ClutterActor *actor,
-                         const gchar  *new_type)
-{
-  /* XXX: we need to recreate our correct position in parent as well */
-  ClutterActor *new_actor, *parent;
-
-  g_print ("CHANGE type\n");
-  hrn_popup_close ();
-
-  new_actor = g_object_new (g_type_from_name (new_type), NULL);
-  parent = clutter_actor_get_parent (selected_actor);
-
-    build_transient (selected_actor);
-
-    if (CLUTTER_IS_CONTAINER (selected_actor) && CLUTTER_IS_CONTAINER (new_actor))
-      {
-        GList *c, *children;
-        children = clutter_container_get_children (CLUTTER_CONTAINER (selected_actor));
-        for (c = children; c; c = c->next)
-          {
-            ClutterActor *child = g_object_ref (c->data);
-            clutter_container_remove_actor (CLUTTER_CONTAINER (selected_actor), child);
-            clutter_container_add_actor (CLUTTER_CONTAINER (new_actor), child);
-
-          }
-        g_list_free (children);
-      }
-
-  apply_transient (new_actor);
-  util_remove_children (property_editors);
-  clutter_actor_destroy (selected_actor);
-  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
-
-  if (g_str_equal (new_type, "ClutterText"))
-    {
-      g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
-    }
-
-  select_item (NULL, new_actor);
-}
-
-void printname (gchar *name, ClutterActor *container)
-{
-  ClutterActor *button;
-  gint i;
-  for (i=0;blacklist_types[i];i++)
-    {
-      if (g_str_equal (blacklist_types[i], name))
-        return;
-    }
-  button = CLUTTER_ACTOR (nbtk_button_new_with_label (name));
-  clutter_container_add_actor (CLUTTER_CONTAINER (container), button);
-  clutter_actor_set_width (button, 200);
-  g_signal_connect (button, "clicked", G_CALLBACK (change_type), name);
-}
-
-void cb_change_type (ClutterActor *actor)
-{
-  static GList *types = NULL;
-
-  if (!selected_actor)
-    return;
- 
-  if (!types)
-    {
-       types = actor_types_build (NULL, CLUTTER_TYPE_ACTOR);
-       types = g_list_sort (types, (void*)strcmp);
-    }
-  actor = CLUTTER_ACTOR (nbtk_grid_new ());
-  g_object_set (actor, "height", 600.0, "column-major", TRUE, "homogenous-columns", TRUE, NULL);
-  g_list_foreach (types, (void*)printname, actor);
-  hrn_popup_actor_fixed (parasite_root, 0,0, actor);
-}
-
-void cb_quit (ClutterActor *actor)
-{
-  clutter_main_quit ();
-}
-
-
-void cb_focus_entry (ClutterActor *actor)
-{
-  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                               title);
-}
-
-typedef struct KeyBinding {
-  ClutterModifierType modifier;
-  guint key_symbol;
-  void (*callback) (ClutterActor *actor);
-} KeyBinding;
-
-static KeyBinding keybindings[]={
-  {CLUTTER_CONTROL_MASK, CLUTTER_x,         cb_cut_selected},
-  {CLUTTER_CONTROL_MASK, CLUTTER_c,         cb_copy_selected},
-  {CLUTTER_CONTROL_MASK, CLUTTER_v,         cb_paste_selected},
-  {CLUTTER_CONTROL_MASK, CLUTTER_d,         cb_duplicate_selected},
-  {CLUTTER_CONTROL_MASK, CLUTTER_q,         cb_quit},
-  {CLUTTER_CONTROL_MASK, CLUTTER_l,         cb_focus_entry},
-  {0,                    CLUTTER_BackSpace, cb_remove_selected},
-  {0,                    CLUTTER_Delete,    cb_remove_selected},
-  {0,                    CLUTTER_Page_Up,   cb_raise_selected},
-  {0,                    CLUTTER_Page_Down, cb_lower_selected},
-  {0,                    CLUTTER_Home,      cb_raise_top_selected},
-  {0,                    CLUTTER_End,       cb_lower_bottom_selected},
-  {0, 0, NULL},
-};
-
-static gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
-{
-  gint i;
-  for (i=0; keybindings[i].key_symbol; i++)
-    {
-      if (keybindings[i].key_symbol == key)
-        {
-          keybindings[i].callback (stage);
-          return TRUE;
-        }
-    }
-  return FALSE;
-}

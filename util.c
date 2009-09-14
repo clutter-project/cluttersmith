@@ -280,3 +280,128 @@ void no_pick (ClutterActor       *actor,
 {
   g_signal_stop_emission_by_name (actor, "pick");
 }
+
+
+
+typedef struct TransientValue {
+  gchar  *name;
+  GValue  value;
+  GType   value_type;
+} TransientValue;
+
+static GList *transient_values = NULL;
+
+static gchar *whitelist[]={"depth", "opacity",
+                           "scale-x","scale-y", "anchor-x", "color",
+                           "anchor-y", "rotation-angle-z",
+                           "name", "reactive",
+                           NULL};
+
+
+void util_build_transient (ClutterActor *actor)
+{
+  GParamSpec **properties;
+  GParamSpec **actor_properties;
+  guint        n_properties;
+  guint        n_actor_properties;
+  gint         i;
+
+  properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (actor),
+                     &n_properties);
+  actor_properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (actor),
+                     &n_properties);
+  actor_properties = g_object_class_list_properties (
+            G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
+            &n_actor_properties);
+
+
+  for (i = 0; i < n_properties; i++)
+    {
+      gint j;
+      gboolean skip = FALSE;
+
+        {
+          for (j=0;j<n_actor_properties;j++)
+            {
+              /* ClutterActor contains so many properties that we restrict our view a bit,
+               * applying all values seems to make clutter hick-up as well. 
+               */
+              if (actor_properties[j]==properties[i])
+                {
+                  gchar *whitelist2[]={"x","y","width","height", NULL};
+                  gint k;
+                  skip = TRUE;
+                  for (k=0;whitelist[k];k++)
+                    if (g_str_equal (properties[i]->name, whitelist[k]))
+                      skip = FALSE;
+                  for (k=0;whitelist2[k];k++)
+                    if (g_str_equal (properties[i]->name, whitelist2[k]))
+                      skip = FALSE;
+                }
+            }
+        }
+      if (g_str_equal (properties[i]->name, "child")||
+          g_str_equal (properties[i]->name, "cogl-texture")||
+          g_str_equal (properties[i]->name, "cogl-handle"))
+        skip = TRUE; /* to avoid duplicated parenting of NbtkButton children. */
+
+      if (!(properties[i]->flags & G_PARAM_READABLE))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+
+        {
+          TransientValue *value = g_new0 (TransientValue, 1);
+          value->name = properties[i]->name;
+          value->value_type = properties[i]->value_type;
+          g_value_init (&value->value, properties[i]->value_type);
+          g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
+
+          transient_values = g_list_prepend (transient_values, value);
+        }
+    }
+
+  g_free (properties);
+}
+
+
+void
+util_apply_transient (ClutterActor *actor)
+{
+  GParamSpec **properties;
+  guint        n_properties;
+  gint         i;
+
+  properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (actor),
+                     &n_properties);
+
+  for (i = 0; i < n_properties; i++)
+    {
+      gboolean skip = FALSE;
+      GList *val;
+
+      if (!(properties[i]->flags & G_PARAM_WRITABLE))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+
+      for (val=transient_values;val;val=val->next)
+        {
+          TransientValue *value = val->data;
+          if (g_str_equal (value->name, properties[i]->name) &&
+                          value->value_type == properties[i]->value_type)
+            {
+              g_object_set_property (G_OBJECT (actor), properties[i]->name, &value->value);
+            }
+        }
+    }
+
+  g_free (properties);
+  transient_values = NULL;
+  /* XXX: free list of transient values */
+}

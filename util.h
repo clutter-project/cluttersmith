@@ -11,3 +11,11 @@ gboolean util_has_ancestor (ClutterActor *actor,
                             ClutterActor *ancestor);
 gboolean util_movable_press (ClutterActor  *actor,
                              ClutterEvent  *event);
+
+
+/* creates an (internal) list of all the properties applied to actor */
+void util_build_transient (ClutterActor *actor);
+/* applies and frees a prior transient list of values created with
+ * util_apply_transient
+ */
+void util_apply_transient (ClutterActor *actor);
