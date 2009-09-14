@@ -34,7 +34,7 @@ SNAPSHOT_REMOTE=$(DOCS_REMOTE)/snapshots
 # expects a single of the .c files to contain a main function.
 
 BINARY=$(PROJECT_NAME)
-all: DOCUMENTATION $(BINARY) clutterbug.so
+all: DOCUMENTATION $(BINARY) cluttersmith.so
 
 DOCUMENTATION:
 	@test -d docs && make -C docs || true
@@ -139,8 +139,8 @@ git-sync:
 #CLEAN_LOCAL=foo
 
 
-clutterbug.so: *.c Makefile
-	gcc -DCLUTTERBUG -g -shared -ldl *.c -o clutterbug.so `pkg-config clutter-1.0 clutter-gtk-0.10 nbtk-1.0 --libs --cflags` 
+cluttersmith.so: *.c Makefile
+	gcc -DCOMPILEMODULE -g -shared -ldl *.c -o $@ `pkg-config clutter-1.0 clutter-gtk-0.10 nbtk-1.0 --libs --cflags` 
 
 CLUTTER_HEADERS=/usr/local/include/clutter-1.0/clutter/
 NBTK_HEADERS=/usr/local/include/nbtk-1.0/nbtk/

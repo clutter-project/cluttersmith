@@ -1,6 +1,6 @@
 
-#ifndef CLUTTER_BUG_H
-#define CLUTTER_BUG_H
+#ifndef CLUTTERSMITH_H
+#define CLUTTERSMITH_H
 
 /* Things that need to go in headers / get proper API: */
 extern ClutterActor *active_actor;

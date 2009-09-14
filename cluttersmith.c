@@ -6,7 +6,7 @@
 #include <dlfcn.h>
 #include "util.h"
 #include "hrn-popup.h"
-#include "clutterbug.h"
+#include "cluttersmith.h"
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 /*#define EDIT_SELF*/
@@ -30,7 +30,7 @@ gchar *blacklist_types[]={"ClutterStage",
                           "NbtkWidget",
                           NULL};
 
-#define PKGDATADIR "./" //"/home/pippin/src/clutterbug/"
+#define PKGDATADIR "./" //"/home/pippin/src/cluttersmith/"
 
 void init_types (void);
 
@@ -66,13 +66,13 @@ gboolean idle_add_stage (gpointer stage)
   ClutterActor *actor;
   ClutterScript *script;
 
-  actor = util_load_json (PKGDATADIR "parasite.json");
-  g_object_set_data (G_OBJECT (actor), "clutter-bug", (void*)TRUE);
+  actor = util_load_json (PKGDATADIR "cluttersmith.json");
+  g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
   g_timeout_add (4000, keep_on_top, actor);
 
   actor_editing_init (stage);
-  nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "clutterbug.css", NULL);
+  nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
   script = util_get_script (actor);
 
   /* initializing globals */
@@ -97,26 +97,26 @@ gboolean idle_add_stage (gpointer stage)
   return FALSE;
 }
 
-#ifdef CLUTTERBUG
+#ifdef COMPILEMODULE
 static void stage_added (ClutterStageManager *manager,
                          ClutterStage        *stage)
 {
   g_timeout_add (100, idle_add_stage, stage);
 }
 
-static void _clutterbug_init(void)
+static void _cluttersmith_init(void)
     __attribute__ ((constructor));
-static void _clutterbug_fini(void)
+static void _cluttersmith_fini(void)
     __attribute__ ((destructor));
 
-static void _clutterbug_init(void) {
+static void _cluttersmith_init(void) {
   g_type_init ();
   ClutterStageManager *manager = clutter_stage_manager_get_default ();
 
   g_signal_connect (manager, "stage-added", G_CALLBACK (stage_added), NULL);
 }
 
-static void _clutterbug_fini(void) {
+static void _cluttersmith_fini(void) {
 }
 #endif
 

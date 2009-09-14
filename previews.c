@@ -1,7 +1,7 @@
 #include <clutter/clutter.h>
 #include <stdlib.h>
 #include <string.h>
-#include "clutterbug.h"
+#include "cluttersmith.h"
 
 static gboolean load_layout (ClutterActor *actor,
                              ClutterEvent *event,

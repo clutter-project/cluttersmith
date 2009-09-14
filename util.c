@@ -184,7 +184,7 @@ void util_replace_content2 (ClutterActor  *actor,
 
       for (c=children; c; c = c->next)
         {
-          if (g_object_get_data (c->data, "clutter-bug") == NULL)
+          if (g_object_get_data (c->data, "clutter-smith") == NULL)
             clutter_actor_destroy (c->data);
         }
       g_list_free (children);

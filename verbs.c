@@ -1,5 +1,5 @@
 #include <clutter/clutter.h>
-#include "clutterbug.h"
+#include "cluttersmith.h"
 #include "util.h"
 
 /****/

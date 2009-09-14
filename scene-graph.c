@@ -2,7 +2,7 @@
 #include <nbtk/nbtk.h>
 #include <stdlib.h>
 #include <string.h>
-#include "clutterbug.h"
+#include "cluttersmith.h"
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};

@@ -181,7 +181,7 @@ load_script (const gchar *path)
 void gst_init (gpointer, gpointer);
 gboolean idle_add_stage (gpointer stage);
 
-#ifndef CLUTTERBUG
+#ifndef COMPILEMODULE
 gint
 main (gint    argc,
       gchar **argv)

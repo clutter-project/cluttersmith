@@ -1,7 +1,7 @@
 #include <clutter/clutter.h>
 #include <nbtk/nbtk.h>
 #include <stdlib.h>
-#include "clutterbug.h"
+#include "cluttersmith.h"
 #include "util.h"
 
 static guint stage_capture_handler = 0;
