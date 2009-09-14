@@ -1,13 +1,8 @@
 #include <clutter/clutter.h>
+#include "clutterbug.h"
 #include "util.h"
 
 /****/
- 
-/* Things that need to go in headers / get proper API: */
-void select_item (ClutterActor *button, ClutterActor *item);
-extern ClutterActor *selected_actor;
-extern guint CB_REV;
-extern guint CB_SAVED_REV;
 
 /**[ copy and paste ]*******************************************************/
 
