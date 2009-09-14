@@ -59,6 +59,7 @@ NbtkBoxLayout.ParasiteTreeB2 {
 *.parasite NbtkEntry {
   border-image: url("file://entry-bg.png") 8 8 8 8;
   color: yellow;
+  font-size: 9px;
 }
 
 *.parasite NbtkButton {
@@ -80,8 +81,8 @@ NbtkBoxLayout.parasite-paste  {
 }
 
 *.parasite NbtkButton:hover {
-  border-image: url("file://button-bg.png") 8 8 8 8;
-  color: blue;
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  color: yellow;
 }
 
 

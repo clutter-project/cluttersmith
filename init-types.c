@@ -1,5 +1,7 @@
 #include <clutter/clutter.h>
 #include <nbtk/nbtk.h>
+#include "cb-texture.h"
+
 void init_types(void){gint i = 0;
 i = CLUTTER_TYPE_ACTOR;
 i = CLUTTER_TYPE_ACTOR_BOX;
@@ -114,4 +116,5 @@ i = NBTK_TYPE_TEXTURE_FRAME;
 i = NBTK_TYPE_TOOLTIP;
 i = NBTK_TYPE_VIEWPORT;
 i = NBTK_TYPE_WIDGET;
+i = CB_TYPE_TEXTURE;
 }

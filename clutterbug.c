@@ -1977,8 +1977,16 @@ void stencils_container_init_hack (ClutterActor  *actor)
     while ((name = g_dir_read_name (dir)))
       {
         ClutterColor  none = {0,0,0,0};
-        ClutterActor *group = clutter_group_new ();
-        ClutterActor *rectangle = clutter_rectangle_new ();
+        ClutterActor *group;
+        ClutterActor *rectangle;
+
+        if (!g_str_has_suffix (name, ".json"))
+          continue;
+
+        rectangle = clutter_rectangle_new ();
+        group = clutter_group_new ();
+
+
         clutter_rectangle_set_color (CLUTTER_RECTANGLE (rectangle), &none);
         clutter_actor_set_reactive (rectangle, TRUE);
           {
@@ -2032,13 +2040,31 @@ void previews_container_init_hack (ClutterActor  *actor)
       {
         ClutterColor  none = {0,0,0,0};
         ClutterColor  white = {0xff,0xff,0,0xff};
-        ClutterActor *group = clutter_group_new ();
+        ClutterActor *group;
+        ClutterActor *rectangle;
+
+        if (!g_str_has_suffix (name, ".json"))
+          continue;
+
+        rectangle = clutter_rectangle_new ();
+        group = clutter_group_new ();
+
         clutter_actor_set_size (group, 100, 100);
-        ClutterActor *rectangle = clutter_rectangle_new ();
-        ClutterActor *label = clutter_text_new_with_text ("Sans 10px", name);
         clutter_rectangle_set_color (CLUTTER_RECTANGLE (rectangle), &none);
-        clutter_text_set_color (CLUTTER_TEXT (label), &white);
         clutter_actor_set_reactive (rectangle, TRUE);
+
+        ClutterActor *label;
+        {
+          gchar *title = g_strdup (name);
+          if (strrchr (title, '.'))
+            {
+              *strrchr (title, '.')='\0';
+            }
+          label = clutter_text_new_with_text ("Sans 10px", title);
+          clutter_text_set_color (CLUTTER_TEXT (label), &white);
+          g_free (title);
+        }
+
           {
             gchar *path;
             ClutterActor *oi;
@@ -2152,7 +2178,9 @@ build_transient (ClutterActor *actor)
                 }
             }
         }
-      if (g_str_equal (properties[i]->name, "child"))
+      if (g_str_equal (properties[i]->name, "child")||
+          g_str_equal (properties[i]->name, "cogl-texture")||
+          g_str_equal (properties[i]->name, "cogl-handle"))
         skip = TRUE; /* to avoid duplicated parenting of NbtkButton children. */
 
       if (!(properties[i]->flags & G_PARAM_READABLE))

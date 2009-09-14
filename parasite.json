@@ -176,14 +176,6 @@
         "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
          "children":
            [
-             { "type":"ClutterGroup",
-               "id":"pasteboard",
-               "width":100,
-               "height":100,
-               "children":[
-                 {"type":"ClutterRectangle", "width":50, "height":50}
-               ]
-             }
              { "type":"NbtkScrollView",
                "width":130,
                "height":400,
