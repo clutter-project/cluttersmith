@@ -12,6 +12,8 @@ gboolean util_has_ancestor (ClutterActor *actor,
 gboolean util_movable_press (ClutterActor  *actor,
                              ClutterEvent  *event);
 
+ClutterActor *
+util_find_by_id (ClutterActor *stage, const gchar *id);
 
 /* creates an (internal) list of all the properties applied to actor */
 void util_build_transient (ClutterActor *actor);
@@ -21,3 +23,5 @@ void util_build_transient (ClutterActor *actor);
 void util_apply_transient (ClutterActor *actor);
 
 ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent);
+
+GList * clutter_container_get_children_recursive (ClutterActor *actor);

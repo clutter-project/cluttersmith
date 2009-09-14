@@ -159,9 +159,19 @@ void cb_reset_size (ClutterActor *actor)
 }
 
 
+void cb_quit (ClutterActor *actor)
+{
+  clutter_main_quit ();
+}
 
-
-
+void cb_focus_entry (ClutterActor *actor)
+{
+  ClutterActor *entry;
+  entry = util_find_by_id (clutter_actor_get_stage (actor), "title");
+  if (entry)
+    clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                                 entry);
+}
 
 
 /******************************************************************************/
@@ -188,7 +198,7 @@ static KeyBinding keybindings[]={
   {0, 0, NULL},
 };
 
-static gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
+gboolean manipulator_key_pressed (ClutterActor *stage, guint key)
 {
   gint i;
   for (i=0; keybindings[i].key_symbol; i++)

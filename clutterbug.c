@@ -38,7 +38,8 @@ static void init_multi_select (void)
 
 static ClutterActor  *title, *name, *parents,
                      *property_editors, *scene_graph;
-ClutterActor *parasite_root, *parasite_ui;
+ClutterActor *parasite_root;
+ClutterActor *parasite_ui;
 
 gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
@@ -1173,31 +1174,6 @@ static gboolean manipulate_resize_press (ClutterActor  *actor,
   return TRUE;
 }
 
-static void get_all_actors_int (GList **list, ClutterActor *actor)
-{
-  if (util_has_ancestor (actor, parasite_root))
-    return;
-
-  if (!CLUTTER_IS_STAGE (actor))
-    *list = g_list_prepend (*list, actor);
-
-  if (CLUTTER_IS_CONTAINER (actor))
-    {
-      GList *children, *c;
-      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
-      for (c = children; c; c=c->next)
-        {
-          get_all_actors_int (list, c->data);
-        }
-      g_list_free (children);
-    }
-}
-static GList *get_all_actors (ClutterActor *actor)
-{
-  GList *ret = NULL;
-  get_all_actors_int (&ret, actor);
-  return ret;
-}
 
 
 static gboolean
@@ -1240,7 +1216,7 @@ manipulate_lasso_capture (ClutterActor *stage, ClutterEvent *event, gpointer dat
             gint no;
             GList *j, *list;
            
-            list = get_all_actors (stage);
+            list = clutter_container_get_children_recursive (stage);
 
             for (no = 0, j=list; j;no++,j=j->next)
               {
@@ -1713,17 +1689,6 @@ void cb_change_type (ClutterActor *actor)
   hrn_popup_actor_fixed (parasite_root, 0,0, actor);
 }
 
-void cb_quit (ClutterActor *actor)
-{
-  clutter_main_quit ();
-}
-
-
-void cb_focus_entry (ClutterActor *actor)
-{
-  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                               title);
-}
 
 
 void load_file (ClutterActor *actor, const gchar *title)

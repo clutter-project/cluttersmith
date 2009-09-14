@@ -1,5 +1,6 @@
 #include <clutter/clutter.h>
 
+extern ClutterActor *parasite_root;
 static GHashTable *layouts = NULL;
 
 static void util_init (void)
@@ -433,3 +434,47 @@ ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
   return new_actor;
 }
 
+
+static void get_all_actors_int (GList **list, ClutterActor *actor)
+{
+  if (util_has_ancestor (actor, parasite_root))
+    return;
+
+  if (!CLUTTER_IS_STAGE (actor))
+    *list = g_list_prepend (*list, actor);
+
+  if (CLUTTER_IS_CONTAINER (actor))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+      for (c = children; c; c=c->next)
+        {
+          get_all_actors_int (list, c->data);
+        }
+      g_list_free (children);
+    }
+}
+
+GList *
+clutter_container_get_children_recursive (ClutterActor *actor)
+{
+  GList *ret = NULL;
+  get_all_actors_int (&ret, actor);
+  return ret;
+}
+
+ClutterActor *
+util_find_by_id (ClutterActor *stage, const gchar *id)
+{
+  GList *l, *list = clutter_container_get_children_recursive (stage);
+  ClutterActor *ret = NULL;
+  for (l=list;l && !ret;l=l->next)
+    {
+      if (g_str_equal (clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (l->data)), "id"))
+        {
+          ret = l->data;
+        }
+    }
+  g_list_free (list);
+  return ret;
+}
