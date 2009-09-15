@@ -31,6 +31,16 @@ GList *cluttersmith_get_selected (void)
   return ret;
 }
 
+void cluttersmith_selection_add (ClutterActor *actor)
+{
+  g_hash_table_insert (selected, actor, actor);
+}
+
+void cluttersmith_selection_remove (ClutterActor *actor)
+{
+  g_hash_table_remove (selected, actor);
+}
+
 void cluttersmith_selected_foreach (GCallback cb, gpointer data)
 {
   void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;
@@ -50,20 +60,24 @@ void cluttersmith_selected_foreach (GCallback cb, gpointer data)
 /* like foreach, but returns the first non NULL return value (and
  * stops iterating at that stage)
  */
-gpointer cluttersmith_selected_find (GCallback find_fun, gpointer data)
+static gpointer list_match (GList *list, GCallback match_fun, gpointer data)
 {
   gpointer ret = NULL;
-  gpointer (*find)(ClutterActor *actor, gpointer data)=(void*)find_fun;
-  GList *s, *selected;
-  selected = cluttersmith_get_selected ();
-  s=selected;
-  for (s=selected; s && ret == NULL; s=s->next)
+  gpointer (*match)(gpointer item, gpointer data)=(void*)match_fun;
+  GList *l;
+  for (l=list; l && ret == NULL; l=l->next)
     {
-      ClutterActor *actor = s->data;
-      if (actor == clutter_actor_get_stage (actor))
-        continue;
-      ret = find(actor, data);
+      ret = match (l->data, data);
     }
+  return ret;
+}
+
+gpointer cluttersmith_selected_match (GCallback match_fun, gpointer data)
+{
+  gpointer ret = NULL;
+  GList *selected;
+  selected = cluttersmith_get_selected ();
+  ret = list_match (selected, match_fun, data);
   g_list_free (selected);
   return ret;
 }
@@ -74,13 +88,17 @@ static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
   gfloat y=args[1];
 
   ClutterVertex verts[4];
+
+  if (actor == clutter_actor_get_stage (actor))
+    return NULL;
+
   clutter_actor_get_abs_allocation_vertices (actor,
                                              verts);
   /* XXX: use cairo to check with the outline of the verts? */
   if (x>verts[2].x && x<verts[1].x &&
       y>verts[1].y && y<verts[2].y)
     {
-      return GINT_TO_POINTER(TRUE);
+      return actor;
     }
   return NULL;
 }
@@ -88,7 +106,7 @@ static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
 static gboolean cluttersmith_selection_pick (gfloat x, gfloat y)
 {
   gfloat data[2]={x,y}; 
-  return cluttersmith_selected_find (G_CALLBACK (is_in_actor), data)!=NULL;
+  return cluttersmith_selected_match (G_CALLBACK (is_in_actor), data)!=NULL;
 }
 
 void cluttersmith_clear_selected (void)
@@ -590,6 +608,7 @@ manipulate_move_capture (ClutterActor *stage,
                 GList *selected = cluttersmith_get_selected ();
                 ClutterActor *actor = selected->data;
                 gfloat x, y;
+                g_assert (actor);
                 clutter_actor_get_position (actor, &x, &y);
                 x-= delta[0];
                 y-= delta[1];
@@ -884,6 +903,17 @@ static gboolean edit_text_end (void)
 
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
+
+ClutterActor *hit_actor (gfloat x, gfloat y)
+{
+  GList *actors = clutter_container_get_children_recursive (clutter_actor_get_stage(parasite_root));
+  ClutterActor *ret;
+  gfloat data[2]={x,y}; 
+  ret = list_match (actors, G_CALLBACK (is_in_actor), data);
+  g_list_free (actors);
+  return ret;
+}
+
 static gboolean
 manipulate_capture (ClutterActor *actor,
                     ClutterEvent *event,
@@ -1052,8 +1082,18 @@ manipulate_capture (ClutterActor *actor,
               manipulate_move_start (parasite_root, event);
             }
           else
-            {
-              manipulate_lasso_start (parasite_root, event);
+            { 
+              ClutterActor *hit= hit_actor (x, y);
+              if (hit)
+                {
+                  cluttersmith_clear_selected ();
+                  cluttersmith_selection_add (hit);
+                  manipulate_move_start (parasite_root, event);
+                }
+              else
+                {
+                  manipulate_lasso_start (parasite_root, event);
+                }
             }
         }
         break;
