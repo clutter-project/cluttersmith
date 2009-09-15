@@ -56,7 +56,6 @@ ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
 }
 
 gchar *subtree_to_string (ClutterActor *root);
-ClutterActor *active_actor = NULL;
 
 
 /* snap positions, in relation to actor */
@@ -89,24 +88,24 @@ static void draw_actor_outline (ClutterActor *actor,
 }
 
 static void
-cb_overlay_paint (ClutterActor *actor,
+cb_overlay_paint (ClutterActor *stage,
                   gpointer      user_data)
 {
   ClutterVertex verts[4];
 
-  if (!active_actor && cluttersmith_selected_count ()==0 && lasso == NULL)
+  if (cluttersmith_selected_count ()==0 && lasso == NULL)
     return;
 
   if (cluttersmith_selected_count ()==1)
     {
-      ClutterActor *active_actor;
+      ClutterActor *actor;
       {
         GList *l = cluttersmith_selected_get_list ();
-        active_actor = l->data;
+        actor = l->data;
         g_list_free (l);
       }
 
-      clutter_actor_get_abs_allocation_vertices (active_actor,
+      clutter_actor_get_abs_allocation_vertices (actor,
                                                  verts);
 
       cogl_set_source_color4ub (0, 25, 0, 50);
@@ -119,34 +118,10 @@ cb_overlay_paint (ClutterActor *actor,
              {verts[3].x, verts[3].y, },
              {verts[1].x, verts[1].y, },
            };
+        /* fill the item, if it is the only item in the selection */
         cogl_polygon (tverts, 4, FALSE);
 
-        {
-          gfloat coords[]={ verts[0].x, verts[0].y, 
-             verts[1].x, verts[1].y, 
-             verts[3].x, verts[3].y, 
-             verts[2].x, verts[2].y, 
-             verts[0].x, verts[0].y };
-
-          cogl_path_polyline (coords, 5);
-          cogl_set_source_color4ub (255, 0, 0, 128);
-          cogl_path_stroke ();
-
-            {
-              gint i;
-              for (i=-1;i<3;i++)
-                {
-                  gfloat coords[]={ 
-                 (verts[1].x+verts[3].x)/2+i, (verts[1].y+verts[3].y)/2+i, 
-                 verts[3].x+1, verts[3].y+i, 
-                 (verts[2].x+verts[3].x)/2+i, (verts[2].y+verts[3].y)/2+i};
-                 cogl_path_polyline (coords, 3);
-                 cogl_set_source_color4ub (255, 0, 0, 128);
-                 cogl_path_stroke ();
-            }
-            }
-        }
-
+        /* potentially draw lines auto snapping has matched */
         cogl_set_source_color4ub (128, 128, 255, 255);
         switch (hor_pos)
           {
@@ -979,42 +954,11 @@ manipulate_capture (ClutterActor *actor,
           gfloat x = event->button.x;
           gfloat y = event->button.y;
 
-          if(0)
+          if (0)
             {
-          gfloat w,h;
-          if (active_actor && clutter_event_get_click_count (event) > 1)
-            {
-              if (CLUTTER_IS_TEXT (active_actor) ||
-                  NBTK_IS_LABEL (active_actor))
-                {
-                  edit_text_start (active_actor);
-                  return TRUE;
-                }
+              manipulate_resize_start (parasite_root, event);
+              /*XXX*/ edit_text_start (NULL);
             }
-
-          if (active_actor)
-            {
-              clutter_actor_get_size (active_actor, &w, &h);
-              clutter_actor_transform_stage_point (active_actor, x, y, &x, &y);
-              x/=w;
-              y/=h;
-            }
-
-          if (x<0.0 || y < 0.0 || x > 1.0 || y > 1.0 ||
-              active_actor == NULL ||
-              (active_actor && (active_actor == clutter_actor_get_stage (active_actor))))
-            {
-              manipulate_lasso_start (parasite_root, event);
-            }
-          else if (x>0.5 && y>0.5)
-            {
-              manipulate_resize_start (active_actor, event);
-            }
-          else
-            {
-              manipulate_move_start (active_actor, event);
-            }
-        }
 
           if (cluttersmith_selection_pick (x, y))
             {

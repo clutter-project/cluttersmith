@@ -30,7 +30,7 @@ void cb_duplicate_selected (ClutterActor *actor)
 
 void cb_remove_selected (ClutterActor *actor)
 {
-  select_item (clutter_actor_get_stage (active_actor));
+  //select_item (clutter_actor_get_stage (active_actor));
   cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_destroy), NULL);
   CS_REVISION++;
   cluttersmith_selected_clear ();
@@ -58,7 +58,6 @@ static void each_cut (ClutterActor *actor)
 void cb_cut_selected (ClutterActor *actor)
 {
   empty_clipboard ();
-  select_item (clutter_actor_get_stage (active_actor));
   cluttersmith_selected_foreach (G_CALLBACK (each_cut), NULL);
   CS_REVISION++;
   cluttersmith_selected_clear ();
@@ -84,6 +83,7 @@ void cb_copy_selected (ClutterActor *actor)
 
 void cb_paste_selected (ClutterActor *actor)
 {
+  ClutterActor *active_actor = cluttersmith_selected_get_any ();
   if (active_actor && clipboard)
     {
       GList *i;
@@ -186,8 +186,17 @@ void cb_ungroup (ClutterActor *actor)
 
 void cb_select_parent (ClutterActor *actor)
 {
+  ClutterActor *active_actor = cluttersmith_selected_get_any ();
   if (active_actor)
-    select_item (clutter_actor_get_parent (active_actor));
+    {
+      ClutterActor *parent = clutter_actor_get_parent (active_actor);
+      if (parent) 
+        {
+          cluttersmith_selected_clear ();
+          cluttersmith_selected_add (parent);
+          clutter_actor_queue_redraw (active_actor);
+        }
+    }
 }
 
 /******************************************************************************/

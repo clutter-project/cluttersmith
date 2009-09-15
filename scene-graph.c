@@ -187,6 +187,7 @@ static gboolean select_item_event (ClutterActor *button, ClutterEvent *event, Cl
 
 static void
 tree_populate_iter (ClutterActor *current_container,
+                    ClutterActor *active_actor,
                     ClutterActor *iter,
                     gint   *count,
                     gint   *level)
@@ -249,7 +250,7 @@ tree_populate_iter (ClutterActor *current_container,
       (*level) = (*level)+1;
       for (c = children; c; c=c->next)
         {
-          tree_populate_iter (child_vbox, c->data, level, count);
+          tree_populate_iter (child_vbox, active_actor, c->data, level, count);
         }
       (*level) = (*level)-1;
       g_list_free (children);
@@ -272,7 +273,7 @@ tree_populate (ClutterActor *scene_graph,
   gint count = 0;
   util_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
-  tree_populate_iter (scene_graph, clutter_actor_get_stage (active_actor), &level, &count);
+  tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
 }
 
 

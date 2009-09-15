@@ -20,6 +20,7 @@ gchar *whitelist[]={"depth", "opacity",
                     "name", "reactive",
                     NULL};
 
+static ClutterActor *active_actor = NULL;
 void load_file (ClutterActor *actor, const gchar *title);
 
 gchar *blacklist_types[]={"ClutterStage",

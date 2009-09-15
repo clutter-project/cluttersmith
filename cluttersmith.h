@@ -3,7 +3,6 @@
 #define CLUTTERSMITH_H
 
 /* Things that need to go in headers / get proper API: */
-extern ClutterActor *active_actor;
 extern guint CS_REVISION;
 extern guint CS_STORED_REVISION;
 
@@ -33,6 +32,7 @@ void     cluttersmith_selected_foreach   (GCallback     cb,
                                           gpointer      data);
 gpointer cluttersmith_selected_match     (GCallback     match_fun,
                                           gpointer      data);
+ClutterActor *cluttersmith_selected_get_any (void);
 
 
 #endif

@@ -14,11 +14,6 @@ void cluttersmith_selected_init (void)
 GList *cluttersmith_selected_get_list (void)
 {
   GList *ret = g_hash_table_get_keys (selected);
-  if (!ret)
-    {
-      if (active_actor)
-        ret = g_list_append (NULL, active_actor);
-    }
   return ret;
 }
 
@@ -77,3 +72,14 @@ gboolean cluttersmith_selected_has_actor (ClutterActor *actor)
 {
   return g_hash_table_lookup (selected, actor)!=NULL;
 }
+
+ClutterActor *cluttersmith_selected_get_any (void)
+{
+  GHashTableIter      iter;
+  gpointer            key = NULL, value;
+
+  g_hash_table_iter_init (&iter, selected);
+  g_hash_table_iter_next (&iter, &key, &value);
+  return key;
+}
+
