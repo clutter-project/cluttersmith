@@ -20,6 +20,21 @@ static void init_multi_select (void)
 
 }
 
+GList *cluttersmith_get_selected (void)
+{
+  GList *ret = g_hash_table_get_keys (selected);
+  if (!ret)
+    {
+      if (active_actor)
+        ret = g_list_append (NULL, active_actor);
+    }
+  return ret;
+}
+
+void cluttersmith_clear_selected (void)
+{
+  g_hash_table_remove_all (selected);
+}
 
 
 gchar *subtree_to_string (ClutterActor *root);

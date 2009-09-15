@@ -18,6 +18,8 @@ void select_item (ClutterActor *item);
 /* actor-editing: */
 
 extern GHashTable *selected;
+GList *cluttersmith_get_selected (void);
+void cluttersmith_clear_selected (void);
 
 void tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);

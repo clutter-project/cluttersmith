@@ -6,85 +6,129 @@
 
 /**[ copy and paste ]*******************************************************/
 
-static ClutterActor *copy_buf = NULL; /* XXX: should be a GList */
+static GList *clipboard = NULL;
 
 void cb_duplicate_selected (ClutterActor *actor)
 {
-  if (active_actor)
-    {
-      ClutterActor *new_actor;
-      ClutterActor *parent;
-      
-      parent = clutter_actor_get_parent (active_actor);
-      new_actor = util_duplicator (active_actor, parent);
-      {
-        gfloat x, y;
-        clutter_actor_get_position (new_actor, &x, &y);
-        x+=10;y+=10;
-        clutter_actor_set_position (new_actor, x, y);
-      }
-      select_item (new_actor);
-    }
-}
+  GList *s, *selected;
+  ClutterActor *new_actor = NULL;
+  selected = cluttersmith_get_selected ();
 
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
+
+        /* propbably not quite right,.. should perhaps limit possible
+         * selections to be on one level
+         */
+        {
+          ClutterActor *parent;
+          
+          parent = clutter_actor_get_parent (actor);
+          new_actor = util_duplicator (actor, parent);
+          {
+            gfloat x, y;
+            clutter_actor_get_position (new_actor, &x, &y);
+            x+=10;y+=10;
+            clutter_actor_set_position (new_actor, x, y);
+          }
+        }
+      CB_REV++;
+    }
+  if (new_actor)
+    select_item (new_actor);
+  g_list_free (selected);
+  cluttersmith_clear_selected ();
+}
 
 void cb_remove_selected (ClutterActor *actor)
 {
-  if (active_actor)
-    {
-      ClutterActor *old_selected = active_actor;
-      if (active_actor == clutter_actor_get_stage (actor))
-        return;
-      select_item (clutter_actor_get_parent (active_actor));
-      clutter_actor_destroy (old_selected);
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
 
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
       CB_REV++;
+      clutter_actor_destroy (actor);
+    }
+  g_list_free (selected);
+  cluttersmith_clear_selected ();
+}
+
+static void empty_clipboard (void)
+{
+  while (clipboard)
+    {
+      g_object_unref (clipboard->data);
+      clipboard = g_list_remove (clipboard, clipboard->data);
     }
 }
 
-
 void cb_cut_selected (ClutterActor *actor)
 {
-  if (active_actor)
-    {
-      ClutterActor *parent;
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
 
-      parent = clutter_actor_get_parent (active_actor);
-      g_object_ref (active_actor);
-      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), active_actor);
-      if (copy_buf)
-        g_object_unref (copy_buf);
-      copy_buf = active_actor;
-      select_item (parent);
+  empty_clipboard ();
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      ClutterActor *parent;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
+
+      parent = clutter_actor_get_parent (actor);
+      g_object_ref (actor);
+      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
+      clipboard = g_list_append (clipboard, actor);
+
+      CB_REV++;
+      clutter_actor_destroy (actor);
     }
+  g_list_free (selected);
+  cluttersmith_clear_selected ();
 }
 
 void cb_copy_selected (ClutterActor *actor)
 {
-  if (active_actor)
-    {
-      ClutterActor *new_actor, *parent;
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
 
-      parent = clutter_actor_get_parent (active_actor);
-      new_actor = util_duplicator (active_actor, parent);
-      {
-        gfloat x, y;
-        clutter_actor_get_position (new_actor, &x, &y);
-        x+=10;y+=10;
-        clutter_actor_set_position (new_actor, x, y);
-      }
+  empty_clipboard ();
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      ClutterActor *parent, *new_actor;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
+
+      parent = clutter_actor_get_parent (actor);
+      new_actor = util_duplicator (actor, parent);
       g_object_ref (new_actor);
       clutter_container_remove_actor (CLUTTER_CONTAINER (parent), new_actor);
-      if (copy_buf)
-        g_object_unref (copy_buf);
-      copy_buf = new_actor;
+      clipboard = g_list_append (clipboard, new_actor);
     }
+  g_list_free (selected);
 }
 
 void cb_paste_selected (ClutterActor *actor)
 {
-  if (active_actor && copy_buf)
+  if (active_actor && clipboard)
     {
+      GList *i;
       ClutterActor *new_actor, *parent;
 
       if (CLUTTER_IS_CONTAINER (active_actor))
@@ -95,62 +139,110 @@ void cb_paste_selected (ClutterActor *actor)
         {
           parent = clutter_actor_get_parent (active_actor);
         }
-      new_actor = util_duplicator (copy_buf, parent);
-      {
-        gfloat x, y;
-        clutter_actor_get_position (new_actor, &x, &y);
-        x+=10;y+=10;
-        clutter_actor_set_position (new_actor, x, y);
-      }
+      for (i=clipboard; i;i=i->next)
+        {
+          new_actor = util_duplicator (i->data, parent);
+          g_assert (new_actor);
+          {
+            gfloat x, y;
+            clutter_actor_get_position (new_actor, &x, &y);
+            x+=10;y+=10;
+            clutter_actor_set_position (new_actor, x, y);
+          }
+        }
       select_item (new_actor);
     }
 }
 
 void cb_raise_selected (ClutterActor *actor)
 {
-  if (active_actor)
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
+
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
     {
-      clutter_actor_raise (active_actor, NULL);
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
       CB_REV++;
+      clutter_actor_raise (actor, NULL);
     }
+  g_list_free (selected);
 }
 
 void cb_lower_selected (ClutterActor *actor)
 {
-  if (active_actor)
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
+
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
     {
-      clutter_actor_lower (active_actor, NULL);
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
       CB_REV++;
+      clutter_actor_lower (actor, NULL);
     }
+  g_list_free (selected);
 }
 
 
 void cb_raise_top_selected (ClutterActor *actor)
 {
-  if (active_actor)
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
+
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
     {
-      clutter_actor_raise_top (active_actor);
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
       CB_REV++;
+      clutter_actor_raise_top (actor);
     }
+  g_list_free (selected);
 }
 
 void cb_lower_bottom_selected (ClutterActor *actor)
 {
-  if (active_actor)
-    {
-      clutter_actor_lower_bottom (active_actor);
-      CB_REV++;
-    }
-}
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
 
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
+      CB_REV++;
+      clutter_actor_lower_bottom (actor);
+    }
+  g_list_free (selected);
+}
 
 void cb_reset_size (ClutterActor *actor)
 {
-  if (active_actor)
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
+
+  select_item (clutter_actor_get_stage (active_actor));
+  s=selected;
+  for (s=selected; s; s=s->next)
     {
-      clutter_actor_set_size (active_actor, -1, -1);
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
       CB_REV++;
+      clutter_actor_set_size (actor, -1, -1);
     }
+  g_list_free (selected);
 }
 
 
@@ -217,8 +309,8 @@ static KeyBinding keybindings[]={
 
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|
-   CLUTTER_SHIFT_MASK,   CLUTTER_g,         cb_group},
-  {CLUTTER_CONTROL_MASK, CLUTTER_g,         cb_ungroup},
+   CLUTTER_SHIFT_MASK,   CLUTTER_g,         cb_ungroup},
+  {CLUTTER_CONTROL_MASK, CLUTTER_g,         cb_group},
   {CLUTTER_CONTROL_MASK, CLUTTER_p,         cb_select_parent},
 
   {0,                    CLUTTER_BackSpace, cb_remove_selected},
