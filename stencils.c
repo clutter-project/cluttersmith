@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
+#include "util.h"
 
 static gboolean add_stencil (ClutterActor *actor,
                              ClutterEvent *event,

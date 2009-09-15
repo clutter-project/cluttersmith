@@ -34,7 +34,7 @@ SNAPSHOT_REMOTE=$(DOCS_REMOTE)/snapshots
 # expects a single of the .c files to contain a main function.
 
 BINARY=$(PROJECT_NAME)
-all: DOCUMENTATION $(BINARY) cluttersmith.so
+all: DOCUMENTATION $(BINARY) 
 
 DOCUMENTATION:
 	@test -d docs && make -C docs || true

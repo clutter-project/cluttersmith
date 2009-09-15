@@ -33,7 +33,7 @@ void cb_remove_selected (ClutterActor *actor)
   select_item (clutter_actor_get_stage (active_actor));
   cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_destroy), NULL);
   CS_REVISION++;
-  cluttersmith_clear_selected ();
+  cluttersmith_selected_clear ();
 }
 
 static void empty_clipboard (void)
@@ -61,7 +61,7 @@ void cb_cut_selected (ClutterActor *actor)
   select_item (clutter_actor_get_stage (active_actor));
   cluttersmith_selected_foreach (G_CALLBACK (each_cut), NULL);
   CS_REVISION++;
-  cluttersmith_clear_selected ();
+  cluttersmith_selected_clear ();
 }
 
 static void each_copy (ClutterActor *actor)

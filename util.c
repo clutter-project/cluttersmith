@@ -484,3 +484,20 @@ util_find_by_id (ClutterActor *stage, const gchar *id)
   g_list_free (list);
   return ret;
 }
+
+
+/* like foreach, but returns the first non NULL return value (and
+ * stops iterating at that stage)
+ */
+gpointer util_list_match (GList *list, GCallback match_fun, gpointer data)
+{
+  gpointer ret = NULL;
+  gpointer (*match)(gpointer item, gpointer data)=(void*)match_fun;
+  GList *l;
+  for (l=list; l && ret == NULL; l=l->next)
+    {
+      ret = match (l->data, data);
+    }
+  return ret;
+}
+

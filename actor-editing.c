@@ -10,76 +10,12 @@ ClutterActor      *lasso;
 static gint        lx, ly;
 static GHashTable *selection = NULL; /* what would be added/removed by
                                         current lasso*/
-GHashTable *selected  = NULL;
 
-
+void cluttersmith_selected_init (void);
 static void init_multi_select (void)
 {
   selection = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
-  selected = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
-
-}
-
-GList *cluttersmith_get_selected (void)
-{
-  GList *ret = g_hash_table_get_keys (selected);
-  if (!ret)
-    {
-      if (active_actor)
-        ret = g_list_append (NULL, active_actor);
-    }
-  return ret;
-}
-
-void cluttersmith_selection_add (ClutterActor *actor)
-{
-  g_hash_table_insert (selected, actor, actor);
-}
-
-void cluttersmith_selection_remove (ClutterActor *actor)
-{
-  g_hash_table_remove (selected, actor);
-}
-
-void cluttersmith_selected_foreach (GCallback cb, gpointer data)
-{
-  void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;
-  GList *s, *selected;
-  selected = cluttersmith_get_selected ();
-  s=selected;
-  for (s=selected; s; s=s->next)
-    {
-      ClutterActor *actor = s->data;
-      if (actor == clutter_actor_get_stage (actor))
-        continue;
-      each(actor, data);
-    }
-  g_list_free (selected);
-}
-
-/* like foreach, but returns the first non NULL return value (and
- * stops iterating at that stage)
- */
-static gpointer list_match (GList *list, GCallback match_fun, gpointer data)
-{
-  gpointer ret = NULL;
-  gpointer (*match)(gpointer item, gpointer data)=(void*)match_fun;
-  GList *l;
-  for (l=list; l && ret == NULL; l=l->next)
-    {
-      ret = match (l->data, data);
-    }
-  return ret;
-}
-
-gpointer cluttersmith_selected_match (GCallback match_fun, gpointer data)
-{
-  gpointer ret = NULL;
-  GList *selected;
-  selected = cluttersmith_get_selected ();
-  ret = list_match (selected, match_fun, data);
-  g_list_free (selected);
-  return ret;
+  cluttersmith_selected_init ();
 }
 
 static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
@@ -109,9 +45,14 @@ static gboolean cluttersmith_selection_pick (gfloat x, gfloat y)
   return cluttersmith_selected_match (G_CALLBACK (is_in_actor), data)!=NULL;
 }
 
-void cluttersmith_clear_selected (void)
+ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
 {
-  g_hash_table_remove_all (selected);
+  GList *actors = clutter_container_get_children_recursive (clutter_actor_get_stage(parasite_root));
+  ClutterActor *ret;
+  gfloat data[2]={x,y}; 
+  ret = util_list_match (actors, G_CALLBACK (is_in_actor), data);
+  g_list_free (actors);
+  return ret;
 }
 
 gchar *subtree_to_string (ClutterActor *root);
@@ -122,17 +63,49 @@ ClutterActor *active_actor = NULL;
 static gint ver_pos = 0; /* 1 = start 2 = mid 3 = end */
 static gint hor_pos = 0; /* 1 = start 2 = mid 3 = end */
 
+
+static void draw_actor_outline (ClutterActor *actor,
+                                gpointer      data)
+{
+  ClutterVertex verts[4];
+  clutter_actor_get_abs_allocation_vertices (actor,
+                                             verts);
+
+  cogl_set_source_color4ub (0, 25, 0, 50);
+
+  {
+    {
+      gfloat coords[]={ verts[0].x, verts[0].y, 
+         verts[1].x, verts[1].y, 
+         verts[3].x, verts[3].y, 
+         verts[2].x, verts[2].y, 
+         verts[0].x, verts[0].y };
+
+      cogl_path_polyline (coords, 5);
+      cogl_set_source_color4ub (255, 0, 0, 128);
+      cogl_path_stroke ();
+    }
+  }
+}
+
 static void
 cb_overlay_paint (ClutterActor *actor,
                   gpointer      user_data)
 {
   ClutterVertex verts[4];
 
-  if (!active_actor && g_hash_table_size (selected)==0 && lasso == NULL)
+  if (!active_actor && cluttersmith_selected_count ()==0 && lasso == NULL)
     return;
 
-  if (!CLUTTER_IS_STAGE (active_actor))
+  if (cluttersmith_selected_count ()==1)
     {
+      ClutterActor *active_actor;
+      {
+        GList *l = cluttersmith_selected_get_list ();
+        active_actor = l->data;
+        g_list_free (l);
+      }
+
       clutter_actor_get_abs_allocation_vertices (active_actor,
                                                  verts);
 
@@ -231,32 +204,11 @@ cb_overlay_paint (ClutterActor *actor,
     }
 
   {
-  /* draw selected */
+  /* draw outlines for actors */
     GHashTableIter      iter;
     gpointer            key, value;
 
-    g_hash_table_iter_init (&iter, selected);
-    while (g_hash_table_iter_next (&iter, &key, &value))
-      {
-        clutter_actor_get_abs_allocation_vertices (key,
-                                                   verts);
-
-        cogl_set_source_color4ub (0, 25, 0, 50);
-
-        {
-          {
-            gfloat coords[]={ verts[0].x, verts[0].y, 
-               verts[1].x, verts[1].y, 
-               verts[3].x, verts[3].y, 
-               verts[2].x, verts[2].y, 
-               verts[0].x, verts[0].y };
-
-            cogl_path_polyline (coords, 5);
-            cogl_set_source_color4ub (255, 0, 0, 128);
-            cogl_path_stroke ();
-          }
-        }
-      }
+    cluttersmith_selected_foreach (G_CALLBACK (draw_actor_outline), NULL);
 
     g_hash_table_iter_init (&iter, selection);
     while (g_hash_table_iter_next (&iter, &key, &value))
@@ -280,7 +232,7 @@ cb_overlay_paint (ClutterActor *actor,
           }
         }
       }
-}
+   }
 
 }
 
@@ -601,11 +553,11 @@ manipulate_move_capture (ClutterActor *stage,
           delta[0]=manipulate_x-event->motion.x;
           delta[1]=manipulate_y-event->motion.y;
           {
-            if (g_hash_table_size (selected)==1)
+            if (cluttersmith_selected_count ()==1)
               {
                 /* we only snap when there is only one selected item */
 
-                GList *selected = cluttersmith_get_selected ();
+                GList *selected = cluttersmith_selected_get_list ();
                 ClutterActor *actor = selected->data;
                 gfloat x, y;
                 g_assert (actor);
@@ -651,6 +603,7 @@ static gboolean manipulate_move_start (ClutterActor  *actor,
   manipulate_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                        G_CALLBACK (manipulate_move_capture), actor);
+  clutter_actor_queue_redraw (actor);
   return TRUE;
 }
 
@@ -800,18 +753,14 @@ manipulate_lasso_capture (ClutterActor *stage,
             {
               if (state & CLUTTER_CONTROL_MASK)
                 {
-                  if (g_hash_table_lookup (selected, key))
-                    {
-                      g_hash_table_remove (selected, key);
-                    }
+                  if (cluttersmith_selected_has_actor (key))
+                    cluttersmith_selected_remove (key);
                   else
-                    {
-                      g_hash_table_insert (selected, key, value);
-                    }
+                    cluttersmith_selected_add (key);
                 }
               else
                 {
-                  g_hash_table_insert (selected, key, value);
+                  cluttersmith_selected_add (key);
                 }
             }
         }
@@ -837,7 +786,7 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
   if (!((state & CLUTTER_SHIFT_MASK) ||
         (state & CLUTTER_CONTROL_MASK)))
     {
-      g_hash_table_remove_all (selected);
+      cluttersmith_selected_clear ();
     }
 
   g_assert (lasso == NULL);
@@ -903,16 +852,6 @@ static gboolean edit_text_end (void)
 
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
-
-ClutterActor *hit_actor (gfloat x, gfloat y)
-{
-  GList *actors = clutter_container_get_children_recursive (clutter_actor_get_stage(parasite_root));
-  ClutterActor *ret;
-  gfloat data[2]={x,y}; 
-  ret = list_match (actors, G_CALLBACK (is_in_actor), data);
-  g_list_free (actors);
-  return ret;
-}
 
 static gboolean
 manipulate_capture (ClutterActor *actor,
@@ -1083,11 +1022,11 @@ manipulate_capture (ClutterActor *actor,
             }
           else
             { 
-              ClutterActor *hit= hit_actor (x, y);
+              ClutterActor *hit= cluttersmith_pick (x, y);
               if (hit)
                 {
-                  cluttersmith_clear_selected ();
-                  cluttersmith_selection_add (hit);
+                  cluttersmith_selected_clear ();
+                  cluttersmith_selected_add (hit);
                   manipulate_move_start (parasite_root, event);
                 }
               else

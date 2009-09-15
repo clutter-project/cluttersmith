@@ -506,7 +506,7 @@ void entry_text_changed (ClutterActor *actor)
       util_replace_content2 (clutter_stage_get_default(), "content", NULL);
       CS_REVISION = CS_STORED_REVISION = 0;
     }
-  g_hash_table_remove_all (selected);
+  cluttersmith_selected_clear ();
   clutter_actor_raise_top (parasite_root);
 }
 
