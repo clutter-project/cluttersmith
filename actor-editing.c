@@ -637,22 +637,31 @@ static gboolean manipulate_resize_press (ClutterActor  *actor,
 }
 
 
+#if 0
+
+/* independently for the axes for axis aligned boxes */
 
 static gboolean
 intersects (gint min, gint max, gint minb, gint maxb)
 {
-#if 0
   if (minb <= max && minb >= min)
     return TRUE;
   if (min <= maxb && min >= minb)
     return TRUE;
   return FALSE;
-#else /* not intersect, but contain */
+}
+#endif
+
+/* XXX: should be changed to deal with transformed coordinates to be able to
+ * deal correctly with actors at any transformation and nesting.
+ */
+static gboolean
+contains (gint min, gint max, gint minb, gint maxb)
+{
   if (minb>=min && minb <=max &&
       maxb>=min && maxb <=max)
     return TRUE;
   return FALSE;
-#endif
 }
 
 #define LASSO_BORDER 1
@@ -695,8 +704,8 @@ manipulate_lasso_capture (ClutterActor *stage, ClutterEvent *event, gpointer dat
                 clutter_actor_get_transformed_size (j->data, &cw, &ch);
 
 
-                if (intersects (mx, mx + mw, cx, cx + cw) &&
-                    intersects (my, my + mh, cy, cy + ch))
+                if (contains (mx, mx + mw, cx, cx + cw) &&
+                    contains (my, my + mh, cy, cy + ch))
                   {
                     g_hash_table_insert (selection, j->data, j->data);
                   }
@@ -752,7 +761,6 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
 {
    ClutterActor *hit;
    ClutterModifierType state = event->button.modifier_state;
-
 
    hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                          CLUTTER_PICK_ALL,
