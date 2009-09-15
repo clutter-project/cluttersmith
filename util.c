@@ -435,9 +435,9 @@ ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
 }
 
 
-static void get_all_actors_int (GList **list, ClutterActor *actor)
+static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip_own)
 {
-  if (util_has_ancestor (actor, parasite_root))
+  if (skip_own && util_has_ancestor (actor, parasite_root))
     return;
 
   if (!CLUTTER_IS_STAGE (actor))
@@ -449,7 +449,7 @@ static void get_all_actors_int (GList **list, ClutterActor *actor)
       children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
       for (c = children; c; c=c->next)
         {
-          get_all_actors_int (list, c->data);
+          get_all_actors_int (list, c->data, skip_own);
         }
       g_list_free (children);
     }
@@ -459,20 +459,26 @@ GList *
 clutter_container_get_children_recursive (ClutterActor *actor)
 {
   GList *ret = NULL;
-  get_all_actors_int (&ret, actor);
+  get_all_actors_int (&ret, actor, TRUE);
   return ret;
 }
 
 ClutterActor *
 util_find_by_id (ClutterActor *stage, const gchar *id)
 {
-  GList *l, *list = clutter_container_get_children_recursive (stage);
+  GList *l, *list = NULL;
+  get_all_actors_int (&list, stage, FALSE);
   ClutterActor *ret = NULL;
   for (l=list;l && !ret;l=l->next)
     {
-      if (g_str_equal (clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (l->data)), "id"))
+      if (CLUTTER_SCRIPTABLE (l->data))
         {
-          ret = l->data;
+          const gchar *gotid = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (l->data));
+          if (gotid && g_str_equal (gotid, id))
+            {
+              ret = l->data;
+              break;
+            }
         }
     }
   g_list_free (list);

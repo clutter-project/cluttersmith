@@ -156,10 +156,12 @@ void cb_quit (ClutterActor *actor)
 void cb_focus_entry (ClutterActor *actor)
 {
   ClutterActor *entry;
-  entry = util_find_by_id (clutter_actor_get_stage (actor), "title");
+  entry = util_find_by_id (actor, "title");
   if (entry)
-    clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                 entry);
+    {
+      g_print ("trying to set key focus\n");
+      clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (entry)), entry);
+    }
 }
 
 void cb_select_none (ClutterActor *actor)
