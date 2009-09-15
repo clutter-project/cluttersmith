@@ -118,11 +118,12 @@ initialize_stage ()
   stage = clutter_stage_get_default ();
   clutter_color_from_string (&color, args.bg_color);
   clutter_stage_set_color (CLUTTER_STAGE (stage), &color);
-  clutter_actor_set_size (stage, args.width, args.height);
   clutter_actor_show (stage);
 
   if (args.fullscreen)
     clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
+  else
+    clutter_actor_set_size (stage, args.width, args.height);
 
   return stage;
 }

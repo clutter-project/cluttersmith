@@ -69,7 +69,7 @@ cb_overlay_paint (ClutterActor *actor,
 {
   ClutterVertex verts[4];
 
-  if (!active_actor && g_hash_table_size (selected)==0)
+  if (!active_actor && g_hash_table_size (selected)==0 && lasso == NULL)
     return;
 
   if (!CLUTTER_IS_STAGE (active_actor))
@@ -509,6 +509,17 @@ in_x    in_mid_x    in_end_x
     }
 }
 
+static void each_move (ClutterActor *actor,
+                       gpointer      data)
+{
+  gfloat *delta = data;
+  gfloat x, y;
+  clutter_actor_get_position (actor, &x, &y);
+  x-= delta[0];
+  y-= delta[1];
+  clutter_actor_set_position (actor, x, y);
+}
+
 static gboolean
 manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
 {
@@ -516,14 +527,28 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
     {
       case CLUTTER_MOTION:
         {
-          gfloat x, y;
-          clutter_actor_get_position (data, &x, &y);
-          x-= manipulate_x-event->motion.x;
-          y-= manipulate_y-event->motion.y;
-
-          snap_position (data, x, y, &x, &y);
-
-          clutter_actor_set_position (data, x, y);
+          gfloat delta[2];
+          delta[0]=manipulate_x-event->motion.x;
+          delta[1]=manipulate_y-event->motion.y;
+          {
+            if (g_hash_table_size (selected)==1  ||
+                (g_hash_table_size (selected)==0 && active_actor))
+              {
+                GList *selected = cluttersmith_get_selected ();
+                ClutterActor *actor = selected->data;
+                gfloat x, y;
+                clutter_actor_get_position (actor, &x, &y);
+                x-= delta[0];
+                y-= delta[1];
+                snap_position (actor, x, y, &x, &y);
+                clutter_actor_set_position (actor, x, y);
+                g_list_free (selected);
+              }
+            else
+              {
+                cluttersmith_selected_foreach (G_CALLBACK (each_move), &delta[0]);
+              }
+          }
           CS_REVISION++;
 
           manipulate_x=event->motion.x;
