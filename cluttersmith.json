@@ -245,6 +245,18 @@
 ]
       "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
 }
+
+ {"id":"resize-handle",
+  "type":"ClutterText",
+  "color":"red",
+  "reactive":true,
+  "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"} ] 
+  "anchor-gravity":"center",
+  "font-name":"Sans 40px",
+  "text":"⇲"
+ }
+
+
 ]
       "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
 }

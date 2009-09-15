@@ -62,6 +62,11 @@ gchar *subtree_to_string (ClutterActor *root);
 static gint ver_pos = 0; /* 1 = start 2 = mid 3 = end */
 static gint hor_pos = 0; /* 1 = start 2 = mid 3 = end */
 
+static gint max_x = 0;
+static gint max_y = 0;
+static gint min_x = 0;
+static gint min_y = 0;
+
 
 static void draw_actor_outline (ClutterActor *actor,
                                 gpointer      data)
@@ -73,6 +78,18 @@ static void draw_actor_outline (ClutterActor *actor,
   cogl_set_source_color4ub (0, 25, 0, 50);
 
   {
+    gint i;
+    for (i=0;i<4;i++)
+      {
+        if (verts[i].x > max_x)
+          max_x = verts[i].x;
+        if (verts[i].x < min_x)
+          min_x = verts[i].x;
+        if (verts[i].y > max_y)
+          max_y = verts[i].y;
+        if (verts[i].y < min_y)
+          min_y = verts[i].y;
+      }
     {
       gfloat coords[]={ verts[0].x, verts[0].y, 
          verts[1].x, verts[1].y, 
@@ -107,8 +124,10 @@ cb_overlay_paint (ClutterActor *stage,
 
       clutter_actor_get_abs_allocation_vertices (actor,
                                                  verts);
+  
 
       cogl_set_source_color4ub (0, 25, 0, 50);
+
 
       {
         CoglTextureVertex tverts[] = 
@@ -178,6 +197,10 @@ cb_overlay_paint (ClutterActor *stage,
       }
     }
 
+  min_x = 65536;
+  min_y = 65536;
+  max_x = 0;
+  max_y = 0;
   {
   /* draw outlines for actors */
     GHashTableIter      iter;
@@ -209,6 +232,11 @@ cb_overlay_paint (ClutterActor *stage,
       }
    }
 
+   {
+     /* done this way, thie resize handle always lags behind */
+     ClutterActor *handle = util_find_by_id (stage, "resize-handle");
+     clutter_actor_set_position (handle, max_x, max_y);
+   }
 }
 
 void actor_editing_init (gpointer stage)
@@ -592,18 +620,20 @@ manipulate_resize_capture (ClutterActor *stage,
     {
       case CLUTTER_MOTION:
         {
+          ClutterActor *actor = cluttersmith_selected_get_any();
+          /* resize is semi bust for more than one actor */
           gfloat ex, ey;
-          clutter_actor_transform_stage_point (data, event->motion.x, event->motion.y,
+          clutter_actor_transform_stage_point (actor, event->motion.x, event->motion.y,
                                                &ex, &ey);
           gfloat w, h;
-          clutter_actor_get_size (data, &w, &h);
+          clutter_actor_get_size (actor, &w, &h);
 
           w-= manipulate_x-ex;
           h-= manipulate_y-ey;
 
-          snap_size (data, w, h, &w, &h);
+          snap_size (actor, w, h, &w, &h);
 
-          clutter_actor_set_size (data, w, h);
+          clutter_actor_set_size (actor, w, h);
           CS_REVISION++;
 
           manipulate_x=ex;
@@ -623,13 +653,14 @@ manipulate_resize_capture (ClutterActor *stage,
   return TRUE;
 }
 
-static gboolean manipulate_resize_start (ClutterActor  *actor,
-                                         ClutterEvent  *event)
+gboolean manipulate_resize_start (ClutterActor  *actor,
+                                  ClutterEvent  *event)
 {
+  ClutterActor *first_actor = cluttersmith_selected_get_any();
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
 
-  clutter_actor_transform_stage_point (actor, event->button.x, event->button.y, &manipulate_x, &manipulate_y);
+  clutter_actor_transform_stage_point (first_actor, event->button.x, event->button.y, &manipulate_x, &manipulate_y);
 
   manipulate_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",

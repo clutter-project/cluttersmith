@@ -501,3 +501,9 @@ gpointer util_list_match (GList *list, GCallback match_fun, gpointer data)
   return ret;
 }
 
+
+gboolean util_block_event (ClutterActor *actor)
+{
+  g_print ("HOI!\n");
+  return TRUE;
+}
