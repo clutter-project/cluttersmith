@@ -616,11 +616,18 @@ static gboolean manipulate_resize_press (ClutterActor  *actor,
 static gboolean
 intersects (gint min, gint max, gint minb, gint maxb)
 {
+#if 0
   if (minb <= max && minb >= min)
     return TRUE;
   if (min <= maxb && min >= minb)
     return TRUE;
   return FALSE;
+#else /* not intersect, but contain */
+  if (minb>=min && minb <=max &&
+      maxb>=min && maxb <=max)
+    return TRUE;
+  return FALSE;
+#endif
 }
 
 #define LASSO_BORDER 1
@@ -661,6 +668,7 @@ manipulate_lasso_capture (ClutterActor *stage, ClutterEvent *event, gpointer dat
                 gfloat cw, ch;
                 clutter_actor_get_transformed_position (j->data, &cx, &cy);
                 clutter_actor_get_transformed_size (j->data, &cw, &ch);
+
 
                 if (intersects (mx, mx + mw, cx, cx + cw) &&
                     intersects (my, my + mh, cy, cy + ch))
