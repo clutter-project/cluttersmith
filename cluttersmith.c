@@ -34,10 +34,10 @@ gchar *blacklist_types[]={"ClutterStage",
 
 void init_types (void);
 
-guint CB_REV       = 0; /* everything that changes state and could be determined
+guint CS_REVISION       = 0; /* everything that changes state and could be determined
                          * a user change should increment this.
                          */
-guint CB_SAVED_REV = 0;
+guint CS_STORED_REVISION = 0;
 
 void cb_manipulate_init (ClutterActor *actor);
 
@@ -455,7 +455,7 @@ void entry_text_changed (ClutterActor *actor)
                                   * least through some form of getter function.
                                   */
 
-  if (CB_REV != CB_SAVED_REV)
+  if (CS_REVISION != CS_STORED_REVISION)
     {
       ClutterActor *root;
       gchar *content;
@@ -499,12 +499,12 @@ void entry_text_changed (ClutterActor *actor)
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       util_replace_content2 (actor, "content", filename);
-      CB_REV = CB_SAVED_REV = 0;
+      CS_REVISION = CS_STORED_REVISION = 0;
     }
   else
     {
       util_replace_content2 (clutter_stage_get_default(), "content", NULL);
-      CB_REV = CB_SAVED_REV = 0;
+      CS_REVISION = CS_STORED_REVISION = 0;
     }
   g_hash_table_remove_all (selected);
   clutter_actor_raise_top (parasite_root);

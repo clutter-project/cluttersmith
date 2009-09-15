@@ -31,6 +31,23 @@ GList *cluttersmith_get_selected (void)
   return ret;
 }
 
+void cluttersmith_selected_foreach (GCallback cb, gpointer data)
+{
+  void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
+  s=selected;
+  for (s=selected; s; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
+      each(actor, data);
+    }
+  g_list_free (selected);
+}
+
+
 void cluttersmith_clear_selected (void)
 {
   g_hash_table_remove_all (selected);
@@ -507,7 +524,7 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
           snap_position (data, x, y, &x, &y);
 
           clutter_actor_set_position (data, x, y);
-          CB_REV++;
+          CS_REVISION++;
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -561,7 +578,7 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
           snap_size (data, w, h, &w, &h);
 
           clutter_actor_set_size (data, w, h);
-          CB_REV++;
+          CS_REVISION++;
 
           manipulate_x=ex;
           manipulate_y=ey;
