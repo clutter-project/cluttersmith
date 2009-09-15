@@ -47,15 +47,56 @@ void cluttersmith_selected_foreach (GCallback cb, gpointer data)
   g_list_free (selected);
 }
 
+/* like foreach, but returns the first non NULL return value (and
+ * stops iterating at that stage)
+ */
+gpointer cluttersmith_selected_find (GCallback find_fun, gpointer data)
+{
+  gpointer ret = NULL;
+  gpointer (*find)(ClutterActor *actor, gpointer data)=(void*)find_fun;
+  GList *s, *selected;
+  selected = cluttersmith_get_selected ();
+  s=selected;
+  for (s=selected; s && ret == NULL; s=s->next)
+    {
+      ClutterActor *actor = s->data;
+      if (actor == clutter_actor_get_stage (actor))
+        continue;
+      ret = find(actor, data);
+    }
+  g_list_free (selected);
+  return ret;
+}
+
+static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
+{
+  gfloat x=args[0]; /* convert pointed to argument list into variables */
+  gfloat y=args[1];
+
+  ClutterVertex verts[4];
+  clutter_actor_get_abs_allocation_vertices (actor,
+                                             verts);
+  /* XXX: use cairo to check with the outline of the verts? */
+  if (x>verts[2].x && x<verts[1].x &&
+      y>verts[1].y && y<verts[2].y)
+    {
+      return GINT_TO_POINTER(TRUE);
+    }
+  return NULL;
+}
+
+static gboolean cluttersmith_selection_pick (gfloat x, gfloat y)
+{
+  gfloat data[2]={x,y}; 
+  return cluttersmith_selected_find (G_CALLBACK (is_in_actor), data)!=NULL;
+}
 
 void cluttersmith_clear_selected (void)
 {
   g_hash_table_remove_all (selected);
 }
 
-
 gchar *subtree_to_string (ClutterActor *root);
-
 ClutterActor *active_actor = NULL;
 
 
@@ -231,15 +272,21 @@ void actor_editing_init (gpointer stage)
   init_multi_select ();
 }
 
-
-
-
+/*
+ * Shared state used by all the separate states the event handling can
+ * the substates are exclusive (can be extended to have a couple of stages
+ * that allow falling through to each other, but a fixed event pipeline
+ * is an simpler initial base).
+ */
 static guint  manipulate_capture_handler = 0;
 static gfloat manipulate_x;
 static gfloat manipulate_y;
 
 #define SNAP_THRESHOLD  2
 
+/* snap the provided position of an object according
+ * to its siblings.
+ */
 static void snap_position (ClutterActor *actor,
                            gfloat        in_x,
                            gfloat        in_y,
@@ -402,7 +449,11 @@ in_x    in_mid_x    in_end_x
     }
 }
 
-
+/* snap size, as affected by resizing lower right corner,
+ * will need extension if other corners are to be supported,
+ * it seems possible to do all needed alignments through
+ * simple workarounds when only snapping for lower right).
+ */
 static void snap_size (ClutterActor *actor,
                        gfloat        in_width,
                        gfloat        in_height,
@@ -413,7 +464,6 @@ static void snap_size (ClutterActor *actor,
   *out_height = in_height;
 
   ClutterActor *parent;
-
 
   parent = clutter_actor_get_parent (actor);
 
@@ -521,7 +571,9 @@ static void each_move (ClutterActor *actor,
 }
 
 static gboolean
-manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
+manipulate_move_capture (ClutterActor *stage,
+                         ClutterEvent *event,
+                         gpointer      data)
 {
   switch (event->any.type)
     {
@@ -531,9 +583,10 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
           delta[0]=manipulate_x-event->motion.x;
           delta[1]=manipulate_y-event->motion.y;
           {
-            if (g_hash_table_size (selected)==1  ||
-                (g_hash_table_size (selected)==0 && active_actor))
+            if (g_hash_table_size (selected)==1)
               {
+                /* we only snap when there is only one selected item */
+
                 GList *selected = cluttersmith_get_selected ();
                 ClutterActor *actor = selected->data;
                 gfloat x, y;
@@ -570,9 +623,8 @@ manipulate_move_capture (ClutterActor *stage, ClutterEvent *event, gpointer data
   return TRUE;
 }
 
-
-static gboolean manipulate_move_press (ClutterActor  *actor,
-                                  ClutterEvent  *event)
+static gboolean manipulate_move_start (ClutterActor  *actor,
+                                       ClutterEvent  *event)
 {
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
@@ -585,7 +637,9 @@ static gboolean manipulate_move_press (ClutterActor  *actor,
 
 
 static gboolean
-manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
+manipulate_resize_capture (ClutterActor *stage,
+                           ClutterEvent *event,
+                           gpointer      data)
 {
   switch (event->any.type)
     {
@@ -622,7 +676,7 @@ manipulate_resize_capture (ClutterActor *stage, ClutterEvent *event, gpointer da
   return TRUE;
 }
 
-static gboolean manipulate_resize_press (ClutterActor  *actor,
+static gboolean manipulate_resize_start (ClutterActor  *actor,
                                          ClutterEvent  *event)
 {
   manipulate_x = event->button.x;
@@ -668,7 +722,9 @@ contains (gint min, gint max, gint minb, gint maxb)
 
 
 static gboolean
-manipulate_lasso_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
+manipulate_lasso_capture (ClutterActor *stage,
+                          ClutterEvent *event,
+                          gpointer      data)
 {
   switch (event->any.type)
     {
@@ -754,17 +810,10 @@ manipulate_lasso_capture (ClutterActor *stage, ClutterEvent *event, gpointer dat
   return TRUE;
 }
 
-
-
-static gboolean manipulate_select_press (ClutterActor  *actor,
-                                         ClutterEvent  *event)
+static gboolean manipulate_lasso_start (ClutterActor  *actor,
+                                        ClutterEvent  *event)
 {
-   ClutterActor *hit;
-   ClutterModifierType state = event->button.modifier_state;
-
-   hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                         CLUTTER_PICK_ALL,
-                                         event->button.x, event->button.y);
+  ClutterModifierType state = event->button.modifier_state;
 
   if (!((state & CLUTTER_SHIFT_MASK) ||
         (state & CLUTTER_CONTROL_MASK)))
@@ -772,42 +821,28 @@ static gboolean manipulate_select_press (ClutterActor  *actor,
       g_hash_table_remove_all (selected);
     }
 
-  if (hit == clutter_actor_get_stage (actor))
+  g_assert (lasso == NULL);
+
     {
-      if (lasso == NULL)
-        {
-          ClutterColor lassocolor       = {0xff,0x0,0x0,0x11};
-          ClutterColor lassobordercolor = {0xff,0x0,0x0,0x88};
-          lasso = clutter_rectangle_new_with_color (&lassocolor);
-          clutter_rectangle_set_border_color (CLUTTER_RECTANGLE (lasso), &lassobordercolor);
-          clutter_rectangle_set_border_width (CLUTTER_RECTANGLE (lasso), LASSO_BORDER);
-          clutter_container_add_actor (CLUTTER_CONTAINER (parasite_root), lasso);
-        }
-      lx = event->button.x;
-      ly = event->button.y;
-
-      clutter_actor_set_position (lasso, lx-LASSO_BORDER, ly-LASSO_BORDER);
-      clutter_actor_set_size (lasso, LASSO_BORDER*2, LASSO_BORDER*2);
-
-      manipulate_x = event->button.x;
-      manipulate_y = event->button.y;
-
-      manipulate_capture_handler = 
-         g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                           G_CALLBACK (manipulate_lasso_capture), actor);
+      ClutterColor lassocolor       = {0xff,0x0,0x0,0x11};
+      ClutterColor lassobordercolor = {0xff,0x0,0x0,0x88};
+      lasso = clutter_rectangle_new_with_color (&lassocolor);
+      clutter_rectangle_set_border_color (CLUTTER_RECTANGLE (lasso), &lassobordercolor);
+      clutter_rectangle_set_border_width (CLUTTER_RECTANGLE (lasso), LASSO_BORDER);
+      clutter_container_add_actor (CLUTTER_CONTAINER (parasite_root), lasso);
     }
-  else
-    {
-#ifdef EDIT_SELF
-     select_item (hit);
-#else
-     if (!util_has_ancestor (hit, parasite_root) || 1)
-       select_item (hit);
-     else
-       g_print ("child of foo!\n");
-#endif
-    }
+  lx = event->button.x;
+  ly = event->button.y;
 
+  clutter_actor_set_position (lasso, lx-LASSO_BORDER, ly-LASSO_BORDER);
+  clutter_actor_set_size (lasso, LASSO_BORDER*2, LASSO_BORDER*2);
+
+  manipulate_x = event->button.x;
+  manipulate_y = event->button.y;
+
+  manipulate_capture_handler = 
+     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                       G_CALLBACK (manipulate_lasso_capture), actor);
 
   return TRUE;
 }
@@ -850,7 +885,9 @@ static gboolean edit_text_end (void)
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
 static gboolean
-manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
+manipulate_capture (ClutterActor *actor,
+                    ClutterEvent *event,
+                    gpointer      data /* unused */)
 {
   /* pass events through to text being edited */
   if (edited_text)
@@ -972,8 +1009,10 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
         {
           gfloat x = event->button.x;
           gfloat y = event->button.y;
-          gfloat w,h;
 
+          if(0)
+            {
+          gfloat w,h;
           if (active_actor && clutter_event_get_click_count (event) > 1)
             {
               if (CLUTTER_IS_TEXT (active_actor) ||
@@ -996,17 +1035,26 @@ manipulate_capture (ClutterActor *actor, ClutterEvent *event, gpointer data)
               active_actor == NULL ||
               (active_actor && (active_actor == clutter_actor_get_stage (active_actor))))
             {
-              manipulate_select_press (parasite_root, event);
+              manipulate_lasso_start (parasite_root, event);
             }
           else if (x>0.5 && y>0.5)
             {
-              manipulate_resize_press (active_actor, event);
+              manipulate_resize_start (active_actor, event);
             }
           else
             {
-              manipulate_move_press (active_actor, event);
+              manipulate_move_start (active_actor, event);
             }
+        }
 
+          if (cluttersmith_selection_pick (x, y))
+            {
+              manipulate_move_start (parasite_root, event);
+            }
+          else
+            {
+              manipulate_lasso_start (parasite_root, event);
+            }
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
