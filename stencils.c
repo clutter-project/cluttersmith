@@ -21,6 +21,7 @@ static gboolean add_stencil (ClutterActor *actor,
 
       cluttersmith_selected_clear ();
       cluttersmith_selected_add (new_actor);
+      clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (new_actor), "");
     }
 
   return TRUE;
