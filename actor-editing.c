@@ -39,10 +39,11 @@ static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
   return NULL;
 }
 
-static gboolean cluttersmith_selection_pick (gfloat x, gfloat y)
+static ClutterActor *
+cluttersmith_selection_pick (gfloat x, gfloat y)
 {
   gfloat data[2]={x,y}; 
-  return cluttersmith_selected_match (G_CALLBACK (is_in_actor), data)!=NULL;
+  return cluttersmith_selected_match (G_CALLBACK (is_in_actor), data);
 }
 
 ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
@@ -982,6 +983,7 @@ manipulate_capture (ClutterActor *actor,
         break;
       case CLUTTER_BUTTON_PRESS:
         {
+          ClutterActor *hit;
           gfloat x = event->button.x;
           gfloat y = event->button.y;
 
@@ -991,13 +993,24 @@ manipulate_capture (ClutterActor *actor,
               /*XXX*/ edit_text_start (NULL);
             }
 
-          if (cluttersmith_selection_pick (x, y))
+          hit = cluttersmith_selection_pick (x, y);
+
+          if (hit)
             {
-              manipulate_move_start (parasite_root, event);
+              if ((CLUTTER_IS_TEXT (hit) || NBTK_IS_LABEL (hit))
+                  && clutter_event_get_click_count (event)>1)
+                {
+                  edit_text_start (hit);
+                  return TRUE;
+                }
+              else
+                {
+                  manipulate_move_start (parasite_root, event);
+                }
             }
           else
             { 
-              ClutterActor *hit= cluttersmith_pick (x, y);
+              hit= cluttersmith_pick (x, y);
               if (hit)
                 {
                   cluttersmith_selected_clear ();
