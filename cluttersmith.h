@@ -12,7 +12,7 @@ extern ClutterActor *parasite_root;
 extern ClutterActor *parasite_ui;
 
 void set_title (const gchar *new_title);
-void select_item (ClutterActor *item);
+void cluttersmith_set_active (ClutterActor *item);
 
 void tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);

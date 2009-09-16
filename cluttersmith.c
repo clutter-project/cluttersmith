@@ -91,7 +91,7 @@ gboolean idle_add_stage (gpointer stage)
   stage_size_changed (stage, NULL, actor);
 
   cb_manipulate_init (parasite_root);
-  select_item (stage);
+  cluttersmith_set_active (stage);
 
 
   init_types ();
@@ -299,15 +299,15 @@ static void selected_vanished (gpointer data,
                                GObject *where_the_object_was)
 {
   active_actor = NULL;
-  select_item (NULL);
+  cluttersmith_set_active (NULL);
 }
 
-static void select_item_event (ClutterActor *button, ClutterActor *item)
+static void cluttersmith_set_active_event (ClutterActor *button, ClutterActor *item)
 {
-  select_item (item);
+  cluttersmith_set_active (item);
 }
 
-void select_item (ClutterActor *item)
+void cluttersmith_set_active (ClutterActor *item)
 {
   if (item)
     clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
@@ -331,7 +331,7 @@ void select_item (ClutterActor *item)
             {
               ClutterActor *new;
               new = CLUTTER_ACTOR (nbtk_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
-              g_signal_connect (new, "clicked", G_CALLBACK (select_item_event), iter);
+              g_signal_connect (new, "clicked", G_CALLBACK (cluttersmith_set_active_event), iter);
               clutter_container_add_actor (CLUTTER_CONTAINER (parents), new);
               iter = clutter_actor_get_parent (iter);
             }
@@ -408,7 +408,7 @@ static void change_type (ClutterActor *actor,
       g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
     }
 
-  select_item (new_actor);
+  cluttersmith_set_active (new_actor);
 }
 
 

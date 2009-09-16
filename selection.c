@@ -21,11 +21,11 @@ static void update_active_actor (void)
 {
   if (g_hash_table_size (selected)==1)
     {
-      select_item (cluttersmith_selected_get_any ());
+      cluttersmith_set_active (cluttersmith_selected_get_any ());
     }
   else
     {
-      select_item (NULL);
+      cluttersmith_set_active (NULL);
     }
 }
 

@@ -181,7 +181,7 @@ static gboolean tree_item_press (ClutterActor  *actor,
   return TRUE;
 }
 
-static gboolean select_item_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
+static gboolean cluttersmith_set_active_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
 {
   cluttersmith_selected_clear ();
   cluttersmith_selected_add (item);
@@ -231,7 +231,7 @@ tree_populate_iter (ClutterActor *current_container,
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &white);
     }
-  g_signal_connect (label, "button-press-event", G_CALLBACK (select_item_event), iter);
+  g_signal_connect (label, "button-press-event", G_CALLBACK (cluttersmith_set_active_event), iter);
   clutter_actor_set_reactive (label, TRUE);
 
   clutter_container_add_actor (CLUTTER_CONTAINER (vbox), label);

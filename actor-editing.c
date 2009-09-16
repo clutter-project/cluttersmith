@@ -974,7 +974,7 @@ manipulate_capture (ClutterActor *actor,
                                                 CLUTTER_PICK_ALL,
                                                 event->motion.x, event->motion.y);
           if (!util_has_ancestor (hit, parasite_root))
-            select_item (hit);
+            cluttersmith_set_active (hit);
           else
             g_print ("child of foo!\n");
 #endif
