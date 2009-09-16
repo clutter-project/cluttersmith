@@ -47,6 +47,7 @@ void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bi
 {
   gfloat width, height;
   clutter_actor_get_size (stage, &width, &height);
+  g_print ("stage size changed %f %f\n", width, height);
   clutter_actor_set_size (bin, width, height);
 }
 
@@ -85,10 +86,10 @@ gboolean idle_add_stage (gpointer stage)
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   parasite_root = actor;
 
-  g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), actor);
-  g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), actor);
-  /* do an initial syncing */
-  stage_size_changed (stage, NULL, actor);
+  g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), parasite_ui);
+  g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), parasite_ui);
+  /* do an initial sync of the ui-size */
+  stage_size_changed (stage, NULL, parasite_ui);
 
   cb_manipulate_init (parasite_root);
   cluttersmith_set_active (stage);
