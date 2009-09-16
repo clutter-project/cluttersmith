@@ -948,7 +948,7 @@ manipulate_capture (ClutterActor *actor,
                    filename = g_strdup_printf ("json/%s.json", name+5);
 
                    set_title (name+5);
-                   select_item (clutter_actor_get_stage (parasite_root));
+                   cluttersmith_selected_clear ();
                    return TRUE;
                  }
                hit = clutter_actor_get_parent (hit);

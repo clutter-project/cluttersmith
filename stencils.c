@@ -19,7 +19,8 @@ static gboolean add_stencil (ClutterActor *actor,
       clutter_actor_get_size (new_actor, &w, &h);
       clutter_actor_set_position (new_actor, (sw-w)/2, (sh-h)/2);
 
-      select_item (new_actor);
+      cluttersmith_selected_clear ();
+      cluttersmith_selected_add (new_actor);
     }
 
   return TRUE;

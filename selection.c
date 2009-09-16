@@ -17,15 +17,28 @@ GList *cluttersmith_selected_get_list (void)
   return ret;
 }
 
+static void update_active_actor (void)
+{
+  if (g_hash_table_size (selected)==1)
+    {
+      select_item (cluttersmith_selected_get_any ());
+    }
+  else
+    {
+      select_item (NULL);
+    }
+}
 
 void cluttersmith_selected_add (ClutterActor *actor)
 {
   g_hash_table_insert (selected, actor, actor);
+  update_active_actor ();
 }
 
 void cluttersmith_selected_remove (ClutterActor *actor)
 {
   g_hash_table_remove (selected, actor);
+  update_active_actor ();
 }
 
 
@@ -59,6 +72,7 @@ gpointer cluttersmith_selected_match (GCallback match_fun, gpointer data)
 void cluttersmith_selected_clear (void)
 {
   g_hash_table_remove_all (selected);
+  update_active_actor ();
 }
 
 

@@ -142,7 +142,10 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
                 g_object_unref (dragged_actor);
               }
             if (dragged_actor)
-              select_item (dragged_actor);
+              {
+                cluttersmith_selected_clear ();
+                cluttersmith_selected_add (dragged_actor);
+              }
           }
         dropped_on_target = NULL;
         dragged_item = NULL;
@@ -180,7 +183,8 @@ static gboolean tree_item_press (ClutterActor  *actor,
 
 static gboolean select_item_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
 {
-  select_item (item);
+  cluttersmith_selected_clear ();
+  cluttersmith_selected_add (item);
   return TRUE;
 }
 

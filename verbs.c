@@ -19,7 +19,8 @@ static void each_duplicate (ClutterActor *actor)
     x+=10;y+=10;
     clutter_actor_set_position (new_actor, x, y);
   }
-  select_item (new_actor);
+  cluttersmith_selected_clear ();
+  cluttersmith_selected_add (new_actor);
 }
 
 void cb_duplicate_selected (ClutterActor *actor)
@@ -30,7 +31,6 @@ void cb_duplicate_selected (ClutterActor *actor)
 
 void cb_remove_selected (ClutterActor *actor)
 {
-  //select_item (clutter_actor_get_stage (active_actor));
   cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_destroy), NULL);
   CS_REVISION++;
   cluttersmith_selected_clear ();
@@ -108,7 +108,8 @@ void cb_paste_selected (ClutterActor *actor)
             clutter_actor_set_position (new_actor, x, y);
           }
         }
-      select_item (new_actor);
+      cluttersmith_selected_clear ();
+      cluttersmith_selected_add (new_actor);
     }
   CS_REVISION++;
 }
