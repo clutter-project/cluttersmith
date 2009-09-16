@@ -4,8 +4,6 @@
  "id":"parasite",
  "children":[
 {"type":"NbtkBin",
- "width":1024,
- "height":600,
  "id":"parasite-ui",
  "x-fill":true,
  "y-fill":true,

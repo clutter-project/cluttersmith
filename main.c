@@ -30,7 +30,7 @@ args =
   FALSE,
   "gray",
   1024, 600,
-  "json/foo.json",
+  "about",
   "actor",
   NULL
 };
@@ -128,59 +128,16 @@ initialize_stage ()
   return stage;
 }
 
-
-static void
-load_script (const gchar *path)
-{
-  GError        *error = NULL;
-
-  g_assert (CLUTTER_IS_SCRIPT (script));
-  clutter_script_load_from_file (script, path, &error);
-
-  if (error)
-    {
-      ClutterColor error_color = { 0xff, 0, 0, 0xff };
-      actor = clutter_text_new_with_text ("Sans 20px", error->message);
-      clutter_actor_set_size (actor, clutter_actor_get_width (stage),
-                                     200);
-      g_print ("!%s\n", error->message);
-      clutter_group_add (CLUTTER_GROUP (stage), actor);
-      clutter_actor_show_all (stage);
-      clutter_text_set_color (CLUTTER_TEXT (actor), &error_color);
-      g_clear_error (&error);
-      return;
-    }
-
-  actor = CLUTTER_ACTOR (clutter_script_get_object (script, args.id));
-
-  if (actor == NULL)
-    {
-      ClutterColor error_color = { 0xff, 0, 0, 0xff };
-      gchar        message[256];
-
-      g_sprintf (message, "No actor with \"id\"=\"%s\" found", args.id);
-      actor = clutter_text_new_with_text ("Sans 30px", message);
-      clutter_text_set_color (CLUTTER_TEXT (actor), &error_color);
-    }
-  else 
-    {
-      clutter_group_add (CLUTTER_GROUP (stage), actor);
-      clutter_actor_show_all (stage);
-
-      if (args.timeline != NULL)
-        {
-          timeline = CLUTTER_TIMELINE (clutter_script_get_object (
-                                       script, args.timeline));
-          if (timeline)
-            clutter_timeline_start (timeline);
-        }
-      clutter_script_connect_signals (script, script);
-      g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, NULL);
-    }
-}
-
 void gst_init (gpointer, gpointer);
 gboolean idle_add_stage (gpointer stage);
+
+/* hack.. */
+static gboolean idle_load_default (void)
+{
+  set_title (args.path);
+  clutter_actor_queue_redraw (clutter_stage_get_default());
+  return FALSE;
+}
 
 #ifndef COMPILEMODULE
 gint
@@ -196,9 +153,10 @@ main (gint    argc,
   stage = initialize_stage ();
 
   script = clutter_script_new ();
-  load_script (args.path);
+  /*load_script (args.path);*/
 
   g_timeout_add (100, idle_add_stage, stage);
+  g_timeout_add (500, idle_load_default, NULL);
 
   clutter_main ();
   return 0;
