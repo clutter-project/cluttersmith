@@ -164,3 +164,7 @@ NbtkBoxLayout.parasite-paste  {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
+
+*.parasite *.ClutterSmithTitle {
+  font-size: 20px;
+}

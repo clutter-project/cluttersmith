@@ -30,6 +30,7 @@
          "children":
            [
              { "id":"title",
+               "style-class":"ClutterSmithTitle",
                "type":"NbtkEntry",  "text": "", "width":200, "height":10,
                "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
              }
