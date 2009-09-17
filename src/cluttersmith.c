@@ -31,8 +31,6 @@ gchar *blacklist_types[]={"ClutterStage",
                           "NbtkWidget",
                           NULL};
 
-#define PKGDATADIR "./" //"/home/pippin/src/cluttersmith/"
-
 void init_types (void);
 
 guint CS_REVISION       = 0; /* everything that changes state and could be determined

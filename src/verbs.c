@@ -97,7 +97,7 @@ void cb_paste_selected (ClutterActor *actor)
   if (clipboard)
     {
       GList *i;
-      ClutterActor *new_actor, *parent;
+      ClutterActor *new_actor = NULL, *parent;
 
       parent = cluttersmith_get_add_root (actor);
 
@@ -113,7 +113,8 @@ void cb_paste_selected (ClutterActor *actor)
           }
         }
       cluttersmith_selected_clear ();
-      cluttersmith_selected_add (new_actor);
+      if (new_actor)
+        cluttersmith_selected_add (new_actor);
     }
   CS_REVISION++;
 }

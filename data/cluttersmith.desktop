@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+TryExec=cluttersmith
+Exec=cluttersmith %U
+Icon=cluttersmith.png
+Terminal=false
+Categories=Audio;Video;AudioVideo;
+Name=cluttersmith
+GenericName=Clutter Scene Graph Editor
+Comment=Do design mockups or ui definition editing for clutter.
+

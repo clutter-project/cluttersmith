@@ -18,7 +18,6 @@ static gboolean add_stencil (ClutterActor *actor,
     {
       gfloat sw, sh, w, h;
 
-      /* XXX: should add to cwd */
       clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
       clutter_actor_get_size (clutter_actor_get_stage (actor), &sw, &sh);
       clutter_actor_get_size (new_actor, &w, &h);
@@ -47,8 +46,9 @@ void stencils_container_init_hack (ClutterActor  *actor)
   done = TRUE;
 
   {
-    GDir *dir = g_dir_open ("stencils", 0, NULL);
+    GDir *dir = g_dir_open (PKGDATADIR "stencils", 0, NULL);
     const gchar *name;
+
     while ((name = g_dir_read_name (dir)))
       {
         ClutterColor  none = {0,0,0,0};
@@ -67,7 +67,7 @@ void stencils_container_init_hack (ClutterActor  *actor)
           {
             gchar *path;
             ClutterActor *oi;
-            path = g_strdup_printf ("stencils/%s", name);
+            path = g_strdup_printf (PKGDATADIR "stencils/%s", name);
             oi = util_load_json (path);
             if (oi)
               {

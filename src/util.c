@@ -155,7 +155,7 @@ void util_replace_content2 (ClutterActor  *actor,
 {
   ClutterActor *iter;
   ClutterScript *script = util_get_script (actor);
-  ClutterActor *content;
+  ClutterActor *content = NULL;
 
   if (script)
     content = CLUTTER_ACTOR (clutter_script_get_object (script, name));
