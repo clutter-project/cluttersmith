@@ -89,8 +89,8 @@
   {
     "type":"CBTexture",
     "name":"link=foo",
-    "x":404,
-    "y":350,
+    "x":398,
+    "y":330,
     "width":126,
     "height":110,
     "depth":0.000,
