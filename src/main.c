@@ -15,8 +15,8 @@
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
 
-
-/* Global structure containing information parsed from commandline parameters */
+/* Global structure containing information parsed from commandline parameters
+ */
 static struct
 {
   gboolean  fullscreen;
@@ -97,8 +97,19 @@ gboolean idle_add_stage (gpointer stage);
 /* hack.. */
 static gboolean idle_load_default (gpointer data)
 {
+
+  if (args.root_path)
+    {
+      cluttersmith_set_project_root (args.root_path);
+    }
+  else
+    {
+      cluttersmith_set_project_root (PKGDATADIR "docs");
+    }
   cluttersmith_open_layout ("index");
+
   clutter_actor_queue_redraw (clutter_stage_get_default());
+
   return FALSE;
 }
 
@@ -116,15 +127,6 @@ main (gint    argc,
 
   stage = initialize_stage ();
 
-  if (args.root_path)
-    {
-      cluttersmith_set_project_root (args.root_path);
-    }
-  else
-    {
-      cluttersmith_set_project_root (PKGDATADIR "/docs");
-    }
-
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
 
@@ -132,3 +134,4 @@ main (gint    argc,
   return 0;
 }
 #endif
+

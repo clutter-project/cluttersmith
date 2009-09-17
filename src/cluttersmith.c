@@ -15,18 +15,6 @@ static ClutterActor  *title, *name, *parents,
 
 static gchar *project_root = NULL; /* The directory we are loading stuff from */
 
-void cluttersmith_set_project_root (const gchar *new_root)
-{
-  if (project_root)
-    g_free (project_root);
-  project_root = g_strdup (new_root);
-}
-
-gchar *cluttersmith_get_project_root (void)
-{
-  return project_root;
-}
-
 ClutterActor *parasite_root;
 ClutterActor *parasite_ui;
 gchar *whitelist[]={"depth", "opacity",
@@ -34,6 +22,8 @@ gchar *whitelist[]={"depth", "opacity",
                     "anchor-y", "rotation-angle-z",
                     "name", "reactive",
                     NULL};
+
+
 
 static ClutterActor *active_actor = NULL;
 void load_file (ClutterActor *actor, const gchar *title);
@@ -525,6 +515,43 @@ static void title_text_changed (ClutterActor *actor)
   cluttersmith_selected_clear ();
   clutter_actor_raise_top (parasite_root);
 }
+
+
+void cluttersmith_set_project_root (const gchar *new_root)
+{
+  g_object_set (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "project-root"),
+                "text", new_root, NULL);
+}
+
+gchar *cluttersmith_get_project_root (void)
+{
+  return project_root;
+}
+
+
+static void project_root_text_changed (ClutterActor *actor)
+{
+  const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
+  if (project_root)
+    g_free (project_root);
+  project_root = g_strdup (new_text);
+  previews_reload (util_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
+}
+
+void project_root_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (nbtk_entry_get_clutter_text (NBTK_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (project_root_text_changed), NULL);
+}
+
 
 void search_entry_init_hack (ClutterActor  *actor)
 {

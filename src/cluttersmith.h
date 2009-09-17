@@ -46,5 +46,8 @@ gpointer cluttersmith_selected_match     (GCallback     match_fun,
                                           gpointer      data);
 ClutterActor *cluttersmith_selected_get_any (void);
 
+/*****/
+
+void previews_reload (ClutterActor *actor);
 
 #endif

@@ -74,6 +74,12 @@
                      "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
                  ],
              }
+
+             { "id":"project-root",
+               "style-class":"ClutterSmithTitle",
+               "type":"NbtkEntry",  "text": "", "width":340, "height":10,
+               "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
+             }
            ]
          }
 
