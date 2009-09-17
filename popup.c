@@ -17,7 +17,7 @@
  */
 
 #include <nbtk/nbtk.h>
-#include "hrn-popup.h"
+#include "popup.h"
 
 static ClutterActor *popup        = NULL;
 static ClutterActor *popup_parent = NULL;
@@ -53,7 +53,7 @@ destroy_when_done (ClutterAnimation *anim, ClutterActor     *actor)
 }
 
 void
-hrn_popup_close (void)
+popup_close (void)
 {
   if (!popup)
     return;
@@ -81,7 +81,7 @@ popup_capture (ClutterActor *stage, ClutterEvent *event, gpointer popup)
                                     */
         if (!hrn_actor_has_ancestor (clutter_event_get_source (event), popup))
           {
-            hrn_popup_close ();
+            popup_close ();
             return TRUE;
           }
 
@@ -99,7 +99,7 @@ popup_capture (ClutterActor *stage, ClutterEvent *event, gpointer popup)
 }
 
 void
-hrn_popup_actor (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
+popup_actor (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
 {
   gfloat        w2, h2;
   gint          w, h;
@@ -188,7 +188,7 @@ hrn_popup_actor (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
 
 
 void
-hrn_popup_actor_fixed (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
+popup_actor_fixed (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
 {
   gfloat        w2, h2;
   gint          w, h;
@@ -213,7 +213,7 @@ hrn_popup_actor_fixed (ClutterActor *stage, gint x, gint y, ClutterActor *actor)
 
 
 ClutterActor *
-hrn_popup_actions (gpointer *actions, gpointer userdata)
+popup_actions (gpointer *actions, gpointer userdata)
 {
   gint          i;
   gint          max_width = 0;
@@ -240,7 +240,7 @@ hrn_popup_actions (gpointer *actions, gpointer userdata)
       else
         {
           g_signal_connect (label, "clicked", G_CALLBACK (
-                              hrn_popup_close), userdata);
+                              popup_close), userdata);
         }
       clutter_actor_get_size (label, &w, &h);
       if (w + 20 > max_width)
@@ -260,7 +260,7 @@ hrn_popup_actions (gpointer *actions, gpointer userdata)
 }
 
 ClutterActor *
-hrn_popup_actions_bolded (gpointer *actions, gpointer userdata, gint boldno)
+popup_actions_bolded (gpointer *actions, gpointer userdata, gint boldno)
 {
   gint          i;
   gint          max_width = 0;
@@ -289,7 +289,7 @@ hrn_popup_actions_bolded (gpointer *actions, gpointer userdata, gint boldno)
       else
         {
           g_signal_connect (label, "clicked", G_CALLBACK (
-                              hrn_popup_close), userdata);
+                              popup_close), userdata);
         }
       clutter_actor_get_size (label, &w, &h);
       if (w + 20 > max_width)

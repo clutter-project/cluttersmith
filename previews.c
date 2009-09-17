@@ -16,7 +16,7 @@ static gboolean load_layout (ClutterActor *actor,
   dot = strrchr(new_title, '.');
   if (dot)
     *dot='\0';
-  set_title (new_title+5);
+  cluttersmith_open_layout (new_title+5);
   g_free (new_title);
   return TRUE;
 }

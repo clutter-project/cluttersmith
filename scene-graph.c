@@ -190,7 +190,7 @@ static gboolean cluttersmith_set_active_event (ClutterActor *button, ClutterEven
 
 
 static void
-tree_populate_iter (ClutterActor *current_container,
+cluttersmith_tree_populate_iter (ClutterActor *current_container,
                     ClutterActor *active_actor,
                     ClutterActor *iter,
                     gint   *count,
@@ -254,7 +254,7 @@ tree_populate_iter (ClutterActor *current_container,
       (*level) = (*level)+1;
       for (c = children; c; c=c->next)
         {
-          tree_populate_iter (child_vbox, active_actor, c->data, level, count);
+          cluttersmith_tree_populate_iter (child_vbox, active_actor, c->data, level, count);
         }
       (*level) = (*level)-1;
       g_list_free (children);
@@ -270,14 +270,14 @@ tree_populate_iter (ClutterActor *current_container,
 }
 
 void
-tree_populate (ClutterActor *scene_graph,
+cluttersmith_tree_populate (ClutterActor *scene_graph,
                ClutterActor *active_actor)
 {
   gint level = 0;
   gint count = 0;
   util_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
-  tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
+  cluttersmith_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
 }
 
 

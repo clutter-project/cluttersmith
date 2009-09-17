@@ -180,14 +180,59 @@ void cb_select_all (ClutterActor *actor)
   g_print ("%s NYI\n", G_STRFUNC);
 }
 
+
+static void each_group (ClutterActor *actor,
+                        gpointer      new_parent)
+{
+  ClutterActor *parent;
+  parent = clutter_actor_get_parent (actor);
+  g_object_ref (actor);
+  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
+  clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), actor);
+  g_object_unref (actor);
+}
+
 void cb_group (ClutterActor *actor)
 {
-  g_print ("%s NYI\n", G_STRFUNC);
+  ClutterActor *parent;
+  ClutterActor *group;
+  parent = cluttersmith_get_add_root (actor);
+  group = clutter_group_new ();
+  /* find upper left item,. and place group there,.. reposition children to
+   * fit this
+   */
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), group);
+  /* get add_parent */
+  /* create group */
+  cluttersmith_selected_foreach (G_CALLBACK (each_group), group);
+  /* reparent all children to group */
+  g_print ("%s NYC\n", G_STRFUNC);
 }
+
+
+static void each_ungroup (ClutterActor *actor,
+                        gpointer      new_parent)
+{
+  ClutterActor *parent;
+  parent = clutter_actor_get_parent (actor);
+  g_object_ref (actor);
+  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
+  clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), actor);
+  g_object_unref (actor);
+}
+
 
 void cb_ungroup (ClutterActor *actor)
 {
-  g_print ("%s NYI\n", G_STRFUNC);
+  ClutterActor *parent;
+  /* XXX: this is all wrong... */
+  ClutterActor *active_actor = cluttersmith_selected_get_any ();
+  /* The group needs to be directly selected for now */
+  parent = clutter_actor_get_parent (active_actor);
+  cluttersmith_selected_foreach (G_CALLBACK (each_ungroup), parent);
+  clutter_actor_destroy (active_actor);
+  /* reparent all children to group */
+  g_print ("%s NYC\n", G_STRFUNC);
 }
 
 void cb_select_parent (ClutterActor *actor)

@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include "cluttersmith.h"
 
 
 /* Global structure containing information parsed from commandline parameters */
@@ -39,8 +40,6 @@ args =
  * possible behaviours to be destroyed when the script is destroyed.
  */
 static ClutterActor    *stage;
-static ClutterActor    *actor    = NULL;
-static ClutterTimeline *timeline = NULL;
 static ClutterScript   *script   = NULL;
 
 gboolean
@@ -132,9 +131,9 @@ void gst_init (gpointer, gpointer);
 gboolean idle_add_stage (gpointer stage);
 
 /* hack.. */
-static gboolean idle_load_default (void)
+static gboolean idle_load_default (gpointer data)
 {
-  set_title (args.path);
+  cluttersmith_open_layout (args.path);
   clutter_actor_queue_redraw (clutter_stage_get_default());
   return FALSE;
 }

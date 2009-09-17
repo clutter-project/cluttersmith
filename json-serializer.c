@@ -6,6 +6,10 @@
 #include <dlfcn.h>
 #include "util.h"
 
+/**** XXX: This serializer is a hack that will be replaced by
+ * json-glib and clutterscript code
+ */
+
 static gboolean cb_filter_properties = TRUE;
 extern ClutterActor *parasite_root;
 
@@ -238,7 +242,7 @@ actor_to_string (GString      *str,
   g_string_append_printf (str, "}\n");
 }
 
-gchar *subtree_to_string (ClutterActor *root)
+gchar *json_serialize_subtree (ClutterActor *root)
 {
   GString *str = g_string_new ("");
   gchar   *ret;

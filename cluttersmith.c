@@ -5,7 +5,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include "util.h"
-#include "hrn-popup.h"
+#include "popup.h"
 #include "cluttersmith.h"
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
@@ -58,7 +58,7 @@ static gboolean keep_on_top (gpointer actor)
   return FALSE;
 }
 
-void set_title (const gchar *new_title)
+void cluttersmith_open_layout (const gchar *new_title)
 {
    g_object_set (title, "text", new_title, NULL);
 }
@@ -73,7 +73,7 @@ gboolean idle_add_stage (gpointer stage)
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
   g_timeout_add (4000, keep_on_top, actor);
 
-  actor_editing_init (stage);
+  cluttersmith_actor_editing_init (stage);
   nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
   script = util_get_script (actor);
 
@@ -340,14 +340,14 @@ void cluttersmith_set_active (ClutterActor *item)
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
           props_populate (active_actor);
-          tree_populate (scene_graph, active_actor);
+          cluttersmith_tree_populate (scene_graph, active_actor);
         }
     }
   if (active_actor)
     clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (parasite_root)), NULL);
 }
 
-gchar *subtree_to_string (ClutterActor *root);
+gchar *json_serialize_subtree (ClutterActor *root);
 
 static GList *actor_types_build (GList *list, GType type)
 {
@@ -378,7 +378,7 @@ static void change_type (ClutterActor *actor,
   ClutterActor *new_actor, *parent;
 
   g_print ("CHANGE type\n");
-  hrn_popup_close ();
+  popup_close ();
 
   new_actor = g_object_new (g_type_from_name (new_type), NULL);
   parent = clutter_actor_get_parent (active_actor);
@@ -445,7 +445,7 @@ void cb_change_type (ClutterActor *actor)
   actor = CLUTTER_ACTOR (nbtk_grid_new ());
   g_object_set (actor, "height", 600.0, "column-major", TRUE, "homogenous-columns", TRUE, NULL);
   g_list_foreach (types, (void*)printname, actor);
-  hrn_popup_actor_fixed (parasite_root, 0,0, actor);
+  popup_actor_fixed (parasite_root, 0,0, actor);
 }
 
 
@@ -486,7 +486,7 @@ static void title_text_changed (ClutterActor *actor)
         {
         }
 
-      content  = subtree_to_string (root);
+      content  = json_serialize_subtree (root);
       if (filename)
         {
           g_print ("Saved changes to %s:\n%s\n\n", filename, content);

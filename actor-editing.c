@@ -56,7 +56,7 @@ ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
   return ret;
 }
 
-gchar *subtree_to_string (ClutterActor *root);
+gchar *json_serialize_subtree (ClutterActor *root);
 
 
 /* snap positions, in relation to actor */
@@ -240,7 +240,7 @@ cb_overlay_paint (ClutterActor *stage,
    }
 }
 
-void actor_editing_init (gpointer stage)
+void cluttersmith_actor_editing_init (gpointer stage)
 {
   g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   init_multi_select ();
@@ -949,7 +949,7 @@ manipulate_capture (ClutterActor *actor,
                    gchar *filename;
                    filename = g_strdup_printf ("json/%s.json", name+5);
 
-                   set_title (name+5);
+                   cluttersmith_open_layout (name+5);
                    cluttersmith_selected_clear ();
                    return TRUE;
                  }

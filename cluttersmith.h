@@ -6,15 +6,15 @@
 extern guint CS_REVISION;
 extern guint CS_STORED_REVISION;
 
-void actor_editing_init (gpointer stage);
+void cluttersmith_actor_editing_init (gpointer stage);
 
 extern ClutterActor *parasite_root;
 extern ClutterActor *parasite_ui;
 
-void set_title (const gchar *new_title);
+void cluttersmith_open_layout (const gchar *new_title);
 void cluttersmith_set_active (ClutterActor *item);
 
-void tree_populate (ClutterActor *scene_graph,
+void cluttersmith_tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);
 
 /*
