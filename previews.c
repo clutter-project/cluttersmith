@@ -4,6 +4,8 @@
 #include "cluttersmith.h"
 #include "util.h"
 
+#define SIZE 70
+
 static gboolean load_layout (ClutterActor *actor,
                              ClutterEvent *event,
                              const gchar  *path)
@@ -46,7 +48,7 @@ void previews_container_init_hack (ClutterActor  *actor)
         rectangle = clutter_rectangle_new ();
         group = clutter_group_new ();
 
-        clutter_actor_set_size (group, 100, 100);
+        clutter_actor_set_size (group, SIZE, SIZE);
         clutter_rectangle_set_color (CLUTTER_RECTANGLE (rectangle), &none);
         clutter_actor_set_reactive (rectangle, TRUE);
 
@@ -57,7 +59,7 @@ void previews_container_init_hack (ClutterActor  *actor)
             {
               *strrchr (title, '.')='\0';
             }
-          label = clutter_text_new_with_text ("Sans 10px", title);
+          label = clutter_text_new_with_text ("Sans 9px", title);
           clutter_text_set_color (CLUTTER_TEXT (label), &white);
           g_free (title);
         }
@@ -74,9 +76,9 @@ void previews_container_init_hack (ClutterActor  *actor)
                 clutter_actor_get_size (oi, &width, &height);
                 width = 800;
                 height = 600;
-                scale = 100/width;
-                if (100/height < scale)
-                  scale = 100/height;
+                scale = SIZE/width;
+                if (SIZE/height < scale)
+                  scale = SIZE/height;
                 clutter_actor_set_scale (oi, scale, scale);
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
@@ -87,7 +89,7 @@ void previews_container_init_hack (ClutterActor  *actor)
               {
                 g_free (path);
               }
-            clutter_actor_set_size (rectangle, 100, 100);
+            clutter_actor_set_size (rectangle, SIZE, SIZE);
           }
         clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
         clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
@@ -95,6 +97,20 @@ void previews_container_init_hack (ClutterActor  *actor)
       }
     g_dir_close (dir);
   }
+}
+
+
+
+
+void previews_parent_init_hack (ClutterActor  *actor)
+{
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  clutter_container_child_set (CLUTTER_CONTAINER (clutter_actor_get_parent (actor)),
+                               actor, "expand", TRUE, NULL);
 }
 
 

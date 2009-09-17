@@ -137,7 +137,7 @@
              }
              { "type":"NbtkScrollView",
                "width":300,
-               "height":240,
+               "height":210,
                "children":
                 [
                   { "type":"NbtkViewport",
@@ -204,7 +204,7 @@
         "type":"NbtkBoxLayout",
         "style-class":"parasite",
         "reactive":true,
-        "height":130,
+        "height":99,
         "width":700,
         "spacing":9,
         "x":0,
@@ -215,8 +215,9 @@
          "children":
            [
              { "type":"NbtkScrollView",
-               "width":700,
-               "height":240,
+               "height":99,
+               "width":100,
+               "signals":[{"name":"paint", "handler":"previews_parent_init_hack"} ]
                "children":
                 [
                   { "type":"NbtkViewport",
