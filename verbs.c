@@ -30,9 +30,18 @@ void cb_duplicate_selected (ClutterActor *actor)
   CS_REVISION++;
 }
 
+static void each_remove (ClutterActor *actor)
+{
+  ClutterActor *parent;
+  parent = clutter_actor_get_parent (actor);
+  g_object_ref (actor);
+  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
+  clutter_actor_destroy (actor);
+}
+
 void cb_remove_selected (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_destroy), NULL);
+  cluttersmith_selected_foreach (G_CALLBACK (each_remove), NULL);
   CS_REVISION++;
   cluttersmith_selected_clear ();
 }
