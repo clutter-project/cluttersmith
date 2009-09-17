@@ -12,6 +12,21 @@ static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 /*#define EDIT_SELF*/
 static ClutterActor  *title, *name, *parents,
                      *property_editors, *scene_graph;
+
+static gchar *project_root = NULL; /* The directory we are loading stuff from */
+
+void cluttersmith_set_project_root (const gchar *new_root)
+{
+  if (project_root)
+    g_free (project_root);
+  project_root = g_strdup (new_root);
+}
+
+gchar *cluttersmith_get_project_root (void)
+{
+  return project_root;
+}
+
 ClutterActor *parasite_root;
 ClutterActor *parasite_ui;
 gchar *whitelist[]={"depth", "opacity",
@@ -455,6 +470,7 @@ static void title_text_changed (ClutterActor *actor)
                                   * least through some form of getter function.
                                   */
 
+  /* Save if we've changed */
   if (CS_REVISION != CS_STORED_REVISION)
     {
       ClutterActor *root;
@@ -487,13 +503,13 @@ static void title_text_changed (ClutterActor *actor)
       content  = json_serialize_subtree (root);
       if (filename)
         {
-          g_print ("Saved changes to %s:\n%s\n\n", filename, content);
           g_file_set_contents (filename, content, -1, NULL);
         }
       g_free (content);
     }
 
-  filename = g_strdup_printf ("json/%s.json", title);
+  filename = g_strdup_printf ("%s/%s.json", cluttersmith_get_project_root(),
+                              title);
   util_remove_children (property_editors);
   util_remove_children (scene_graph);
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))

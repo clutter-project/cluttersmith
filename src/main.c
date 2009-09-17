@@ -21,14 +21,14 @@ static struct
 {
   gboolean  fullscreen;
   gint      width, height;
-  gchar    *path;
+  gchar    *root_path;
 }
 
 args =
 {
   FALSE,
   1024, 600,
-  "about",
+  NULL,
 };
 
 
@@ -64,7 +64,7 @@ parse_args (gchar **argv)
         }
       else
         {
-          args.path = *arg;
+          args.root_path = *arg;
         }
       arg++;
     }
@@ -97,7 +97,7 @@ gboolean idle_add_stage (gpointer stage);
 /* hack.. */
 static gboolean idle_load_default (gpointer data)
 {
-  cluttersmith_open_layout (args.path);
+  cluttersmith_open_layout ("index");
   clutter_actor_queue_redraw (clutter_stage_get_default());
   return FALSE;
 }
@@ -115,6 +115,15 @@ main (gint    argc,
     return -1;
 
   stage = initialize_stage ();
+
+  if (args.root_path)
+    {
+      cluttersmith_set_project_root (args.root_path);
+    }
+  else
+    {
+      cluttersmith_set_project_root (PKGDATADIR "/docs");
+    }
 
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);

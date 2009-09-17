@@ -33,8 +33,10 @@ void previews_container_init_hack (ClutterActor  *actor)
   done = TRUE;
 
   {
-    GDir *dir = g_dir_open ("json", 0, NULL);
+    GDir *dir;
     const gchar *name;
+
+    dir = g_dir_open (cluttersmith_get_project_root (), 0, NULL);
     while ((name = g_dir_read_name (dir)))
       {
         ClutterColor  none = {0,0,0,0};
@@ -67,7 +69,8 @@ void previews_container_init_hack (ClutterActor  *actor)
           {
             gchar *path;
             ClutterActor *oi;
-            path = g_strdup_printf ("json/%s", name);
+            path = g_strdup_printf ("%s/%s", cluttersmith_get_project_root (),
+                                    name);
             oi = util_load_json (path);
             if (oi)
               {

@@ -1,4 +1,4 @@
-SUBDIRS = stencils
+SUBDIRS = stencils docs
 
 applicationsdir = $(datadir)/applications
 applications_DATA = cluttersmith.desktop

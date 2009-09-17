@@ -34,4 +34,5 @@ autotools/shave
 src/Makefile
 data/Makefile
 data/stencils/Makefile
+data/docs/Makefile
 ])

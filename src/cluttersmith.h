@@ -6,10 +6,14 @@
 extern guint CS_REVISION;
 extern guint CS_STORED_REVISION;
 
+
 void cluttersmith_actor_editing_init (gpointer stage);
 
 extern ClutterActor *parasite_root;
 extern ClutterActor *parasite_ui;
+
+void   cluttersmith_set_project_root (const gchar *new_root);
+gchar *cluttersmith_get_project_root (void);
 
 void cluttersmith_open_layout (const gchar *new_title);
 void cluttersmith_set_active (ClutterActor *item);
