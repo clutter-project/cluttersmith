@@ -235,7 +235,7 @@ cb_overlay_paint (ClutterActor *stage,
 
    {
      /* done this way, thie resize handle always lags behind */
-     ClutterActor *handle = util_find_by_id (stage, "resize-handle");
+     ClutterActor *handle = util_find_by_id_int (stage, "resize-handle");
      clutter_actor_set_position (handle, max_x, max_y);
    }
 }
@@ -854,6 +854,7 @@ static gboolean edit_text_end (void)
   g_object_set (edited_text, "editable", text_was_editable,
                              "reactive", text_was_reactive, NULL);
   edited_text = NULL;
+  CS_REVISION++;
   return TRUE;
 }
 

@@ -17,6 +17,9 @@ gboolean util_movable_press (ClutterActor  *actor,
 ClutterActor *
 util_find_by_id (ClutterActor *stage, const gchar *id);
 
+ClutterActor *
+util_find_by_id_int (ClutterActor *stage, const gchar *id);
+
 /* creates an (internal) list of all the properties applied to actor */
 void util_build_transient (ClutterActor *actor);
 /* applies and frees a prior transient list of values created with

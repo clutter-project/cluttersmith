@@ -463,11 +463,12 @@ clutter_container_get_children_recursive (ClutterActor *actor)
   return ret;
 }
 
-ClutterActor *
-util_find_by_id (ClutterActor *stage, const gchar *id)
+
+static ClutterActor *
+util_find_by_id2 (ClutterActor *stage, const gchar *id, gboolean skip_int)
 {
   GList *l, *list = NULL;
-  get_all_actors_int (&list, stage, FALSE);
+  get_all_actors_int (&list, stage, skip_int);
   ClutterActor *ret = NULL;
   for (l=list;l && !ret;l=l->next)
     {
@@ -483,6 +484,19 @@ util_find_by_id (ClutterActor *stage, const gchar *id)
     }
   g_list_free (list);
   return ret;
+}
+
+ClutterActor *
+util_find_by_id (ClutterActor *stage, const gchar *id)
+{
+  return util_find_by_id2 (stage, id, TRUE);
+}
+
+
+ClutterActor *
+util_find_by_id_int (ClutterActor *stage, const gchar *id)
+{
+  return util_find_by_id2 (stage, id, FALSE);
 }
 
 
@@ -507,3 +521,4 @@ gboolean util_block_event (ClutterActor *actor)
   g_print ("HOI!\n");
   return TRUE;
 }
+

@@ -17,6 +17,14 @@ void cluttersmith_set_active (ClutterActor *item);
 void tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);
 
+/*
+  returns in order, selected actor if it is a container otherwise the parent,
+  if neither, look for an actor with id "actor" and ultimataly look at the
+  stage. The stage to be worked on is determined by the actor passed in.*/
+ClutterActor *cluttersmith_get_add_root (ClutterActor *actor);
+
+
+
 /* actor-editing: */
 
 /* selection */

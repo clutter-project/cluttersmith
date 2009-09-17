@@ -29,8 +29,8 @@
     "anchor-y":0.000,
     "stylable":true,
     "has-tooltip":false,
-    "hint-text":"NbtkEntry",
     "text":"NbtkEntry",
+    "hint-text":"NbtkEntry",
   }
   ,
   {
@@ -46,7 +46,6 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "pseudo-class":"hover",
     "stylable":true,
     "has-tooltip":false,
     "x-fill":false,

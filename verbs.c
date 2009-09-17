@@ -1,4 +1,5 @@
 #include <clutter/clutter.h>
+#include <nbtk/nbtk.h>
 #include "cluttersmith.h"
 #include "util.h"
 
@@ -11,7 +12,7 @@ static GList *clipboard = NULL;
 static void each_duplicate (ClutterActor *actor)
 {
   ClutterActor *parent, *new_actor;
-  parent = clutter_actor_get_parent (actor);
+  parent = cluttersmith_get_add_root (actor);
   new_actor = util_duplicator (actor, parent);
   {
     gfloat x, y;
@@ -81,22 +82,16 @@ void cb_copy_selected (ClutterActor *actor)
   CS_REVISION++;
 }
 
+
 void cb_paste_selected (ClutterActor *actor)
 {
-  ClutterActor *active_actor = cluttersmith_selected_get_any ();
-  if (active_actor && clipboard)
+  if (clipboard)
     {
       GList *i;
       ClutterActor *new_actor, *parent;
 
-      if (CLUTTER_IS_CONTAINER (active_actor))
-        {
-          parent = active_actor;
-        }
-      else
-        {
-          parent = clutter_actor_get_parent (active_actor);
-        }
+      parent = cluttersmith_get_add_root (actor);
+
       for (i=clipboard; i;i=i->next)
         {
           new_actor = util_duplicator (i->data, parent);
@@ -157,7 +152,8 @@ void cb_quit (ClutterActor *actor)
 void cb_focus_entry (ClutterActor *actor)
 {
   ClutterActor *entry;
-  entry = util_find_by_id (actor, "title");
+  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (util_find_by_id_int (actor, "title")));
+  g_assert (entry);
   if (entry)
     {
       g_print ("trying to set key focus\n");

@@ -344,7 +344,7 @@ void cluttersmith_set_active (ClutterActor *item)
         }
     }
   if (active_actor)
-  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (active_actor)), NULL);
+    clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (parasite_root)), NULL);
 }
 
 gchar *subtree_to_string (ClutterActor *root);
@@ -450,7 +450,7 @@ void cb_change_type (ClutterActor *actor)
 
 
 
-void entry_text_changed (ClutterActor *actor)
+static void title_text_changed (ClutterActor *actor)
 {
   const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
   static gchar *filename = NULL; /* this needs to be more global and accessable, at
@@ -523,7 +523,7 @@ void search_entry_init_hack (ClutterActor  *actor)
   done = TRUE;
 
   g_signal_connect (nbtk_entry_get_clutter_text (NBTK_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (entry_text_changed), NULL);
+                    G_CALLBACK (title_text_changed), NULL);
 }
 
 
@@ -537,3 +537,30 @@ void parasite_rectangle_init_hack (ClutterActor  *actor)
                                actor, "expand", TRUE, NULL);
 }
 
+ClutterActor *cluttersmith_get_add_root (ClutterActor *actor)
+{
+  ClutterActor *ret;
+  ClutterActor *active_actor = cluttersmith_selected_get_any ();
+  
+  if (active_actor)
+    {
+      if (CLUTTER_IS_CONTAINER (active_actor))
+        {
+          ret = active_actor;
+        }
+      else
+        {
+          ret = clutter_actor_get_parent (active_actor);
+        }
+    }
+  else
+    {
+      ret = util_find_by_id (clutter_actor_get_stage (actor), "actor");
+    }
+  if (!ret)
+    {
+      ret = clutter_actor_get_stage (actor);
+    }
+  
+  return ret;
+}

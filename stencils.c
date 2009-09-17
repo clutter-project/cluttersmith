@@ -8,13 +8,18 @@ static gboolean add_stencil (ClutterActor *actor,
                              ClutterEvent *event,
                              const gchar  *path)
 {
+  ClutterActor *parent;
   ClutterActor *new_actor;
 
+  parent = cluttersmith_get_add_root (actor);
   new_actor = util_load_json (path);
+  
   if (new_actor)
     {
       gfloat sw, sh, w, h;
-      clutter_container_add_actor (CLUTTER_CONTAINER (clutter_actor_get_stage (actor)), new_actor);
+
+      /* XXX: should add to cwd */
+      clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
       clutter_actor_get_size (clutter_actor_get_stage (actor), &sw, &sh);
       clutter_actor_get_size (new_actor, &w, &h);
       clutter_actor_set_position (new_actor, (sw-w)/2, (sh-h)/2);
@@ -23,6 +28,8 @@ static gboolean add_stencil (ClutterActor *actor,
       cluttersmith_selected_add (new_actor);
       clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (new_actor), "");
     }
+
+  CS_REVISION++;
 
   return TRUE;
 }
