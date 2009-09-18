@@ -457,6 +457,7 @@ void cb_change_type (ClutterActor *actor)
   popup_actor_fixed (parasite_root, 0,0, actor);
 }
 
+void session_history_add (const gchar *dir);
 
 
 static void title_text_changed (ClutterActor *actor)
@@ -510,6 +511,7 @@ static void title_text_changed (ClutterActor *actor)
   util_remove_children (scene_graph);
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
+      session_history_add (cluttersmith_get_project_root ());
       util_replace_content2 (actor, "content", filename);
       CS_REVISION = CS_STORED_REVISION = 0;
     }
@@ -621,7 +623,7 @@ static void project_root_text_changed (ClutterActor *actor)
   if (g_file_test (project_root, G_FILE_TEST_IS_DIR))
     {
       previews_reload (util_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
-      session_history_add (project_root);
+      cluttersmith_open_layout ("index");
     }
 }
 

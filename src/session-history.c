@@ -10,7 +10,7 @@
 static gboolean set_working_dir (ClutterText *text)
 {
   const gchar *dest = clutter_text_get_text (text);
-  g_print ("set dir: %s\n", dest);
+  cluttersmith_set_project_root (dest);
   return TRUE;
 }
 
@@ -36,10 +36,9 @@ void session_history_init_hack (ClutterActor  *actor)
   /* we hook this up to the first paint, since no other signal seems to
    * be available to hook up for some additional initialization
    */
-  static gboolean done = FALSE; 
-  if (done)
+  if (g_object_get_data (G_OBJECT (actor), "init-hack-done"))
     return;
-  done = TRUE;
+  g_object_set_data (G_OBJECT (actor), "init-hack-done", (void*)0xff);
 
     {
   gchar *config_path = cluttersmith_make_config_file ("session-history");
@@ -65,6 +64,7 @@ void session_history_init_hack (ClutterActor  *actor)
               g_signal_connect (foo, "enter-event", G_CALLBACK (link_enter), NULL);
               g_signal_connect (foo, "leave-event", G_CALLBACK (link_leave), NULL);
               clutter_actor_set_name (foo, "cluttersmith-is-interactive");
+              g_print ("%s\n", start);
               start = end+1;
             }
           else

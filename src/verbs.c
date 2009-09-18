@@ -251,6 +251,13 @@ void cb_select_parent (ClutterActor *actor)
     }
 }
 
+void
+cb_help (ClutterActor *actor)
+{
+  cluttersmith_set_project_root (PKGDATADIR "docs");
+}
+
+
 /******************************************************************************/
 
 typedef struct KeyBinding {
@@ -278,6 +285,7 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_g,         cb_group},
   {CLUTTER_CONTROL_MASK, CLUTTER_p,         cb_select_parent},
 
+  {0,                    CLUTTER_F1,        cb_help},
   {0,                    CLUTTER_BackSpace, cb_remove_selected},
   {0,                    CLUTTER_Delete,    cb_remove_selected},
   {0,                    CLUTTER_Page_Up,   cb_raise_selected},

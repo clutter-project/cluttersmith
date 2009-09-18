@@ -100,13 +100,14 @@ static gboolean idle_load_default (gpointer data)
 
   if (args.root_path)
     {
-      cluttersmith_set_project_root (args.root_path);
+      gchar *fullpath = realpath (args.root_path, NULL);
+      cluttersmith_set_project_root (fullpath);
+      free (fullpath);
     }
   else
     {
       cluttersmith_set_project_root (PKGDATADIR "docs");
     }
-  cluttersmith_open_layout ("index");
 
   clutter_actor_queue_redraw (clutter_stage_get_default());
 

@@ -77,6 +77,11 @@
                    { "type":"NbtkButton",
                      "label":"⨀", 
                      "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
+
+
+                   { "type":"NbtkButton",
+                     "label":"?", 
+                     "signals": [ {"name":"clicked", "handler":"cb_help"} ] }
                  ],
              }
 

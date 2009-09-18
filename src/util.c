@@ -36,6 +36,7 @@ ClutterActor *util_load_json (const gchar *name)
 {
   ClutterActor *actor;
   ClutterScript *script = clutter_script_new ();
+  GError *error = NULL;
 
   if (g_file_test (name, G_FILE_TEST_IS_REGULAR))
     {
@@ -47,7 +48,7 @@ ClutterActor *util_load_json (const gchar *name)
       path = g_strdup_printf ("json/%s", name);
       if (g_file_test (path, G_FILE_TEST_IS_REGULAR))
         {
-          clutter_script_load_from_file (script, path, NULL);
+          clutter_script_load_from_file (script, path, &error);
         }
       else
         {
@@ -61,7 +62,7 @@ ClutterActor *util_load_json (const gchar *name)
     actor = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite"));
   if (!actor)
     {
-      g_warning ("failed loading from json %s\n", name);
+      g_warning ("failed loading from json %s, %s\n", name, error?error->message:"");
     }
   clutter_script_connect_signals (script, script);
   g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
@@ -205,7 +206,6 @@ void util_replace_content2 (ClutterActor  *actor,
  */
 gboolean util_replace_content (ClutterActor  *actor)
 {
-  g_print ("%s!\n", G_STRFUNC);
   util_replace_content2 (actor, "content", clutter_actor_get_name (actor));
   return TRUE;
 }
@@ -518,7 +518,6 @@ gpointer util_list_match (GList *list, GCallback match_fun, gpointer data)
 
 gboolean util_block_event (ClutterActor *actor)
 {
-  g_print ("HOI!\n");
   return TRUE;
 }
 

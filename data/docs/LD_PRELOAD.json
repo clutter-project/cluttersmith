@@ -1,6 +1,17 @@
 {
-  "id":"actor",
-"type":"ClutterGroup",
+  "type":"ClutterGroup",
+  "id":"actor"
+  "x": 0,
+  "y": 0,
+  "width":469,
+  "height":359,
+  "depth":0.000,
+  "opacity":255,
+  "scale-x":1.000,
+  "scale-y":1.000,
+  "rotation-angle-z":0.000,
+  "anchor-x":0.000,
+  "anchor-y":0.000,
   "children":[
   {
     "type":"ClutterText",
@@ -24,7 +35,7 @@ src$ make cluttersmith.so
 
 If you now do export LD_PRELOAD=`pwd`cluttersmith.so
 
-subsequently run clutter application will have a ClutterSmith panel that allows poking around in the application.",
+subsequently run clutter application will have a ClutterSmith panel that allows poking around in applications from the inside.",
     "color":"#000000ff",
     "use-markup":false,
     "line-wrap":true,
@@ -42,7 +53,6 @@ subsequently run clutter application will have a ClutterSmith panel that allows 
     "max-length":0,
     "single-line-mode":false,
   }
-  ,
   ,
   {
     "type":"NbtkButton",
