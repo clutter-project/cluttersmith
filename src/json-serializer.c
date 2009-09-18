@@ -15,6 +15,26 @@ extern ClutterActor *parasite_root;
 
 #define INDENT {gint j;for (j=0;j<*indentation;j++) g_string_append_c (str, ' ');}
 
+static gchar *escape_string (const gchar *in)
+{
+  GString *str = g_string_new ("");
+  const gchar *p;
+  gchar *ret;
+
+  for (p=in;*p;p++)
+    {
+      if (*p=='"')
+        g_string_append (str, "\\\"");
+      else
+        g_string_append_c (str, *p);
+
+    }
+
+  ret = str->str;
+  g_string_free (str, FALSE);
+  return ret;
+}
+
 static void
 properties_to_string (GString      *str,
                       ClutterActor *actor,
@@ -132,9 +152,9 @@ properties_to_string (GString      *str,
             g_object_get (actor, properties[i]->name, &value, NULL);
             if (value)
               {
-                gchar *escaped = g_strdup (value); /* XXX: should do some proper escaping */
+                gchar *escaped = escape_string (value);
                 INDENT;g_string_append_printf (str,"\"%s\":\"%s\",\n",
-                                               properties[i]->name, value);
+                                               properties[i]->name, escaped);
                 g_free (escaped);
                 g_free (value);
               }
@@ -183,6 +203,15 @@ properties_to_string (GString      *str,
           }
       }
     }
+  
+  {
+    const gchar *name = clutter_actor_get_name (actor);
+    if (name && g_str_has_prefix (name, "json-extra:"))
+      {
+        INDENT; g_string_append_printf (str, name+11);
+        g_string_append_printf (str, "\n");
+      }
+  }
 
   g_free (properties);
 }
