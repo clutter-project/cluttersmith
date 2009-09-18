@@ -29,6 +29,7 @@ cluttersmith_SOURCES = 		\
   property-editors.c  \
   scene-graph.c  \
   selection.c  \
+  session-history.c  \
   stencils.c  \
   util.c  \
   util.h  \

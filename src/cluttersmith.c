@@ -13,7 +13,7 @@ static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 static ClutterActor  *title, *name, *parents,
                      *property_editors, *scene_graph;
 
-static gchar *project_root = NULL; /* The directory we are loading stuff from */
+
 
 ClutterActor *parasite_root;
 ClutterActor *parasite_ui;
@@ -516,9 +516,85 @@ static void title_text_changed (ClutterActor *actor)
   clutter_actor_raise_top (parasite_root);
 }
 
+char *
+cluttersmith_make_config_file (const char *filename)
+{
+  const char *base;
+  char *path, *full;
+
+  base = g_getenv ("XDG_CONFIG_HOME");
+  if (base) {
+    path = g_strdup_printf ("%s/cluttersmith", base);
+    full = g_strdup_printf ("%s/cluttersmith/%s", base, filename);
+  } else {
+    path = g_strdup_printf ("%s/.config/cluttersmith", g_get_home_dir ());
+    full = g_strdup_printf ("%s/.config/cluttersmith/%s", g_get_home_dir (),
+                            filename);
+  }
+
+  /* Make sure the directory exists */
+  if (g_file_test (path, G_FILE_TEST_EXISTS) == FALSE) {
+    g_mkdir_with_parents (path, 0700);
+  }
+  g_free (path);
+
+  return full;
+}
+
+void session_history_add (const gchar *dir)
+{
+  gchar *config_path = cluttersmith_make_config_file ("session-history");
+  gchar *start, *end;
+  gchar *original = NULL;
+  GList *iter, *session_history = NULL;
+  
+  if (g_file_get_contents (config_path, &original, NULL, NULL))
+    {
+      start=end=original;
+      while (*start)
+        {
+          end = strchr (start, '\n');
+          if (*end)
+            {
+              *end = '\0';
+              if (!g_str_equal (start, dir))
+                session_history = g_list_append (session_history, start);
+              g_print ("%s\n", start);
+              start = end+1;
+            }
+          else
+            {
+              start = end;
+            }
+        }
+    }
+  session_history = g_list_prepend (session_history, dir);
+  {
+    GString *str = g_string_new ("");
+    gint i=0;
+    for (iter = session_history; iter && i<10; iter=iter->next, i++)
+      {
+        g_string_append_printf (str, "%s\n", (gchar*)iter->data);
+      }
+    g_file_set_contents (config_path, str->str, -1, NULL);
+    g_string_free (str, TRUE);
+  }
+
+  if (original)
+    g_free (original);
+  g_list_free (session_history);
+}
+
+static gchar *project_root = NULL; /* The directory we are loading stuff from */
+
 
 void cluttersmith_set_project_root (const gchar *new_root)
 {
+  if (project_root && g_str_equal (project_root, new_root))
+    {
+      return;
+    }
+
   g_object_set (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "project-root"),
                 "text", new_root, NULL);
 }
@@ -535,7 +611,12 @@ static void project_root_text_changed (ClutterActor *actor)
   if (project_root)
     g_free (project_root);
   project_root = g_strdup (new_text);
-  previews_reload (util_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
+
+  if (g_file_test (project_root, G_FILE_TEST_IS_DIR))
+    {
+      previews_reload (util_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
+      session_history_add (project_root);
+    }
 }
 
 void project_root_init_hack (ClutterActor  *actor)

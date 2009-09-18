@@ -29,12 +29,17 @@
          
          "children":
            [
+
+             { "id":"project-root",
+               "style-class":"ClutterSmithLocation",
+               "type":"NbtkEntry",  "text": "", "width":200, "height":10,
+               "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
+             }
              { "id":"title",
                "style-class":"ClutterSmithTitle",
                "type":"NbtkEntry",  "text": "", "width":200, "height":10,
                "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
              }
-
              { "type":"NbtkGrid",
                "column-gap": 2.0,
                "style-class":"ParasiteToolbar",
@@ -75,11 +80,6 @@
                  ],
              }
 
-             { "id":"project-root",
-               "style-class":"ClutterSmithTitle",
-               "type":"NbtkEntry",  "text": "", "width":340, "height":10,
-               "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
-             }
            ]
          }
 

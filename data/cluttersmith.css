@@ -168,3 +168,8 @@ NbtkBoxLayout.parasite-paste  {
 *.parasite *.ClutterSmithTitle {
   font-size: 20px;
 }
+
+
+*.parasite *.ClutterSmithLocation {
+  font-size: 12px;
+}

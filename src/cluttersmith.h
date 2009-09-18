@@ -49,5 +49,6 @@ ClutterActor *cluttersmith_selected_get_any (void);
 /*****/
 
 void previews_reload (ClutterActor *actor);
+char * cluttersmith_make_config_file (const char *filename);
 
 #endif

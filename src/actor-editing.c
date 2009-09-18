@@ -1014,6 +1014,13 @@ manipulate_capture (ClutterActor *actor,
               hit= cluttersmith_pick (x, y);
               if (hit)
                 {
+                  const gchar *name = clutter_actor_get_name (hit);
+                  if (name && 
+                     (g_str_equal (name, "cluttersmith-is-interactive") ||
+                      strstr (name, "link_follow"))) /* The link follow is a bit of a problem */
+                    {
+                      return FALSE;
+                    }
                   cluttersmith_selected_clear ();
                   cluttersmith_selected_add (hit);
                   manipulate_move_start (parasite_root, event);
@@ -1026,6 +1033,22 @@ manipulate_capture (ClutterActor *actor,
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
+        {
+#if 0
+          ClutterActor *hit;
+          gfloat x = event->button.x;
+          gfloat y = event->button.y;
+          hit= cluttersmith_pick (x, y);
+          if (hit)
+            {
+              if (g_object_get_data (foo, "cluttersmith-is-interactive"))
+                {
+                  return FALSE;
+                }
+            }
+#endif
+        }
+
         return TRUE;
       case CLUTTER_KEY_PRESS:
         manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval);

@@ -67,7 +67,8 @@
           "password-char":0,
           "max-length":0,
           "single-line-mode":false,
-          "signals": [ {"name":"text-changed", "handler":"clutterfish_hyperlink_text_changed"} ]
+          "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cluttersmith_link_text_changed\"} ]",
+          "signals": [ {"name":"text-changed", "handler":"cluttersmith_link_text_changed"} ]
 
         },
       {
@@ -89,7 +90,8 @@
         "toggle-mode":false,
         "checked":false,
         "transition-duration":120,
-        "signals": [ {"name":"clicked", "handler":"clutterfish_hyperlink_follow"} ]
+        "name":"json-extra:\"signals\": [ {\"name\":\"clicked\", \"handler\":\"cluttersmith_link_follow\"} ]",
+        "signals": [ {"name":"clicked", "handler":"cluttersmith_link_follow"} ]
       }
         ]
       }
