@@ -1,10 +1,12 @@
   {
     "id":"actor",
     "type":"NbtkButton",
-    "name":"link=todo",
+    "name":"link=index",
+    "style-class":"ClutterSmithLink",
     "x":0,
     "y":0,
-    "width":100,
+    "width":-1,
+    "height":-1,
     "depth":0.000,
     "opacity":120,
     "scale-x":1.000,
@@ -50,7 +52,7 @@
           "anchor-x":0.000,
           "anchor-y":0.000,
           "font-name":"Sans 10",
-          "text":"todo",
+          "text":"replace with desination",
           "color":"#000000ff",
           "use-markup":false,
           "line-wrap":true,
@@ -92,6 +94,10 @@
         "transition-duration":120,
         "name":"json-extra:\"signals\": [ {\"name\":\"clicked\", \"handler\":\"cluttersmith_link_follow\"} ]",
         "signals": [ {"name":"clicked", "handler":"cluttersmith_link_follow"} ]
+        "children": [
+          {"type":"ClutterRectangle", "width":8,"height":8, "border-width":2,
+           "name":"cluttersmith-is-interactive"}
+        ]
       }
         ]
       }

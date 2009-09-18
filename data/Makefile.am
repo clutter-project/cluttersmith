@@ -12,6 +12,7 @@ res_DATA = \
   button-bg.png \
   button-checked-bg.png \
   entry-bg.png \
+  link-bg.png \
   cluttersmith.css \
   cluttersmith.json \
   cluttersmith.png 

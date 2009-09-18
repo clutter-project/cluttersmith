@@ -169,6 +169,9 @@ NbtkBoxLayout.parasite-paste  {
   font-size: 20px;
 }
 
+*.ClutterSmithLink {
+  border-image: url("file://link-bg.png") 8 8 8 8;
+}
 
 *.parasite *.ClutterSmithLocation {
   font-size: 12px;
