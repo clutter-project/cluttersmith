@@ -13,8 +13,6 @@ static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 static ClutterActor  *title, *name, *parents,
                      *property_editors, *scene_graph;
 
-
-
 ClutterActor *parasite_root;
 ClutterActor *parasite_ui;
 gchar *whitelist[]={"depth", "opacity",
@@ -70,8 +68,11 @@ gboolean idle_add_stage (gpointer stage)
 {
   ClutterActor *actor;
   ClutterScript *script;
-
+#ifdef COMPILEMODULE
+  actor = util_load_json (PKGDATADIR "cluttersmith-assistant.json");
+#else
   actor = util_load_json (PKGDATADIR "cluttersmith.json");
+#endif
   g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
   g_timeout_add (4000, keep_on_top, actor);
@@ -85,14 +86,19 @@ gboolean idle_add_stage (gpointer stage)
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
-  parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+  parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   parasite_root = actor;
 
-  g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), parasite_ui);
-  g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), parasite_ui);
-  /* do an initial sync of the ui-size */
-  stage_size_changed (stage, NULL, parasite_ui);
+    {
+  if (parasite_ui)
+    {
+      g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), parasite_ui);
+      g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), parasite_ui);
+      /* do an initial sync of the ui-size */
+      stage_size_changed (stage, NULL, parasite_ui);
+    }
+    }
 
   cb_manipulate_init (parasite_root);
   cluttersmith_set_active (stage);

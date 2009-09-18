@@ -15,6 +15,7 @@ res_DATA = \
   link-bg.png \
   cluttersmith.css \
   cluttersmith.json \
+  cluttersmith-assistant.json \
   cluttersmith.png 
 
 EXTRA_DIST = $(icons_DATA) $(applications_DATA) $(res_DATA) 
