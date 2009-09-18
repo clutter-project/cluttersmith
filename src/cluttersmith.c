@@ -319,6 +319,8 @@ static void cluttersmith_set_active_event (ClutterActor *button, ClutterActor *i
 
 void cluttersmith_set_active (ClutterActor *item)
 {
+  if (item == NULL)
+    item = clutter_stage_get_default ();
   if (item)
     clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
 
