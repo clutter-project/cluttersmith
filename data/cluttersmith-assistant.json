@@ -1,0 +1,173 @@
+{"type":"ClutterGroup",
+ "width":1,
+ "height":1,
+ "id":"parasite",
+ "children":[
+{"type":"ClutterGroup",
+ "id":"parasite-ui",
+ "x-fill":true,
+ "y-fill":true,
+
+ "children":
+  [
+   {"type":"ClutterGroup",
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+      "children":
+        [
+
+     {
+     "id":"toolbar",
+     "type":"NbtkBoxLayout",
+     "style-class":"parasite",
+     "vertical":true,
+     "reactive":true,
+     "width":300,
+     "spacing":9,
+     "x":0,
+     "y":0,
+     
+     "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+      
+      "children":
+        [
+
+          { "type":"NbtkGrid",
+            "column-gap": 2.0,
+            "style-class":"ParasiteToolbar",
+            "children":
+              [
+
+                { "type":"NbtkButton",
+                  "label":"⿻",
+                  "signals": [ {"name":"clicked", "handler":"cb_copy_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"✂",
+                  "signals": [ {"name":"clicked", "handler":"cb_cut_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"⟴",
+                  "signals": [ {"name":"clicked", "handler":"cb_paste_selected"} ] }
+
+                { "type":"NbtkButton",
+                  "label":"Ꙭ",
+                  "signals": [ {"name":"clicked", "handler":"cb_duplicate_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"×",
+                  "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"⤒",
+                  "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"↥",
+                  "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"↧",
+                  "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"⤓",
+                  "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] }
+                { "type":"NbtkButton",
+                  "label":"⨀", 
+                  "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
+              ],
+          },
+
+         { "type":"NbtkBoxLayout", 
+           "children":[
+            { "type":"ClutterText", "width":130, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
+            },
+
+            { "type":"NbtkButton", "width":130, "height":24,
+              "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+              "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
+            },
+              ]}
+
+          { "type":"NbtkScrollView",
+            "width":300,
+            "height":220,
+            "children":
+             [
+               { "type":"NbtkViewport",
+                 "children":
+                  [
+                    { "type":"NbtkBoxLayout", "vertical":true,
+                       "children":[
+
+                         {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors",
+                          "spacing":2},
+
+                         {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
+                         { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":270
+                           "children":[
+                           ]
+                         }
+
+
+                       ]
+                     }
+                  ]
+               }
+            ]
+          }
+          { "type":"NbtkScrollView",
+            "width":300,
+            "height":210,
+            "children":
+             [
+               { "type":"NbtkViewport",
+                 "children":
+                  [
+                    { "type":"ClutterGroup", "id":"scene-graph",
+                       "children":[
+                         {"type":"ClutterText", "color":"gray", "text":"......"},
+                       ]
+                     }
+                  ]
+               }
+            ]
+          }
+        ]
+      }
+
+     {
+       "type":"ClutterRectangle",
+       "color":"#00000000",
+       "signals": [ {"name":"pick", "handler":"no_pick"},
+                    {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
+                  ] 
+     },
+     {
+     "type":"NbtkBoxLayout",
+     "style-class":"parasite-paste",
+     "reactive":true,
+     "width":130,
+     "vertical":true,
+     "spacing":9,
+     "x":0,
+     "y":60,
+     
+     "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+      "children":
+        [
+        ]
+      }
+
+     ] }
+]
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+}
+
+ {"id":"resize-handle",
+  "type":"ClutterText",
+  "color":"red",
+  "reactive":true,
+  "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"} ] 
+  "anchor-gravity":"center",
+  "font-name":"Sans 40px",
+  "text":"⇲"
+ }
+
+
+]
+      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+}
