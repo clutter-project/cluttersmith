@@ -802,5 +802,41 @@
     "max-length":0,
     "single-line-mode":false,
   }
+  ,
+  {
+    "type":"ClutterText",
+    "x":456,
+    "y":463,
+    "width":245,
+    "height":59,
+    "depth":0.000,
+    "opacity":255,
+    "scale-x":1.000,
+    "scale-y":1.000,
+    "rotation-angle-z":0.000,
+    "anchor-x":0.000,
+    "anchor-y":0.000,
+    "font-name":"Sans 10",
+    "text":"Improve saving, at the
+moment you have to
+navigate to a differnt page
+to ensure changes have been saved.",
+    "color":"#000000ff",
+    "use-markup":false,
+    "line-wrap":true,
+    "justify":false,
+    "position":-1,
+    "selection-bound":-1,
+    "selection-color":"#000000ff",
+    "cursor-visible":true,
+    "cursor-color":"#000000ff",
+    "cursor-size":2,
+    "editable":false,
+    "selectable":true,
+    "activatable":false,
+    "password-char":0,
+    "max-length":0,
+    "single-line-mode":false,
+  }
   ]
 }

@@ -1012,7 +1012,14 @@ manipulate_capture (ClutterActor *actor,
             }
           else
             { 
+
+#ifdef COMPILEMODULE
+           hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                                                 CLUTTER_PICK_ALL,
+                                                 x, y);
+#else
               hit= cluttersmith_pick (x, y);
+#endif
               if (hit)
                 {
                   const gchar *name = clutter_actor_get_name (hit);

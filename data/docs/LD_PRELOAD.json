@@ -35,7 +35,12 @@ src$ make cluttersmith.so
 
 If you now do export LD_PRELOAD=`pwd`cluttersmith.so
 
-subsequently run clutter application will have a ClutterSmith panel that allows poking around in applications from the inside.",
+subsequently run clutter application will have a ClutterSmith panel that allows poking around in applications from the inside.
+
+In this mode cluttersmith uses a different
+method to select actors for single clicks,
+it is also useful pressing ctrl+P to get to
+the parent actor. The CSS is currently broken.",
     "color":"#000000ff",
     "use-markup":false,
     "line-wrap":true,
