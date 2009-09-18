@@ -14,7 +14,6 @@ static gboolean set_working_dir (ClutterText *text)
   return TRUE;
 }
 
-
 static gboolean link_enter (ClutterText *text)
 {
   ClutterColor color = {0xff,0x00,0x00,0xff};
@@ -47,7 +46,6 @@ void session_history_init_hack (ClutterActor  *actor)
 
   if (g_file_get_contents (config_path, &original, NULL, NULL))
     {
-      gint i = 0;
       gchar *start, *end;
       start=end=original;
       while (*start)

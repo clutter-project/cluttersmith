@@ -1,6 +1,7 @@
 #include <clutter/clutter.h>
 #include <nbtk/nbtk.h>
 #include <stdlib.h>
+#include <string.h>
 #include "cluttersmith.h"
 #include "util.h"
 

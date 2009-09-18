@@ -576,7 +576,7 @@ void session_history_add (const gchar *dir)
             }
         }
     }
-  session_history = g_list_prepend (session_history, dir);
+  session_history = g_list_prepend (session_history, (void*)dir);
   {
     GString *str = g_string_new ("");
     gint i=0;
