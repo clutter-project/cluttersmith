@@ -62,7 +62,6 @@ void session_history_init_hack (ClutterActor  *actor)
               g_signal_connect (foo, "enter-event", G_CALLBACK (link_enter), NULL);
               g_signal_connect (foo, "leave-event", G_CALLBACK (link_leave), NULL);
               clutter_actor_set_name (foo, "cluttersmith-is-interactive");
-              g_print ("%s\n", start);
               start = end+1;
             }
           else

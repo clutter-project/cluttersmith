@@ -42,8 +42,6 @@ void previews_reload (ClutterActor *actor)
       if (!g_str_has_suffix (name, ".json"))
         continue;
 
-      g_print ("[[%s]]\n", name);
-
       rectangle = clutter_rectangle_new ();
       group = clutter_group_new ();
 
