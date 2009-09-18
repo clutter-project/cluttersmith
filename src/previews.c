@@ -24,10 +24,14 @@ static gboolean load_layout (ClutterActor *actor,
 void previews_reload (ClutterActor *actor)
 {
   GDir *dir;
+  const gchar *path = cluttersmith_get_project_root ();
   const gchar *name;
 
+  if (!path)
+    return;
+
   util_remove_children (actor);
-  dir = g_dir_open (cluttersmith_get_project_root (), 0, NULL);
+  dir = g_dir_open (path, 0, NULL);
   while ((name = g_dir_read_name (dir)))
     {
       ClutterColor  none = {0,0,0,0};
