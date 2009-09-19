@@ -437,13 +437,16 @@ ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
 
 static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip_own)
 {
+  const gchar *id;
   if (skip_own && util_has_ancestor (actor, parasite_root))
     return;
+  id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
 
   if (!CLUTTER_IS_STAGE (actor))
     *list = g_list_prepend (*list, actor);
 
-  if (CLUTTER_IS_CONTAINER (actor))
+  if (CLUTTER_IS_CONTAINER (actor) &&
+      (!(id && g_str_equal (id, "previews-container"))))
     {
       GList *children, *c;
       children = clutter_container_get_children (CLUTTER_CONTAINER (actor));

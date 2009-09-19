@@ -11,12 +11,14 @@ static gboolean load_layout (ClutterActor *actor,
                              const gchar  *path)
 {
   gchar *new_title = g_strdup (path);
+  gchar *new_title2;
   gchar *dot;
 
   dot = strrchr(new_title, '.');
   if (dot)
     *dot='\0';
-  cluttersmith_open_layout (new_title+5);
+  
+  cluttersmith_open_layout (new_title);
   g_free (new_title);
   return TRUE;
 }
@@ -50,7 +52,6 @@ void previews_reload (ClutterActor *actor)
       clutter_actor_set_reactive (rectangle, TRUE);
 
       ClutterActor *label;
-      {
         gchar *title = g_strdup (name);
         if (strrchr (title, '.'))
           {
@@ -58,8 +59,6 @@ void previews_reload (ClutterActor *actor)
           }
         label = clutter_text_new_with_text ("Sans 9px", title);
         clutter_text_set_color (CLUTTER_TEXT (label), &white);
-        g_free (title);
-      }
 
         {
           gchar *path;
@@ -80,12 +79,13 @@ void previews_reload (ClutterActor *actor)
               clutter_actor_set_scale (oi, scale, scale);
 
               clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
-              g_object_set_data_full (G_OBJECT (oi), "path", path, g_free);
-              g_signal_connect (rectangle, "button-press-event", G_CALLBACK (load_layout), path);
+              g_object_set_data_full (G_OBJECT (oi), "path", title, g_free);
+              g_signal_connect (rectangle, "button-press-event", G_CALLBACK (load_layout), title);
             }
           else
             {
               g_free (path);
+              g_free (title);
             }
           clutter_actor_set_size (rectangle, SIZE, SIZE);
         }
