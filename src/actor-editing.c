@@ -19,21 +19,30 @@ static void init_multi_select (void)
   cluttersmith_selected_init ();
 }
 
-static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
+static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
 {
-  gfloat x=args[0]; /* convert pointed to argument list into variables */
-  gfloat y=args[1];
-
   ClutterVertex verts[4];
-
-  if (actor == clutter_actor_get_stage (actor))
-    return NULL;
 
   clutter_actor_get_abs_allocation_vertices (actor,
                                              verts);
   /* XXX: use cairo to check with the outline of the verts? */
   if (x>verts[2].x && x<verts[1].x &&
       y>verts[1].y && y<verts[2].y)
+    {
+      return TRUE;
+    }
+  return FALSE;
+}
+
+static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
+{
+  gfloat x=args[0]; /* convert pointed to argument list into variables */
+  gfloat y=args[1];
+
+  if (actor == clutter_actor_get_stage (actor))
+    return NULL;
+
+  if (is_point_in_actor (actor, x, y))
     {
       return actor;
     }
@@ -57,6 +66,56 @@ ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
   return ret;
 }
 
+
+ClutterActor *cluttersmith_siblings_pick (gfloat x, gfloat y)
+{
+  ClutterActor *actor = cluttersmith_selected_get_any ();
+  GList *actors = clutter_container_get_children (CLUTTER_CONTAINER (clutter_actor_get_parent (actor)));
+  ClutterActor *ret;
+  gfloat data[2]={x,y}; 
+  ret = util_list_match (actors, G_CALLBACK (is_in_actor), data);
+  g_list_free (actors);
+  return ret;
+}
+
+typedef struct SiblingPickNextData {
+  gfloat x;
+  gfloat y;
+  ClutterActor *sibling;
+  gboolean found;
+  ClutterActor *first;
+} SiblingPickNextData;
+
+
+static gpointer is_in_actor_sibling_next (ClutterActor *actor, SiblingPickNextData *data)
+{
+  if (actor == clutter_actor_get_stage (actor))
+    return NULL;
+
+  if (is_point_in_actor (actor, data->x, data->y))
+    {
+      if (!data->first)
+        data->first = actor;
+      if (data->found)
+        return actor;
+      if (data->sibling == actor)
+        data->found = TRUE;
+    }
+  return NULL;
+}
+
+ClutterActor *cluttersmith_siblings_pick_next (ClutterActor *sibling, gfloat x, gfloat y)
+{
+  GList *actors = clutter_container_get_children (CLUTTER_CONTAINER (clutter_actor_get_parent (sibling)));
+  ClutterActor *ret;
+  SiblingPickNextData data = {x, y, sibling, FALSE, NULL};
+  ret = util_list_match (actors, G_CALLBACK (is_in_actor_sibling_next), &data);
+  if (!ret)
+    ret = data.first;
+  g_list_free (actors);
+  return ret;
+}
+
 gchar *json_serialize_subtree (ClutterActor *root);
 
 
@@ -69,8 +128,8 @@ static gint max_y = 0;
 static gint min_x = 0;
 static gint min_y = 0;
 
-static void draw_actor_outline (ClutterActor *actor,
-                                gpointer      data)
+static void find_extent (ClutterActor *actor,
+                         gpointer      data)
 {
   ClutterVertex verts[4];
   clutter_actor_get_abs_allocation_vertices (actor,
@@ -89,6 +148,18 @@ static void draw_actor_outline (ClutterActor *actor,
         if (verts[i].y < min_y)
           min_y = verts[i].y;
       }
+  }
+}
+
+
+static void draw_actor_outline (ClutterActor *actor,
+                                gpointer      data)
+{
+  ClutterVertex verts[4];
+  clutter_actor_get_abs_allocation_vertices (actor,
+                                             verts);
+
+  {
     {
       gfloat coords[]={ verts[0].x, verts[0].y, 
          verts[1].x, verts[1].y, 
@@ -195,10 +266,6 @@ cb_overlay_paint (ClutterActor *stage,
       }
     }
 
-  min_x = 65536;
-  min_y = 65536;
-  max_x = 0;
-  max_y = 0;
   {
   /* draw outlines for actors */
     GHashTableIter      iter;
@@ -242,16 +309,34 @@ cb_overlay_paint (ClutterActor *stage,
         }
       }
    }
+}
+
+gboolean update_overlay_positions (gpointer data)
+{
+  ClutterVertex verts[4];
+
+  if (cluttersmith_selected_count ()==0 && lasso == NULL)
+    return TRUE;
+
+  min_x = 65536;
+  min_y = 65536;
+  max_x = 0;
+  max_y = 0;
+  {
+    cluttersmith_selected_foreach (G_CALLBACK (find_extent), data);
+  }
 
    {
-     /* XXX: done this way, thie resize handle always lags behind */
-     ClutterActor *handle = util_find_by_id_int (stage, "resize-handle");
+     ClutterActor *handle = util_find_by_id_int (data, "resize-handle");
      clutter_actor_set_position (handle, max_x, max_y);
    }
+ return TRUE;
 }
 
 void cluttersmith_actor_editing_init (gpointer stage)
 {
+  clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
+  g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
   init_multi_select ();
 }
@@ -1010,7 +1095,7 @@ manipulate_capture (ClutterActor *actor,
 
           hit = cluttersmith_selection_pick (x, y);
 
-          if (hit)
+          if (hit) /* pressed part of initial selection */
             {
               if ((CLUTTER_IS_TEXT (hit) || NBTK_IS_LABEL (hit))
                   && clutter_event_get_click_count (event)>1)
@@ -1027,33 +1112,50 @@ manipulate_capture (ClutterActor *actor,
                           cluttersmith_selected_remove (hit);
                         }
                     }
+                  if (event->button.modifier_state & CLUTTER_MOD1_MASK)
+                    {
+                      if (cluttersmith_selected_has_actor (hit))
+                        {
+                          ClutterActor *next = cluttersmith_siblings_pick_next (hit, x, y);
+                          cluttersmith_selected_remove (hit);
+                          cluttersmith_selected_add (next);
+                        }
+                    }
 
                   manipulate_move_start (parasite_root, event);
                 }
             }
-          else
+          else 
             { 
 
+
+            if (cluttersmith_selected_get_any ())
+              {
+                hit = cluttersmith_siblings_pick (x, y);
+              }
+            else
+              {
 #ifdef COMPILEMODULE
            hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
                                                  CLUTTER_PICK_ALL,
                                                  x, y);
 #else
-              hit= cluttersmith_pick (x, y);
+              hit = cluttersmith_pick (x, y);
 #endif
+              }
+
               if (hit)
                 {
-                  const gchar *name = clutter_actor_get_name (hit);
-                  if (name && 
-                     (g_str_equal (name, "cluttersmith-is-interactive") ||
-                      strstr (name, "link_follow"))) /* The link follow is a bit of a problem */
-                    {
-                      return FALSE;
-                    }
-
                   if (!((clutter_event_get_state (event) & CLUTTER_CONTROL_MASK) ||
                         (clutter_event_get_state (event) & CLUTTER_SHIFT_MASK)))
                     {
+                      const gchar *name = clutter_actor_get_name (hit);
+                      if (name &&  /* */
+                         (g_str_equal (name, "cluttersmith-is-interactive") ||
+                          strstr (name, "link_follow"))) /* XXX: string matching hack */
+                        {
+                          return FALSE;
+                        }
                       cluttersmith_selected_clear ();
                     }
 
