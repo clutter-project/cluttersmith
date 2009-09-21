@@ -17,6 +17,7 @@ gchar *cluttersmith_get_project_root (void);
 
 void cluttersmith_open_layout (const gchar *new_title);
 void cluttersmith_set_active (ClutterActor *item);
+ClutterActor *cluttersmith_get_active (void);
 
 void cluttersmith_tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);

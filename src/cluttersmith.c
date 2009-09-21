@@ -317,6 +317,12 @@ static void cluttersmith_set_active_event (ClutterActor *button, ClutterActor *i
   cluttersmith_set_active (item);
 }
 
+
+ClutterActor *cluttersmith_get_active (void)
+{
+  return active_actor;
+}
+
 void cluttersmith_set_active (ClutterActor *item)
 {
   if (item == NULL)
@@ -390,8 +396,12 @@ static void change_type (ClutterActor *actor,
   /* XXX: we need to recreate our correct position in parent as well */
   ClutterActor *new_actor, *parent;
 
-  g_print ("CHANGE type\n");
   popup_close ();
+  if (CLUTTER_IS_STAGE (active_actor))
+    {
+      g_warning ("refusing to change type of stage");
+      return;
+    }
 
   new_actor = g_object_new (g_type_from_name (new_type), NULL);
   parent = clutter_actor_get_parent (active_actor);
