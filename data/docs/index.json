@@ -373,8 +373,8 @@ ClutterSmith works in a directory, edit the topleft entry to change working dire
     "children":[
     {
       "type":"NbtkBoxLayout",
-      "x":24,
-      "y":38,
+      "x":26,
+      "y":10,
       "width":66,
       "height":27,
       "depth":0.000,
@@ -428,8 +428,8 @@ ClutterSmith works in a directory, edit the topleft entry to change working dire
       {
         "type":"NbtkButton",
         "name":"json-extra:\"signals\": [ {\"name\":\"clicked\", \"handler\":\"cluttersmith_link_follow\"} ]",
-        "x":37,
-        "y": 1,
+        "x":38,
+        "y": 0,
         "width":28,
         "height":27,
         "depth":0.000,
@@ -453,8 +453,8 @@ ClutterSmith works in a directory, edit the topleft entry to change working dire
         {
           "type":"ClutterRectangle",
           "name":"cluttersmith-is-interactive",
-          "x":11,
-          "y":11,
+          "x":10,
+          "y":10,
           "width": 8,
           "height": 7,
           "depth":0.000,

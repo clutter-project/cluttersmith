@@ -354,8 +354,10 @@ void cluttersmith_set_active (ClutterActor *item)
           cluttersmith_tree_populate (scene_graph, active_actor);
         }
     }
+#if 0
   if (active_actor)
     clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (parasite_root)), NULL);
+#endif
 }
 
 gchar *json_serialize_subtree (ClutterActor *root);

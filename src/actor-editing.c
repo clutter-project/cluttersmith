@@ -867,6 +867,13 @@ manipulate_capture (ClutterActor *actor,
                     ClutterEvent *event,
                     gpointer      data /* unused */)
 {
+
+   if (event->any.type == CLUTTER_KEY_PRESS)
+     {
+        if(manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
+          return TRUE;
+     }
+
   /* pass events through to text being edited */
   if (edited_text)
     { 
@@ -989,12 +996,6 @@ manipulate_capture (ClutterActor *actor,
           gfloat x = event->button.x;
           gfloat y = event->button.y;
 
-          if (0)
-            {
-              manipulate_resize_start (parasite_root, event);
-              /*XXX*/ edit_text_start (NULL);
-            }
-
           hit = cluttersmith_selection_pick (x, y);
 
           if (hit)
@@ -1058,8 +1059,6 @@ manipulate_capture (ClutterActor *actor,
         }
 
         return TRUE;
-      case CLUTTER_KEY_PRESS:
-        manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval);
       case CLUTTER_ENTER:
       case CLUTTER_LEAVE:
         return FALSE;
