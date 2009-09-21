@@ -259,11 +259,46 @@
  {"id":"resize-handle",
   "type":"ClutterText",
   "color":"red",
+  "opacity":100,
   "reactive":true,
-  "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"} ] 
+  "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"}
+               {"name":"enter-event", "handler":"cluttersmith_canvas_handler_enter"}
+               {"name":"leave-event", "handler":"cluttersmith_canvas_handler_leave"}
+  
+  ] 
   "anchor-gravity":"center",
   "font-name":"Sans 40px",
   "text":"⇲"
+ },
+
+ {"id":"move-handle",
+  "anchor-gravity":"center",
+  "type":"ClutterText",
+  "color":"red",
+  "font-name":"Sans 40px",
+  "text":"⤱"
+  "reactive":true,
+  "opacity":100,
+  "signals": [ {"name":"button-press-event", "handler":"manipulate_move_start"} 
+               {"name":"enter-event", "handler":"cluttersmith_canvas_handler_enter"}
+               {"name":"leave-event", "handler":"cluttersmith_canvas_handler_leave"}
+
+] 
+ }
+
+ {"id":"rotate-z-handle",
+  "anchor-gravity":"center",
+  "type":"ClutterText",
+  "color":"red",
+  "font-name":"Sans 40px",
+  "text":"⤿"
+  "reactive":true,
+  "opacity":100,
+  "signals": [ {"name":"button-press-event", "handler":"manipulate_move_start"} 
+               {"name":"enter-event", "handler":"cluttersmith_canvas_handler_enter"}
+               {"name":"leave-event", "handler":"cluttersmith_canvas_handler_leave"}
+
+] 
  }
 
 
