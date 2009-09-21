@@ -49,7 +49,7 @@ cluttersmith_selection_pick (gfloat x, gfloat y)
 
 ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
 {
-  GList *actors = clutter_container_get_children_recursive (clutter_actor_get_stage(parasite_root));
+  GList *actors = util_container_get_children_recursive (clutter_actor_get_stage(parasite_root));
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
   ret = util_list_match (actors, G_CALLBACK (is_in_actor), data);
@@ -739,7 +739,7 @@ manipulate_lasso_capture (ClutterActor *stage,
             gint no;
             GList *j, *list;
            
-            list = clutter_container_get_children_recursive (stage);
+            list = util_container_get_children_recursive (stage);
 
             for (no = 0, j=list; j;no++,j=j->next)
               {

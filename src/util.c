@@ -459,7 +459,7 @@ static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip
 }
 
 GList *
-clutter_container_get_children_recursive (ClutterActor *actor)
+util_container_get_children_recursive (ClutterActor *actor)
 {
   GList *ret = NULL;
   get_all_actors_int (&ret, actor, TRUE);

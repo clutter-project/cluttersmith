@@ -29,7 +29,7 @@ void util_apply_transient (ClutterActor *actor);
 
 ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent);
 
-GList * clutter_container_get_children_recursive (ClutterActor *actor);
+GList * util_container_get_children_recursive (ClutterActor *actor);
 
 /* like foreach, but returns the first non NULL return value (and
  * stops iterating at that stage)
