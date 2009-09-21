@@ -868,11 +868,6 @@ manipulate_capture (ClutterActor *actor,
                     gpointer      data /* unused */)
 {
 
-   if (event->any.type == CLUTTER_KEY_PRESS)
-     {
-        if(manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
-          return TRUE;
-     }
 
   /* pass events through to text being edited */
   if (edited_text)
@@ -900,6 +895,14 @@ manipulate_capture (ClutterActor *actor,
             }
         }
     }
+
+   if (event->any.type == CLUTTER_KEY_PRESS &&
+       !util_has_ancestor (event->any.source, parasite_root)) /* If the source is in the parasite ui,
+                                                                 pass in on as normal*/
+     {
+        if(manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
+          return TRUE;
+     }
 
   if (event->any.type == CLUTTER_KEY_PRESS)
     {
