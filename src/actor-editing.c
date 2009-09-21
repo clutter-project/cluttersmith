@@ -69,15 +69,12 @@ static gint max_y = 0;
 static gint min_x = 0;
 static gint min_y = 0;
 
-
 static void draw_actor_outline (ClutterActor *actor,
                                 gpointer      data)
 {
   ClutterVertex verts[4];
   clutter_actor_get_abs_allocation_vertices (actor,
                                              verts);
-
-  cogl_set_source_color4ub (0, 25, 0, 50);
 
   {
     gint i;
@@ -100,7 +97,6 @@ static void draw_actor_outline (ClutterActor *actor,
          verts[0].x, verts[0].y };
 
       cogl_path_polyline (coords, 5);
-      cogl_set_source_color4ub (255, 0, 0, 128);
       cogl_path_stroke ();
     }
   }
@@ -208,6 +204,19 @@ cb_overlay_paint (ClutterActor *stage,
     GHashTableIter      iter;
     gpointer            key, value;
 
+    {
+      ClutterActor *any = cluttersmith_selected_get_any ();
+        {
+          ClutterActor *parent = cluttersmith_get_add_root (any);
+          if (parent)
+            {
+              cogl_set_source_color4ub (255, 0, 255, 128);
+              draw_actor_outline (parent, NULL);
+            }
+        }
+    }
+
+    cogl_set_source_color4ub (255, 0, 0, 128);
     cluttersmith_selected_foreach (G_CALLBACK (draw_actor_outline), NULL);
 
     g_hash_table_iter_init (&iter, selection);
@@ -235,7 +244,7 @@ cb_overlay_paint (ClutterActor *stage,
    }
 
    {
-     /* done this way, thie resize handle always lags behind */
+     /* XXX: done this way, thie resize handle always lags behind */
      ClutterActor *handle = util_find_by_id_int (stage, "resize-handle");
      clutter_actor_set_position (handle, max_x, max_y);
    }
