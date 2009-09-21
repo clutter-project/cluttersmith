@@ -1020,6 +1020,14 @@ manipulate_capture (ClutterActor *actor,
                 }
               else
                 {
+                  if (event->button.modifier_state & CLUTTER_CONTROL_MASK)
+                    {
+                      if (cluttersmith_selected_has_actor (hit))
+                        {
+                          cluttersmith_selected_remove (hit);
+                        }
+                    }
+
                   manipulate_move_start (parasite_root, event);
                 }
             }
@@ -1042,8 +1050,28 @@ manipulate_capture (ClutterActor *actor,
                     {
                       return FALSE;
                     }
-                  cluttersmith_selected_clear ();
-                  cluttersmith_selected_add (hit);
+
+                  if (!((clutter_event_get_state (event) & CLUTTER_CONTROL_MASK) ||
+                        (clutter_event_get_state (event) & CLUTTER_SHIFT_MASK)))
+                    {
+                      cluttersmith_selected_clear ();
+                    }
+
+                  if (event->button.modifier_state & CLUTTER_CONTROL_MASK)
+                    {
+                      if (cluttersmith_selected_has_actor (hit))
+                        {
+                          cluttersmith_selected_remove (hit);
+                        }
+                      else
+                        {
+                          cluttersmith_selected_add (hit);
+                        }
+                    }
+                  else
+                    {
+                      cluttersmith_selected_add (hit);
+                    }
                   manipulate_move_start (parasite_root, event);
                 }
               else

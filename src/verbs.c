@@ -195,19 +195,37 @@ void cb_select_all (ClutterActor *actor)
 }
 
 
+static gfloat min_x=0;
+static gfloat min_y=0;
+
 static void each_group (ClutterActor *actor,
                         gpointer      new_parent)
 {
   ClutterActor *parent;
+  gfloat x, y;
   parent = clutter_actor_get_parent (actor);
+  clutter_actor_get_position (actor, &x, &y);
   g_object_ref (actor);
+  if (x < min_x)
+    min_x = x;
+  if (y < min_y)
+    min_y = y;
   clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
   clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), actor);
   g_object_unref (actor);
 }
 
+static void each_group_move (ClutterActor *actor,
+                             gfloat       *delta)
+{
+  gfloat x, y;
+  clutter_actor_get_position (actor, &x, &y);
+  clutter_actor_set_position (actor, x-delta[0], y-delta[1]);
+}
+
 void cb_group (ClutterActor *actor)
 {
+  gfloat delta[2];
   ClutterActor *parent;
   ClutterActor *group;
   parent = cluttersmith_get_add_root (actor);
@@ -218,14 +236,20 @@ void cb_group (ClutterActor *actor)
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), group);
   /* get add_parent */
   /* create group */
+
+  min_x = 2000000.0;
+  min_y = 2000000.0;
+
   cluttersmith_selected_foreach (G_CALLBACK (each_group), group);
-  /* reparent all children to group */
-  g_print ("%s NYC\n", G_STRFUNC);
+  delta[0]=min_x;
+  delta[1]=min_y;
+  cluttersmith_selected_foreach (G_CALLBACK (each_group_move), delta);
+  clutter_actor_set_position (group, min_x, min_y);
 }
 
 
 static void each_ungroup (ClutterActor *actor,
-                        gpointer      new_parent)
+                          gpointer      new_parent)
 {
   ClutterActor *parent;
   parent = clutter_actor_get_parent (actor);
