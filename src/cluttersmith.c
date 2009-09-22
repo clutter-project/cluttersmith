@@ -618,7 +618,6 @@ void session_history_add (const gchar *dir)
               *end = '\0';
               if (!g_str_equal (start, dir))
                 session_history = g_list_append (session_history, start);
-              g_print ("%s\n", start);
               start = end+1;
             }
           else
