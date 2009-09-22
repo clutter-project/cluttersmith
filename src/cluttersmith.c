@@ -546,7 +546,7 @@ static void title_text_changed (ClutterActor *actor)
       fake_stage = util_replace_content2 (actor, "fake-stage", NULL);
 
     }
-  cluttersmith_set_add_root (fake_stage);
+  cluttersmith_set_current_container (fake_stage);
   {
     gfloat x=0, y=0;
       if (has_chrome)

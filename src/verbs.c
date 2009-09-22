@@ -12,7 +12,7 @@ static GList *clipboard = NULL;
 static void each_duplicate (ClutterActor *actor)
 {
   ClutterActor *parent, *new_actor;
-  parent = cluttersmith_get_add_root (actor);
+  parent = cluttersmith_get_current_container ();
   new_actor = util_duplicator (actor, parent);
   {
     gfloat x, y;
@@ -112,7 +112,7 @@ void cb_paste_selected (ClutterActor *actor)
       GList *i;
       ClutterActor *new_actor = NULL, *parent;
 
-      parent = cluttersmith_get_add_root (actor);
+      parent = cluttersmith_get_current_container ();
 
       for (i=clipboard; i;i=i->next)
         {
@@ -165,6 +165,7 @@ static void each_reset_size (ClutterActor *actor)
 void cb_reset_size (ClutterActor *actor)
 {
   cluttersmith_selected_foreach (G_CALLBACK (each_reset_size), NULL);
+  CS_REVISION++;
 }
 
 void cb_quit (ClutterActor *actor)
@@ -228,7 +229,7 @@ void cb_group (ClutterActor *actor)
   gfloat delta[2];
   ClutterActor *parent;
   ClutterActor *group;
-  parent = cluttersmith_get_add_root (actor);
+  parent = cluttersmith_get_current_container ();
   group = clutter_group_new ();
   /* find upper left item,. and place group there,.. reposition children to
    * fit this
@@ -247,6 +248,7 @@ void cb_group (ClutterActor *actor)
   clutter_actor_set_position (group, min_x, min_y);
   cluttersmith_selected_clear ();
   cluttersmith_selected_add (group);
+  CS_REVISION++;
 }
 
 static void each_ungroup (ClutterActor *actor,
@@ -288,6 +290,7 @@ void cb_ungroup (ClutterActor *actor)
       cluttersmith_selected_add (i->data);
     }
   g_list_free (created_list);
+  CS_REVISION++;
 }
 
 void cb_select_parent (ClutterActor *actor)
@@ -301,7 +304,7 @@ void cb_select_parent (ClutterActor *actor)
           cluttersmith_selected_clear ();
           cluttersmith_selected_add (parent);
           parent = clutter_actor_get_parent (parent);
-          cluttersmith_set_add_root (parent);
+          cluttersmith_set_current_container (parent);
           clutter_actor_queue_redraw (active_actor);
         }
     }

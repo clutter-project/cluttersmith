@@ -229,7 +229,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
     }
-  else if (iter == cluttersmith_get_add_root (NULL))
+  else if (iter == cluttersmith_get_current_container ())
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &blue);
     }

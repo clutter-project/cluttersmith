@@ -11,7 +11,7 @@ static gboolean add_stencil (ClutterActor *actor,
   ClutterActor *parent;
   ClutterActor *new_actor;
 
-  parent = cluttersmith_get_add_root (actor);
+  parent = cluttersmith_get_current_container ();
   new_actor = util_load_json (path);
   
   if (new_actor)

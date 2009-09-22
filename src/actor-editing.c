@@ -201,7 +201,7 @@ cb_overlay_paint (ClutterActor *stage,
   ClutterVertex verts[4];
 
     {
-      ClutterActor *parent = cluttersmith_get_add_root (NULL);
+      ClutterActor *parent = cluttersmith_get_current_container ();
       if (parent)
         {
           cogl_set_source_color4ub (255, 0, 255, 128);
@@ -882,7 +882,7 @@ manipulate_lasso_capture (ClutterActor *stage,
               }
 #else
             g_hash_table_remove_all (selection);
-            list = clutter_container_get_children (CLUTTER_CONTAINER (cluttersmith_get_add_root (NULL)));
+            list = clutter_container_get_children (CLUTTER_CONTAINER (cluttersmith_get_current_container ()));
 #endif
 
             for (no = 0, j=list; j;no++,j=j->next)
@@ -1172,7 +1172,7 @@ manipulate_capture (ClutterActor *actor,
                     {
                       g_print ("enter container\n");
                       cluttersmith_selected_clear ();
-                      cluttersmith_set_add_root (hit);
+                      cluttersmith_set_current_container (hit);
                     }
                   else
                     {
@@ -1211,12 +1211,12 @@ manipulate_capture (ClutterActor *actor,
                                                  CLUTTER_PICK_ALL,
                                                  x, y);
 #else
-              hit = cluttersmith_children_pick (cluttersmith_get_add_root (NULL), x, y);
+              hit = cluttersmith_children_pick (cluttersmith_get_current_container (), x, y);
 
               if (!hit)
                 {
                   hit = cluttersmith_children_pick (fake_stage, x, y);
-                  if (hit == cluttersmith_get_add_root (NULL))
+                  if (hit == cluttersmith_get_current_container ())
                     hit = NULL;
                   stage_child = TRUE;
                 }
@@ -1239,7 +1239,7 @@ manipulate_capture (ClutterActor *actor,
                       cluttersmith_selected_clear ();
                       if (stage_child)
                         {
-                          cluttersmith_set_add_root (fake_stage);
+                          cluttersmith_set_current_container (fake_stage);
                         }
                     }
                   else
@@ -1328,49 +1328,18 @@ gboolean cluttersmith_canvas_handler_leave (ClutterActor *actor)
   return TRUE;
 }
 
-static ClutterActor *add_root = NULL;
+static ClutterActor *current_container = NULL;
 
 
-void cluttersmith_set_add_root (ClutterActor *actor)
+void cluttersmith_set_current_container (ClutterActor *actor)
 {
   if (actor && CLUTTER_IS_CONTAINER (actor))
-    add_root = actor;
+    current_container = actor;
 }
 
-ClutterActor *cluttersmith_get_add_root (ClutterActor *actor)
+ClutterActor *cluttersmith_get_current_container (void)
 {
-  if (!add_root)
+  if (!current_container)
     return fake_stage;
-  return add_root;
-#if 0
-/* get's the add root, falling back to the
- * stage of the provided actor
- */
-  ClutterActor *ret;
-  ClutterActor *active_actor = cluttersmith_selected_get_any ();
-  
-  if (active_actor)
-    {
-      if (CLUTTER_IS_CONTAINER (active_actor))
-        {
-          ret = active_actor;
-        }
-      else
-        {
-          ret = clutter_actor_get_parent (active_actor);
-        }
-    }
-  else
-    {
-      ret = util_find_by_id (clutter_actor_get_stage (actor), "actor");
-    }
-  if (!ret)
-    {
-      if (actor)
-        ret = fake_stage;
-      else
-        ret = NULL;
-    }
-  return ret;
-#endif
+  return current_container;
 }

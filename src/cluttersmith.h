@@ -23,8 +23,8 @@ ClutterActor *cluttersmith_get_active (void);
 void cluttersmith_tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);
 
-ClutterActor *cluttersmith_get_add_root (ClutterActor *actor);
-void          cluttersmith_set_add_root (ClutterActor *actor);
+ClutterActor *cluttersmith_get_current_container (void);
+void          cluttersmith_set_current_container (ClutterActor *actor);
 
 void cluttsmith_show_chrome (void);
 void cluttsmith_hide_chrome (void);
