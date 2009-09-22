@@ -187,12 +187,19 @@ void cb_focus_entry (ClutterActor *actor)
 
 void cb_select_none (ClutterActor *actor)
 {
-  g_print ("%s NYI\n", G_STRFUNC);
+  cluttersmith_selected_clear ();
 }
 
 void cb_select_all (ClutterActor *actor)
 {
-  g_print ("%s NYI\n", G_STRFUNC);
+  GList *l, *list;
+  cluttersmith_selected_clear ();
+  list = clutter_container_get_children (CLUTTER_CONTAINER (cluttersmith_get_current_container()));
+  for (l=list; l;l=l->next)
+    {
+      cluttersmith_selected_add (l->data);
+    }
+  g_list_free (list);
 }
 
 
