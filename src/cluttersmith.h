@@ -6,6 +6,14 @@
 extern guint CS_REVISION;
 extern guint CS_STORED_REVISION;
 
+typedef enum RunMode {
+  RUN_MODE_BROWSE  = 0,
+  RUN_MODE_UI      = 1,
+  RUN_MODE_EDIT    = 2,
+  RUN_MODE_CHROME  = RUN_MODE_UI|RUN_MODE_EDIT,
+} RunMode;
+
+extern gint cluttersmith_ui_mode;
 
 void cluttersmith_actor_editing_init (gpointer stage);
 
@@ -26,9 +34,7 @@ void cluttersmith_tree_populate (ClutterActor *scene_graph,
 ClutterActor *cluttersmith_get_current_container (void);
 void          cluttersmith_set_current_container (ClutterActor *actor);
 
-void cluttsmith_show_chrome (void);
-void cluttsmith_hide_chrome (void);
-
+void cluttersmith_set_ui_mode (guint ui_mode);
 
 /* actor-editing: */
 
@@ -52,5 +58,9 @@ ClutterActor *cluttersmith_selected_get_any (void);
 
 void previews_reload (ClutterActor *actor);
 char * cluttersmith_make_config_file (const char *filename);
+
+
+gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
+gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
 #endif

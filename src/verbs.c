@@ -323,6 +323,27 @@ cb_help (ClutterActor *actor)
   cluttersmith_set_project_root (PKGDATADIR "docs");
 }
 
+void
+cb_ui_mode (ClutterActor *actor)
+{
+  switch (cluttersmith_ui_mode)
+    {
+        case RUN_MODE_BROWSE:
+          cluttersmith_set_ui_mode (RUN_MODE_EDIT);
+          g_print ("Run mode : edit only\n");
+          break;
+        case RUN_MODE_EDIT:
+          cluttersmith_set_ui_mode (RUN_MODE_CHROME);
+          g_print ("Run mode : ui with edit\n");
+          break;
+        case RUN_MODE_CHROME: 
+        default:
+          cluttersmith_set_ui_mode (RUN_MODE_BROWSE);
+          g_print ("Run mode : browse\n");
+          break;
+    }
+}
+
 
 /******************************************************************************/
 
@@ -337,7 +358,6 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_c,         cb_copy_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_v,         cb_paste_selected},
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cb_duplicate_selected},
-  {CLUTTER_CONTROL_MASK, CLUTTER_q,         cb_quit},
   {CLUTTER_CONTROL_MASK, CLUTTER_l,         cb_focus_entry},
 
   /* check for the more specific modifier state before the more generic ones */
@@ -351,7 +371,6 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_g,         cb_group},
   {CLUTTER_CONTROL_MASK, CLUTTER_p,         cb_select_parent},
 
-  {0,                    CLUTTER_F1,        cb_help},
   {0,                    CLUTTER_BackSpace, cb_remove_selected},
   {0,                    CLUTTER_Delete,    cb_remove_selected},
   {0,                    CLUTTER_Page_Up,   cb_raise_selected},
@@ -375,3 +394,30 @@ gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modif
     }
   return FALSE;
 }
+
+
+static KeyBinding global_keybindings[]={
+  {CLUTTER_CONTROL_MASK, CLUTTER_q,           cb_quit},
+  {0,                    CLUTTER_Scroll_Lock, cb_ui_mode},
+  {0,                    CLUTTER_F1,          cb_help},
+  {0, 0, NULL},
+};
+
+
+gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key)
+{
+  gint i;
+  for (i=0; global_keybindings[i].key_symbol; i++)
+    {
+      if (global_keybindings[i].key_symbol == key &&
+          ((global_keybindings[i].modifier & modifier) == global_keybindings[i].modifier))
+        {
+          global_keybindings[i].callback (stage);
+          return TRUE;
+        }
+    }
+  return FALSE;
+}
+
+
+

@@ -57,7 +57,7 @@ void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bi
 }
 
 static gboolean has_chrome = TRUE;
-void cluttsmith_show_chrome (void)
+static void cluttsmith_show_chrome (void)
 {
   gfloat x, y;
   clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "fake-stage-rect"), &x, &y);
@@ -66,13 +66,27 @@ void cluttsmith_show_chrome (void)
   has_chrome = TRUE;
 }
 
-void cluttsmith_hide_chrome (void)
+static void cluttsmith_hide_chrome (void)
 {
   gfloat x, y;
   clutter_actor_hide (parasite_ui);
   clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "fake-stage-rect"), &x, &y);
   clutter_actor_set_position (fake_stage, 0, 0);
   has_chrome = FALSE;
+}
+
+void cluttersmith_set_ui_mode (guint ui_mode)
+{
+  cluttersmith_ui_mode = ui_mode;
+
+  if (cluttersmith_ui_mode & RUN_MODE_UI)
+    {
+      cluttsmith_show_chrome ();
+    }
+  else
+    {
+      cluttsmith_hide_chrome ();
+    }
 }
 
 

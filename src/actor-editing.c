@@ -976,12 +976,7 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
   return TRUE;
 }
 
-typedef enum RunMode {
-  RUN_MODE_UI   = 1,
-  RUN_MODE_EDIT = 2
-} RunMode;
-
-static gint run_mode = RUN_MODE_EDIT|RUN_MODE_UI;
+gint cluttersmith_ui_mode = RUN_MODE_EDIT|RUN_MODE_UI;
 
 static ClutterActor *edited_text = NULL;
 static gboolean text_was_editable = FALSE;
@@ -1010,7 +1005,6 @@ static gboolean edit_text_end (void)
   return TRUE;
 }
 
-gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
 
 static gboolean
@@ -1049,6 +1043,12 @@ manipulate_capture (ClutterActor *actor,
         }
     }
 
+    if (event->any.type == CLUTTER_KEY_PRESS)
+      {
+          if(manipulator_key_pressed_global (actor, clutter_event_get_state(event), event->key.keyval))
+            return TRUE;
+      }
+
    if (event->any.type == CLUTTER_KEY_PRESS &&
        !util_has_ancestor (event->any.source, parasite_root)) /* If the source is in the parasite ui,
                                                                  pass in on as normal*/
@@ -1057,40 +1057,9 @@ manipulate_capture (ClutterActor *actor,
           return TRUE;
      }
 
-  if (event->any.type == CLUTTER_KEY_PRESS)
-    {
-      if (event->key.keyval == CLUTTER_Scroll_Lock ||
-          event->key.keyval == CLUTTER_Caps_Lock)
-        {
-          switch (run_mode)
-            {
-              case 0:
-                run_mode = 2;
-                g_print ("Run mode : edit only\n");
-                break;
-              case 2:
-                run_mode = 3;
-                g_print ("Run mode : ui with edit\n");
-                break;
-              default: 
-                run_mode = 0;
-                g_print ("Run mode : browse\n");
-                break;
-            }
 
-          if (run_mode & RUN_MODE_UI)
-            {
-              cluttsmith_show_chrome ();
-            }
-          else
-            {
-              cluttsmith_hide_chrome ();
-            }
-          return TRUE;
-        }
-    }
 
-  if (!(run_mode & RUN_MODE_EDIT))
+  if (!(cluttersmith_ui_mode & RUN_MODE_EDIT))
     {
       /* check if it is child of a link, if it is then we override anyways...
        *

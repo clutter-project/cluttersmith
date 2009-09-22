@@ -84,7 +84,9 @@ cb_texture_set_property (GObject      *object,
   switch (property_id)
     {
     case PROP_URI:
-      set_uri (texture, g_value_get_string (value));
+      {
+        set_uri (texture, g_value_get_string (value));
+      }
       break;
 
     default:
@@ -160,7 +162,5 @@ cb_texture_init (CBTexture *texture)
 ClutterActor*
 cb_texture_new (void)
 {
-  return g_object_new (CB_TYPE_TEXTURE,
-                       "disable-slicing", TRUE, 
-                       NULL);
+  return g_object_new (CB_TYPE_TEXTURE, NULL);
 }
