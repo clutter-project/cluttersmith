@@ -11,6 +11,7 @@ void cluttersmith_actor_editing_init (gpointer stage);
 
 extern ClutterActor *parasite_root;
 extern ClutterActor *parasite_ui;
+extern ClutterActor *fake_stage;
 
 void   cluttersmith_set_project_root (const gchar *new_root);
 gchar *cluttersmith_get_project_root (void);
@@ -22,12 +23,11 @@ ClutterActor *cluttersmith_get_active (void);
 void cluttersmith_tree_populate (ClutterActor *scene_graph,
                     ClutterActor *active_actor);
 
-/*
-  returns in order, selected actor if it is a container otherwise the parent,
-  if neither, look for an actor with id "actor" and ultimataly look at the
-  stage. The stage to be worked on is determined by the actor passed in.*/
 ClutterActor *cluttersmith_get_add_root (ClutterActor *actor);
+void          cluttersmith_set_add_root (ClutterActor *actor);
 
+void cluttsmith_show_chrome (void);
+void cluttsmith_hide_chrome (void);
 
 
 /* actor-editing: */
@@ -43,6 +43,7 @@ void     cluttersmith_selected_add       (ClutterActor *actor);
 void     cluttersmith_selected_remove    (ClutterActor *actor);
 void     cluttersmith_selected_foreach   (GCallback     cb,
                                           gpointer      data);
+gboolean cluttersmith_save_timeout       (gpointer data);
 gpointer cluttersmith_selected_match     (GCallback     match_fun,
                                           gpointer      data);
 ClutterActor *cluttersmith_selected_get_any (void);

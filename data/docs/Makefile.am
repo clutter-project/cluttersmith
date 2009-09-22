@@ -1,5 +1,5 @@
 
 docsdir = $(pkgdatadir)/docs
-docs_DATA = index.json todo.json widgets.json LD_PRELOAD.json
+docs_DATA = index.json todo.json widgets.json LD_PRELOAD.json help.json
 
 EXTRA_DIST = $(docs_DATA) 

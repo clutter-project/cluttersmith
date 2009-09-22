@@ -41,8 +41,6 @@ void cluttersmith_selected_remove (ClutterActor *actor)
   update_active_actor ();
 }
 
-
-
 void cluttersmith_selected_foreach (GCallback cb, gpointer data)
 {
   void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;

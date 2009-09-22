@@ -146,14 +146,22 @@ ClutterScript *util_get_script (ClutterActor *actor)
   return script;
 }
 
+static ClutterActor *empty_scene_new (void)
+{
+  ClutterActor *group;
+  group = clutter_group_new ();
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (group), "actor");
+  return group;
+}
 
 /* replaces a toplevel (as in loaded scripts) container with id "content"
  * with a newly loaded script.
  */
-void util_replace_content2 (ClutterActor  *actor,
-                            const gchar *name,
-                            const gchar *new_script)
+ClutterActor *util_replace_content2 (ClutterActor  *actor,
+                                     const gchar *name,
+                                     const gchar *new_script)
 {
+  ClutterActor *ret = NULL;
   ClutterActor *iter;
   ClutterScript *script = util_get_script (actor);
   ClutterActor *content = NULL;
@@ -190,15 +198,18 @@ void util_replace_content2 (ClutterActor  *actor,
         }
       g_list_free (children);
       if (new_script)
-        clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
-
-      return;
+        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = util_load_json (new_script));
+      else
+        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
+      return ret;
     }
 
   util_remove_children (content);
   if (new_script)
-    clutter_container_add_actor (CLUTTER_CONTAINER (content), util_load_json (new_script));
-  return;
+    clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = util_load_json (new_script));
+  else
+    clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
+  return ret;
 }
 
 /* replaces a toplevel (as in loaded scripts) container with id "content"
@@ -254,6 +265,23 @@ gboolean util_movable_press (ClutterActor  *actor,
   clutter_actor_raise_top (actor);
   return TRUE;
 }
+
+
+gboolean util_slider_panel_enter_south (ClutterActor  *actor,
+                                        ClutterEvent  *event)
+{
+  gfloat height = clutter_actor_get_height (actor);
+  clutter_actor_animate (actor, CLUTTER_LINEAR, 200, "anchor-y", height, NULL);
+  return TRUE;
+}
+
+gboolean util_slider_panel_leave (ClutterActor  *actor,
+                                  ClutterEvent  *event)
+{
+  clutter_actor_animate (actor, CLUTTER_LINEAR, 200, "anchor-y", 0.0, NULL);
+  return TRUE;
+}
+
 
 
 gboolean util_has_ancestor (ClutterActor *actor,
@@ -523,4 +551,3 @@ gboolean util_block_event (ClutterActor *actor)
 {
   return TRUE;
 }
-

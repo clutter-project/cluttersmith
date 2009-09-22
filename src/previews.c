@@ -11,7 +11,6 @@ static gboolean load_layout (ClutterActor *actor,
                              const gchar  *path)
 {
   gchar *new_title = g_strdup (path);
-  gchar *new_title2;
   gchar *dot;
 
   dot = strrchr(new_title, '.');

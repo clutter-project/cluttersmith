@@ -7,6 +7,7 @@
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
+static ClutterColor  blue = {0x00,000,0xff,0xff};
 
 static ClutterActor *clone = NULL;
 static ClutterActor *dragged_item = NULL;
@@ -203,7 +204,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
 #ifdef EDIT_SELF
       util_has_ancestor (iter, scene_graph)
 #else
-      util_has_ancestor (iter, parasite_root)
+      !util_has_ancestor (iter, fake_stage)
 #endif
       )
     {
@@ -222,10 +223,15 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
                        //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",
 
   label = clutter_text_new_with_text ("Sans 14px", G_OBJECT_TYPE_NAME (iter));
+
   clutter_actor_set_anchor_point (label, -24.0, 0.0);
   if (iter == active_actor)
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
+    }
+  else if (iter == cluttersmith_get_add_root (NULL))
+    {
+      clutter_text_set_color (CLUTTER_TEXT (label), &blue);
     }
   else
     {
@@ -277,7 +283,11 @@ cluttersmith_tree_populate (ClutterActor *scene_graph,
   gint count = 0;
   util_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
+#ifdef COMPILEMODULE
   cluttersmith_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
+#else
+  cluttersmith_tree_populate_iter (scene_graph, active_actor, fake_stage, &level, &count);
+#endif
 }
 
 

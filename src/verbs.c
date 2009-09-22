@@ -245,32 +245,49 @@ void cb_group (ClutterActor *actor)
   delta[1]=min_y;
   cluttersmith_selected_foreach (G_CALLBACK (each_group_move), delta);
   clutter_actor_set_position (group, min_x, min_y);
+  cluttersmith_selected_clear ();
+  cluttersmith_selected_add (group);
 }
 
-
 static void each_ungroup (ClutterActor *actor,
-                          gpointer      new_parent)
+                          GList       **created_list)
 {
   ClutterActor *parent;
   parent = clutter_actor_get_parent (actor);
-  g_object_ref (actor);
-  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
-  clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), actor);
-  g_object_unref (actor);
+  if (CLUTTER_IS_CONTAINER (actor))
+    {
+      GList *c, *children;
+      gfloat cx, cy;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+      clutter_actor_get_position (actor, &cx, &cy);
+      for (c = children; c; c = c->next)
+        {
+          gfloat x, y;
+          ClutterActor *child = c->data;
+          g_object_ref (child);
+          clutter_actor_get_position (child, &x, &y);
+          clutter_actor_set_position (child, cx + x, cy + y);
+          clutter_container_remove_actor (CLUTTER_CONTAINER (actor), child);
+          clutter_container_add_actor (CLUTTER_CONTAINER (parent), child);
+          g_object_unref (child);
+          *created_list = g_list_append (*created_list, child);
+        }
+      g_list_free (children);
+      clutter_actor_destroy (actor);
+    }
 }
-
 
 void cb_ungroup (ClutterActor *actor)
 {
-  ClutterActor *parent;
-  /* XXX: this is all wrong... */
-  ClutterActor *active_actor = cluttersmith_selected_get_any ();
-  /* The group needs to be directly selected for now */
-  parent = clutter_actor_get_parent (active_actor);
-  cluttersmith_selected_foreach (G_CALLBACK (each_ungroup), parent);
-  clutter_actor_destroy (active_actor);
-  /* reparent all children to group */
-  g_print ("%s NYC\n", G_STRFUNC);
+  GList *i, *created_list = NULL;
+  cluttersmith_set_active (NULL);
+  cluttersmith_selected_foreach (G_CALLBACK (each_ungroup), &created_list);
+  cluttersmith_selected_clear (); 
+  for (i=created_list; i; i=i->next)
+    {
+      cluttersmith_selected_add (i->data);
+    }
+  g_list_free (created_list);
 }
 
 void cb_select_parent (ClutterActor *actor)
@@ -283,6 +300,8 @@ void cb_select_parent (ClutterActor *actor)
         {
           cluttersmith_selected_clear ();
           cluttersmith_selected_add (parent);
+          parent = clutter_actor_get_parent (parent);
+          cluttersmith_set_add_root (parent);
           clutter_actor_queue_redraw (active_actor);
         }
     }

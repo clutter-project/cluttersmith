@@ -130,6 +130,7 @@ main (gint    argc,
 
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
+  g_timeout_add (10000, cluttersmith_save_timeout, NULL); /* auto-save */
 
   clutter_main ();
   return 0;

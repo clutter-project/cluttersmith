@@ -15,6 +15,8 @@ static ClutterActor  *title, *name, *parents,
 
 ClutterActor *parasite_root;
 ClutterActor *parasite_ui;
+ClutterActor *fake_stage = NULL;
+
 gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
                     "anchor-y", "rotation-angle-z",
@@ -50,6 +52,25 @@ void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bi
   clutter_actor_get_size (stage, &width, &height);
   g_print ("stage size changed %f %f\n", width, height);
   clutter_actor_set_size (bin, width, height);
+}
+
+static gboolean has_chrome = TRUE;
+void cluttsmith_show_chrome (void)
+{
+  gfloat x, y;
+  clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "fake-stage-rect"), &x, &y);
+  clutter_actor_set_position (fake_stage, x, y);
+  clutter_actor_show (parasite_ui);
+  has_chrome = TRUE;
+}
+
+void cluttsmith_hide_chrome (void)
+{
+  gfloat x, y;
+  clutter_actor_hide (parasite_ui);
+  clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "fake-stage-rect"), &x, &y);
+  clutter_actor_set_position (fake_stage, 0, 0);
+  has_chrome = FALSE;
 }
 
 
@@ -88,7 +109,7 @@ gboolean idle_add_stage (gpointer stage)
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
-  parasite_root = actor;
+  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
     {
   if (parasite_ui)
@@ -473,51 +494,41 @@ void cb_change_type (ClutterActor *actor)
 
 void session_history_add (const gchar *dir);
 
+static gchar *filename = NULL;
 
-static void title_text_changed (ClutterActor *actor)
+static void cluttersmith_save (void)
 {
-  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
-  static gchar *filename = NULL; /* this needs to be more global and accessable, at
-                                  * least through some form of getter function.
-                                  */
-
   /* Save if we've changed */
   if (CS_REVISION != CS_STORED_REVISION)
     {
-      ClutterActor *root;
       gchar *content;
+      gfloat x, y;
 
-      root = clutter_actor_get_stage (actor);
-      {
-        GList *children, *c;
-        children = clutter_container_get_children (CLUTTER_CONTAINER (root));
-        for (c=children;c;c=c->next)
-          {
-            const gchar *id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (c->data));
-            if (id && g_str_equal (id, "actor"))
-              {
-                root = c->data;
-                break;
-              }
-          }
-        g_list_free (children);
-      }
+      clutter_actor_get_position (fake_stage, &x, &y);
+      clutter_actor_set_position (fake_stage, 0.0, 0.0);
 
-      if (root == clutter_actor_get_stage (actor))
-        {
-          g_print ("didn't find nuthin but root\n");
-        }
-      else
-        {
-        }
-
-      content  = json_serialize_subtree (root);
+      content  = json_serialize_subtree (fake_stage);
+      clutter_actor_set_position (fake_stage, x, y);
       if (filename)
         {
           g_file_set_contents (filename, content, -1, NULL);
         }
       g_free (content);
+      CS_STORED_REVISION = CS_REVISION;
     }
+}
+
+gboolean cluttersmith_save_timeout (gpointer data)
+{
+  cluttersmith_save ();
+  return TRUE;
+}
+
+static void title_text_changed (ClutterActor *actor)
+{
+  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
+
+  cluttersmith_save ();
 
   filename = g_strdup_printf ("%s/%s.json", cluttersmith_get_project_root(),
                               title);
@@ -526,14 +537,24 @@ static void title_text_changed (ClutterActor *actor)
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       session_history_add (cluttersmith_get_project_root ());
-      util_replace_content2 (actor, "content", filename);
-      CS_REVISION = CS_STORED_REVISION = 0;
+      fake_stage = util_replace_content2 (actor, "fake-stage", filename);
     }
   else
     {
-      util_replace_content2 (clutter_stage_get_default(), "content", NULL);
-      CS_REVISION = CS_STORED_REVISION = 0;
+      fake_stage = util_replace_content2 (actor, "fake-stage", NULL);
+
     }
+  cluttersmith_set_add_root (fake_stage);
+  {
+    gfloat x=0, y=0;
+      if (has_chrome)
+        clutter_actor_get_transformed_position (
+           util_find_by_id_int (clutter_actor_get_stage (parasite_root),
+           "fake-stage-rect"), &x, &y);
+    clutter_actor_set_position (fake_stage, x, y);
+  }
+  CS_REVISION = CS_STORED_REVISION = 0;
+
   cluttersmith_selected_clear ();
   clutter_actor_raise_top (parasite_root);
 }
@@ -681,30 +702,4 @@ void parasite_rectangle_init_hack (ClutterActor  *actor)
                                actor, "expand", TRUE, NULL);
 }
 
-ClutterActor *cluttersmith_get_add_root (ClutterActor *actor)
-{
-  ClutterActor *ret;
-  ClutterActor *active_actor = cluttersmith_selected_get_any ();
-  
-  if (active_actor)
-    {
-      if (CLUTTER_IS_CONTAINER (active_actor))
-        {
-          ret = active_actor;
-        }
-      else
-        {
-          ret = clutter_actor_get_parent (active_actor);
-        }
-    }
-  else
-    {
-      ret = util_find_by_id (clutter_actor_get_stage (actor), "actor");
-    }
-  if (!ret)
-    {
-      ret = clutter_actor_get_stage (actor);
-    }
-  
-  return ret;
-}
+
