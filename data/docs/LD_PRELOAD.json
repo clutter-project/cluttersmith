@@ -15,8 +15,8 @@
   "children":[
   {
     "type":"ClutterText",
-    "x":33,
-    "y":29,
+    "x":32,
+    "y":28,
     "width":437,
     "height":299,
     "depth":0.000,
@@ -40,7 +40,7 @@ subsequently run clutter application will have a ClutterSmith panel that allows 
 In this mode cluttersmith uses a different
 method to select actors for single clicks,
 it is also useful pressing ctrl+P to get to
-the parent actor. The CSS is currently broken.",
+the parent actor.",
     "color":"#000000ff",
     "use-markup":false,
     "line-wrap":true,
@@ -187,6 +187,39 @@ the parent actor. The CSS is currently broken.",
       ]
     }
     ]
+  }
+  ,
+  {
+    "type":"ClutterText",
+    "x":93,
+    "y":363,
+    "width":481,
+    "height":59,
+    "depth":0.000,
+    "opacity":255,
+    "scale-x":1.000,
+    "scale-y":1.000,
+    "rotation-angle-z":-45.000,
+    "anchor-x":0.000,
+    "anchor-y":0.000,
+    "font-name":"Sans bold 30",
+    "text":"Currently broken",
+    "color":"#ff0000ff",
+    "use-markup":false,
+    "line-wrap":true,
+    "justify":false,
+    "position":-1,
+    "selection-bound":-1,
+    "selection-color":"#000000ff",
+    "cursor-visible":true,
+    "cursor-color":"#000000ff",
+    "cursor-size":2,
+    "editable":false,
+    "selectable":true,
+    "activatable":false,
+    "password-char":0,
+    "max-length":0,
+    "single-line-mode":false,
   }
   ]
 }

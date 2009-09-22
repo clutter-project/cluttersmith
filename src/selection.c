@@ -4,22 +4,21 @@
 #include "cluttersmith.h"
 #include "util.h"
 
-static GHashTable *selected = NULL;
+static GList *selected = NULL;
 
 void cluttersmith_selected_init (void)
 {
-  selected = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+  /*selected = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);*/
 }
 
 GList *cluttersmith_selected_get_list (void)
 {
-  GList *ret = g_hash_table_get_keys (selected);
-  return ret;
+  return g_list_copy (selected);
 }
 
 static void update_active_actor (void)
 {
-  if (g_hash_table_size (selected)==1)
+  if (g_list_length (selected)==1)
     {
       cluttersmith_set_active (cluttersmith_selected_get_any ());
     }
@@ -31,21 +30,22 @@ static void update_active_actor (void)
 
 void cluttersmith_selected_add (ClutterActor *actor)
 {
-  g_hash_table_insert (selected, actor, actor);
+  if (!g_list_find (selected, actor))
+    selected = g_list_append (selected, actor);
   update_active_actor ();
 }
 
 void cluttersmith_selected_remove (ClutterActor *actor)
 {
-  g_hash_table_remove (selected, actor);
+  if (g_list_find (selected, actor))
+    selected = g_list_remove (selected, actor);
   update_active_actor ();
 }
 
 void cluttersmith_selected_foreach (GCallback cb, gpointer data)
 {
   void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;
-  GList *s, *selected;
-  selected = cluttersmith_selected_get_list ();
+  GList *s;
   s=selected;
   for (s=selected; s; s=s->next)
     {
@@ -54,44 +54,41 @@ void cluttersmith_selected_foreach (GCallback cb, gpointer data)
         continue;
       each(actor, data);
     }
-  g_list_free (selected);
 }
 
 gpointer cluttersmith_selected_match (GCallback match_fun, gpointer data)
 {
   gpointer ret = NULL;
-  GList *selected;
-  selected = cluttersmith_selected_get_list ();
   ret = util_list_match (selected, match_fun, data);
-  g_list_free (selected);
   return ret;
 }
 
 void cluttersmith_selected_clear (void)
 {
-  g_hash_table_remove_all (selected);
+  if (selected)
+    g_list_free (selected);
+  selected = NULL;
   update_active_actor ();
 }
 
 
 gint cluttersmith_selected_count (void)
 {
-  return g_hash_table_size (selected);
+  return g_list_length (selected);
 }
 
 
 gboolean cluttersmith_selected_has_actor (ClutterActor *actor)
 {
-  return g_hash_table_lookup (selected, actor)!=NULL;
+  if (g_list_find (selected, actor))
+    return TRUE;
+  return FALSE;
 }
 
 ClutterActor *cluttersmith_selected_get_any (void)
 {
-  GHashTableIter      iter;
-  gpointer            key = NULL, value;
-
-  g_hash_table_iter_init (&iter, selected);
-  g_hash_table_iter_next (&iter, &key, &value);
-  return key;
+  if (selected)
+    return selected->data;
+  return NULL;
 }
 

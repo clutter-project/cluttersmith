@@ -34,6 +34,8 @@ gchar *blacklist_types[]={"ClutterStage",
                           "ClutterStageX11",
                           "ClutterActor",
                           "NbtkWidget",
+                          "ClutterIMText",
+
                           NULL};
 
 void init_types (void);
@@ -391,7 +393,7 @@ gchar *json_serialize_subtree (ClutterActor *root);
 
 static GList *actor_types_build (GList *list, GType type)
 {
-  GType *ops;
+  GType *types;
   guint  children;
   gint   no;
 
@@ -400,14 +402,14 @@ static GList *actor_types_build (GList *list, GType type)
 
   list = g_list_prepend (list, (void*)g_type_name (type));
 
-  ops = g_type_children (type, &children);
+  types = g_type_children (type, &children);
 
   for (no=0; no<children; no++)
     {
-      list = actor_types_build (list, ops[no]);
+      list = actor_types_build (list, types[no]);
     }
-  if (ops)
-    g_free (ops);
+  if (types)
+    g_free (types);
   return list;
 }
 

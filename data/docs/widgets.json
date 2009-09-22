@@ -28,8 +28,8 @@
     "anchor-y":0.000,
     "stylable":true,
     "has-tooltip":false,
-    "hint-text":"NbtkEntry",
     "text":"NbtkEntry",
+    "hint-text":"NbtkEntry",
   }
   ,
   {
@@ -132,7 +132,7 @@
   ,
   {
     "type":"NbtkGrid",
-    "x":250,
+    "x":215,
     "y":48,
     "width":236,
     "height":181,
@@ -376,9 +376,9 @@
   {
     "type":"NbtkBoxLayout",
     "x": 0,
-    "y":36,
+    "y":18,
     "width":138,
-    "height":193,
+    "height":170,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -708,6 +708,25 @@
     "vertical":true,
     "children":[
     ]
+  }
+  ,
+  {
+    "type":"ClutterRectangle",
+    "x":222,
+    "y":209,
+    "width":168,
+    "height":75,
+    "depth":0.000,
+    "opacity":255,
+    "scale-x":1.000,
+    "scale-y":1.000,
+    "rotation-angle-z":0.000,
+    "anchor-x":0.000,
+    "anchor-y":0.000,
+    "color":"#ffffffff",
+    "border-color":"#000000ff",
+    "border-width":0,
+    "has-border":false,
   }
   ]
 }

@@ -323,6 +323,7 @@ ClutterSmith works in a directory, edit the topleft entry to change working dire
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
+    "pseudo-class":"hover",
     "style-class":"ClutterSmithLink",
     "stylable":true,
     "has-tooltip":false,
