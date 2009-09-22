@@ -121,7 +121,6 @@ void cb_paste_selected (ClutterActor *actor)
           {
             gfloat x, y;
             clutter_actor_get_position (new_actor, &x, &y);
-            x+=10;y+=10;
             clutter_actor_set_position (new_actor, x, y);
           }
         }
@@ -328,17 +327,17 @@ cb_ui_mode (ClutterActor *actor)
 {
   switch (cluttersmith_ui_mode)
     {
-        case RUN_MODE_BROWSE:
-          cluttersmith_set_ui_mode (RUN_MODE_EDIT);
+        case CLUTTERSMITH_UI_MODE_BROWSE:
+          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_EDIT);
           g_print ("Run mode : edit only\n");
           break;
-        case RUN_MODE_EDIT:
-          cluttersmith_set_ui_mode (RUN_MODE_CHROME);
+        case CLUTTERSMITH_UI_MODE_EDIT:
+          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_CHROME);
           g_print ("Run mode : ui with edit\n");
           break;
-        case RUN_MODE_CHROME: 
+        case CLUTTERSMITH_UI_MODE_CHROME: 
         default:
-          cluttersmith_set_ui_mode (RUN_MODE_BROWSE);
+          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
           g_print ("Run mode : browse\n");
           break;
     }

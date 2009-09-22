@@ -110,6 +110,7 @@ static gboolean idle_load_default (gpointer data)
     }
 
   clutter_actor_queue_redraw (clutter_stage_get_default());
+  cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
 
   return FALSE;
 }

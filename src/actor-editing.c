@@ -976,7 +976,7 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
   return TRUE;
 }
 
-gint cluttersmith_ui_mode = RUN_MODE_EDIT|RUN_MODE_UI;
+gint cluttersmith_ui_mode = CLUTTERSMITH_UI_MODE_EDIT|CLUTTERSMITH_UI_MODE_UI;
 
 static ClutterActor *edited_text = NULL;
 static gboolean text_was_editable = FALSE;
@@ -1059,7 +1059,7 @@ manipulate_capture (ClutterActor *actor,
 
 
 
-  if (!(cluttersmith_ui_mode & RUN_MODE_EDIT))
+  if (!(cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_EDIT))
     {
       /* check if it is child of a link, if it is then we override anyways...
        *

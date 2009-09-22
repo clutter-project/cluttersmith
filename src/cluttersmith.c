@@ -79,7 +79,7 @@ void cluttersmith_set_ui_mode (guint ui_mode)
 {
   cluttersmith_ui_mode = ui_mode;
 
-  if (cluttersmith_ui_mode & RUN_MODE_UI)
+  if (cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
     }
