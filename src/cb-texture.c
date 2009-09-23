@@ -1,17 +1,18 @@
 #include "cb-texture.h"
+#include "cluttersmith.h"
 
 #include <glib.h>
 
 struct _CBTexturePrivate
 {
-  gchar *uri;
+  gchar *image;
 };
 
 enum {
   PROP_0,
 
   /* ClutterMedia proprs */
-  PROP_URI
+  PROP_IMAGE
 };
 
 
@@ -24,24 +25,27 @@ G_DEFINE_TYPE (CBTexture,
 
 static void
 set_uri (CBTexture   *texture,
-         const gchar *uri)
+         const gchar *name)
 {
   CBTexturePrivate *priv = texture->priv;
   GObject *self = G_OBJECT (texture);
 
-  g_free (priv->uri);
+  g_free (priv->image);
 
-  if (uri) 
+  if (name) 
     {
-      priv->uri = g_strdup (uri);
-      g_object_set (texture, "filename", uri, NULL);
+      gchar *fullpath;
+      priv->image = g_strdup (name);
+      fullpath = g_strdup_printf ("%s/%s", cluttersmith_get_project_root (), name);
+      g_object_set (texture, "filename", fullpath, NULL);
+      g_free (fullpath);
     }
   else 
     {
-      priv->uri = NULL;
+      priv->image= NULL;
     }
 
-  g_object_notify (self, "uri");
+  g_object_notify (self, "image");
 }
 
 
@@ -66,7 +70,8 @@ cb_texture_finalize (GObject *object)
   self = CB_TEXTURE (object);
   priv = self->priv;
 
-  g_free (priv->uri);
+  if (priv->image)
+    g_free (priv->image);
 
   G_OBJECT_CLASS (cb_texture_parent_class)->finalize (object);
 }
@@ -83,7 +88,7 @@ cb_texture_set_property (GObject      *object,
 
   switch (property_id)
     {
-    case PROP_URI:
+    case PROP_IMAGE:
       {
         set_uri (texture, g_value_get_string (value));
       }
@@ -108,8 +113,8 @@ cb_texture_get_property (GObject    *object,
 
   switch (property_id)
     {
-    case PROP_URI:
-      g_value_set_string (value, priv->uri);
+    case PROP_IMAGE:
+      g_value_set_string (value, priv->image);
       break;
 
     default:
@@ -131,10 +136,10 @@ cb_texture_class_init (CBTextureClass *klass)
 
 
   g_object_class_install_property
-    (object_class, PROP_URI,
-     g_param_spec_string ("uri",
-                          "URI",
-                          "The URI containing imagedata for the texture",
+    (object_class, PROP_IMAGE,
+     g_param_spec_string ("image",
+                          "Image",
+                          "An image file in the current cluttersmith project root",
                           NULL,
                           G_PARAM_READABLE|G_PARAM_WRITABLE));
 
