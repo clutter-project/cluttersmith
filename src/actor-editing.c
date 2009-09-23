@@ -70,7 +70,8 @@ cluttersmith_selection_pick (gfloat x, gfloat y)
 
 ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
 {
-  GList *actors = util_container_get_children_recursive (clutter_actor_get_stage(parasite_root));
+  GList *actors = util_container_get_children_recursive (
+      clutter_actor_get_stage(cluttersmith->parasite_root));
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
   ret = util_list_match (actors, G_CALLBACK (is_in_actor), data);
@@ -303,10 +304,10 @@ cb_overlay_paint (ClutterActor *stage,
 
     {
         {
-          if (fake_stage)
+          if (cluttersmith->fake_stage)
             {
               cogl_set_source_color4ub (0, 255, 0, 255);
-              draw_actor_outline (fake_stage, NULL);
+              draw_actor_outline (cluttersmith->fake_stage, NULL);
             }
         }
     }
@@ -704,7 +705,7 @@ manipulate_move_capture (ClutterActor *stage,
                 cluttersmith_selected_foreach (G_CALLBACK (each_move), &delta[0]);
               }
           }
-          CS_REVISION++;
+          cluttersmith_dirtied ();
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -762,7 +763,7 @@ manipulate_resize_capture (ClutterActor *stage,
           snap_size (actor, w, h, &w, &h);
 
           clutter_actor_set_size (actor, w, h);
-          CS_REVISION++;
+          cluttersmith_dirtied ();
 
           manipulate_x=ex;
           manipulate_y=ey;
@@ -958,7 +959,7 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
       lasso = clutter_rectangle_new_with_color (&lassocolor);
       clutter_rectangle_set_border_color (CLUTTER_RECTANGLE (lasso), &lassobordercolor);
       clutter_rectangle_set_border_width (CLUTTER_RECTANGLE (lasso), LASSO_BORDER);
-      clutter_container_add_actor (CLUTTER_CONTAINER (parasite_root), lasso);
+      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->parasite_root), lasso);
     }
   lx = event->button.x;
   ly = event->button.y;
@@ -975,8 +976,6 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
 
   return TRUE;
 }
-
-gint cluttersmith_ui_mode = CLUTTERSMITH_UI_MODE_EDIT|CLUTTERSMITH_UI_MODE_UI;
 
 static ClutterActor *edited_text = NULL;
 static gboolean text_was_editable = FALSE;
@@ -1001,7 +1000,7 @@ static gboolean edit_text_end (void)
   g_object_set (edited_text, "editable", text_was_editable,
                              "reactive", text_was_reactive, NULL);
   edited_text = NULL;
-  CS_REVISION++;
+  cluttersmith_dirtied ();
   return TRUE;
 }
 
@@ -1050,7 +1049,7 @@ manipulate_capture (ClutterActor *actor,
       }
 
    if (event->any.type == CLUTTER_KEY_PRESS &&
-       !util_has_ancestor (event->any.source, parasite_root)) /* If the source is in the parasite ui,
+       !util_has_ancestor (event->any.source, cluttersmith->parasite_root)) /* If the source is in the parasite ui,
                                                                  pass in on as normal*/
      {
         if(manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
@@ -1059,7 +1058,7 @@ manipulate_capture (ClutterActor *actor,
 
 
 
-  if (!(cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_EDIT))
+  if (!(cluttersmith->cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_EDIT))
     {
       /* check if it is child of a link, if it is then we override anyways...
        *
@@ -1091,7 +1090,7 @@ manipulate_capture (ClutterActor *actor,
     }
   
   if ((clutter_get_motion_events_enabled()==FALSE) ||
-      util_has_ancestor (event->any.source, parasite_root))
+      util_has_ancestor (event->any.source, cluttersmith->parasite_root))
     {
       return FALSE;
     }
@@ -1167,7 +1166,7 @@ manipulate_capture (ClutterActor *actor,
                          }
                      }
 
-                   manipulate_move_start (parasite_root, event);
+                   manipulate_move_start (cluttersmith->parasite_root, event);
                 }
             }
           else 
@@ -1184,7 +1183,7 @@ manipulate_capture (ClutterActor *actor,
 
               if (!hit)
                 {
-                  hit = cluttersmith_children_pick (fake_stage, x, y);
+                  hit = cluttersmith_children_pick (cluttersmith->fake_stage, x, y);
                   if (hit == cluttersmith_get_current_container ())
                     hit = NULL;
                   stage_child = TRUE;
@@ -1208,7 +1207,7 @@ manipulate_capture (ClutterActor *actor,
                       cluttersmith_selected_clear ();
                       if (stage_child)
                         {
-                          cluttersmith_set_current_container (fake_stage);
+                          cluttersmith_set_current_container (cluttersmith->fake_stage);
                         }
                     }
                   else
@@ -1234,11 +1233,11 @@ manipulate_capture (ClutterActor *actor,
                     {
                       cluttersmith_selected_add (hit);
                     }
-                  manipulate_move_start (parasite_root, event);
+                  manipulate_move_start (cluttersmith->parasite_root, event);
                 }
               else
                 {
-                  manipulate_lasso_start (parasite_root, event);
+                  manipulate_lasso_start (cluttersmith->parasite_root, event);
                 }
             }
         }
@@ -1309,6 +1308,6 @@ void cluttersmith_set_current_container (ClutterActor *actor)
 ClutterActor *cluttersmith_get_current_container (void)
 {
   if (!current_container)
-    return fake_stage;
+    return cluttersmith->fake_stage;
   return current_container;
 }

@@ -28,8 +28,7 @@ static gboolean add_stencil (ClutterActor *actor,
       clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (new_actor), "");
     }
 
-  CS_REVISION++;
-
+  cluttersmith_dirtied ();
   return TRUE;
 }
 

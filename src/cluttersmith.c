@@ -8,14 +8,18 @@
 #include "popup.h"
 #include "cluttersmith.h"
 
+ClutterSmith  cluttersmith_context = {0,};
+ClutterSmith *cluttersmith = &cluttersmith_context;
+
+static guint  CS_REVISION;
+static guint  CS_STORED_REVISION;
+
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 /*#define EDIT_SELF*/
 static ClutterActor  *title, *name, *parents,
                      *property_editors, *scene_graph;
 
-ClutterActor *parasite_root;
-ClutterActor *parasite_ui;
-ClutterActor *fake_stage = NULL;
+
 
 gchar *whitelist[]={"depth", "opacity",
                     "scale-x","scale-y", "anchor-x", "color",
@@ -40,10 +44,10 @@ gchar *blacklist_types[]={"ClutterStage",
 
 void init_types (void);
 
-guint CS_REVISION       = 0; /* everything that changes state and could be determined
-                         * a user change should increment this.
-                         */
-guint CS_STORED_REVISION = 0;
+void cluttersmith_dirtied (void)
+{
+  CS_REVISION++;
+}
 
 void cb_manipulate_init (ClutterActor *actor);
 
@@ -60,26 +64,31 @@ static gboolean has_chrome = TRUE;
 static void cluttsmith_show_chrome (void)
 {
   gfloat x, y;
-  clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "fake-stage-rect"), &x, &y);
-  clutter_actor_set_position (fake_stage, x, y);
-  clutter_actor_show (parasite_ui);
+  clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
+  clutter_actor_set_position (cluttersmith->fake_stage, x, y);
+  clutter_actor_show (cluttersmith->parasite_ui);
   has_chrome = TRUE;
 }
 
 static void cluttsmith_hide_chrome (void)
 {
   gfloat x, y;
-  clutter_actor_hide (parasite_ui);
-  clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "fake-stage-rect"), &x, &y);
-  clutter_actor_set_position (fake_stage, 0, 0);
+  clutter_actor_hide (cluttersmith->parasite_ui);
+  clutter_actor_get_transformed_position (util_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
+  clutter_actor_set_position (cluttersmith->fake_stage, 0, 0);
   has_chrome = FALSE;
+}
+
+guint cluttersmith_get_ui_mode (void)
+{
+  return cluttersmith->cluttersmith_ui_mode;
 }
 
 void cluttersmith_set_ui_mode (guint ui_mode)
 {
-  cluttersmith_ui_mode = ui_mode;
+  cluttersmith->cluttersmith_ui_mode = ui_mode;
 
-  if (cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_UI)
+  if (cluttersmith->cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
     }
@@ -124,20 +133,20 @@ gboolean idle_add_stage (gpointer stage)
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
-  parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
-  parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
+  cluttersmith->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
+  cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
     {
-  if (parasite_ui)
+  if (cluttersmith->parasite_ui)
     {
-      g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), parasite_ui);
-      g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), parasite_ui);
+      g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), cluttersmith->parasite_ui);
+      g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), cluttersmith->parasite_ui);
       /* do an initial sync of the ui-size */
-      stage_size_changed (stage, NULL, parasite_ui);
+      stage_size_changed (stage, NULL, cluttersmith->parasite_ui);
     }
     }
 
-  cb_manipulate_init (parasite_root);
+  cb_manipulate_init (cluttersmith->parasite_root);
   cluttersmith_set_active (stage);
 
 
@@ -505,7 +514,7 @@ void cb_change_type (ClutterActor *actor)
   actor = CLUTTER_ACTOR (nbtk_grid_new ());
   g_object_set (actor, "height", 600.0, "column-major", TRUE, "homogenous-columns", TRUE, NULL);
   g_list_foreach (types, (void*)printname, actor);
-  popup_actor_fixed (parasite_root, 0,0, actor);
+  popup_actor_fixed (cluttersmith->parasite_root, 0,0, actor);
 }
 
 void session_history_add (const gchar *dir);
@@ -520,11 +529,11 @@ static void cluttersmith_save (void)
       gchar *content;
       gfloat x, y;
 
-      clutter_actor_get_position (fake_stage, &x, &y);
-      clutter_actor_set_position (fake_stage, 0.0, 0.0);
+      clutter_actor_get_position (cluttersmith->fake_stage, &x, &y);
+      clutter_actor_set_position (cluttersmith->fake_stage, 0.0, 0.0);
 
-      content  = json_serialize_subtree (fake_stage);
-      clutter_actor_set_position (fake_stage, x, y);
+      content  = json_serialize_subtree (cluttersmith->fake_stage);
+      clutter_actor_set_position (cluttersmith->fake_stage, x, y);
       if (filename)
         {
           g_file_set_contents (filename, content, -1, NULL);
@@ -553,26 +562,26 @@ static void title_text_changed (ClutterActor *actor)
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       session_history_add (cluttersmith_get_project_root ());
-      fake_stage = util_replace_content2 (actor, "fake-stage", filename);
+      cluttersmith->fake_stage = util_replace_content2 (actor, "fake-stage", filename);
     }
   else
     {
-      fake_stage = util_replace_content2 (actor, "fake-stage", NULL);
+      cluttersmith->fake_stage = util_replace_content2 (actor, "fake-stage", NULL);
 
     }
-  cluttersmith_set_current_container (fake_stage);
+  cluttersmith_set_current_container (cluttersmith->fake_stage);
   {
     gfloat x=0, y=0;
       if (has_chrome)
         clutter_actor_get_transformed_position (
-           util_find_by_id_int (clutter_actor_get_stage (parasite_root),
+           util_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root),
            "fake-stage-rect"), &x, &y);
-    clutter_actor_set_position (fake_stage, x, y);
+    clutter_actor_set_position (cluttersmith->fake_stage, x, y);
   }
   CS_REVISION = CS_STORED_REVISION = 0;
 
   cluttersmith_selected_clear ();
-  clutter_actor_raise_top (parasite_root);
+  clutter_actor_raise_top (cluttersmith->parasite_root);
 }
 
 char *
@@ -643,34 +652,34 @@ void session_history_add (const gchar *dir)
   g_list_free (session_history);
 }
 
-static gchar *project_root = NULL; /* The directory we are loading stuff from */
 
 
 void cluttersmith_set_project_root (const gchar *new_root)
 {
-  if (project_root && g_str_equal (project_root, new_root))
+  if (cluttersmith->project_root &&
+      g_str_equal (cluttersmith->project_root, new_root))
     {
       return;
     }
 
-  g_object_set (util_find_by_id_int (clutter_actor_get_stage (parasite_root), "project-root"),
+  g_object_set (util_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "project-root"),
                 "text", new_root, NULL);
 }
 
 gchar *cluttersmith_get_project_root (void)
 {
-  return project_root;
+  return cluttersmith->project_root;
 }
 
 
 static void project_root_text_changed (ClutterActor *actor)
 {
   const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
-  if (project_root)
-    g_free (project_root);
-  project_root = g_strdup (new_text);
+  if (cluttersmith->project_root)
+    g_free (cluttersmith->project_root);
+  cluttersmith->project_root = g_strdup (new_text);
 
-  if (g_file_test (project_root, G_FILE_TEST_IS_DIR))
+  if (g_file_test (cluttersmith->project_root, G_FILE_TEST_IS_DIR))
     {
       previews_reload (util_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
       cluttersmith_open_layout ("index");

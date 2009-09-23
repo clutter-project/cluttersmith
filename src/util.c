@@ -1,6 +1,6 @@
 #include <clutter/clutter.h>
+#include "cluttersmith.h"
 
-extern ClutterActor *parasite_root;
 static GHashTable *layouts = NULL;
 
 static void util_init (void)
@@ -466,7 +466,7 @@ ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
 static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip_own)
 {
   const gchar *id;
-  if (skip_own && util_has_ancestor (actor, parasite_root))
+  if (skip_own && util_has_ancestor (actor, cluttersmith->parasite_root))
     return;
   id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
 

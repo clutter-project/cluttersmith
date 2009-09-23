@@ -2,10 +2,6 @@
 #ifndef CLUTTERSMITH_H
 #define CLUTTERSMITH_H
 
-/* Things that need to go in headers / get proper API: */
-extern guint CS_REVISION;
-extern guint CS_STORED_REVISION;
-
 typedef enum RunMode {
   CLUTTERSMITH_UI_MODE_BROWSE  = 0,
   CLUTTERSMITH_UI_MODE_UI      = 1,
@@ -13,13 +9,26 @@ typedef enum RunMode {
   CLUTTERSMITH_UI_MODE_CHROME  = CLUTTERSMITH_UI_MODE_UI|CLUTTERSMITH_UI_MODE_EDIT,
 } RunMode;
 
-extern gint cluttersmith_ui_mode;
+/* The ClutterSmith context, global information about the cluttersmith
+   editing session
+ */
+typedef struct ClutterSmith
+{
+  gint          cluttersmith_ui_mode;
+  ClutterActor *parasite_root;
+  ClutterActor *parasite_ui;
+  ClutterActor *fake_stage;
+
+  /* private to cluttersmith singleton */
+  gchar        *project_root;
+} ClutterSmith;
+
+extern ClutterSmith *cluttersmith;
+
+/* Things that need to go in headers / get proper API: */
 
 void cluttersmith_actor_editing_init (gpointer stage);
 
-extern ClutterActor *parasite_root;
-extern ClutterActor *parasite_ui;
-extern ClutterActor *fake_stage;
 
 void   cluttersmith_set_project_root (const gchar *new_root);
 gchar *cluttersmith_get_project_root (void);
@@ -35,6 +44,9 @@ ClutterActor *cluttersmith_get_current_container (void);
 void          cluttersmith_set_current_container (ClutterActor *actor);
 
 void cluttersmith_set_ui_mode (guint ui_mode);
+guint cluttersmith_get_ui_mode (void);
+
+void cluttersmith_dirtied (void);
 
 /* actor-editing: */
 
@@ -49,7 +61,7 @@ void     cluttersmith_selected_add       (ClutterActor *actor);
 void     cluttersmith_selected_remove    (ClutterActor *actor);
 void     cluttersmith_selected_foreach   (GCallback     cb,
                                           gpointer      data);
-gboolean cluttersmith_save_timeout       (gpointer data);
+gboolean cluttersmith_save_timeout       (gpointer      data);
 gpointer cluttersmith_selected_match     (GCallback     match_fun,
                                           gpointer      data);
 ClutterActor *cluttersmith_selected_get_any (void);

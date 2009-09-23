@@ -5,13 +5,13 @@
 #include <string.h>
 #include <dlfcn.h>
 #include "util.h"
+#include "cluttersmith.h"
 
 /**** XXX: This serializer is a hack that will be replaced by
  * json-glib and clutterscript code
  */
 
 static gboolean cb_filter_properties = TRUE;
-extern ClutterActor *parasite_root;
 
 #define INDENT {gint j;for (j=0;j<*indentation;j++) g_string_append_c (str, ' ');}
 
@@ -224,7 +224,7 @@ actor_to_string (GString      *str,
 {
 
   if (iter == NULL ||
-      util_has_ancestor (iter, parasite_root))
+      util_has_ancestor (iter, cluttersmith->parasite_root))
     {
       return;
     }

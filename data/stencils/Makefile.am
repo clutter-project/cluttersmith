@@ -2,7 +2,7 @@
 stencilsdir = $(pkgdatadir)/stencils
 stencils_DATA = \
  button.json \
- hyperlink.json \
+ link.json \
  rectangle.json \
  texture.json \
  scrollbar.json \

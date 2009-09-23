@@ -204,7 +204,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
 #ifdef EDIT_SELF
       util_has_ancestor (iter, scene_graph)
 #else
-      !util_has_ancestor (iter, fake_stage)
+      !util_has_ancestor (iter, cluttersmith->fake_stage)
 #endif
       )
     {
@@ -286,7 +286,7 @@ cluttersmith_tree_populate (ClutterActor *scene_graph,
 #ifdef COMPILEMODULE
   cluttersmith_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
 #else
-  cluttersmith_tree_populate_iter (scene_graph, active_actor, fake_stage, &level, &count);
+  cluttersmith_tree_populate_iter (scene_graph, active_actor, cluttersmith->fake_stage, &level, &count);
 #endif
 }
 
