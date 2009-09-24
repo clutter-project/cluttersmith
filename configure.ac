@@ -11,9 +11,8 @@ AC_PROG_CC
 AC_STDC_HEADERS
 
 PKG_CHECK_MODULES(DEPS, clutter-1.0 \
-                        clutter-gst-0.10 \
-                        bickley-0.4 \
-                        nbtk-1.0)
+                        clutter-gst-0.90 \
+                        nbtk-1.2)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 

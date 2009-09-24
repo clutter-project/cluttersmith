@@ -230,56 +230,6 @@ popup_actions (gpointer *actions, gpointer userdata)
 
       label = CLUTTER_ACTOR (nbtk_button_new_with_label (actions[i]));
       clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
-      nbtk_bin_set_alignment (NBTK_BIN (label), NBTK_ALIGN_LEFT, NBTK_ALIGN_TOP);
-
-      if (actions[i + 1])
-        {
-          g_signal_connect_swapped (label, "clicked",
-                                    G_CALLBACK (actions[i + 1]), userdata);
-        }
-      else
-        {
-          g_signal_connect (label, "clicked", G_CALLBACK (
-                              popup_close), userdata);
-        }
-      clutter_actor_get_size (label, &w, &h);
-      if (w + 20 > max_width)
-        max_width = w + 20;
-    }
-
-  clutter_actor_set_width (group, max_width + 44);
-  {
-    GList *i, *children =
-      clutter_container_get_children (CLUTTER_CONTAINER (group));
-    for (i = children; i; i = i->next)
-      clutter_actor_set_width (i->data, max_width);
-    g_list_free (children);
-  }
-  clutter_actor_set_reactive (group, TRUE);
-  return group;
-}
-
-ClutterActor *
-popup_actions_bolded (gpointer *actions, gpointer userdata, gint boldno)
-{
-  gint          i;
-  gint          max_width = 0;
-  ClutterActor *group     = CLUTTER_ACTOR (g_object_new (NBTK_TYPE_GRID,
-                                                         "width", 0.0,
-                                                         NULL));
-
-  nbtk_widget_set_style_class_name (NBTK_WIDGET (group), "HrnPopup");
-
-  for (i = 0; actions[i]; i += 2)
-    {
-      gfloat        w, h;
-      ClutterActor *label;
-
-      label = CLUTTER_ACTOR (nbtk_button_new_with_label (actions[i]));
-      clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
-      nbtk_bin_set_alignment (NBTK_BIN (label), NBTK_ALIGN_LEFT, NBTK_ALIGN_TOP);
-      if (i / 2 == boldno)
-        nbtk_widget_set_style_class_name (NBTK_WIDGET (label), "HrnPopupActive");
 
       if (actions[i + 1])
         {

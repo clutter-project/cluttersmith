@@ -10,7 +10,7 @@ static void o(GType type)
     }
 }
 
-void init_types(void){gint i = 0;
+void init_types(void){
 o(CLUTTER_TYPE_ACTOR);
 o(CLUTTER_TYPE_ACTOR_BOX);
 o(CLUTTER_TYPE_ACTOR_FLAGS);
@@ -88,7 +88,6 @@ o(CLUTTER_TYPE_UNIT_TYPE);
 o(CLUTTER_TYPE_VERTEX);
 o(NBTK_TYPE_ADJUSTMENT);
 o(NBTK_TYPE_ALIGN);
-o(NBTK_TYPE_ALIGNMENT);
 o(NBTK_TYPE_BIN);
 o(NBTK_TYPE_BORDER_IMAGE);
 o(NBTK_TYPE_BOX_LAYOUT);
