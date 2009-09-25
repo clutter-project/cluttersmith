@@ -1,3 +1,77 @@
+/* cluttersmith-context.c */
+
+#include "cluttersmith-context.h"
+
+G_DEFINE_TYPE (CluttersmithContext, cluttersmith_context, G_TYPE_OBJECT)
+
+#define CONTEXT_PRIVATE(o) \
+  (G_TYPE_INSTANCE_GET_PRIVATE ((o), CLUTTERSMITH_TYPE_CONTEXT, CluttersmithContextPrivate))
+
+struct _CluttersmithContextPrivate
+{
+};
+
+static void
+cluttersmith_context_get_property (GObject *object, guint property_id,
+                              GValue *value, GParamSpec *pspec)
+{
+  switch (property_id)
+    {
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+}
+
+static void
+cluttersmith_context_set_property (GObject *object, guint property_id,
+                              const GValue *value, GParamSpec *pspec)
+{
+  switch (property_id)
+    {
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+}
+
+static void
+cluttersmith_context_dispose (GObject *object)
+{
+  G_OBJECT_CLASS (cluttersmith_context_parent_class)->dispose (object);
+}
+
+static void
+cluttersmith_context_finalize (GObject *object)
+{
+  G_OBJECT_CLASS (cluttersmith_context_parent_class)->finalize (object);
+}
+
+static void
+cluttersmith_context_class_init (CluttersmithContextClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  g_type_class_add_private (klass, sizeof (CluttersmithContextPrivate));
+
+  object_class->get_property = cluttersmith_context_get_property;
+  object_class->set_property = cluttersmith_context_set_property;
+  object_class->dispose = cluttersmith_context_dispose;
+  object_class->finalize = cluttersmith_context_finalize;
+}
+
+static void
+cluttersmith_context_init (CluttersmithContext *self)
+{
+  self->priv = CONTEXT_PRIVATE (self);
+}
+
+CluttersmithContext *
+cluttersmith_context_new (void)
+{
+  return g_object_new (CLUTTERSMITH_TYPE_CONTEXT, NULL);
+}
+
+
+
 #include <nbtk/nbtk.h>
 #include <clutter/clutter.h>
 #include <stdio.h>
@@ -8,16 +82,14 @@
 #include "popup.h"
 #include "cluttersmith.h"
 
-ClutterSmith  cluttersmith_context = {0,};
-ClutterSmith *cluttersmith = &cluttersmith_context;
+CluttersmithContext *cluttersmith = NULL;
 
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
-/*#define EDIT_SELF*/
 static ClutterActor  *title, *name, *parents,
-                     *property_editors, *scene_graph;
+                     *property_editors;
 
 
 
@@ -114,6 +186,9 @@ gboolean idle_add_stage (gpointer stage)
 {
   ClutterActor *actor;
   ClutterScript *script;
+
+  cluttersmith = cluttersmith_context_new ();
+
 #ifdef COMPILEMODULE
   actor = util_load_json (PKGDATADIR "cluttersmith-assistant.json");
 #else
@@ -131,8 +206,8 @@ gboolean idle_add_stage (gpointer stage)
   title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
-  scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
   property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+  cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
   cluttersmith->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
@@ -378,7 +453,7 @@ void cluttersmith_set_active (ClutterActor *item)
 
   util_remove_children (parents);
   util_remove_children (property_editors);
-  util_remove_children (scene_graph);
+  util_remove_children (cluttersmith->scene_graph);
 
     {
       if (active_actor)
@@ -403,7 +478,7 @@ void cluttersmith_set_active (ClutterActor *item)
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
           props_populate (active_actor);
-          cluttersmith_tree_populate (scene_graph, active_actor);
+          cluttersmith_tree_populate (cluttersmith->scene_graph, active_actor);
         }
     }
 #if 0
@@ -558,7 +633,7 @@ static void title_text_changed (ClutterActor *actor)
   filename = g_strdup_printf ("%s/%s.json", cluttersmith_get_project_root(),
                               title);
   util_remove_children (property_editors);
-  util_remove_children (scene_graph);
+  util_remove_children (cluttersmith->scene_graph);
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       session_history_add (cluttersmith_get_project_root ());
@@ -716,14 +791,11 @@ void search_entry_init_hack (ClutterActor  *actor)
 }
 
 
-void parasite_rectangle_init_hack (ClutterActor  *actor)
+void child_expand_init_hack (ClutterActor  *actor)
 {
-  static gboolean done = FALSE; 
-  if (done)
+  if (g_object_get_data (G_OBJECT (actor), "child-expand-hack"))
     return;
-  done = TRUE;
+  g_object_set_data (G_OBJECT (actor), "child-expand-hack", (void*)0xff);
   clutter_container_child_set (CLUTTER_CONTAINER (clutter_actor_get_parent (actor)),
                                actor, "expand", TRUE, NULL);
 }
-
-

@@ -2,6 +2,8 @@
 #ifndef CLUTTERSMITH_H
 #define CLUTTERSMITH_H
 
+#define EDIT_SELF
+
 typedef enum RunMode {
   CLUTTERSMITH_UI_MODE_BROWSE  = 0,
   CLUTTERSMITH_UI_MODE_UI      = 1,
@@ -9,21 +11,9 @@ typedef enum RunMode {
   CLUTTERSMITH_UI_MODE_CHROME  = CLUTTERSMITH_UI_MODE_UI|CLUTTERSMITH_UI_MODE_EDIT,
 } RunMode;
 
-/* The ClutterSmith context, global information about the cluttersmith
-   editing session
- */
-typedef struct ClutterSmith
-{
-  gint          cluttersmith_ui_mode;
-  ClutterActor *parasite_root;
-  ClutterActor *parasite_ui;
-  ClutterActor *fake_stage;
+#include "cluttersmith-context.h"
 
-  /* private to cluttersmith singleton */
-  gchar        *project_root;
-} ClutterSmith;
-
-extern ClutterSmith *cluttersmith;
+extern CluttersmithContext *cluttersmith;
 
 /* Things that need to go in headers / get proper API: */
 

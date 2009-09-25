@@ -132,7 +132,7 @@
   ,
   {
     "type":"NbtkGrid",
-    "x":215,
+    "x":216,
     "y":48,
     "width":236,
     "height":181,
@@ -564,7 +564,7 @@
     "type":"NbtkButton",
     "name":"link=index",
     "x":19,
-    "y":414,
+    "y":410,
     "width":100,
     "height":48,
     "depth":0.000,
@@ -732,10 +732,10 @@
   {
     "type":"CBTexture",
     "name":"",
-    "x":637,
-    "y":74,
-    "width":138,
-    "height":157,
+    "x":424,
+    "y":298,
+    "width":114,
+    "height":99,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -748,7 +748,7 @@
     "repeat-y":false,
     "repeat-x":false,
     "keep-aspect-ratio":false,
-    "uri":"/home/pippin/images/lena.png",
+    "image":"wtrabbit.jpg",
   }
   ]
 }

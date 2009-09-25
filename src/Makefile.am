@@ -17,7 +17,8 @@ cluttersmith_SOURCES = 		\
   actor-editing.c  \
   cb-texture.c  \
   cb-texture.h  \
-  cluttersmith.c  \
+  cluttersmith-context.c  \
+  cluttersmith-context.h  \
   cluttersmith.h  \
   hyperlink.c  \
   init-types.c  \

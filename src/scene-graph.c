@@ -202,7 +202,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
 
   if (iter == NULL ||
 #ifdef EDIT_SELF
-      util_has_ancestor (iter, scene_graph)
+      util_has_ancestor (iter, cluttersmith->scene_graph)
 #else
       !util_has_ancestor (iter, cluttersmith->fake_stage)
 #endif
@@ -277,17 +277,11 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
 
 void
 cluttersmith_tree_populate (ClutterActor *scene_graph,
-               ClutterActor *active_actor)
+                            ClutterActor *active_actor)
 {
   gint level = 0;
   gint count = 0;
   util_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
-#ifdef COMPILEMODULE
   cluttersmith_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
-#else
-  cluttersmith_tree_populate_iter (scene_graph, active_actor, cluttersmith->fake_stage, &level, &count);
-#endif
 }
-
-

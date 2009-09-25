@@ -2,11 +2,13 @@
 #include <nbtk/nbtk.h>
 #include "cb-texture.h"
 
+gpointer foo = NULL;
+
 static void o(GType type)
 {
   if (!G_TYPE_IS_INTERFACE (type))
     {
-      g_print ("%p %s\n", g_type_class_ref (type), g_type_name (type));
+      foo = g_type_class_ref (type);
     }
 }
 
