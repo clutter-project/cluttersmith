@@ -39,12 +39,13 @@ struct _CluttersmithContext
   GObject parent;
 
   CluttersmithContextPrivate *priv;
-  gint          cluttersmith_ui_mode;
+  gint          ui_mode;
   ClutterActor *parasite_root;
   ClutterActor *parasite_ui;
   ClutterActor *fake_stage;
   ClutterActor *scene_graph;
   gchar        *project_root;
+  ClutterActor *property_editors;
 };
 
 struct _CluttersmithContextClass

@@ -1058,7 +1058,7 @@ manipulate_capture (ClutterActor *actor,
 
 
 
-  if (!(cluttersmith->cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_EDIT))
+  if (!(cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_EDIT))
     {
       /* check if it is child of a link, if it is then we override anyways...
        *

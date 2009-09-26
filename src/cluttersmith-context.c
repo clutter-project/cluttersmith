@@ -1,5 +1,6 @@
 /* cluttersmith-context.c */
 
+#include "cluttersmith.h"
 #include "cluttersmith-context.h"
 
 G_DEFINE_TYPE (CluttersmithContext, cluttersmith_context, G_TYPE_OBJECT)
@@ -7,29 +8,58 @@ G_DEFINE_TYPE (CluttersmithContext, cluttersmith_context, G_TYPE_OBJECT)
 #define CONTEXT_PRIVATE(o) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((o), CLUTTERSMITH_TYPE_CONTEXT, CluttersmithContextPrivate))
 
+enum
+{
+  PROP_0,
+  PROP_UI_MODE,
+  PROP_FULLSCREEN,
+};
+
+
 struct _CluttersmithContextPrivate
 {
 };
 
 static void
-cluttersmith_context_get_property (GObject *object, guint property_id,
-                              GValue *value, GParamSpec *pspec)
-{
+cluttersmith_context_get_property (GObject    *object,
+                                   guint       property_id,
+                                   GValue     *value,
+                                   GParamSpec *pspec)
+{ 
+  CluttersmithContext *context = CLUTTERSMITH_CONTEXT (object);
   switch (property_id)
     {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      case PROP_UI_MODE:
+        g_value_set_int (value, context->ui_mode);
+        break;
+      case PROP_FULLSCREEN:
+        g_value_set_boolean (value,
+                             clutter_stage_get_fullscreen (
+                                 CLUTTER_STAGE (clutter_stage_get_default())));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
 static void
-cluttersmith_context_set_property (GObject *object, guint property_id,
-                              const GValue *value, GParamSpec *pspec)
+cluttersmith_context_set_property (GObject      *object,
+                                   guint         property_id,
+                                   const GValue *value,
+                                   GParamSpec   *pspec)
 {
   switch (property_id)
     {
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      case PROP_UI_MODE:
+        cluttersmith_set_ui_mode (g_value_get_int (value));
+        break;
+      case PROP_FULLSCREEN:
+        clutter_stage_set_fullscreen (CLUTTER_STAGE (
+                                         clutter_stage_get_default()),
+                                      g_value_get_boolean (value));
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
     }
 }
 
@@ -49,6 +79,7 @@ static void
 cluttersmith_context_class_init (CluttersmithContextClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  GParamSpec   *pspec;
 
   g_type_class_add_private (klass, sizeof (CluttersmithContextPrivate));
 
@@ -56,6 +87,12 @@ cluttersmith_context_class_init (CluttersmithContextClass *klass)
   object_class->set_property = cluttersmith_context_set_property;
   object_class->dispose = cluttersmith_context_dispose;
   object_class->finalize = cluttersmith_context_finalize;
+
+  pspec = g_param_spec_int ("ui-mode", "UI mode", "The user interface mode 0 browse, 1=edit 2=chrome 3=edit chrome", 0, 3, 3, G_PARAM_READWRITE);
+  g_object_class_install_property (object_class, PROP_UI_MODE, pspec);
+  pspec = g_param_spec_boolean ("fullscreen", "Fullscreen", "fullscreen", FALSE, G_PARAM_READWRITE);
+  g_object_class_install_property (object_class, PROP_FULLSCREEN, pspec);
+
 }
 
 static void
@@ -88,8 +125,7 @@ static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
-static ClutterActor  *title, *name, *parents,
-                     *property_editors;
+static ClutterActor  *title, *name, *parents;
 
 
 
@@ -153,14 +189,14 @@ static void cluttsmith_hide_chrome (void)
 
 guint cluttersmith_get_ui_mode (void)
 {
-  return cluttersmith->cluttersmith_ui_mode;
+  return cluttersmith->ui_mode;
 }
 
 void cluttersmith_set_ui_mode (guint ui_mode)
 {
-  cluttersmith->cluttersmith_ui_mode = ui_mode;
+  cluttersmith->ui_mode = ui_mode;
 
-  if (cluttersmith->cluttersmith_ui_mode & CLUTTERSMITH_UI_MODE_UI)
+  if (cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
     }
@@ -206,7 +242,7 @@ gboolean idle_add_stage (gpointer stage)
   title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
-  property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+  cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
   cluttersmith->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
@@ -273,7 +309,8 @@ update_id (ClutterText *text,
 #define EDITOR_LINE_HEIGHT 24
 
 static void
-props_populate (ClutterActor *actor)
+props_populate (ClutterActor *property_editors,
+                ClutterActor *actor)
 {
   GParamSpec **properties;
   GParamSpec **actor_properties;
@@ -452,7 +489,7 @@ void cluttersmith_set_active (ClutterActor *item)
     clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
 
   util_remove_children (parents);
-  util_remove_children (property_editors);
+  util_remove_children (cluttersmith->property_editors);
   util_remove_children (cluttersmith->scene_graph);
 
     {
@@ -477,7 +514,7 @@ void cluttersmith_set_active (ClutterActor *item)
 
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
-          props_populate (active_actor);
+          props_populate (cluttersmith->property_editors, active_actor);
           cluttersmith_tree_populate (cluttersmith->scene_graph, active_actor);
         }
     }
@@ -544,7 +581,7 @@ static void change_type (ClutterActor *actor,
       }
 
   util_apply_transient (new_actor);
-  util_remove_children (property_editors);
+  util_remove_children (cluttersmith->property_editors);
   clutter_actor_destroy (active_actor);
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
 
@@ -632,7 +669,7 @@ static void title_text_changed (ClutterActor *actor)
 
   filename = g_strdup_printf ("%s/%s.json", cluttersmith_get_project_root(),
                               title);
-  util_remove_children (property_editors);
+  util_remove_children (cluttersmith->property_editors);
   util_remove_children (cluttersmith->scene_graph);
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
