@@ -413,3 +413,126 @@ ClutterActor *property_editor_new (GObject *object,
   g_free (detailed_signal);
   return editor;
 }
+
+/**********************************************************************/
+
+static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
+
+/* whitelist of properties for ClutterActor */
+gchar *actor_whitelist[]={"depth",
+                          "opacity",
+                          "scale-x",
+                          "scale-y",
+                          "anchor-x",
+                          "color",
+                          "anchor-y",
+                          "rotation-angle-x",
+                          "rotation-angle-y",
+                          "rotation-angle-z",
+                          "name",
+                          "reactive",
+                          NULL};
+
+
+
+
+void
+props_populate (ClutterActor *container,
+                GObject      *object)
+{
+  GParamSpec **properties;
+  GParamSpec **actor_properties = NULL;
+  guint        n_properties;
+  guint        n_actor_properties = 0;
+  gint         i;
+
+  properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (object),
+                     &n_properties);
+
+  if (CLUTTER_IS_ACTOR (object))
+    {
+      actor_properties = g_object_class_list_properties (
+                G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
+                &n_actor_properties);
+    }
+
+
+  for (i = 0; i < n_properties; i++)
+    {
+      gint j;
+      gboolean skip = FALSE;
+
+      for (j=0;j<n_actor_properties;j++)
+        {
+          /* ClutterActor contains so many properties that we restrict our view a bit */
+          if (actor_properties[j]==properties[i])
+            {
+              gint k;
+              skip = TRUE;
+              for (k=0;actor_whitelist[k];k++)
+                if (g_str_equal (properties[i]->name, actor_whitelist[k]))
+                  skip = FALSE;
+            }
+        }
+
+      if (!(properties[i]->flags & G_PARAM_READABLE))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+
+      {
+        ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+        ClutterActor *label = clutter_text_new_with_text ("Sans 12px", properties[i]->name);
+        ClutterActor *editor = property_editor_new (object, properties[i]->name);
+        clutter_text_set_color (CLUTTER_TEXT (label), &white);
+        clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
+        clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
+        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+        clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+      }
+    }
+
+  /* should be split inot its own function */
+  if (CLUTTER_IS_ACTOR (object))
+  {
+    ClutterActor *actor = CLUTTER_ACTOR (object);
+    ClutterActor *parent;
+    parent = clutter_actor_get_parent (actor);
+
+    if (parent && CLUTTER_IS_CONTAINER (parent))
+      {
+        ClutterChildMeta *child_meta;
+        GParamSpec **child_properties = NULL;
+        guint        n_child_properties=0;
+        child_meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (parent), actor);
+        if (child_meta)
+          {
+            child_properties = g_object_class_list_properties (
+                               G_OBJECT_GET_CLASS (child_meta),
+                               &n_child_properties);
+            for (i = 0; i < n_child_properties; i++)
+              {
+                if (!G_TYPE_IS_OBJECT (child_properties[i]->value_type) &&
+                    child_properties[i]->value_type != CLUTTER_TYPE_CONTAINER)
+                  {
+                    ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+                    ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
+                    ClutterActor *editor = property_editor_new (G_OBJECT (child_meta), child_properties[i]->name);
+                    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+                    clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
+                    clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+                  }
+              }
+            g_free (child_properties);
+          }
+      }
+  }
+
+  g_free (properties);
+}

@@ -300,9 +300,54 @@
     ] 
      }
 
+
+            {
+            "type":"NbtkBoxLayout",
+            "style-class":"parasite",
+            "vertical":true,
+            "reactive":true,
+            "width":300,
+            "spacing":9,
+            "x":724,
+            "y":0,
+            
+            "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} 
+] 
+             
+             "children":
+               [
+                 { "type":"NbtkScrollView",
+                   "width":300,
+                   "height":100,
+                   "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+
+                   "children":
+                    [
+                      { "type":"NbtkViewport",
+                        "children":
+                         [
+                           { "type":"NbtkBoxLayout", "vertical":true,
+                              "children":[
+                                {"type":"ClutterText", "color":"gray", "text":"settings"},
+                                {"type":"NbtkBoxLayout", "vertical":true, "id":"config-editors",
+                                 "spacing":2},
+
+                              ]
+                            }
+                         ]
+                      }
+                   ]
+                 }
+               ]
+             }
+
+
     ]
           "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
     }
+
+
+
     ]
     }
 ]

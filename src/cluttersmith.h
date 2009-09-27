@@ -13,6 +13,10 @@ typedef enum RunMode {
 
 #include "cluttersmith-context.h"
 
+void
+props_populate (ClutterActor *container,
+                GObject      *object);
+
 extern CluttersmithContext *cluttersmith;
 
 /* Things that need to go in headers / get proper API: */
@@ -64,5 +68,9 @@ char * cluttersmith_make_config_file (const char *filename);
 
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);
+
+
+#define EDITOR_LINE_HEIGHT 24
+
 
 #endif

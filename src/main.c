@@ -14,6 +14,7 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
+#include "util.h"
 
 /* Global structure containing information parsed from commandline parameters
  */
@@ -115,6 +116,12 @@ static gboolean idle_load_default (gpointer data)
   return FALSE;
 }
 
+static gboolean idle_show_config (gpointer ignored)
+{
+  props_populate (util_find_by_id_int (clutter_stage_get_default (), "config-editors"), cluttersmith);
+  return FALSE;
+}
+
 #ifndef COMPILEMODULE
 gint
 main (gint    argc,
@@ -132,6 +139,7 @@ main (gint    argc,
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
   g_timeout_add (10000, cluttersmith_save_timeout, NULL); /* auto-save */
+  g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 
   clutter_main ();
   return 0;

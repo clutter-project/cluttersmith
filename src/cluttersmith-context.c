@@ -33,9 +33,11 @@ cluttersmith_context_get_property (GObject    *object,
         g_value_set_int (value, context->ui_mode);
         break;
       case PROP_FULLSCREEN:
+#if 0
         g_value_set_boolean (value,
                              clutter_stage_get_fullscreen (
                                  CLUTTER_STAGE (clutter_stage_get_default())));
+      #endif
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -54,9 +56,11 @@ cluttersmith_context_set_property (GObject      *object,
         cluttersmith_set_ui_mode (g_value_get_int (value));
         break;
       case PROP_FULLSCREEN:
+#if 0
         clutter_stage_set_fullscreen (CLUTTER_STAGE (
                                          clutter_stage_get_default()),
                                       g_value_get_boolean (value));
+#endif
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -124,16 +128,9 @@ CluttersmithContext *cluttersmith = NULL;
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
-static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 static ClutterActor  *title, *name, *parents;
 
 
-
-gchar *whitelist[]={"depth", "opacity",
-                    "scale-x","scale-y", "anchor-x", "color",
-                    "anchor-y", "rotation-angle-z",
-                    "name", "reactive",
-                    NULL};
 
 
 
@@ -204,6 +201,7 @@ void cluttersmith_set_ui_mode (guint ui_mode)
     {
       cluttsmith_hide_chrome ();
     }
+  g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
 }
 
 
@@ -292,11 +290,28 @@ static void _cluttersmith_fini(void) {
 ClutterActor *property_editor_new (GObject *object,
                                    const gchar *property_name);
 
-gboolean cb_filter_properties = TRUE;
-
 #define INDENTATION_AMOUNT  20
 
 
+
+
+static void selected_vanished (gpointer data,
+                               GObject *where_the_object_was)
+{
+  active_actor = NULL;
+  cluttersmith_set_active (NULL);
+}
+
+static void cluttersmith_set_active_event (ClutterActor *button, ClutterActor *item)
+{
+  cluttersmith_set_active (item);
+}
+
+
+ClutterActor *cluttersmith_get_active (void)
+{
+  return active_actor;
+}
 
 static gboolean
 update_id (ClutterText *text,
@@ -306,28 +321,11 @@ update_id (ClutterText *text,
   return TRUE;
 }
 
-#define EDITOR_LINE_HEIGHT 24
 
-static void
-props_populate (ClutterActor *property_editors,
-                ClutterActor *actor)
+void actor_defaults_populate (ClutterActor *container,
+                              ClutterActor *actor)
 {
-  GParamSpec **properties;
-  GParamSpec **actor_properties;
-  guint        n_properties;
-  guint        n_actor_properties;
-  gint         i;
-
-  properties = g_object_class_list_properties (
-                     G_OBJECT_GET_CLASS (actor),
-                     &n_properties);
-
-  actor_properties = g_object_class_list_properties (
-            G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
-            &n_actor_properties);
-
-
-  {
+    ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
     ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
     ClutterActor *label;
     ClutterActor *editor; 
@@ -360,7 +358,7 @@ props_populate (ClutterActor *property_editors,
     clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
-    clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
     /* virtual 'id' property */
 
@@ -380,106 +378,9 @@ props_populate (ClutterActor *property_editors,
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
     clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
     clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
-    clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
-  }
-
-
-  for (i = 0; i < n_properties; i++)
-    {
-      gint j;
-      gboolean skip = FALSE;
-
-      if (cb_filter_properties)
-        {
-          for (j=0;j<n_actor_properties;j++)
-            {
-              /* ClutterActor contains so many properties that we restrict our view a bit */
-              if (actor_properties[j]==properties[i])
-                {
-                  gint k;
-                  skip = TRUE;
-                  for (k=0;whitelist[k];k++)
-                    if (g_str_equal (properties[i]->name, whitelist[k]))
-                      skip = FALSE;
-                }
-            }
-        }
-
-      if (!(properties[i]->flags & G_PARAM_READABLE))
-        skip = TRUE;
-
-      if (skip)
-        continue;
-
-      {
-        ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-        ClutterActor *label = clutter_text_new_with_text ("Sans 12px", properties[i]->name);
-        ClutterActor *editor = property_editor_new (G_OBJECT (actor), properties[i]->name);
-        clutter_text_set_color (CLUTTER_TEXT (label), &white);
-        clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
-        clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
-        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-        clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
-      }
-    }
-
-  {
-    ClutterActor *parent;
-    parent = clutter_actor_get_parent (actor);
-
-    if (parent && CLUTTER_IS_CONTAINER (parent))
-      {
-        ClutterChildMeta *child_meta;
-        GParamSpec **child_properties = NULL;
-        guint        n_child_properties=0;
-        child_meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (parent), actor);
-        if (child_meta)
-          {
-            child_properties = g_object_class_list_properties (
-                               G_OBJECT_GET_CLASS (child_meta),
-                               &n_child_properties);
-            for (i = 0; i < n_child_properties; i++)
-              {
-                if (!G_TYPE_IS_OBJECT (child_properties[i]->value_type) &&
-                    child_properties[i]->value_type != CLUTTER_TYPE_CONTAINER)
-                  {
-                    ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-                    ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
-                    ClutterActor *editor = property_editor_new (G_OBJECT (child_meta), child_properties[i]->name);
-                    clutter_text_set_color (CLUTTER_TEXT (label), &white);
-                    clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
-                    clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
-                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-                    clutter_container_add_actor (CLUTTER_CONTAINER (property_editors), hbox);
-                  }
-              }
-            g_free (child_properties);
-          }
-      }
-  }
-
-  g_free (properties);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 }
 
-static void selected_vanished (gpointer data,
-                               GObject *where_the_object_was)
-{
-  active_actor = NULL;
-  cluttersmith_set_active (NULL);
-}
-
-static void cluttersmith_set_active_event (ClutterActor *button, ClutterActor *item)
-{
-  cluttersmith_set_active (item);
-}
-
-
-ClutterActor *cluttersmith_get_active (void)
-{
-  return active_actor;
-}
 
 void cluttersmith_set_active (ClutterActor *item)
 {
@@ -514,7 +415,8 @@ void cluttersmith_set_active (ClutterActor *item)
 
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
-          props_populate (cluttersmith->property_editors, active_actor);
+          actor_defaults_populate (cluttersmith->property_editors, active_actor);
+          props_populate (cluttersmith->property_editors, G_OBJECT (active_actor));
           cluttersmith_tree_populate (cluttersmith->scene_graph, active_actor);
         }
     }
