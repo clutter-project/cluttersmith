@@ -451,19 +451,70 @@ static void foo (void)
   g_print ("hoi\n");
 }
 
+static void dialog_toggle (gpointer action,
+                           ClutterActor *dialog)
+{
+  if (clutter_actor_get_paint_visibility (dialog))
+    {
+      clutter_actor_hide (dialog);
+      clutter_actor_set_height (dialog, 0);
+    }
+  else
+    {
+      clutter_actor_show(dialog);
+      clutter_actor_set_height (dialog, -1);
+    }
+  clutter_actor_queue_relayout (dialog);
+  clutter_actor_queue_relayout (clutter_actor_get_parent (dialog));
+  cluttersmith_sync_chrome ();
+}
+
+static NbtkAction *dialog_toggle_action (const gchar *name,
+                                         ClutterActor *actor)
+{
+  NbtkAction *action;
+  gchar *label;
+  if (actor)
+    label = g_strdup_printf ("%s %s",
+            clutter_actor_get_paint_visibility (actor)?"hide":"show",
+            name);
+  else
+    label = g_strdup (name);
+  action = nbtk_action_new_full (label, G_CALLBACK (dialog_toggle), actor);
+  g_free (label);
+  return action;
+}
+
 void dialogs_popup (gint x,
                     gint y)
 {
   NbtkPopup *popup = cs_popup_new ();
+  NbtkAction *action;
   x = cs_last_x;
   y = cs_last_y;
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Hide All",  foo,  NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Show All",  foo,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Tree",  foo,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Property Inspector",  foo,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Templates", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Scenes", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Toolbar", NULL, NULL));
+
+  action = dialog_toggle_action ("Toolbar", cluttersmith->dialog_toolbar);
+  nbtk_popup_add_action (popup, action);
+
+  action = dialog_toggle_action ("Tree", cluttersmith->dialog_tree);
+  nbtk_popup_add_action (popup, action);
+
+  action = dialog_toggle_action ("Property Editor", cluttersmith->dialog_property_inspector);
+  nbtk_popup_add_action (popup, action);
+
+  action = dialog_toggle_action ("Templates", cluttersmith->dialog_templates);
+  nbtk_popup_add_action (popup, action);
+
+  action = dialog_toggle_action ("Scenes", cluttersmith->dialog_scenes);
+  nbtk_popup_add_action (popup, action);
+
+  action = dialog_toggle_action ("Config", cluttersmith->dialog_config);
+  nbtk_popup_add_action (popup, action);
+
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remember positions and visibility", NULL, NULL));
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
@@ -473,9 +524,12 @@ void playback_popup (gint x,
                      gint y)
 {
   NbtkPopup *popup = cs_popup_new ();
+  NbtkAction *action;
 
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Edit", cb_ui_mode,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", cb_quit, NULL));
+  action = nbtk_action_new_full ("Edit", G_CALLBACK (cb_ui_mode),  NULL);
+  nbtk_popup_add_action (popup, action);
+  action = nbtk_action_new_full ("Quit", G_CALLBACK (cb_quit),  NULL);
+  nbtk_popup_add_action (popup, action);
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
@@ -485,9 +539,15 @@ void root_popup (gint x,
                  gint y)
 {
   NbtkPopup *popup = cs_popup_new ();
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Browse",  cb_ui_mode,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", cb_quit, NULL));
+  NbtkAction *action;
+
+  action = nbtk_action_new_full ("Browse", G_CALLBACK (cb_ui_mode),  NULL);
+  nbtk_popup_add_action (popup, action);
+  action = nbtk_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup),  NULL);
+  nbtk_popup_add_action (popup, action);
+  action = nbtk_action_new_full ("Quit", G_CALLBACK (cb_quit),  NULL);
+  nbtk_popup_add_action (popup, action);
+
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));

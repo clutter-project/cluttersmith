@@ -46,6 +46,13 @@ struct _CluttersmithContext
   ClutterActor *scene_graph;
   gchar        *project_root;
   ClutterActor *property_editors;
+
+  ClutterActor *dialog_config;
+  ClutterActor *dialog_toolbar;
+  ClutterActor *dialog_tree;
+  ClutterActor *dialog_property_inspector;
+  ClutterActor *dialog_scenes;
+  ClutterActor *dialog_templates;
 };
 
 struct _CluttersmithContextClass

@@ -58,6 +58,8 @@ void     cluttersmith_selected_foreach   (GCallback     cb,
 gboolean cluttersmith_save_timeout       (gpointer      data);
 gpointer cluttersmith_selected_match     (GCallback     match_fun,
                                           gpointer      data);
+void cs_load_dialog_state (void);
+void cs_save_dialog_state (void);
 ClutterActor *cluttersmith_selected_get_any (void);
 
 /*****/
@@ -69,6 +71,7 @@ char * cluttersmith_make_config_file (const char *filename);
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
+void cluttersmith_sync_chrome (void);
 
 extern gint cs_last_x;
 extern gint cs_last_y;

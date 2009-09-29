@@ -188,10 +188,8 @@ guint cluttersmith_get_ui_mode (void)
   return cluttersmith->ui_mode;
 }
 
-void cluttersmith_set_ui_mode (guint ui_mode)
+static gboolean cluttersmith_sync_chrome_idle (gpointer data)
 {
-  cluttersmith->ui_mode = ui_mode;
-
   if (cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
@@ -200,6 +198,26 @@ void cluttersmith_set_ui_mode (guint ui_mode)
     {
       cluttsmith_hide_chrome ();
     }
+  return FALSE;
+}
+
+void cluttersmith_sync_chrome (void)
+{
+  g_idle_add (cluttersmith_sync_chrome_idle, NULL);
+  if (cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_UI)
+    {
+      cluttsmith_show_chrome ();
+    }
+  else
+    {
+      cluttsmith_hide_chrome ();
+    }
+}
+
+void cluttersmith_set_ui_mode (guint ui_mode)
+{
+  cluttersmith->ui_mode = ui_mode;
+  cluttersmith_sync_chrome ();
   g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
 }
 
@@ -245,6 +263,14 @@ gboolean idle_add_stage (gpointer stage)
       stage_size_changed (stage, NULL, cluttersmith->parasite_ui);
     }
     }
+
+  cluttersmith->dialog_config = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-config"));
+  cluttersmith->dialog_tree = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-tree"));
+  cluttersmith->dialog_toolbar = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-toolbar"));
+  cluttersmith->dialog_scenes = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-scenes"));
+  cluttersmith->dialog_templates = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-templates"));
+  cluttersmith->dialog_property_inspector = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-property-inspector"));
+
 
   cb_manipulate_init (cluttersmith->parasite_root);
   cluttersmith_set_active (stage);
@@ -612,6 +638,76 @@ cluttersmith_make_config_file (const char *filename)
   g_free (path);
 
   return full;
+}
+
+static void dialog_remember (GKeyFile *keyfile,
+                            const gchar *name,
+                            ClutterActor *actor)
+{
+  if (!actor)
+    return;
+ g_key_file_set_boolean (keyfile, name, "visible", CLUTTER_ACTOR_IS_VISIBLE(actor));
+}
+
+
+static void dialog_recall (GKeyFile *keyfile,
+                           const gchar *name,
+                           ClutterActor *actor)
+{
+  if (!actor)
+    return;
+  if (g_key_file_get_boolean (keyfile, name, "visible", NULL))
+    clutter_actor_show (actor);
+  else
+    clutter_actor_hide (actor);
+}
+
+
+void cs_save_dialog_state (void)
+{
+  gchar *config_path = cluttersmith_make_config_file ("dialog-state");
+  gchar *config;
+  
+  GKeyFile *keyfile;
+  keyfile = g_key_file_new ();
+
+  dialog_remember (keyfile, "cb-dialog-toolbar", cluttersmith->dialog_toolbar);
+  dialog_remember (keyfile, "cb-dialog-tree", cluttersmith->dialog_tree);
+  dialog_remember (keyfile, "cb-dialog-property-inspector", cluttersmith->dialog_property_inspector);
+
+  dialog_remember (keyfile, "cb-dialog-templates", cluttersmith->dialog_templates);
+
+  dialog_remember (keyfile, "cb-dialog-scenes", cluttersmith->dialog_scenes);
+
+  dialog_remember (keyfile, "cb-dialog-config", cluttersmith->dialog_config);
+
+  config = g_key_file_to_data (keyfile, NULL, NULL);
+  g_file_set_contents (config_path, config, -1, NULL);
+  g_key_file_free (keyfile);
+  g_free (config);
+  g_free (config_path);
+}
+
+void cs_load_dialog_state (void)
+{
+  gchar *config_path = cluttersmith_make_config_file ("dialog-state");
+  
+  GKeyFile *keyfile;
+  keyfile = g_key_file_new ();
+  g_key_file_load_from_file (keyfile, config_path, 0, NULL);
+
+  dialog_recall (keyfile, "cb-dialog-toolbar", cluttersmith->dialog_toolbar);
+  dialog_recall (keyfile, "cb-dialog-tree", cluttersmith->dialog_tree);
+  dialog_recall (keyfile, "cb-dialog-property-inspector", cluttersmith->dialog_property_inspector);
+
+  dialog_recall (keyfile, "cb-dialog-templates", cluttersmith->dialog_templates);
+
+  dialog_recall (keyfile, "cb-dialog-scenes", cluttersmith->dialog_scenes);
+
+  dialog_recall (keyfile, "cb-dialog-config", cluttersmith->dialog_config);
+
+  g_key_file_free (keyfile);
+  g_free (config_path);
 }
 
 void session_history_add (const gchar *dir)

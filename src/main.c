@@ -113,6 +113,7 @@ static gboolean idle_load_default (gpointer data)
 
   clutter_actor_queue_redraw (clutter_stage_get_default());
   cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
+  cs_load_dialog_state ();
 
   return FALSE;
 }
@@ -147,6 +148,7 @@ main (gint    argc,
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 
   clutter_main ();
+  cs_save_dialog_state ();
   return 0;
 }
 #endif

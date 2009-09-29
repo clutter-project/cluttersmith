@@ -34,13 +34,14 @@
          "children":
            [
             {
-            "type":"NbtkBoxLayout",
-            "style-class":"parasite",
-            "reactive":true,
-            "height":36.0,
-            "spacing":9,
-            "x":0,
-            "y":0,
+             "id":"cs-dialog-toolbar",
+             "type":"NbtkBoxLayout",
+             "style-class":"parasite",
+             "reactive":true,
+             "height":36.0,
+             "spacing":9,
+             "x":0,
+             "y":0,
             
             "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
              
@@ -124,7 +125,6 @@
             "style-class":"parasite",
             "vertical":true,
             "reactive":true,
-            "width":300,
             "spacing":9,
             "x":724,
             "y":0,
@@ -135,48 +135,57 @@
              "children":
                [
                 { "type":"NbtkBoxLayout", 
-                  "children":[
-                   { "type":"ClutterText", "width":130, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
-                   },
-
-                   { "type":"NbtkButton", "width":130, "height":24,
-                     "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
-                     "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
-                   },
-                     ]}
-
-                 { "type":"NbtkScrollView",
-                   "width":300,
-                   "height":100,
+                  "id":"cs-dialog-property-inspector",
+                  "vertical":true,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+                  "children":[
+                     { "type":"NbtkBoxLayout", 
+                       "children":[
+                        { "type":"ClutterText", "width":130, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
+                        },
 
-                   "children":
-                    [
-                      { "type":"NbtkViewport",
+                        { "type":"NbtkButton", "width":130, "height":24,
+                          "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+                          "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
+                        },
+                          ]}
+
+                      { "type":"NbtkScrollView",
+                        "width":320,
+                        "height":300,
+                        "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+
                         "children":
                          [
-                           { "type":"NbtkBoxLayout", "vertical":true,
-                              "children":[
+                           { "type":"NbtkViewport",
+                             "children":
+                              [
+                                { "type":"NbtkBoxLayout", "vertical":true,
+                                   "children":[
 
-                                {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors",
-                                 "spacing":2},
+                                     {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors",
+                                      "spacing":2},
 
-                                {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":270
-                                  "children":[
-                                  ]
-                                }
+                                     {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
+                                     { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":270
+                                       "children":[
+                                       ]
+                                     }
 
 
+                                   ]
+                                 }
                               ]
-                            }
-                         ]
+                           }
+                        ]
                       }
                    ]
                  }
-                 { "type":"NbtkScrollView",
+                 { 
+                   "id":"cs-dialog-tree",
+                   "type":"NbtkScrollView",
                    "width":300,
-                   "height":100,
+                   "height":400,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
                    "children":
                     [
@@ -203,8 +212,11 @@
                            {"name":"paint", "handler":"child_expand_init_hack"} 
                          ] 
             },
-                 { "type":"NbtkScrollView",
-                   "width":130,
+                 { 
+                   "id":"cs-dialog-templates",
+                   "style-class":"parasite-paste",
+                   "type":"NbtkScrollView",
+                   "width":135,
                    "height":400,
                    "children":
                     [
@@ -225,6 +237,7 @@
 
 
             {
+            "id":"cs-dialog-scenes",
 
             "type":"NbtkBoxLayout",
             "style-class":"parasite",
@@ -302,6 +315,7 @@
 
 
             {
+            "id":"cs-dialog-config",
             "type":"NbtkBoxLayout",
             "style-class":"parasite",
             "vertical":true,

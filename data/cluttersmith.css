@@ -72,12 +72,14 @@ NbtkBoxLayout.ParasiteTreeB2 {
   color: white;
 }
 
-NbtkBoxLayout.parasite-paste  {
+*.parasite-paste  {
   background-color: #444444ee;
+  padding: 1px;
 }
 
 *.parasite  {
   background-color: #444444ee;
+  padding: 1px;
 }
 
 *.parasite NbtkButton:hover {
