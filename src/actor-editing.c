@@ -1004,7 +1004,8 @@ static gboolean edit_text_end (void)
   return TRUE;
 }
 
-
+gint cs_last_x = 0;
+gint cs_last_y = 0;
 
 static gboolean
 manipulate_capture (ClutterActor *actor,
@@ -1065,27 +1066,41 @@ manipulate_capture (ClutterActor *actor,
        * Otherwise this is the case that slips contorl through to the
        * underlying scene graph.
        */
-      if (event->any.type == CLUTTER_BUTTON_PRESS)
+      switch (event->any.type)
         {
-           ClutterActor *hit;
+          case CLUTTER_BUTTON_PRESS:
+              if (event->any.type == CLUTTER_BUTTON_PRESS &&
+                  clutter_event_get_button (event)==1)
+                {
+                   ClutterActor *hit;
 
-           hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                                 CLUTTER_PICK_ALL,
-                                                 event->button.x, event->button.y);
-           while (hit)
-             {
-               const gchar *name;
-               name = clutter_actor_get_name (hit);
-               if (name && g_str_has_prefix (name, "link="))
-                 {
-                   cluttersmith_open_layout (name+5);
-                   cluttersmith_selected_clear ();
-                   return TRUE;
-                 }
-               hit = clutter_actor_get_parent (hit);
-             }
-          
-        } 
+                   hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
+                                                         CLUTTER_PICK_ALL,
+                                                         event->button.x, event->button.y);
+                   while (hit)
+                     {
+                       const gchar *name;
+                       name = clutter_actor_get_name (hit);
+                       if (name && g_str_has_prefix (name, "link="))
+                         {
+                           cluttersmith_open_layout (name+5);
+                           cluttersmith_selected_clear ();
+                           return TRUE;
+                         }
+                       hit = clutter_actor_get_parent (hit);
+                     }
+                } 
+          case CLUTTER_BUTTON_RELEASE:
+              cs_last_x = event->button.x;
+              cs_last_y = event->button.y;
+              break;
+          case CLUTTER_MOTION:
+              cs_last_x = event->motion.x;
+              cs_last_y = event->motion.y;
+              break;
+          default:
+              break;
+        }
       return FALSE;
     }
   
@@ -1098,17 +1113,8 @@ manipulate_capture (ClutterActor *actor,
     {
       case CLUTTER_MOTION:
         {
-#if 0
-          ClutterActor *hit;
-
-          hit = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                                CLUTTER_PICK_ALL,
-                                                event->motion.x, event->motion.y);
-          if (!util_has_ancestor (hit, parasite_root))
-            cluttersmith_set_active (hit);
-          else
-            g_print ("child of foo!\n");
-#endif
+          cs_last_x = event->motion.x;
+          cs_last_y = event->motion.y;
         }
         break;
       case CLUTTER_BUTTON_PRESS:
@@ -1117,10 +1123,28 @@ manipulate_capture (ClutterActor *actor,
           gfloat x = event->button.x;
           gfloat y = event->button.y;
 
+          cs_last_x = x;
+          cs_last_y = y;
+
           hit = cluttersmith_selection_pick (x, y);
 
           if (hit) /* pressed part of initial selection */
             {
+              if (clutter_event_get_button (event) == 3)
+                {
+                  if (cluttersmith_selected_count ()>1)
+                    {
+                      selection_popup (x,y);
+                      return FALSE;
+                    }
+                  else
+                    {
+                      object_popup (cluttersmith_selected_get_any (), x,y);
+                      return FALSE;
+                    }
+                }
+
+
               if (clutter_event_get_click_count (event)>1)
                 {
                   const gchar *name = clutter_actor_get_name (hit);
@@ -1172,6 +1196,11 @@ manipulate_capture (ClutterActor *actor,
           else 
             { 
               gboolean stage_child = FALSE;
+              if (clutter_event_get_button (event) == 3)
+                {
+                  root_popup (x,y);
+                  return FALSE;
+                }
 
               {
 #ifdef COMPILEMODULE
@@ -1243,22 +1272,8 @@ manipulate_capture (ClutterActor *actor,
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
-        {
-#if 0
-          ClutterActor *hit;
-          gfloat x = event->button.x;
-          gfloat y = event->button.y;
-          hit= cluttersmith_pick (x, y);
-          if (hit)
-            {
-              if (g_object_get_data (foo, "cluttersmith-is-interactive"))
-                {
-                  return FALSE;
-                }
-            }
-#endif
-        }
-
+          cs_last_x = event->button.x;
+          cs_last_y = event->button.y;
         return TRUE;
       case CLUTTER_ENTER:
       case CLUTTER_LEAVE:
@@ -1267,6 +1282,18 @@ manipulate_capture (ClutterActor *actor,
         break;
     }
   return TRUE;
+}
+
+
+static gboolean playback_context (ClutterActor *actor,
+                                  ClutterEvent *event)
+{
+  if (clutter_event_get_button (event)==3)
+    {
+      playback_popup (event->button.x, event->button.y);
+      return TRUE;
+    }
+  return FALSE;
 }
 
 void cb_manipulate_init (ClutterActor *actor)
@@ -1281,6 +1308,8 @@ void cb_manipulate_init (ClutterActor *actor)
   stage_capture_handler = 
      g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
                              G_CALLBACK (manipulate_capture), NULL);
+  g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
+                    G_CALLBACK (playback_context), NULL);
 }
 
 gboolean cluttersmith_canvas_handler_enter (ClutterActor *actor)
@@ -1311,3 +1340,4 @@ ClutterActor *cluttersmith_get_current_container (void)
     return cluttersmith->fake_stage;
   return current_container;
 }
+

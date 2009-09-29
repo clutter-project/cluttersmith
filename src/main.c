@@ -8,6 +8,7 @@
  */
 
 #include <clutter/clutter.h>
+#include <nbtk/nbtk.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -118,11 +119,14 @@ static gboolean idle_load_default (gpointer data)
 
 static gboolean idle_show_config (gpointer ignored)
 {
-  props_populate (util_find_by_id_int (clutter_stage_get_default (), "config-editors"), cluttersmith);
+  props_populate (util_find_by_id_int (clutter_stage_get_default (), "config-editors"), G_OBJECT (cluttersmith));
   return FALSE;
 }
 
 #ifndef COMPILEMODULE
+
+  
+
 gint
 main (gint    argc,
       gchar **argv)
@@ -139,6 +143,7 @@ main (gint    argc,
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
   g_timeout_add (10000, cluttersmith_save_timeout, NULL); /* auto-save */
+
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 
   clutter_main ();

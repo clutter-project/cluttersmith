@@ -420,3 +420,113 @@ gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierTyp
 
 
 
+static gboolean delayed_destroy (gpointer actor)
+{
+  clutter_actor_destroy (actor);
+  return FALSE;
+}
+
+static void popup_menu_hidden (gpointer popup)
+{
+  g_idle_add (delayed_destroy, popup);
+}
+
+static void popup_action_activated (gpointer a, gpointer b)
+{
+  clutter_actor_hide (a);
+}
+
+static NbtkPopup *cs_popup_new (void)
+{
+  NbtkPopup *popup;
+  popup = NBTK_POPUP (nbtk_popup_new ());
+  g_signal_connect (popup, "action-activated", G_CALLBACK (popup_action_activated), NULL);
+  g_signal_connect (popup, "hide", G_CALLBACK (popup_menu_hidden), NULL);
+  return popup;
+}
+
+
+static void foo (void)
+{
+  g_print ("hoi\n");
+}
+
+void dialogs_popup (gint x,
+                    gint y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  x = cs_last_x;
+  y = cs_last_y;
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Hide All",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Show All",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Tree",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Property Inspector",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Templates", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Scenes", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Toolbar", NULL, NULL));
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+void playback_popup (gint x,
+                     gint y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Editing mode",  NULL,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", NULL, NULL));
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+void root_popup (gint x,
+                 gint y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Change working dir",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Editing mode",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", NULL, NULL));
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+
+void object_popup (ClutterActor *actor,
+                   gint          x,
+                   gint          y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Create link",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Follow link",  foo,  NULL));
+
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Cut", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Copy", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Paste", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Duplicate", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove", NULL, NULL));
+
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+
+void selection_popup (gint x,
+                      gint y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Selection",  foo,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Cut", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Copy", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Paste", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Duplicate", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove", NULL, NULL));
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}

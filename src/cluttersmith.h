@@ -70,7 +70,19 @@ gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modif
 gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
 
-#define EDITOR_LINE_HEIGHT 24
+extern gint cs_last_x;
+extern gint cs_last_y;
 
+void playback_popup  (gint          x,
+                      gint          y);
+void root_popup      (gint          x,
+                      gint          y);
+void object_popup    (ClutterActor *actor,
+                      gint          x,
+                      gint          y);
+void selection_popup (gint          x,
+                      gint          y);
+
+#define EDITOR_LINE_HEIGHT 24
 
 #endif

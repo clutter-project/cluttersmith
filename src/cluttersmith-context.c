@@ -18,6 +18,7 @@ enum
 
 struct _CluttersmithContextPrivate
 {
+  gint unused;
 };
 
 static void
@@ -37,7 +38,7 @@ cluttersmith_context_get_property (GObject    *object,
         g_value_set_boolean (value,
                              clutter_stage_get_fullscreen (
                                  CLUTTER_STAGE (clutter_stage_get_default())));
-      #endif
+#endif
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -132,8 +133,6 @@ static ClutterActor  *title, *name, *parents;
 
 
 
-
-
 static ClutterActor *active_actor = NULL;
 void load_file (ClutterActor *actor, const gchar *title);
 
@@ -204,13 +203,6 @@ void cluttersmith_set_ui_mode (guint ui_mode)
   g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
 }
 
-
-static gboolean keep_on_top (gpointer actor)
-{
-  clutter_actor_raise_top (actor);
-  return FALSE;
-}
-
 void cluttersmith_open_layout (const gchar *new_title)
 {
    g_object_set (title, "text", new_title, NULL);
@@ -230,7 +222,6 @@ gboolean idle_add_stage (gpointer stage)
 #endif
   g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
-  g_timeout_add (4000, keep_on_top, actor);
 
   cluttersmith_actor_editing_init (stage);
   nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
