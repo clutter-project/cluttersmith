@@ -483,6 +483,11 @@ static NbtkAction *dialog_toggle_action (const gchar *name,
   return action;
 }
 
+static void cb_save_dialog_state (gpointer ignored)
+{
+  cs_save_dialog_state ();
+}
+
 void dialogs_popup (gint x,
                     gint y)
 {
@@ -512,7 +517,7 @@ void dialogs_popup (gint x,
   nbtk_popup_add_action (popup, action);
 
   nbtk_popup_add_action (popup, nbtk_action_new_full ("", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remember positions and visibility", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remember positions and visibility", G_CALLBACK (cb_save_dialog_state), NULL));
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));

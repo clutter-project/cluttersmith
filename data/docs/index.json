@@ -464,8 +464,8 @@
   {
     "type":"NbtkButton",
     "name":"link=LD_PRELOAD",
-    "x":271,
-    "y":424,
+    "x":272,
+    "y":425,
     "width":159,
     "height":48,
     "depth":0.000,
@@ -834,8 +834,8 @@
   ,
   {
     "type":"ClutterText",
-    "x":26,
-    "y":94,
+    "x":22,
+    "y":87,
     "width":556,
     "height":94,
     "depth":0.000,

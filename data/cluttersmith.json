@@ -217,7 +217,7 @@
                    "style-class":"parasite-paste",
                    "type":"NbtkScrollView",
                    "width":135,
-                   "height":400,
+                   "height":100,
                    "children":
                     [
                       { "type":"NbtkViewport",

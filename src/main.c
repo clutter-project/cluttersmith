@@ -156,7 +156,6 @@ main (gint    argc,
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 
   clutter_main ();
-  cs_save_dialog_state ();
   return 0;
 }
 #endif
