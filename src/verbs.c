@@ -328,13 +328,13 @@ cb_ui_mode (ClutterActor *actor)
   switch (cluttersmith_get_ui_mode ())
     {
         case CLUTTERSMITH_UI_MODE_BROWSE:
-          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_EDIT);
+          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_CHROME);
           g_print ("Run mode : edit only\n");
           break;
-        case CLUTTERSMITH_UI_MODE_EDIT:
+/*        case CLUTTERSMITH_UI_MODE_EDIT:
           cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_CHROME);
           g_print ("Run mode : ui with edit\n");
-          break;
+          break;*/
         case CLUTTERSMITH_UI_MODE_CHROME: 
         default:
           cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
@@ -474,9 +474,8 @@ void playback_popup (gint x,
 {
   NbtkPopup *popup = cs_popup_new ();
 
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Editing mode",  NULL,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Edit", cb_ui_mode,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", cb_quit, NULL));
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
@@ -486,9 +485,9 @@ void root_popup (gint x,
                  gint y)
 {
   NbtkPopup *popup = cs_popup_new ();
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Change working dir",  foo,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Editing mode",  foo,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Browse",  cb_ui_mode,  NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Quit", cb_quit, NULL));
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));

@@ -230,6 +230,7 @@ cb_overlay_paint (ClutterActor *stage,
 
 
       {
+#if 0
         CoglTextureVertex tverts[] = 
            {
              {verts[0].x, verts[0].y, },
@@ -239,6 +240,7 @@ cb_overlay_paint (ClutterActor *stage,
            };
         /* fill the item, if it is the only item in the selection */
         cogl_polygon (tverts, 4, FALSE);
+#endif
 
         /* potentially draw lines auto snapping has matched */
         cogl_set_source_color4ub (128, 128, 255, 255);
@@ -1288,7 +1290,8 @@ manipulate_capture (ClutterActor *actor,
 static gboolean playback_context (ClutterActor *actor,
                                   ClutterEvent *event)
 {
-  if (clutter_event_get_button (event)==3)
+  if (!(cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_EDIT) &&
+      clutter_event_get_button (event)==3)
     {
       playback_popup (event->button.x, event->button.y);
       return TRUE;
