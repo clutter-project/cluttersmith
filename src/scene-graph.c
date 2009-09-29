@@ -283,5 +283,9 @@ cluttersmith_tree_populate (ClutterActor *scene_graph,
   gint count = 0;
   util_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
+#ifdef EDIT_SELF
   cluttersmith_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
+#else
+  cluttersmith_tree_populate_iter (scene_graph, active_actor, cluttersmith->fake_stage, &level, &count);
+#endif
 }

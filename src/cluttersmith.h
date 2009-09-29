@@ -2,7 +2,7 @@
 #ifndef CLUTTERSMITH_H
 #define CLUTTERSMITH_H
 
-/* #define EDIT_SELF */
+/* #define EDIT_SELF  */
 
 typedef enum RunMode {
   CLUTTERSMITH_UI_MODE_BROWSE  = 0,
