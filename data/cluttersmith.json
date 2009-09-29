@@ -223,9 +223,9 @@
                       { "type":"NbtkViewport",
                         "children":
                          [
-                           { "type":"NbtkBoxLayout", "id":"stencils-container",
+                           { "type":"NbtkBoxLayout", "id":"templates-container",
                              "vertical":true, "spacing":2,
-                   "signals": [ {"name":"paint", "handler":"stencils_container_init_hack"} ]
+                   "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
                               "children":[
                               ]
                             }

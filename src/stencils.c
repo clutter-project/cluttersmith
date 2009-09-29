@@ -34,7 +34,7 @@ static gboolean add_stencil (ClutterActor *actor,
 
 
 
-void stencils_container_init_hack (ClutterActor  *actor)
+void templates_container_init_hack (ClutterActor  *actor)
 {
   /* we hook this up to the first paint, since no other signal seems to
    * be available to hook up for some additional initialization
@@ -45,7 +45,7 @@ void stencils_container_init_hack (ClutterActor  *actor)
   done = TRUE;
 
   {
-    GDir *dir = g_dir_open (PKGDATADIR "stencils", 0, NULL);
+    GDir *dir = g_dir_open (PKGDATADIR "templates", 0, NULL);
     const gchar *name;
 
     while ((name = g_dir_read_name (dir)))
@@ -66,7 +66,7 @@ void stencils_container_init_hack (ClutterActor  *actor)
           {
             gchar *path;
             ClutterActor *oi;
-            path = g_strdup_printf (PKGDATADIR "stencils/%s", name);
+            path = g_strdup_printf (PKGDATADIR "templates/%s", name);
             oi = util_load_json (path);
             if (oi)
               {

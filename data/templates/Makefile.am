@@ -1,5 +1,5 @@
 
-stencilsdir = $(pkgdatadir)/stencils
+stencilsdir = $(pkgdatadir)/templates
 stencils_DATA = \
  button.json \
  link.json \
