@@ -152,7 +152,7 @@
 
                       { "type":"NbtkScrollView",
                         "width":320,
-                        "height":300,
+                        "height":100,
                         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
 
                         "children":
@@ -185,7 +185,7 @@
                    "id":"cs-dialog-tree",
                    "type":"NbtkScrollView",
                    "width":300,
-                   "height":400,
+                   "height":100,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
                    "children":
                     [

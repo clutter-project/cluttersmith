@@ -457,12 +457,10 @@ static void dialog_toggle (gpointer action,
   if (clutter_actor_get_paint_visibility (dialog))
     {
       clutter_actor_hide (dialog);
-      clutter_actor_set_height (dialog, 0);
     }
   else
     {
       clutter_actor_show(dialog);
-      clutter_actor_set_height (dialog, -1);
     }
   clutter_actor_queue_relayout (dialog);
   clutter_actor_queue_relayout (clutter_actor_get_parent (dialog));
