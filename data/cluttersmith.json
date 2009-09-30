@@ -20,6 +20,43 @@
  "id":"parasite-root",
  "children":[
 
+{
+  "id":"cs-active-panel",
+  "type":"NbtkBoxLayout",
+  "style-class":"parasite",
+  "vertical":true,
+  "reactive":true,
+  "width":300,
+  "height":300,
+  "spacing":9,
+  "x":0,
+  "y":0,
+   
+   "children":
+     [
+       { "type":"NbtkScrollView",
+         "width":200,
+         "height":100,
+         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+
+         "children":
+          [
+            { "type":"NbtkViewport",
+              "children":
+               [
+                 { "type":"NbtkBoxLayout", "vertical":true,
+                    "children":[
+                      {"type":"NbtkBoxLayout", "vertical":true, "id":"cs-active-container",
+                       "spacing":2},
+                    ]
+                  }
+               ]
+            }
+         ]
+       }
+     ]
+}
+
     {"type":"NbtkBin",
      "id":"parasite-ui",
      "x-fill":true,

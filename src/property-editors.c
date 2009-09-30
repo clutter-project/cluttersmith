@@ -463,7 +463,7 @@ props_populate (ClutterActor *container,
       gint j;
       gboolean skip = FALSE;
 
-      if(0)for (j=0;j<n_actor_properties;j++)
+      for (j=0;j<n_actor_properties;j++)
         {
           /* ClutterActor contains so many properties that we restrict our view a bit */
           if (actor_properties[j]==properties[i])

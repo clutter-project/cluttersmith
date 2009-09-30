@@ -84,10 +84,12 @@ initialize_stage ()
   clutter_stage_set_color (CLUTTER_STAGE (stage), &color);
   clutter_actor_show (stage);
 
+
   if (args.fullscreen)
     clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
+#if 0
   else
-    clutter_actor_set_size (stage, args.width, args.height);
+    clutter_actor_set_size (stage, args.width, args.height); 
 
   /* XXX: this is just odd, but seems to be a needed workaround,
    * the dimensions we can resize within also seem odd
@@ -96,6 +98,7 @@ initialize_stage ()
   g_object_set (stage, "natural-width-set", FALSE,
                        "natural-height-set", FALSE,
                        NULL);
+#endif
 
   return stage;
 }
@@ -107,7 +110,6 @@ gboolean idle_add_stage (gpointer stage);
 /* hack.. */
 static gboolean idle_load_default (gpointer data)
 {
-
   if (args.root_path)
     {
       gchar *fullpath = realpath (args.root_path, NULL);
@@ -119,10 +121,12 @@ static gboolean idle_load_default (gpointer data)
       cluttersmith_set_project_root (PKGDATADIR "docs");
     }
 
-  clutter_actor_queue_redraw (clutter_stage_get_default());
   cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
+  g_print ("a\n");
+
   cs_load_dialog_state ();
 
+  clutter_actor_queue_redraw (clutter_stage_get_default());
   return FALSE;
 }
 

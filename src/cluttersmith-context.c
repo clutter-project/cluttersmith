@@ -217,6 +217,7 @@ void cluttersmith_sync_chrome (void)
 void cluttersmith_set_ui_mode (guint ui_mode)
 {
   cluttersmith->ui_mode = ui_mode;
+  cluttersmith_selected_clear ();
   cluttersmith_sync_chrome ();
   g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
 }
@@ -264,6 +265,10 @@ gboolean idle_add_stage (gpointer stage)
     }
     }
 
+  cluttersmith->resize_handle = CLUTTER_ACTOR (clutter_script_get_object (script, "resize-handle"));
+  cluttersmith->move_handle = CLUTTER_ACTOR (clutter_script_get_object (script, "move-handle"));
+  cluttersmith->active_panel = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-active-panel"));
+  cluttersmith->active_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-active-container"));
   cluttersmith->dialog_config = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-config"));
   cluttersmith->dialog_tree = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-tree"));
   cluttersmith->dialog_toolbar = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-toolbar"));
@@ -273,8 +278,7 @@ gboolean idle_add_stage (gpointer stage)
 
 
   cb_manipulate_init (cluttersmith->parasite_root);
-  cluttersmith_set_active (stage);
-
+  cluttersmith_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
 
   init_types ();
   return FALSE;
@@ -435,6 +439,9 @@ void cluttersmith_set_active (ClutterActor *item)
           actor_defaults_populate (cluttersmith->property_editors, active_actor);
           props_populate (cluttersmith->property_editors, G_OBJECT (active_actor));
           cluttersmith_tree_populate (cluttersmith->scene_graph, active_actor);
+
+          props_populate (cluttersmith->active_container, G_OBJECT (active_actor));
+
         }
     }
 #if 0
@@ -612,7 +619,6 @@ static void title_text_changed (ClutterActor *actor)
   CS_REVISION = CS_STORED_REVISION = 0;
 
   cluttersmith_selected_clear ();
-  clutter_actor_raise_top (cluttersmith->parasite_root);
 }
 
 char *
@@ -681,11 +687,34 @@ void cs_save_dialog_state (void)
 
   dialog_remember (keyfile, "cb-dialog-config", cluttersmith->dialog_config);
 
+  {
+    gfloat w,h;
+    clutter_actor_get_size (clutter_stage_get_default (), &w, &h);
+    g_key_file_set_integer (keyfile, "window", "width", w);
+    g_key_file_set_integer (keyfile, "window", "height", h);
+  }
+
   config = g_key_file_to_data (keyfile, NULL, NULL);
   g_file_set_contents (config_path, config, -1, NULL);
   g_key_file_free (keyfile);
   g_free (config);
   g_free (config_path);
+}
+
+static gboolean idle_resizable_hack (ClutterStage *stage)
+{
+  g_object_set (stage, "natural-width", 100.0,
+                       "natural-height", 100.0,
+                       NULL);
+
+  g_object_set (stage, "min-width", 100.0,
+                       "min-height", 100.0,
+                       NULL);
+
+  g_object_set (stage, "natural-width-set", FALSE,
+                       "natural-height-set", FALSE,
+                       NULL);
+  return FALSE;
 }
 
 void cs_load_dialog_state (void)
@@ -705,6 +734,24 @@ void cs_load_dialog_state (void)
   dialog_recall (keyfile, "cb-dialog-scenes", cluttersmith->dialog_scenes);
 
   dialog_recall (keyfile, "cb-dialog-config", cluttersmith->dialog_config);
+
+  {
+    ClutterActor *stage = clutter_actor_get_stage (cluttersmith->parasite_root);
+    gfloat w, h;
+
+    w = g_key_file_get_integer (keyfile, "window", "width", NULL);
+    h = g_key_file_get_integer (keyfile, "window", "height", NULL);
+    if(1)if (w > 10 && h > 10)
+      {
+        clutter_actor_set_size (stage, w, h);
+        if(1)clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
+        g_idle_add (idle_resizable_hack, stage);
+        g_print ("%f %f\n", w, h);
+        clutter_actor_get_size (stage, &w, &h);
+
+        g_print ("%f %f\n", w, h);
+      }
+  }
 
   g_key_file_free (keyfile);
   g_free (config_path);

@@ -347,8 +347,14 @@ gboolean update_overlay_positions (gpointer data)
 {
   if (cluttersmith_selected_count ()==0 && lasso == NULL)
     {
+      clutter_actor_hide (cluttersmith->active_panel);
+      clutter_actor_hide (cluttersmith->move_handle);
+      clutter_actor_hide (cluttersmith->resize_handle);
       return TRUE;
     }
+  clutter_actor_show (cluttersmith->active_panel);
+  clutter_actor_show (cluttersmith->move_handle);
+  clutter_actor_show (cluttersmith->resize_handle);
 
   min_x = 65536;
   min_y = 65536;
@@ -359,10 +365,9 @@ gboolean update_overlay_positions (gpointer data)
   }
 
    {
-     ClutterActor *handle = util_find_by_id_int (data, "resize-handle");
-     clutter_actor_set_position (handle, max_x, max_y);
-     handle = util_find_by_id_int (data, "move-handle");
-     clutter_actor_set_position (handle, (max_x+min_x)/2, (max_y+min_y)/2);
+     clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
+     clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
+     clutter_actor_set_position (cluttersmith->active_panel, min_x, max_y);
    }
 
  return TRUE;
@@ -895,7 +900,6 @@ manipulate_lasso_capture (ClutterActor *stage,
                 clutter_actor_get_transformed_position (j->data, &cx, &cy);
                 clutter_actor_get_transformed_size (j->data, &cw, &ch);
 
-
                 if (contains (mx, mx + mw, cx, cx + cw) &&
                     contains (my, my + mh, cy, cy + ch))
                   {
@@ -1065,7 +1069,7 @@ manipulate_capture (ClutterActor *actor,
     {
       /* check if it is child of a link, if it is then we override anyways...
        *
-       * Otherwise this is the case that slips contorl through to the
+       * Otherwise this is the case that slips control through to the
        * underlying scene graph.
        */
       switch (event->any.type)

@@ -1,4 +1,5 @@
 #include <clutter/clutter.h>
+#include <clutter-gst/clutter-gst.h>
 #include <nbtk/nbtk.h>
 #include "cb-texture.h"
 
@@ -86,4 +87,6 @@ o(NBTK_TYPE_TOOLTIP);
 o(NBTK_TYPE_VIEWPORT);
 o(NBTK_TYPE_WIDGET);
 o(CB_TYPE_TEXTURE);
+o(CB_TYPE_TEXTURE);
+o(CLUTTER_GST_TYPE_VIDEO_TEXTURE);
 }

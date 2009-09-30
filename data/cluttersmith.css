@@ -178,3 +178,22 @@ NbtkBoxLayout.ParasiteTreeB2 {
 *.parasite *.ClutterSmithLocation {
   font-size: 12px;
 }
+
+/* these CSS rules are currently bust.
+ 
+*.parasite-root   NbtkPopup {
+  padding: 5;
+  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+}
+
+*.parasite-root   NbtkPopup > NbtkButton {
+  padding: 3;
+  border-image: none;
+}
+
+*.parasite-root   NbtkPopup > NbtkButton:hover,
+*.parasite-root   NbtkPopup > NbtkButton:active {
+  color: white;
+  border-image: url('file://menu-item.png') 2;
+}
+*/

@@ -373,6 +373,7 @@ void util_build_transient (ClutterActor *actor)
         }
       if (g_str_equal (properties[i]->name, "child")||
           g_str_equal (properties[i]->name, "cogl-texture")||
+          g_str_equal (properties[i]->name, "disable-slicing")||
           g_str_equal (properties[i]->name, "cogl-handle"))
         skip = TRUE; /* to avoid duplicated parenting of NbtkButton children. */
 
