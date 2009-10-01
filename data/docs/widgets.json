@@ -28,8 +28,8 @@
     "anchor-y":0.000,
     "stylable":true,
     "has-tooltip":false,
-    "hint-text":"NbtkEntry",
     "text":"NbtkEntry",
+    "hint-text":"NbtkEntry",
   }
   ,
   {
@@ -564,7 +564,7 @@
     "type":"NbtkButton",
     "name":"link=index",
     "x":19,
-    "y":410,
+    "y":409,
     "width":100,
     "height":48,
     "depth":0.000,
@@ -574,6 +574,7 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
+    "pseudo-class":"hover",
     "style-class":"ClutterSmithLink",
     "stylable":true,
     "has-tooltip":false,
@@ -753,9 +754,9 @@
   ,
   {
     "type":"ClutterGstVideoTexture",
+    "audio-volume":0.100,
     "playing":false,
     "uri":"file:///home/pippin/zim.avi",
-    "audio-volume":0.100,
     "progress":0.000,
     "name":"",
     "x":99,
