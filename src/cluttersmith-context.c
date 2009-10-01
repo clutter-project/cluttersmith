@@ -474,51 +474,17 @@ static GList *actor_types_build (GList *list, GType type)
   return list;
 }
 
-static void change_type (ClutterActor *actor,
-                         const gchar  *new_type)
+
+static void change_type2 (ClutterActor *button,
+                         const gchar  *name)
 {
-  /* XXX: we need to recreate our correct position in parent as well */
-  ClutterActor *new_actor, *parent;
-
+  ClutterActor *actor = cluttersmith_selected_get_any ();
   popup_close ();
-  if (CLUTTER_IS_STAGE (active_actor))
-    {
-      g_warning ("refusing to change type of stage");
-      return;
-    }
-
-  new_actor = g_object_new (g_type_from_name (new_type), NULL);
-  parent = clutter_actor_get_parent (active_actor);
-
-    util_build_transient (active_actor);
-
-    if (CLUTTER_IS_CONTAINER (active_actor) && CLUTTER_IS_CONTAINER (new_actor))
-      {
-        GList *c, *children;
-        children = clutter_container_get_children (CLUTTER_CONTAINER (active_actor));
-        for (c = children; c; c = c->next)
-          {
-            ClutterActor *child = g_object_ref (c->data);
-            clutter_container_remove_actor (CLUTTER_CONTAINER (active_actor), child);
-            clutter_container_add_actor (CLUTTER_CONTAINER (new_actor), child);
-
-          }
-        g_list_free (children);
-      }
-
-  util_apply_transient (new_actor);
   util_remove_children (cluttersmith->property_editors);
-  clutter_actor_destroy (active_actor);
-  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
-
-  if (g_str_equal (new_type, "ClutterText"))
-    {
-      g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
-    }
-
-  cluttersmith_set_active (new_actor);
+  actor = util_change_type (actor, name);
+  cluttersmith_selected_clear ();
+  cluttersmith_selected_add (actor);
 }
-
 
 static void printname (gchar *name, ClutterActor *container)
 {
@@ -532,7 +498,7 @@ static void printname (gchar *name, ClutterActor *container)
   button = CLUTTER_ACTOR (nbtk_button_new_with_label (name));
   clutter_container_add_actor (CLUTTER_CONTAINER (container), button);
   clutter_actor_set_width (button, 200);
-  g_signal_connect (button, "clicked", G_CALLBACK (change_type), name);
+  g_signal_connect (button, "clicked", G_CALLBACK (change_type2), name);
 }
 
 
@@ -701,7 +667,7 @@ void cs_save_dialog_state (void)
   g_free (config_path);
 }
 
-static gboolean idle_resizable_hack (ClutterStage *stage)
+static gboolean idle_resizable_hack (gpointer stage)
 {
   g_object_set (stage, "natural-width", 100.0,
                        "natural-height", 100.0,

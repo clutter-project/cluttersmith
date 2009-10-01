@@ -37,4 +37,7 @@ GList * util_actor_get_siblings (ClutterActor *actor);
  */
 gpointer util_list_match (GList *list, GCallback match_fun, gpointer data);
 
+ClutterActor *util_change_type (ClutterActor *actor,
+                                const gchar  *new_type);
+
 #endif

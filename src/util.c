@@ -552,3 +552,45 @@ gboolean util_block_event (ClutterActor *actor)
 {
   return TRUE;
 }
+
+ClutterActor *util_change_type (ClutterActor *actor,
+                                const gchar  *new_type)
+{
+  /* XXX: we need to recreate our correct position in parent as well */
+  ClutterActor *new_actor, *parent;
+
+  if (CLUTTER_IS_STAGE (actor))
+    {
+      g_warning ("refusing to change type of stage");
+      return actor;
+    }
+
+  new_actor = g_object_new (g_type_from_name (new_type), NULL);
+  parent = clutter_actor_get_parent (actor);
+
+    util_build_transient (actor);
+
+    if (CLUTTER_IS_CONTAINER (actor) && CLUTTER_IS_CONTAINER (new_actor))
+      {
+        GList *c, *children;
+        children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+        for (c = children; c; c = c->next)
+          {
+            ClutterActor *child = g_object_ref (c->data);
+            clutter_container_remove_actor (CLUTTER_CONTAINER (actor), child);
+            clutter_container_add_actor (CLUTTER_CONTAINER (actor), child);
+
+          }
+        g_list_free (children);
+      }
+
+  util_apply_transient (new_actor);
+  clutter_actor_destroy (actor);
+  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+
+  if (g_str_equal (new_type, "ClutterText"))
+    {
+      g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
+    }
+  return new_actor;
+}
