@@ -11,8 +11,8 @@ static gboolean add_stencil (ClutterActor *actor,
   ClutterActor *parent;
   ClutterActor *new_actor;
 
-  parent = cluttersmith_get_current_container ();
-  new_actor = util_load_json (path);
+  parent = cs_get_current_container ();
+  new_actor = cs_load_json (path);
   
   if (new_actor)
     {
@@ -23,12 +23,12 @@ static gboolean add_stencil (ClutterActor *actor,
       clutter_actor_get_size (new_actor, &w, &h);
       clutter_actor_set_position (new_actor, (sw-w)/2, (sh-h)/2);
 
-      cluttersmith_selected_clear ();
-      cluttersmith_selected_add (new_actor);
+      cs_selected_clear ();
+      cs_selected_add (new_actor);
       clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (new_actor), "");
     }
 
-  cluttersmith_dirtied ();
+  cs_dirtied ();
   return TRUE;
 }
 
@@ -67,7 +67,7 @@ void templates_container_init_hack (ClutterActor  *actor)
             gchar *path;
             ClutterActor *oi;
             path = g_strdup_printf (PKGDATADIR "templates/%s", name);
-            oi = util_load_json (path);
+            oi = cs_load_json (path);
             if (oi)
               {
                 gfloat width, height;

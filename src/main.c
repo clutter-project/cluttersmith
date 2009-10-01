@@ -113,15 +113,15 @@ static gboolean idle_load_default (gpointer data)
   if (args.root_path)
     {
       gchar *fullpath = realpath (args.root_path, NULL);
-      cluttersmith_set_project_root (fullpath);
+      cs_set_project_root (fullpath);
       free (fullpath);
     }
   else
     {
-      cluttersmith_set_project_root (PKGDATADIR "docs");
+      cs_set_project_root (PKGDATADIR "docs");
     }
 
-  cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
+  cs_set_ui_mode (CS_UI_MODE_BROWSE);
   g_print ("a\n");
 
   cs_load_dialog_state ();
@@ -132,7 +132,7 @@ static gboolean idle_load_default (gpointer data)
 
 static gboolean idle_show_config (gpointer ignored)
 {
-  props_populate (util_find_by_id_int (clutter_stage_get_default (), "config-editors"), G_OBJECT (cluttersmith));
+  props_populate (cs_find_by_id_int (clutter_stage_get_default (), "config-editors"), G_OBJECT (cluttersmith));
   return FALSE;
 }
 
@@ -155,7 +155,7 @@ main (gint    argc,
 
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
-  g_timeout_add (10000, cluttersmith_save_timeout, NULL); /* auto-save */
+  g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
 
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 

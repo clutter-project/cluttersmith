@@ -1,16 +1,16 @@
 #include <clutter/clutter.h>
-#include "cluttersmith.h"
+#include "util.h"
 
 static GHashTable *layouts = NULL;
 
-static void util_init (void)
+static void cs_init (void)
 {
   if (layouts)
     return;
   layouts = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
 }
 
-static ClutterActor *util_get_root (ClutterActor *actor)
+static ClutterActor *cs_get_root (ClutterActor *actor)
 {
   ClutterActor *iter = actor;
   while (iter)
@@ -24,15 +24,17 @@ static ClutterActor *util_get_root (ClutterActor *actor)
   return NULL;
 }
 
-gboolean util_dismiss_cb (ClutterActor *actor, ClutterEvent *event, gpointer data)
+gboolean cs_dismiss_cb (ClutterActor *actor,
+                        ClutterEvent *event,
+                        gpointer      data)
 {
-  actor = util_get_root (actor);
+  actor = cs_get_root (actor);
   if (actor)
     clutter_actor_hide (actor);
   return TRUE;
 }
 
-ClutterActor *util_load_json (const gchar *name)
+ClutterActor *cs_load_json (const gchar *name)
 {
   ClutterActor *actor;
   ClutterScript *script = clutter_script_new ();
@@ -70,15 +72,15 @@ ClutterActor *util_load_json (const gchar *name)
 }
 
 /* show a singleton actor with name name */
-ClutterActor *util_show (const gchar *name)
+ClutterActor *cs_show (const gchar *name)
 {
   ClutterActor *actor;
-  util_init ();
+  cs_init ();
   actor = g_hash_table_lookup (layouts, name);
   
   if (!actor)
     {
-      actor = util_load_json (name);
+      actor = cs_load_json (name);
       if (actor)
         {
           clutter_group_add (CLUTTER_GROUP (clutter_stage_get_default ()), actor);
@@ -98,17 +100,17 @@ ClutterActor *util_show (const gchar *name)
   return actor;
 }
 
-gboolean util_show_cb (ClutterActor  *actor,
-                      ClutterEvent  *event)
+gboolean cs_show_cb (ClutterActor  *actor,
+                     ClutterEvent  *event)
 {
   const gchar *name = clutter_actor_get_name (actor);
-  util_show (name);
+  cs_show (name);
   return TRUE;
 }
 
 /* utility function to remove children of a container.
  */
-void util_remove_children (ClutterActor *actor)
+void cs_container_remove_children (ClutterActor *actor)
 {
   GList *children, *c;
   if (!actor || !CLUTTER_IS_CONTAINER (actor))
@@ -116,30 +118,18 @@ void util_remove_children (ClutterActor *actor)
   children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
   for (c=children; c; c = c->next)
     {
-#if 0
-      if (CLUTTER_IS_CONTAINER (c->data))
-        {
-          GList *children, *b;
-          children = clutter_container_get_children (CLUTTER_CONTAINER (c->data));
-          for (b=children; b; b = b->next)
-            {
-              clutter_actor_destroy (b->data);
-            }
-          g_list_free (children);
-        }
-#endif
       clutter_actor_destroy (c->data);
     }
   g_list_free (children);
 }
 
-ClutterScript *util_get_script (ClutterActor *actor)
+ClutterScript *cs_get_script (ClutterActor *actor)
 {
   ClutterScript *script;
   ClutterActor *root;
   if (!actor)
     return NULL;
-  root = util_get_root (actor);
+  root = cs_get_root (actor);
   if (!root)
     return NULL;
   script = g_object_get_data (G_OBJECT (root), "clutter-script");
@@ -157,13 +147,13 @@ static ClutterActor *empty_scene_new (void)
 /* replaces a toplevel (as in loaded scripts) container with id "content"
  * with a newly loaded script.
  */
-ClutterActor *util_replace_content2 (ClutterActor  *actor,
-                                     const gchar *name,
-                                     const gchar *new_script)
+ClutterActor *cs_replace_content2 (ClutterActor  *actor,
+                                   const gchar *name,
+                                   const gchar *new_script)
 {
   ClutterActor *ret = NULL;
   ClutterActor *iter;
-  ClutterScript *script = util_get_script (actor);
+  ClutterScript *script = cs_get_script (actor);
   ClutterActor *content = NULL;
 
   if (script)
@@ -172,14 +162,14 @@ ClutterActor *util_replace_content2 (ClutterActor  *actor,
 
   if (!content)
     {
-      iter = util_get_root (actor);
+      iter = cs_get_root (actor);
       /* check the parent script, if any, as well */
       if (iter)
         {
           iter = clutter_actor_get_parent (iter);
           if (iter)
             {
-              script = util_get_script (iter);
+              script = cs_get_script (iter);
               if (script)
                 content = CLUTTER_ACTOR (clutter_script_get_object (script, name));
             }
@@ -198,15 +188,15 @@ ClutterActor *util_replace_content2 (ClutterActor  *actor,
         }
       g_list_free (children);
       if (new_script)
-        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = util_load_json (new_script));
+        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (new_script));
       else
         clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
       return ret;
     }
 
-  util_remove_children (content);
+  cs_container_remove_children (content);
   if (new_script)
-    clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = util_load_json (new_script));
+    clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (new_script));
   else
     clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
   return ret;
@@ -215,9 +205,9 @@ ClutterActor *util_replace_content2 (ClutterActor  *actor,
 /* replaces a toplevel (as in loaded scripts) container with id "content"
  * with a newly loaded script.
  */
-gboolean util_replace_content (ClutterActor  *actor)
+gboolean cs_replace_content (ClutterActor  *actor)
 {
-  util_replace_content2 (actor, "content", clutter_actor_get_name (actor));
+  cs_replace_content2 (actor, "content", clutter_actor_get_name (actor));
   return TRUE;
 }
 
@@ -226,7 +216,9 @@ static gint movable_x;
 static gint movable_y;
 
 static gboolean
-movable_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
+cs_movable_capture (ClutterActor *stage,
+                    ClutterEvent *event,
+                    gpointer      data)
 {
   switch (event->any.type)
     {
@@ -253,30 +245,30 @@ movable_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
   return TRUE;
 }
 
-gboolean util_movable_press (ClutterActor  *actor,
-                             ClutterEvent  *event)
+gboolean cs_movable_press (ClutterActor  *actor,
+                           ClutterEvent  *event)
 {
   movable_x = event->button.x;
   movable_y = event->button.y;
 
   movable_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (movable_capture), actor);
+                       G_CALLBACK (cs_movable_capture), actor);
   clutter_actor_raise_top (actor);
   return TRUE;
 }
 
 
-gboolean util_slider_panel_enter_south (ClutterActor  *actor,
-                                        ClutterEvent  *event)
+gboolean cs_slider_panel_enter_south (ClutterActor  *actor,
+                                      ClutterEvent  *event)
 {
   gfloat height = clutter_actor_get_height (actor);
   clutter_actor_animate (actor, CLUTTER_LINEAR, 200, "anchor-y", height, NULL);
   return TRUE;
 }
 
-gboolean util_slider_panel_leave (ClutterActor  *actor,
-                                  ClutterEvent  *event)
+gboolean cs_slider_panel_leave (ClutterActor  *actor,
+                                ClutterEvent  *event)
 {
   clutter_actor_animate (actor, CLUTTER_LINEAR, 200, "anchor-y", 0.0, NULL);
   return TRUE;
@@ -284,8 +276,8 @@ gboolean util_slider_panel_leave (ClutterActor  *actor,
 
 
 
-gboolean util_has_ancestor (ClutterActor *actor,
-                            ClutterActor *ancestor)
+gboolean cs_actor_has_ancestor (ClutterActor *actor,
+                                ClutterActor *ancestor)
 {
   while (actor)
     {
@@ -310,35 +302,41 @@ void no_pick (ClutterActor       *actor,
   g_signal_stop_emission_by_name (actor, "pick");
 }
 
-
-
 typedef struct TransientValue {
   gchar  *name;
   GValue  value;
   GType   value_type;
 } TransientValue;
 
-static GList *transient_values = NULL;
-
+/* XXX: this list is incomplete */
 static gchar *whitelist[]={"depth", "opacity",
                            "scale-x","scale-y", "anchor-x", "color",
-                           "anchor-y", "rotation-angle-z",
+                           "anchor-y", "rotation-angle-z", "rotation-angle-x",
+                           "rotation-angle_y",
                            "name", "reactive",
                            NULL};
 
+static void transient_free (GList *transient)
+{
+  if (transient)
+    {
+      g_list_foreach (transient, (GFunc)(g_free), NULL);
+      g_list_free (transient);
+    }
+}
 
-void util_build_transient (ClutterActor *actor)
+/* XXX: should ad-hoc special case scriptable "id" */
+static GList *
+cs_build_transient (ClutterActor *actor)
 {
   GParamSpec **properties;
   GParamSpec **actor_properties;
   guint        n_properties;
   guint        n_actor_properties;
   gint         i;
+  GList *transient_values = NULL;
 
   properties = g_object_class_list_properties (
-                     G_OBJECT_GET_CLASS (actor),
-                     &n_properties);
-  actor_properties = g_object_class_list_properties (
                      G_OBJECT_GET_CLASS (actor),
                      &n_properties);
   actor_properties = g_object_class_list_properties (
@@ -395,11 +393,13 @@ void util_build_transient (ClutterActor *actor)
     }
 
   g_free (properties);
+
+  return transient_values;
 }
 
 
-void
-util_apply_transient (ClutterActor *actor)
+static void
+cs_apply_transient (ClutterActor *actor, GList *transient_values)
 {
   GParamSpec **properties;
   guint        n_properties;
@@ -432,20 +432,142 @@ util_apply_transient (ClutterActor *actor)
     }
 
   g_free (properties);
-  transient_values = NULL;
-  /* XXX: free list of transient values */
+}
+
+static GList *
+cs_build_child_transient (ClutterActor *actor)
+{
+  GParamSpec  **properties;
+  GParamSpec  **actor_properties;
+  guint         n_properties;
+  guint         n_actor_properties;
+  gint          i;
+  ClutterActor *parent;
+  GObject      *child_meta;
+  GList *transient_values = NULL;
+
+  if (!actor)
+    return NULL;
+  parent = clutter_actor_get_parent (actor);
+  if (!parent)
+    return NULL;
+  if (!CLUTTER_IS_CONTAINER (parent))
+    return NULL;
+
+  child_meta = G_OBJECT (clutter_container_get_child_meta (CLUTTER_CONTAINER (parent),
+                                                 actor));
+  if (!child_meta)
+    return NULL;
+
+  properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (child_meta),
+                     &n_properties);
+  actor_properties = g_object_class_list_properties (
+            G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_CHILD_META)),
+            &n_actor_properties);
+
+  for (i = 0; i < n_properties; i++)
+    {
+      gint j;
+      gboolean skip = FALSE;
+
+        {
+          for (j=0;j<n_actor_properties;j++)
+            {
+              /* ClutterActor contains so many properties that we restrict our view a bit,
+               * applying all values seems to make clutter hick-up as well. 
+               */
+              if (actor_properties[j]==properties[i])
+                {
+                  skip = TRUE;
+                }
+            }
+        }
+
+      if (!(properties[i]->flags & G_PARAM_READABLE))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+
+        {
+          TransientValue *value = g_new0 (TransientValue, 1);
+          value->name = properties[i]->name;
+          value->value_type = properties[i]->value_type;
+          g_value_init (&value->value, properties[i]->value_type);
+          g_object_get_property (G_OBJECT (child_meta), properties[i]->name, &value->value);
+
+          transient_values = g_list_prepend (transient_values, value);
+        }
+    }
+  g_free (properties);
+  return transient_values;
+}
+
+static void
+cs_apply_child_transient (ClutterActor *actor,
+                            GList        *transient_values)
+{
+  GParamSpec **properties;
+  guint        n_properties;
+  gint         i;
+  ClutterActor *parent;
+  GObject      *child_meta;
+
+  if (!actor)
+    return;
+  parent = clutter_actor_get_parent (actor);
+  if (!parent)
+    return;
+  if (!CLUTTER_IS_CONTAINER (parent))
+    return;
+
+  child_meta = G_OBJECT (clutter_container_get_child_meta (CLUTTER_CONTAINER (parent),
+                                                 actor));
+  if (!child_meta)
+    return;
+
+  properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (child_meta),
+                     &n_properties);
+
+  for (i = 0; i < n_properties; i++)
+    {
+      gboolean skip = FALSE;
+      GList *val;
+
+      if (!(properties[i]->flags & G_PARAM_WRITABLE))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+
+      for (val=transient_values;val;val=val->next)
+        {
+          TransientValue *value = val->data;
+          if (g_str_equal (value->name, properties[i]->name) &&
+                           value->value_type == properties[i]->value_type)
+            {
+              g_object_set_property (G_OBJECT (child_meta), properties[i]->name, &value->value);
+            }
+        }
+    }
+
+  g_free (properties);
 }
 
 
 
-/* XXX: needs rewrite to not take the parent */
-ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
+/* XXX: needs rewrite to not need parent argument */
+ClutterActor *cs_duplicator (ClutterActor *actor, ClutterActor *parent)
 {
   ClutterActor *new_actor;
+  GList *transient_values;
 
   new_actor = g_object_new (G_OBJECT_TYPE (actor), NULL);
-  util_build_transient (actor);
-  util_apply_transient (new_actor);
+  transient_values = cs_build_transient (actor);
+  cs_apply_transient (new_actor, transient_values);
+  transient_free (transient_values);
 
   /* recurse through children? */
   if (CLUTTER_IS_CONTAINER (new_actor))
@@ -454,7 +576,7 @@ ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
       children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
       for (c = children; c; c = c->next)
         {
-          util_duplicator (c->data, new_actor);
+          cs_duplicator (c->data, new_actor);
         }
       g_list_free (children);
     }
@@ -464,31 +586,10 @@ ClutterActor *util_duplicator (ClutterActor *actor, ClutterActor *parent)
 }
 
 
-static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip_own)
-{
-  const gchar *id;
-  if (skip_own && util_has_ancestor (actor, cluttersmith->parasite_root))
-    return;
-  id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
-
-  if (!CLUTTER_IS_STAGE (actor))
-    *list = g_list_prepend (*list, actor);
-
-  if (CLUTTER_IS_CONTAINER (actor) &&
-      (!(id && g_str_equal (id, "previews-container"))))
-    {
-      GList *children, *c;
-      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
-      for (c = children; c; c=c->next)
-        {
-          get_all_actors_int (list, c->data, skip_own);
-        }
-      g_list_free (children);
-    }
-}
+static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip_own);
 
 GList *
-util_container_get_children_recursive (ClutterActor *actor)
+cs_container_get_children_recursive (ClutterActor *actor)
 {
   GList *ret = NULL;
   get_all_actors_int (&ret, actor, TRUE);
@@ -497,7 +598,7 @@ util_container_get_children_recursive (ClutterActor *actor)
 
 
 static ClutterActor *
-util_find_by_id2 (ClutterActor *stage, const gchar *id, gboolean skip_int)
+cs_find_by_id2 (ClutterActor *stage, const gchar *id, gboolean skip_int)
 {
   GList *l, *list = NULL;
   get_all_actors_int (&list, stage, skip_int);
@@ -519,23 +620,23 @@ util_find_by_id2 (ClutterActor *stage, const gchar *id, gboolean skip_int)
 }
 
 ClutterActor *
-util_find_by_id (ClutterActor *stage, const gchar *id)
+cs_find_by_id (ClutterActor *stage, const gchar *id)
 {
-  return util_find_by_id2 (stage, id, TRUE);
+  return cs_find_by_id2 (stage, id, TRUE);
 }
 
 
 ClutterActor *
-util_find_by_id_int (ClutterActor *stage, const gchar *id)
+cs_find_by_id_int (ClutterActor *stage, const gchar *id)
 {
-  return util_find_by_id2 (stage, id, FALSE);
+  return cs_find_by_id2 (stage, id, FALSE);
 }
 
 
 /* like foreach, but returns the first non NULL return value (and
  * stops iterating at that stage)
  */
-gpointer util_list_match (GList *list, GCallback match_fun, gpointer data)
+gpointer cs_list_match (GList *list, GCallback match_fun, gpointer data)
 {
   gpointer ret = NULL;
   gpointer (*match)(gpointer item, gpointer data)=(void*)match_fun;
@@ -548,14 +649,14 @@ gpointer util_list_match (GList *list, GCallback match_fun, gpointer data)
 }
 
 
-gboolean util_block_event (ClutterActor *actor)
+gboolean cs_block_event (ClutterActor *actor)
 {
   return TRUE;
 }
 
-static void util_container_add_actor_at (ClutterContainer *container,
-                                         ClutterActor     *actor,
-                                         gint              pos)
+void cs_container_add_actor_at (ClutterContainer *container,
+                                  ClutterActor     *actor,
+                                  gint              pos)
 {
   GList *c, *children, *remainder = NULL;
   gint i = 0;
@@ -586,7 +687,7 @@ static void util_container_add_actor_at (ClutterContainer *container,
     }
 }
 
-static gint get_sibling_no (ClutterActor *actor)
+gint cs_get_sibling_no (ClutterActor *actor)
 {
   ClutterActor *parent;
   GList *c, *children;
@@ -613,12 +714,23 @@ static gint get_sibling_no (ClutterActor *actor)
   return 0;
 }
 
-ClutterActor *util_change_type (ClutterActor *actor,
+void cs_container_replace_child (ClutterContainer *container,
+                                   ClutterActor     *old,
+                                   ClutterActor     *new)
+{
+  gint sibling_no;
+  sibling_no = cs_get_sibling_no (old);
+  clutter_actor_destroy (old);
+  cs_container_add_actor_at (container, new, sibling_no);
+}
+
+
+ClutterActor *cs_change_type (ClutterActor *actor,
                                 const gchar  *new_type)
 {
-  /* XXX: we need to recreate our correct position in parent as well */
   ClutterActor *new_actor, *parent;
-  gint sibling_no = 0;
+  GList *transient_values;
+  GList *transient_child_values;
 
   if (CLUTTER_IS_STAGE (actor))
     {
@@ -629,7 +741,8 @@ ClutterActor *util_change_type (ClutterActor *actor,
   new_actor = g_object_new (g_type_from_name (new_type), NULL);
   parent = clutter_actor_get_parent (actor);
 
-    util_build_transient (actor);
+  transient_values = cs_build_transient (actor);
+  transient_child_values = cs_build_child_transient (actor);
 
     if (CLUTTER_IS_CONTAINER (actor) && CLUTTER_IS_CONTAINER (new_actor))
       {
@@ -645,17 +758,41 @@ ClutterActor *util_change_type (ClutterActor *actor,
         g_list_free (children);
       }
 
-  util_apply_transient (new_actor);
-  sibling_no = get_sibling_no (actor);
-  g_print ("sno: %i\n", sibling_no);
-  clutter_actor_destroy (actor);
-  util_container_add_actor_at (CLUTTER_CONTAINER (parent), new_actor, sibling_no);
-  sibling_no = get_sibling_no (new_actor);
-  g_print ("sno: %i\n", sibling_no);
+  cs_apply_transient (new_actor, transient_values);
+  cs_container_replace_child (CLUTTER_CONTAINER (parent), actor, new_actor);
+  cs_apply_child_transient (new_actor, transient_child_values);
+  transient_free (transient_values);
+  transient_free (transient_child_values);
 
-  if (g_str_equal (new_type, "ClutterText"))
-    {
-      g_object_set (G_OBJECT (new_actor), "text", "New Text", NULL);
-    }
   return new_actor;
+}
+
+
+
+/* Functions below this line need cluttersmith infrastructure */
+#include "cluttersmith.h"
+
+static void get_all_actors_int (GList         **list,
+                                ClutterActor   *actor,
+                                gboolean        skip_own)
+{
+  const gchar *id;
+  if (skip_own && cs_actor_has_ancestor (actor, cluttersmith->parasite_root))
+    return;
+  id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
+
+  if (!CLUTTER_IS_STAGE (actor))
+    *list = g_list_prepend (*list, actor);
+
+  if (CLUTTER_IS_CONTAINER (actor) &&
+      (!(id && g_str_equal (id, "previews-container"))))
+    {
+      GList *children, *c;
+      children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+      for (c = children; c; c=c->next)
+        {
+          get_all_actors_int (list, c->data, skip_own);
+        }
+      g_list_free (children);
+    }
 }

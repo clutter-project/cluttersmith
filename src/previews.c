@@ -17,7 +17,7 @@ static gboolean load_layout (ClutterActor *actor,
   if (dot)
     *dot='\0';
   
-  cluttersmith_open_layout (new_title);
+  cs_open_layout (new_title);
   g_free (new_title);
   return TRUE;
 }
@@ -60,7 +60,7 @@ ClutterActor *preview_make (const gchar *name, const gchar *path)
             per stage */
       {
       ClutterActor *oi;
-      oi = util_load_json (path);
+      oi = cs_load_json (path);
       if (oi)
         {
           gfloat width, height;
@@ -90,13 +90,13 @@ ClutterActor *preview_make (const gchar *name, const gchar *path)
 void previews_reload (ClutterActor *actor)
 {
   GDir *dir;
-  const gchar *path = cluttersmith_get_project_root ();
+  const gchar *path = cs_get_project_root ();
   const gchar *name;
 
   if (!path)
     return;
 
-  util_remove_children (actor);
+  cs_container_remove_children (actor);
   dir = g_dir_open (path, 0, NULL);
   while ((name = g_dir_read_name (dir)))
     {
@@ -106,7 +106,7 @@ void previews_reload (ClutterActor *actor)
       if (!g_str_has_suffix (name, ".json"))
         continue;
 
-      path = g_strdup_printf ("%s/%s", cluttersmith_get_project_root (),
+      path = g_strdup_printf ("%s/%s", cs_get_project_root (),
                               name);
       preview = preview_make (name, path);
       g_free (path);

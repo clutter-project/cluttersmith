@@ -50,8 +50,8 @@
           "password-char":0,
           "max-length":0,
           "single-line-mode":false,
-          "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cluttersmith_link_text_changed\"} ]",
-          "signals": [ {"name":"text-changed", "handler":"cluttersmith_link_text_changed"} ]
+          "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
+          "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
 
         },
     ]

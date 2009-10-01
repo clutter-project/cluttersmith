@@ -21,7 +21,7 @@ static ClutterActor *get_drop_target (ClutterActor *actor)
   if (!actor)
     return NULL;
   actor = g_object_get_data (G_OBJECT (actor), "actor");
-  if (util_has_ancestor (actor, dragged_item))
+  if (cs_actor_has_ancestor (actor, dragged_item))
     return NULL;
   if (CLUTTER_IS_CONTAINER (actor))
     return actor;
@@ -65,7 +65,7 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
 
 
             if (dragged_actor &&
-                !util_has_ancestor (dropped_on_target, dragged_actor) &&
+                !cs_actor_has_ancestor (dropped_on_target, dragged_actor) &&
                 (dropped_on_target != dragged_actor))
               {
                 gfloat x, y;
@@ -144,8 +144,8 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
               }
             if (dragged_actor)
               {
-                cluttersmith_selected_clear ();
-                cluttersmith_selected_add (dragged_actor);
+                cs_selected_clear ();
+                cs_selected_add (dragged_actor);
               }
           }
         dropped_on_target = NULL;
@@ -182,16 +182,16 @@ static gboolean tree_item_press (ClutterActor  *actor,
   return TRUE;
 }
 
-static gboolean cluttersmith_set_active_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
+static gboolean cs_set_active_event (ClutterActor *button, ClutterEvent *event, ClutterActor *item)
 {
-  cluttersmith_selected_clear ();
-  cluttersmith_selected_add (item);
+  cs_selected_clear ();
+  cs_selected_add (item);
   return TRUE;
 }
 
 
 static void
-cluttersmith_tree_populate_iter (ClutterActor *current_container,
+cs_tree_populate_iter (ClutterActor *current_container,
                     ClutterActor *active_actor,
                     ClutterActor *iter,
                     gint   *count,
@@ -202,9 +202,9 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
 
   if (iter == NULL ||
 #ifdef EDIT_SELF
-      util_has_ancestor (iter, cluttersmith->scene_graph)
+      cs_actor_has_ancestor (iter, cluttersmith->scene_graph)
 #else
-      !util_has_ancestor (iter, cluttersmith->fake_stage)
+      !cs_actor_has_ancestor (iter, cluttersmith->fake_stage)
 #endif
       )
     {
@@ -229,7 +229,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
     }
-  else if (iter == cluttersmith_get_current_container ())
+  else if (iter == cs_get_current_container ())
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &blue);
     }
@@ -237,7 +237,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &white);
     }
-  g_signal_connect (label, "button-press-event", G_CALLBACK (cluttersmith_set_active_event), iter);
+  g_signal_connect (label, "button-press-event", G_CALLBACK (cs_set_active_event), iter);
   clutter_actor_set_reactive (label, TRUE);
 
   clutter_container_add_actor (CLUTTER_CONTAINER (vbox), label);
@@ -260,7 +260,7 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
       (*level) = (*level)+1;
       for (c = children; c; c=c->next)
         {
-          cluttersmith_tree_populate_iter (child_vbox, active_actor, c->data, level, count);
+          cs_tree_populate_iter (child_vbox, active_actor, c->data, level, count);
         }
       (*level) = (*level)-1;
       g_list_free (children);
@@ -276,16 +276,16 @@ cluttersmith_tree_populate_iter (ClutterActor *current_container,
 }
 
 void
-cluttersmith_tree_populate (ClutterActor *scene_graph,
+cs_tree_populate (ClutterActor *scene_graph,
                             ClutterActor *active_actor)
 {
   gint level = 0;
   gint count = 0;
-  util_remove_children (scene_graph);
+  cs_container_remove_children (scene_graph);
   clutter_actor_set_width (scene_graph, 230);
 #ifdef EDIT_SELF
-  cluttersmith_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
+  cs_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
 #else
-  cluttersmith_tree_populate_iter (scene_graph, active_actor, cluttersmith->fake_stage, &level, &count);
+  cs_tree_populate_iter (scene_graph, active_actor, cluttersmith->fake_stage, &level, &count);
 #endif
 }

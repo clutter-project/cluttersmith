@@ -10,7 +10,7 @@
 static gboolean set_working_dir (ClutterText *text)
 {
   const gchar *dest = clutter_text_get_text (text);
-  cluttersmith_set_project_root (dest);
+  cs_set_project_root (dest);
   return TRUE;
 }
 
@@ -40,9 +40,9 @@ void session_history_init_hack (ClutterActor  *actor)
   g_object_set_data (G_OBJECT (actor), "init-hack-done", (void*)0xff);
 
     {
-  gchar *config_path = cluttersmith_make_config_file ("session-history");
+  gchar *config_path = cs_make_config_file ("session-history");
   gchar *original = NULL;
-  util_remove_children (actor);
+  cs_container_remove_children (actor);
 
   if (g_file_get_contents (config_path, &original, NULL, NULL))
     {

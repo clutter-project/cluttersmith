@@ -24,11 +24,11 @@ GList *get_siblings (ClutterActor *actor)
   return clutter_container_get_children (CLUTTER_CONTAINER (parent));
 }
 
-void cluttersmith_selected_init (void);
+void cs_selected_init (void);
 static void init_multi_select (void)
 {
   selection = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
-  cluttersmith_selected_init ();
+  cs_selected_init ();
 }
 
 static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
@@ -62,39 +62,39 @@ static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
 }
 
 static ClutterActor *
-cluttersmith_selection_pick (gfloat x, gfloat y)
+cs_selection_pick (gfloat x, gfloat y)
 {
   gfloat data[2]={x,y}; 
-  return cluttersmith_selected_match (G_CALLBACK (is_in_actor), data);
+  return cs_selected_match (G_CALLBACK (is_in_actor), data);
 }
 
-ClutterActor *cluttersmith_pick (gfloat x, gfloat y)
+ClutterActor *cs_pick (gfloat x, gfloat y)
 {
-  GList *actors = util_container_get_children_recursive (
+  GList *actors = cs_container_get_children_recursive (
       clutter_actor_get_stage(cluttersmith->parasite_root));
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
-  ret = util_list_match (actors, G_CALLBACK (is_in_actor), data);
+  ret = cs_list_match (actors, G_CALLBACK (is_in_actor), data);
   g_list_free (actors);
   return ret;
 }
 
-ClutterActor *cluttersmith_siblings_pick (ClutterActor *actor, gfloat x, gfloat y)
+ClutterActor *cs_siblings_pick (ClutterActor *actor, gfloat x, gfloat y)
 {
   GList *siblings = get_siblings (actor);
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
-  ret = util_list_match (siblings, G_CALLBACK (is_in_actor), data);
+  ret = cs_list_match (siblings, G_CALLBACK (is_in_actor), data);
   g_list_free (siblings);
   return ret;
 }
 
-ClutterActor *cluttersmith_children_pick (ClutterActor *actor, gfloat x, gfloat y)
+ClutterActor *cs_children_pick (ClutterActor *actor, gfloat x, gfloat y)
 {
   GList *children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
-  ret = util_list_match (children, G_CALLBACK (is_in_actor), data);
+  ret = cs_list_match (children, G_CALLBACK (is_in_actor), data);
   g_list_free (children);
   return ret;
 }
@@ -126,12 +126,12 @@ static gpointer is_in_actor_sibling_next (ClutterActor *actor, SiblingPickNextDa
   return NULL;
 }
 
-ClutterActor *cluttersmith_siblings_pick_next (ClutterActor *sibling, gfloat x, gfloat y)
+ClutterActor *cs_siblings_pick_next (ClutterActor *sibling, gfloat x, gfloat y)
 {
   GList *actors = clutter_container_get_children (CLUTTER_CONTAINER (clutter_actor_get_parent (sibling)));
   ClutterActor *ret;
   SiblingPickNextData data = {x, y, sibling, FALSE, NULL};
-  ret = util_list_match (actors, G_CALLBACK (is_in_actor_sibling_next), &data);
+  ret = cs_list_match (actors, G_CALLBACK (is_in_actor_sibling_next), &data);
   if (!ret)
     ret = data.first;
   g_list_free (actors);
@@ -202,7 +202,7 @@ cb_overlay_paint (ClutterActor *stage,
   ClutterVertex verts[4];
 
     {
-      ClutterActor *parent = cluttersmith_get_current_container ();
+      ClutterActor *parent = cs_get_current_container ();
       if (parent)
         {
           cogl_set_source_color4ub (255, 0, 255, 128);
@@ -210,14 +210,14 @@ cb_overlay_paint (ClutterActor *stage,
         }
     }
 
-  if (cluttersmith_selected_count ()==0 && lasso == NULL)
+  if (cs_selected_count ()==0 && lasso == NULL)
     return;
 
-  if (cluttersmith_selected_count ()==1)
+  if (cs_selected_count ()==1)
     {
       ClutterActor *actor;
       {
-        GList *l = cluttersmith_selected_get_list ();
+        GList *l = cs_selected_get_list ();
         actor = l->data;
         g_list_free (l);
       }
@@ -316,7 +316,7 @@ cb_overlay_paint (ClutterActor *stage,
 
 
     cogl_set_source_color4ub (255, 0, 0, 128);
-    cluttersmith_selected_foreach (G_CALLBACK (draw_actor_outline), NULL);
+    cs_selected_foreach (G_CALLBACK (draw_actor_outline), NULL);
 
     g_hash_table_iter_init (&iter, selection);
     while (g_hash_table_iter_next (&iter, &key, &value))
@@ -345,7 +345,7 @@ cb_overlay_paint (ClutterActor *stage,
 
 gboolean update_overlay_positions (gpointer data)
 {
-  if (cluttersmith_selected_count ()==0 && lasso == NULL)
+  if (cs_selected_count ()==0 && lasso == NULL)
     {
       clutter_actor_hide (cluttersmith->active_panel);
       clutter_actor_hide (cluttersmith->move_handle);
@@ -361,7 +361,7 @@ gboolean update_overlay_positions (gpointer data)
   max_x = 0;
   max_y = 0;
   {
-    cluttersmith_selected_foreach (G_CALLBACK (find_extent), data);
+    cs_selected_foreach (G_CALLBACK (find_extent), data);
   }
 
    {
@@ -373,7 +373,7 @@ gboolean update_overlay_positions (gpointer data)
  return TRUE;
 }
 
-void cluttersmith_actor_editing_init (gpointer stage)
+void cs_actor_editing_init (gpointer stage)
 {
   clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
   g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
@@ -692,11 +692,11 @@ manipulate_move_capture (ClutterActor *stage,
           delta[0]=manipulate_x-event->motion.x;
           delta[1]=manipulate_y-event->motion.y;
           {
-            if (cluttersmith_selected_count ()==1)
+            if (cs_selected_count ()==1)
               {
                 /* we only snap when there is only one selected item */
 
-                GList *selected = cluttersmith_selected_get_list ();
+                GList *selected = cs_selected_get_list ();
                 ClutterActor *actor = selected->data;
                 gfloat x, y;
                 g_assert (actor);
@@ -709,10 +709,10 @@ manipulate_move_capture (ClutterActor *stage,
               }
             else
               {
-                cluttersmith_selected_foreach (G_CALLBACK (each_move), &delta[0]);
+                cs_selected_foreach (G_CALLBACK (each_move), &delta[0]);
               }
           }
-          cluttersmith_dirtied ();
+          cs_dirtied ();
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -756,7 +756,7 @@ manipulate_resize_capture (ClutterActor *stage,
     {
       case CLUTTER_MOTION:
         {
-          ClutterActor *actor = cluttersmith_selected_get_any();
+          ClutterActor *actor = cs_selected_get_any();
           /* resize is semi bust for more than one actor */
           gfloat ex, ey;
           clutter_actor_transform_stage_point (actor, event->motion.x, event->motion.y,
@@ -770,7 +770,7 @@ manipulate_resize_capture (ClutterActor *stage,
           snap_size (actor, w, h, &w, &h);
 
           clutter_actor_set_size (actor, w, h);
-          cluttersmith_dirtied ();
+          cs_dirtied ();
 
           manipulate_x=ex;
           manipulate_y=ey;
@@ -792,7 +792,7 @@ manipulate_resize_capture (ClutterActor *stage,
 gboolean manipulate_resize_start (ClutterActor  *actor,
                                   ClutterEvent  *event)
 {
-  ClutterActor *first_actor = cluttersmith_selected_get_any();
+  ClutterActor *first_actor = cs_selected_get_any();
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
 
@@ -863,7 +863,7 @@ manipulate_lasso_capture (ClutterActor *stage,
             gint no;
             GList *j, *list;
 #if 0
-            ClutterActor *sibling = cluttersmith_selected_get_any ();
+            ClutterActor *sibling = cs_selected_get_any ();
 
             if (!sibling)
               {
@@ -886,11 +886,11 @@ manipulate_lasso_capture (ClutterActor *stage,
               }
             else
               {
-                list = util_container_get_children_recursive (stage);
+                list = cs_container_get_children_recursive (stage);
               }
 #else
             g_hash_table_remove_all (selection);
-            list = clutter_container_get_children (CLUTTER_CONTAINER (cluttersmith_get_current_container ()));
+            list = clutter_container_get_children (CLUTTER_CONTAINER (cs_get_current_container ()));
 #endif
 
             for (no = 0, j=list; j;no++,j=j->next)
@@ -921,14 +921,14 @@ manipulate_lasso_capture (ClutterActor *stage,
             {
               if (state & CLUTTER_CONTROL_MASK)
                 {
-                  if (cluttersmith_selected_has_actor (key))
-                    cluttersmith_selected_remove (key);
+                  if (cs_selected_has_actor (key))
+                    cs_selected_remove (key);
                   else
-                    cluttersmith_selected_add (key);
+                    cs_selected_add (key);
                 }
               else
                 {
-                  cluttersmith_selected_add (key);
+                  cs_selected_add (key);
                 }
             }
         }
@@ -954,7 +954,7 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
   if (!((state & CLUTTER_SHIFT_MASK) ||
         (state & CLUTTER_CONTROL_MASK)))
     {
-      cluttersmith_selected_clear ();
+      cs_selected_clear ();
     }
 
   g_assert (lasso == NULL);
@@ -1006,7 +1006,7 @@ static gboolean edit_text_end (void)
   g_object_set (edited_text, "editable", text_was_editable,
                              "reactive", text_was_reactive, NULL);
   edited_text = NULL;
-  cluttersmith_dirtied ();
+  cs_dirtied ();
   return TRUE;
 }
 
@@ -1056,7 +1056,7 @@ manipulate_capture (ClutterActor *actor,
       }
 
    if (event->any.type == CLUTTER_KEY_PRESS &&
-       !util_has_ancestor (event->any.source, cluttersmith->parasite_root)) /* If the source is in the parasite ui,
+       !cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root)) /* If the source is in the parasite ui,
                                                                  pass in on as normal*/
      {
         if(manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
@@ -1065,7 +1065,7 @@ manipulate_capture (ClutterActor *actor,
 
 
 
-  if (!(cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_EDIT))
+  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
     {
       /* check if it is child of a link, if it is then we override anyways...
        *
@@ -1089,8 +1089,8 @@ manipulate_capture (ClutterActor *actor,
                        name = clutter_actor_get_name (hit);
                        if (name && g_str_has_prefix (name, "link="))
                          {
-                           cluttersmith_open_layout (name+5);
-                           cluttersmith_selected_clear ();
+                           cs_open_layout (name+5);
+                           cs_selected_clear ();
                            return TRUE;
                          }
                        hit = clutter_actor_get_parent (hit);
@@ -1111,7 +1111,7 @@ manipulate_capture (ClutterActor *actor,
     }
   
   if ((clutter_get_motion_events_enabled()==FALSE) ||
-      util_has_ancestor (event->any.source, cluttersmith->parasite_root))
+      cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root))
     {
       return FALSE;
     }
@@ -1132,20 +1132,20 @@ manipulate_capture (ClutterActor *actor,
           cs_last_x = x;
           cs_last_y = y;
 
-          hit = cluttersmith_selection_pick (x, y);
+          hit = cs_selection_pick (x, y);
 
           if (hit) /* pressed part of initial selection */
             {
               if (clutter_event_get_button (event) == 3)
                 {
-                  if (cluttersmith_selected_count ()>1)
+                  if (cs_selected_count ()>1)
                     {
                       selection_popup (x,y);
                       return FALSE;
                     }
                   else
                     {
-                      object_popup (cluttersmith_selected_get_any (), x,y);
+                      object_popup (cs_selected_get_any (), x,y);
                       return FALSE;
                     }
                 }
@@ -1156,8 +1156,8 @@ manipulate_capture (ClutterActor *actor,
                   const gchar *name = clutter_actor_get_name (hit);
                   if (name && g_str_has_prefix (name, "link="))
                     {
-                      cluttersmith_open_layout (name+5);
-                      cluttersmith_selected_clear ();
+                      cs_open_layout (name+5);
+                      cs_selected_clear ();
                       return TRUE;
                     }
 
@@ -1169,8 +1169,8 @@ manipulate_capture (ClutterActor *actor,
                   else if (CLUTTER_IS_CONTAINER (hit))
                     {
                       g_print ("enter container\n");
-                      cluttersmith_selected_clear ();
-                      cluttersmith_set_current_container (hit);
+                      cs_selected_clear ();
+                      cs_set_current_container (hit);
                     }
                   else
                     {
@@ -1181,18 +1181,18 @@ manipulate_capture (ClutterActor *actor,
                 {
                    if (event->button.modifier_state & CLUTTER_CONTROL_MASK)
                      {
-                       if (cluttersmith_selected_has_actor (hit))
+                       if (cs_selected_has_actor (hit))
                          {
-                           cluttersmith_selected_remove (hit);
+                           cs_selected_remove (hit);
                          }
                      }
                    if (event->button.modifier_state & CLUTTER_MOD1_MASK)
                      {
-                       if (cluttersmith_selected_has_actor (hit))
+                       if (cs_selected_has_actor (hit))
                          {
-                           ClutterActor *next = cluttersmith_siblings_pick_next (hit, x, y);
-                           cluttersmith_selected_remove (hit);
-                           cluttersmith_selected_add (next);
+                           ClutterActor *next = cs_siblings_pick_next (hit, x, y);
+                           cs_selected_remove (hit);
+                           cs_selected_add (next);
                          }
                      }
 
@@ -1214,12 +1214,12 @@ manipulate_capture (ClutterActor *actor,
                                                  CLUTTER_PICK_ALL,
                                                  x, y);
 #else
-              hit = cluttersmith_children_pick (cluttersmith_get_current_container (), x, y);
+              hit = cs_children_pick (cs_get_current_container (), x, y);
 
               if (!hit)
                 {
-                  hit = cluttersmith_children_pick (cluttersmith->fake_stage, x, y);
-                  if (hit == cluttersmith_get_current_container ())
+                  hit = cs_children_pick (cluttersmith->fake_stage, x, y);
+                  if (hit == cs_get_current_container ())
                     hit = NULL;
                   stage_child = TRUE;
                 }
@@ -1239,10 +1239,10 @@ manipulate_capture (ClutterActor *actor,
                         {
                           return FALSE;
                         }
-                      cluttersmith_selected_clear ();
+                      cs_selected_clear ();
                       if (stage_child)
                         {
-                          cluttersmith_set_current_container (cluttersmith->fake_stage);
+                          cs_set_current_container (cluttersmith->fake_stage);
                         }
                     }
                   else
@@ -1255,18 +1255,18 @@ manipulate_capture (ClutterActor *actor,
 
                   if (event->button.modifier_state & CLUTTER_CONTROL_MASK)
                     {
-                      if (cluttersmith_selected_has_actor (hit))
+                      if (cs_selected_has_actor (hit))
                         {
-                          cluttersmith_selected_remove (hit);
+                          cs_selected_remove (hit);
                         }
                       else
                         {
-                          cluttersmith_selected_add (hit);
+                          cs_selected_add (hit);
                         }
                     }
                   else
                     {
-                      cluttersmith_selected_add (hit);
+                      cs_selected_add (hit);
                     }
                   manipulate_move_start (cluttersmith->parasite_root, event);
                 }
@@ -1294,7 +1294,7 @@ manipulate_capture (ClutterActor *actor,
 static gboolean playback_context (ClutterActor *actor,
                                   ClutterEvent *event)
 {
-  if (!(cluttersmith->ui_mode & CLUTTERSMITH_UI_MODE_EDIT) &&
+  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
       clutter_event_get_button (event)==3)
     {
       playback_popup (event->button.x, event->button.y);
@@ -1319,14 +1319,14 @@ void cb_manipulate_init (ClutterActor *actor)
                     G_CALLBACK (playback_context), NULL);
 }
 
-gboolean cluttersmith_canvas_handler_enter (ClutterActor *actor)
+gboolean cs_canvas_handler_enter (ClutterActor *actor)
 {
   clutter_actor_set_opacity (actor, 255);
   return TRUE;
 }
 
 
-gboolean cluttersmith_canvas_handler_leave (ClutterActor *actor)
+gboolean cs_canvas_handler_leave (ClutterActor *actor)
 {
   clutter_actor_set_opacity (actor, 100);
   return TRUE;
@@ -1335,13 +1335,13 @@ gboolean cluttersmith_canvas_handler_leave (ClutterActor *actor)
 static ClutterActor *current_container = NULL;
 
 
-void cluttersmith_set_current_container (ClutterActor *actor)
+void cs_set_current_container (ClutterActor *actor)
 {
   if (actor && CLUTTER_IS_CONTAINER (actor))
     current_container = actor;
 }
 
-ClutterActor *cluttersmith_get_current_container (void)
+ClutterActor *cs_get_current_container (void)
 {
   if (!current_container)
     return cluttersmith->fake_stage;

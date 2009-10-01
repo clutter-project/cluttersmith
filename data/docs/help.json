@@ -58,7 +58,7 @@
       "children":[
       {
         "type":"ClutterText",
-        "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cluttersmith_link_text_changed\"} ]",
+        "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
         "x": 0,
         "y": 0,
         "width":47,
@@ -88,12 +88,12 @@
         "password-char":0,
         "max-length":0,
         "single-line-mode":false,
-        "signals": [ {"name":"text-changed", "handler":"cluttersmith_link_text_changed"} ]
+        "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
       }
       ,
       {
         "type":"NbtkButton",
-        "name":"json-extra:\"signals\": [ {\"name\":\"clicked\", \"handler\":\"cluttersmith_link_follow\"} ]",
+        "name":"json-extra:\"signals\": [ {\"name\":\"clicked\", \"handler\":\"cs_link_follow\"} ]",
         "x":47,
         "y": 0,
         "width":28,
@@ -113,7 +113,7 @@
         "toggle-mode":false,
         "checked":false,
         "transition-duration":120,
-        "signals": [ {"name":"clicked", "handler":"cluttersmith_link_follow"} ]
+        "signals": [ {"name":"clicked", "handler":"cs_link_follow"} ]
         "children":[
         {
           "type":"ClutterRectangle",

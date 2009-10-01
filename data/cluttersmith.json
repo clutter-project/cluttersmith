@@ -326,8 +326,8 @@
       "opacity":100,
       "reactive":true,
       "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"}
-                   {"name":"enter-event", "handler":"cluttersmith_canvas_handler_enter"}
-                   {"name":"leave-event", "handler":"cluttersmith_canvas_handler_leave"}
+                   {"name":"enter-event", "handler":"cs_canvas_handler_enter"}
+                   {"name":"leave-event", "handler":"cs_canvas_handler_leave"}
       
       ] 
       "anchor-gravity":"center",
@@ -344,8 +344,8 @@
       "reactive":true,
       "opacity":100,
       "signals": [ {"name":"button-press-event", "handler":"manipulate_move_start"} 
-                   {"name":"enter-event", "handler":"cluttersmith_canvas_handler_enter"}
-                   {"name":"leave-event", "handler":"cluttersmith_canvas_handler_leave"}
+                   {"name":"enter-event", "handler":"cs_canvas_handler_enter"}
+                   {"name":"leave-event", "handler":"cs_canvas_handler_leave"}
 
     ] 
      }

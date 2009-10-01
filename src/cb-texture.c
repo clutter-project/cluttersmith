@@ -36,7 +36,7 @@ set_uri (CBTexture   *texture,
     {
       gchar *fullpath;
       priv->image = g_strdup (name);
-      fullpath = g_strdup_printf ("%s/%s", cluttersmith_get_project_root (), name);
+      fullpath = g_strdup_printf ("%s/%s", cs_get_project_root (), name);
       g_object_set (texture, "filename", fullpath, NULL);
       g_free (fullpath);
     }

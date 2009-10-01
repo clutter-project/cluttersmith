@@ -12,22 +12,22 @@ static GList *clipboard = NULL;
 static void each_duplicate (ClutterActor *actor)
 {
   ClutterActor *parent, *new_actor;
-  parent = cluttersmith_get_current_container ();
-  new_actor = util_duplicator (actor, parent);
+  parent = cs_get_current_container ();
+  new_actor = cs_duplicator (actor, parent);
   {
     gfloat x, y;
     clutter_actor_get_position (new_actor, &x, &y);
     x+=10;y+=10;
     clutter_actor_set_position (new_actor, x, y);
   }
-  cluttersmith_selected_clear ();
-  cluttersmith_selected_add (new_actor);
+  cs_selected_clear ();
+  cs_selected_add (new_actor);
 }
 
 void cb_duplicate_selected (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (each_duplicate), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (each_duplicate), NULL);
+  cs_dirtied ();;
 }
 
 static void each_remove (ClutterActor *actor)
@@ -39,15 +39,15 @@ static void each_remove (ClutterActor *actor)
 
 void cb_remove_selected (ClutterActor *actor)
 {
-  ClutterActor *active = cluttersmith_get_active ();
+  ClutterActor *active = cs_get_active ();
   if (active)
     {
       ClutterActor *parent = clutter_actor_get_parent (active);
-      cluttersmith_set_active (NULL);
-      cluttersmith_selected_foreach (G_CALLBACK (each_remove), NULL);
-      cluttersmith_dirtied ();;
-      cluttersmith_selected_clear ();
-      cluttersmith_selected_add (parent);
+      cs_set_active (NULL);
+      cs_selected_foreach (G_CALLBACK (each_remove), NULL);
+      cs_dirtied ();;
+      cs_selected_clear ();
+      cs_selected_add (parent);
     }
 }
 
@@ -72,16 +72,16 @@ static void each_cut (ClutterActor *actor)
 
 void cb_cut_selected (ClutterActor *actor)
 {
-  ClutterActor *active = cluttersmith_get_active ();
+  ClutterActor *active = cs_get_active ();
   empty_clipboard ();
   if (active)
     {
       ClutterActor *parent = clutter_actor_get_parent (active);
-      cluttersmith_set_active (NULL);
-      cluttersmith_selected_foreach (G_CALLBACK (each_cut), NULL);
-      cluttersmith_dirtied ();;
-      cluttersmith_selected_clear ();
-      cluttersmith_selected_add (parent);
+      cs_set_active (NULL);
+      cs_selected_foreach (G_CALLBACK (each_cut), NULL);
+      cs_dirtied ();;
+      cs_selected_clear ();
+      cs_selected_add (parent);
     }
 
 }
@@ -91,7 +91,7 @@ static void each_copy (ClutterActor *actor)
   ClutterActor *parent, *new_actor;
   parent = clutter_actor_get_parent (actor);
 
-  new_actor = util_duplicator (actor, parent);
+  new_actor = cs_duplicator (actor, parent);
   g_object_ref (new_actor);
   clutter_container_remove_actor (CLUTTER_CONTAINER (parent), new_actor);
   clipboard = g_list_append (clipboard, new_actor);
@@ -100,8 +100,8 @@ static void each_copy (ClutterActor *actor)
 void cb_copy_selected (ClutterActor *actor)
 {
   empty_clipboard ();
-  cluttersmith_selected_foreach (G_CALLBACK (each_copy), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (each_copy), NULL);
+  cs_dirtied ();;
 }
 
 
@@ -112,11 +112,11 @@ void cb_paste_selected (ClutterActor *actor)
       GList *i;
       ClutterActor *new_actor = NULL, *parent;
 
-      parent = cluttersmith_get_current_container ();
+      parent = cs_get_current_container ();
 
       for (i=clipboard; i;i=i->next)
         {
-          new_actor = util_duplicator (i->data, parent);
+          new_actor = cs_duplicator (i->data, parent);
           g_assert (new_actor);
           {
             gfloat x, y;
@@ -124,36 +124,36 @@ void cb_paste_selected (ClutterActor *actor)
             clutter_actor_set_position (new_actor, x, y);
           }
         }
-      cluttersmith_selected_clear ();
+      cs_selected_clear ();
       if (new_actor)
-        cluttersmith_selected_add (new_actor);
+        cs_selected_add (new_actor);
     }
-  cluttersmith_dirtied ();;
+  cs_dirtied ();;
 }
 
 void cb_raise_selected (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_raise), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (clutter_actor_raise), NULL);
+  cs_dirtied ();;
 }
 
 void cb_lower_selected (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_lower), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (clutter_actor_lower), NULL);
+  cs_dirtied ();;
 }
 
 
 void cb_raise_top_selected (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_raise_top), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (clutter_actor_raise_top), NULL);
+  cs_dirtied ();;
 }
 
 void cb_lower_bottom_selected (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (clutter_actor_lower_bottom), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (clutter_actor_lower_bottom), NULL);
+  cs_dirtied ();;
 }
 
 static void each_reset_size (ClutterActor *actor)
@@ -163,8 +163,8 @@ static void each_reset_size (ClutterActor *actor)
 
 void cb_reset_size (ClutterActor *actor)
 {
-  cluttersmith_selected_foreach (G_CALLBACK (each_reset_size), NULL);
-  cluttersmith_dirtied ();;
+  cs_selected_foreach (G_CALLBACK (each_reset_size), NULL);
+  cs_dirtied ();;
 }
 
 void cb_quit (ClutterActor *actor)
@@ -175,7 +175,7 @@ void cb_quit (ClutterActor *actor)
 void cb_focus_entry (ClutterActor *actor)
 {
   ClutterActor *entry;
-  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (util_find_by_id_int (actor, "title")));
+  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (cs_find_by_id_int (actor, "title")));
   g_assert (entry);
   if (entry)
     {
@@ -186,17 +186,17 @@ void cb_focus_entry (ClutterActor *actor)
 
 void cb_select_none (ClutterActor *actor)
 {
-  cluttersmith_selected_clear ();
+  cs_selected_clear ();
 }
 
 void cb_select_all (ClutterActor *actor)
 {
   GList *l, *list;
-  cluttersmith_selected_clear ();
-  list = clutter_container_get_children (CLUTTER_CONTAINER (cluttersmith_get_current_container()));
+  cs_selected_clear ();
+  list = clutter_container_get_children (CLUTTER_CONTAINER (cs_get_current_container()));
   for (l=list; l;l=l->next)
     {
-      cluttersmith_selected_add (l->data);
+      cs_selected_add (l->data);
     }
   g_list_free (list);
 }
@@ -235,7 +235,7 @@ void cb_group (ClutterActor *actor)
   gfloat delta[2];
   ClutterActor *parent;
   ClutterActor *group;
-  parent = cluttersmith_get_current_container ();
+  parent = cs_get_current_container ();
   group = clutter_group_new ();
   /* find upper left item,. and place group there,.. reposition children to
    * fit this
@@ -247,14 +247,14 @@ void cb_group (ClutterActor *actor)
   min_x = 2000000.0;
   min_y = 2000000.0;
 
-  cluttersmith_selected_foreach (G_CALLBACK (each_group), group);
+  cs_selected_foreach (G_CALLBACK (each_group), group);
   delta[0]=min_x;
   delta[1]=min_y;
-  cluttersmith_selected_foreach (G_CALLBACK (each_group_move), delta);
+  cs_selected_foreach (G_CALLBACK (each_group_move), delta);
   clutter_actor_set_position (group, min_x, min_y);
-  cluttersmith_selected_clear ();
-  cluttersmith_selected_add (group);
-  cluttersmith_dirtied ();;
+  cs_selected_clear ();
+  cs_selected_add (group);
+  cs_dirtied ();;
 }
 
 static void each_ungroup (ClutterActor *actor,
@@ -288,29 +288,29 @@ static void each_ungroup (ClutterActor *actor,
 void cb_ungroup (ClutterActor *actor)
 {
   GList *i, *created_list = NULL;
-  cluttersmith_set_active (NULL);
-  cluttersmith_selected_foreach (G_CALLBACK (each_ungroup), &created_list);
-  cluttersmith_selected_clear (); 
+  cs_set_active (NULL);
+  cs_selected_foreach (G_CALLBACK (each_ungroup), &created_list);
+  cs_selected_clear (); 
   for (i=created_list; i; i=i->next)
     {
-      cluttersmith_selected_add (i->data);
+      cs_selected_add (i->data);
     }
   g_list_free (created_list);
-  cluttersmith_dirtied ();;
+  cs_dirtied ();;
 }
 
 void cb_select_parent (ClutterActor *actor)
 {
-  ClutterActor *active_actor = cluttersmith_selected_get_any ();
+  ClutterActor *active_actor = cs_selected_get_any ();
   if (active_actor)
     {
       ClutterActor *parent = clutter_actor_get_parent (active_actor);
       if (parent) 
         {
-          cluttersmith_selected_clear ();
-          cluttersmith_selected_add (parent);
+          cs_selected_clear ();
+          cs_selected_add (parent);
           parent = clutter_actor_get_parent (parent);
-          cluttersmith_set_current_container (parent);
+          cs_set_current_container (parent);
           clutter_actor_queue_redraw (active_actor);
         }
     }
@@ -319,25 +319,25 @@ void cb_select_parent (ClutterActor *actor)
 void
 cb_help (ClutterActor *actor)
 {
-  cluttersmith_set_project_root (PKGDATADIR "docs");
+  cs_set_project_root (PKGDATADIR "docs");
 }
 
 void
 cb_ui_mode (ClutterActor *actor)
 {
-  switch (cluttersmith_get_ui_mode ())
+  switch (cs_get_ui_mode ())
     {
-        case CLUTTERSMITH_UI_MODE_BROWSE:
-          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_CHROME);
+        case CS_UI_MODE_BROWSE:
+          cs_set_ui_mode (CS_UI_MODE_CHROME);
           g_print ("Run mode : edit only\n");
           break;
-/*        case CLUTTERSMITH_UI_MODE_EDIT:
-          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_CHROME);
+/*        case CS_UI_MODE_EDIT:
+          cs_set_ui_mode (CS_UI_MODE_CHROME);
           g_print ("Run mode : ui with edit\n");
           break;*/
-        case CLUTTERSMITH_UI_MODE_CHROME: 
+        case CS_UI_MODE_CHROME: 
         default:
-          cluttersmith_set_ui_mode (CLUTTERSMITH_UI_MODE_BROWSE);
+          cs_set_ui_mode (CS_UI_MODE_BROWSE);
           g_print ("Run mode : browse\n");
           break;
     }
@@ -464,7 +464,7 @@ static void dialog_toggle (gpointer action,
     }
   clutter_actor_queue_relayout (dialog);
   clutter_actor_queue_relayout (clutter_actor_get_parent (dialog));
-  cluttersmith_sync_chrome ();
+  cs_sync_chrome ();
 }
 
 static NbtkAction *dialog_toggle_action (const gchar *name,
