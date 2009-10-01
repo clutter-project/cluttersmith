@@ -624,6 +624,8 @@ static void dialog_remember (GKeyFile *keyfile,
   if (!actor)
     return;
  g_key_file_set_boolean (keyfile, name, "visible", CLUTTER_ACTOR_IS_VISIBLE(actor));
+ g_key_file_set_integer (keyfile, name, "x", clutter_actor_get_x (actor));
+ g_key_file_set_integer (keyfile, name, "y", clutter_actor_get_y (actor));
 }
 
 
@@ -637,6 +639,9 @@ static void dialog_recall (GKeyFile *keyfile,
     clutter_actor_show (actor);
   else
     clutter_actor_hide (actor);
+
+  clutter_actor_set_position (actor, g_key_file_get_integer (keyfile, name, "x", NULL),
+                                     g_key_file_get_integer (keyfile, name, "y", NULL));
 }
 
 
