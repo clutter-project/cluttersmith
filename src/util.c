@@ -557,21 +557,47 @@ static void util_container_add_actor_at (ClutterContainer *container,
                                          ClutterActor     *actor,
                                          gint              pos)
 {
+  GList *c, *children, *remainder = NULL;
+  gint i = 0;
+  children = clutter_container_get_children (container);
+
+  /* remove all children after to insertion point */
+  for (c = children; c; c = c->next)
+    {
+      if (i>=pos)
+        {
+          remainder = c;
+          break;
+        }
+      i++;
+    }
+
+  for (c = remainder; c; c = c->next)
+    {
+      /* XXX: store child-meta properties */
+      g_object_ref (c->data);
+      clutter_container_remove_actor (container, c->data);
+    }
   clutter_container_add_actor (container, actor);
+  for (c = remainder; c; c = c->next)
+    {
+      clutter_container_add_actor (container, c->data);
+      g_object_unref (c->data);
+    }
 }
 
 static gint get_sibling_no (ClutterActor *actor)
 {
   ClutterActor *parent;
   GList *c, *children;
-  gint i;
+  gint i = 0;
 
   if (!actor)
     return 0;
   parent = clutter_actor_get_parent (actor);
   if (!parent)
     return 0;
-  if (CLUTTER_IS_CONTAINER (parent))
+  if (!CLUTTER_IS_CONTAINER (parent))
     return 0;
   children = clutter_container_get_children (CLUTTER_CONTAINER (parent));
   for (c = children; c; c = c->next)
