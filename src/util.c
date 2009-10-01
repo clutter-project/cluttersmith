@@ -553,11 +553,46 @@ gboolean util_block_event (ClutterActor *actor)
   return TRUE;
 }
 
+static void util_container_add_actor_at (ClutterContainer *container,
+                                         ClutterActor     *actor,
+                                         gint              pos)
+{
+  clutter_container_add_actor (container, actor);
+}
+
+static gint get_sibling_no (ClutterActor *actor)
+{
+  ClutterActor *parent;
+  GList *c, *children;
+  gint i;
+
+  if (!actor)
+    return 0;
+  parent = clutter_actor_get_parent (actor);
+  if (!parent)
+    return 0;
+  if (CLUTTER_IS_CONTAINER (parent))
+    return 0;
+  children = clutter_container_get_children (CLUTTER_CONTAINER (parent));
+  for (c = children; c; c = c->next)
+    {
+      if (c->data == actor)
+        {
+          g_list_free (children);
+          return i;
+        }
+      i++;
+    }
+  g_list_free (children);
+  return 0;
+}
+
 ClutterActor *util_change_type (ClutterActor *actor,
                                 const gchar  *new_type)
 {
   /* XXX: we need to recreate our correct position in parent as well */
   ClutterActor *new_actor, *parent;
+  gint sibling_no = 0;
 
   if (CLUTTER_IS_STAGE (actor))
     {
@@ -578,15 +613,19 @@ ClutterActor *util_change_type (ClutterActor *actor,
           {
             ClutterActor *child = g_object_ref (c->data);
             clutter_container_remove_actor (CLUTTER_CONTAINER (actor), child);
-            clutter_container_add_actor (CLUTTER_CONTAINER (actor), child);
+            clutter_container_add_actor (CLUTTER_CONTAINER (new_actor), child);
 
           }
         g_list_free (children);
       }
 
   util_apply_transient (new_actor);
+  sibling_no = get_sibling_no (actor);
+  g_print ("sno: %i\n", sibling_no);
   clutter_actor_destroy (actor);
-  clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+  util_container_add_actor_at (CLUTTER_CONTAINER (parent), new_actor, sibling_no);
+  sibling_no = get_sibling_no (new_actor);
+  g_print ("sno: %i\n", sibling_no);
 
   if (g_str_equal (new_type, "ClutterText"))
     {
