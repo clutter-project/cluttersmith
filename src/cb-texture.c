@@ -20,7 +20,7 @@ enum {
 
 
 G_DEFINE_TYPE (CBTexture,
-               cb_texture,
+               cs_texture,
                CLUTTER_TYPE_TEXTURE);
 
 static void
@@ -50,7 +50,7 @@ set_uri (CBTexture   *texture,
 
 
 static void
-cb_texture_dispose (GObject *object)
+cs_texture_dispose (GObject *object)
 {
   CBTexture        *self;
   CBTexturePrivate *priv; 
@@ -58,11 +58,11 @@ cb_texture_dispose (GObject *object)
   self = CB_TEXTURE(object); 
   priv = self->priv;
 
-  G_OBJECT_CLASS (cb_texture_parent_class)->dispose (object);
+  G_OBJECT_CLASS (cs_texture_parent_class)->dispose (object);
 }
 
 static void
-cb_texture_finalize (GObject *object)
+cs_texture_finalize (GObject *object)
 {
   CBTexture        *self;
   CBTexturePrivate *priv; 
@@ -73,11 +73,11 @@ cb_texture_finalize (GObject *object)
   if (priv->image)
     g_free (priv->image);
 
-  G_OBJECT_CLASS (cb_texture_parent_class)->finalize (object);
+  G_OBJECT_CLASS (cs_texture_parent_class)->finalize (object);
 }
 
 static void
-cb_texture_set_property (GObject      *object, 
+cs_texture_set_property (GObject      *object, 
 				        guint         property_id,
 				        const GValue *value, 
 				        GParamSpec   *pspec)
@@ -100,7 +100,7 @@ cb_texture_set_property (GObject      *object,
 }
 
 static void
-cb_texture_get_property (GObject    *object, 
+cs_texture_get_property (GObject    *object, 
 				        guint       property_id,
 				        GValue     *value, 
 				        GParamSpec *pspec)
@@ -123,16 +123,16 @@ cb_texture_get_property (GObject    *object,
 }
 
 static void
-cb_texture_class_init (CBTextureClass *klass)
+cs_texture_class_init (CBTextureClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   g_type_class_add_private (klass, sizeof (CBTexturePrivate));
 
-  object_class->dispose      = cb_texture_dispose;
-  object_class->finalize     = cb_texture_finalize;
-  object_class->set_property = cb_texture_set_property;
-  object_class->get_property = cb_texture_get_property;
+  object_class->dispose      = cs_texture_dispose;
+  object_class->finalize     = cs_texture_finalize;
+  object_class->set_property = cs_texture_set_property;
+  object_class->get_property = cs_texture_get_property;
 
 
   g_object_class_install_property
@@ -147,7 +147,7 @@ cb_texture_class_init (CBTextureClass *klass)
 }
 
 static void
-cb_texture_init (CBTexture *texture)
+cs_texture_init (CBTexture *texture)
 {
   CBTexturePrivate *priv;
 
@@ -158,14 +158,14 @@ cb_texture_init (CBTexture *texture)
 }
 
 /**
- * cb_texture_new:
+ * cs_texture_new:
  *
  * Creates a video texture.
  *
  * Return value: the newly created video texture actor
  */
 ClutterActor*
-cb_texture_new (void)
+cs_texture_new (void)
 {
   return g_object_new (CB_TYPE_TEXTURE, NULL);
 }

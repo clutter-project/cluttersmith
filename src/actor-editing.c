@@ -196,7 +196,7 @@ static void draw_actor_outline (ClutterActor *actor,
 }
 
 static void
-cb_overlay_paint (ClutterActor *stage,
+cs_overlay_paint (ClutterActor *stage,
                   gpointer      user_data)
 {
   ClutterVertex verts[4];
@@ -376,8 +376,8 @@ gboolean update_overlay_positions (gpointer data)
 void cs_actor_editing_init (gpointer stage)
 {
   clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (cb_overlay_paint), NULL);
+  g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
+  g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
   init_multi_select ();
 }
 
@@ -1303,7 +1303,7 @@ static gboolean playback_context (ClutterActor *actor,
   return FALSE;
 }
 
-void cb_manipulate_init (ClutterActor *actor)
+void cs_manipulate_init (ClutterActor *actor)
 {
   if (stage_capture_handler)
     {

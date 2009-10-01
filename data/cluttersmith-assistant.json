@@ -26,7 +26,7 @@
      "x":0,
      "y":0,
      
-     "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
       
       "children":
         [
@@ -39,35 +39,35 @@
 
                 { "type":"NbtkButton",
                   "label":"⿻",
-                  "signals": [ {"name":"clicked", "handler":"cb_copy_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
                 { "type":"NbtkButton",
                   "label":"✂",
-                  "signals": [ {"name":"clicked", "handler":"cb_cut_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
                 { "type":"NbtkButton",
                   "label":"⟴",
-                  "signals": [ {"name":"clicked", "handler":"cb_paste_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
 
                 { "type":"NbtkButton",
                   "label":"Ꙭ",
-                  "signals": [ {"name":"clicked", "handler":"cb_duplicate_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
                 { "type":"NbtkButton",
                   "label":"×",
-                  "signals": [ {"name":"clicked", "handler":"cb_remove_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
                 { "type":"NbtkButton",
                   "label":"⤒",
-                  "signals": [ {"name":"clicked", "handler":"cb_raise_top_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
                 { "type":"NbtkButton",
                   "label":"↥",
-                  "signals": [ {"name":"clicked", "handler":"cb_raise_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
                 { "type":"NbtkButton",
                   "label":"↧",
-                  "signals": [ {"name":"clicked", "handler":"cb_lower_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
                 { "type":"NbtkButton",
                   "label":"⤓",
-                  "signals": [ {"name":"clicked", "handler":"cb_lower_bottom_selected"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
                 { "type":"NbtkButton",
                   "label":"⨀", 
-                  "signals": [ {"name":"clicked", "handler":"cb_reset_size"} ] }
+                  "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
               ],
           },
 
@@ -146,7 +146,7 @@
      "x":0,
      "y":60,
      
-     "signals": [ {"name":"button-press-event", "handler":"util_movable_press"} ] 
+     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
       "children":
         [
         ]

@@ -655,8 +655,8 @@ gboolean cs_block_event (ClutterActor *actor)
 }
 
 void cs_container_add_actor_at (ClutterContainer *container,
-                                  ClutterActor     *actor,
-                                  gint              pos)
+                                ClutterActor     *actor,
+                                gint              pos)
 {
   GList *c, *children, *remainder = NULL;
   gint i = 0;
@@ -675,14 +675,22 @@ void cs_container_add_actor_at (ClutterContainer *container,
 
   for (c = remainder; c; c = c->next)
     {
-      /* XXX: store child-meta properties */
+      GList *transient_child_props = cs_build_child_transient (c->data);
+      if (transient_child_props)
+        g_object_set_data (c->data, "cs-transient", transient_child_props);
       g_object_ref (c->data);
       clutter_container_remove_actor (container, c->data);
     }
   clutter_container_add_actor (container, actor);
   for (c = remainder; c; c = c->next)
     {
+      GList *transient_child_props = g_object_get_data (c->data, "cs-transient");
       clutter_container_add_actor (container, c->data);
+      if (transient_child_props)
+        {
+          cs_apply_child_transient (c->data, transient_child_props);
+          g_object_set_data (c->data, "cs-transient", NULL);
+        }
       g_object_unref (c->data);
     }
 }
@@ -725,8 +733,8 @@ void cs_container_replace_child (ClutterContainer *container,
 }
 
 
-ClutterActor *cs_change_type (ClutterActor *actor,
-                                const gchar  *new_type)
+ClutterActor *cs_actor_change_type (ClutterActor *actor,
+                                    const gchar  *new_type)
 {
   ClutterActor *new_actor, *parent;
   GList *transient_values;

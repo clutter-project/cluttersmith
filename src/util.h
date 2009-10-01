@@ -11,7 +11,7 @@ gpointer      cs_list_match                        (GList            *list,
 /* changes the type of actor into the new type, preserving common properties,
  * position in parent container and child properties
  */
-ClutterActor *cs_change_type                       (ClutterActor     *actor,
+ClutterActor  *cs_actor_change_type                (ClutterActor     *actor,
                                                     const gchar      *new_type);
 
 void           cs_container_remove_children        (ClutterActor *container);

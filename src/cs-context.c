@@ -153,7 +153,7 @@ void cs_dirtied (void)
   CS_REVISION++;
 }
 
-void cb_manipulate_init (ClutterActor *actor);
+void cs_manipulate_init (ClutterActor *actor);
 
 
 void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bin)
@@ -277,7 +277,7 @@ gboolean idle_add_stage (gpointer stage)
   cluttersmith->dialog_property_inspector = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-property-inspector"));
 
 
-  cb_manipulate_init (cluttersmith->parasite_root);
+  cs_manipulate_init (cluttersmith->parasite_root);
   cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
 
   init_types ();
@@ -481,7 +481,7 @@ static void change_type2 (ClutterActor *button,
   ClutterActor *actor = cs_selected_get_any ();
   popup_close ();
   cs_container_remove_children (cluttersmith->property_editors);
-  actor = cs_change_type (actor, name);
+  actor = cs_actor_change_type (actor, name);
 
   if (g_str_equal (name, "ClutterText"))
     {
@@ -508,8 +508,7 @@ static void printname (gchar *name, ClutterActor *container)
 }
 
 
-
-void cb_change_type (ClutterActor *actor)
+void cs_change_type (ClutterActor *actor)
 {
   static GList *types = NULL;
 

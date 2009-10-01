@@ -11,7 +11,7 @@
  * json-glib and clutterscript code
  */
 
-static gboolean cb_filter_properties = TRUE;
+static gboolean cs_filter_properties = TRUE;
 
 #define INDENT {gint j;for (j=0;j<*indentation;j++) g_string_append_c (str, ' ');}
 
@@ -69,7 +69,7 @@ properties_to_string (GString      *str,
       gint j;
       gboolean skip = FALSE;
 
-      if (cb_filter_properties)
+      if (cs_filter_properties)
         {
           for (j=0;j<n_actor_properties;j++)
             {

@@ -6,7 +6,7 @@
 
 G_BEGIN_DECLS
 
-#define CB_TYPE_TEXTURE cb_texture_get_type()
+#define CB_TYPE_TEXTURE cs_texture_get_type()
 
 #define CB_TEXTURE(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
@@ -43,8 +43,8 @@ struct _CBTextureClass
   ClutterTextureClass parent_class;
 }; 
 
-GType         cb_texture_get_type    (void) G_GNUC_CONST;
-ClutterActor *cb_texture_new         (void);
+GType         cs_texture_get_type    (void) G_GNUC_CONST;
+ClutterActor *cs_texture_new         (void);
 
 G_END_DECLS
 
