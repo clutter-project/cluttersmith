@@ -121,8 +121,7 @@ static gboolean idle_load_default (gpointer data)
       cs_set_project_root (PKGDATADIR "docs");
     }
 
-  cs_set_ui_mode (CS_UI_MODE_BROWSE);
-  g_print ("a\n");
+  cs_set_ui_mode (CS_UI_MODE_CHROME);
 
   cs_load_dialog_state ();
 

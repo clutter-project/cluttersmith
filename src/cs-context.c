@@ -64,7 +64,7 @@ cs_context_class_init (CSContextClass *klass)
   g_object_class_install_property (object_class, PROP_UI_MODE, pspec);
 
 
-  pspec = g_param_spec_float ("zoom", "Zoom", "zoom level", 0, 200, 100, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
+  pspec = g_param_spec_float ("zoom", "Zoom", "zoom level", 0, 3200, 100, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ZOOM, pspec);
 
 
@@ -646,14 +646,7 @@ static void title_text_changed (ClutterActor *actor)
 
     }
   cs_set_current_container (cluttersmith->fake_stage);
-  {
-    gfloat x=0, y=0;
-      if (has_chrome)
-        clutter_actor_get_transformed_position (
-           cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root),
-           "fake-stage-rect"), &x, &y);
-    clutter_actor_set_position (cluttersmith->fake_stage, x, y);
-  }
+  cs_sync_chrome_idle (NULL);
   CS_REVISION = CS_STORED_REVISION = 0;
 
   cs_selected_clear ();

@@ -804,6 +804,58 @@ gboolean manipulate_resize_start (ClutterActor  *actor,
   return TRUE;
 }
 
+static gboolean
+manipulate_pan_capture (ClutterActor *stage,
+                        ClutterEvent *event,
+                        gpointer      data)
+{
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          /* resize is semi bust for more than one actor */
+          gfloat ex = event->motion.x, ey = event->motion.y;
+          gfloat dx, dy;
+          gfloat originx, originy;
+
+          g_object_get (cluttersmith, "origin-x", &originx,
+                                      "origin-y", &originy,
+                                      NULL);
+          originx += manipulate_x-ex;
+          originy += manipulate_y-ey;
+          g_object_set (cluttersmith, "origin-x", originx,
+                                      "origin-y", originy,
+                                      NULL);
+
+          g_print ("%f %f\n", dx, dy);
+
+          manipulate_x=ex;
+          manipulate_y=ey;
+        }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+        clutter_actor_queue_redraw (stage);
+        g_signal_handler_disconnect (stage,
+                                     manipulate_capture_handler);
+        manipulate_capture_handler = 0;
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+gboolean manipulate_pan_start (ClutterEvent  *event)
+{
+  manipulate_x = event->button.x;
+  manipulate_y = event->button.y;
+
+  manipulate_capture_handler = 
+     g_signal_connect (clutter_actor_get_stage (event->any.source), "captured-event",
+                       G_CALLBACK (manipulate_pan_capture), NULL);
+  return TRUE;
+}
+
+
 
 #if 0
 
@@ -1117,6 +1169,22 @@ manipulate_capture (ClutterActor *actor,
     }
   switch (event->any.type)
     {
+      case CLUTTER_SCROLL:
+        {
+          gfloat zoom;
+          g_object_get (cluttersmith, "zoom", &zoom, NULL);
+          if (event->scroll.direction == CLUTTER_SCROLL_UP)
+            {
+              zoom *= 1.40;
+            }
+          else
+            {
+              zoom /= 1.40;
+            }
+          g_object_set (cluttersmith, "zoom", zoom, NULL);
+        }
+        return TRUE;
+        break;
       case CLUTTER_MOTION:
         {
           cs_last_x = event->motion.x;
@@ -1131,6 +1199,12 @@ manipulate_capture (ClutterActor *actor,
 
           cs_last_x = x;
           cs_last_y = y;
+
+          if (clutter_event_get_button (event) == 2)
+            {
+              manipulate_pan_start (event);
+              return TRUE;
+            }
 
           hit = cs_selection_pick (x, y);
 
