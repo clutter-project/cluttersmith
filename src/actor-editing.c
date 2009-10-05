@@ -815,7 +815,6 @@ manipulate_pan_capture (ClutterActor *stage,
         {
           /* resize is semi bust for more than one actor */
           gfloat ex = event->motion.x, ey = event->motion.y;
-          gfloat dx, dy;
           gfloat originx, originy;
 
           g_object_get (cluttersmith, "origin-x", &originx,
@@ -826,8 +825,6 @@ manipulate_pan_capture (ClutterActor *stage,
           g_object_set (cluttersmith, "origin-x", originx,
                                       "origin-y", originy,
                                       NULL);
-
-          g_print ("%f %f\n", dx, dy);
 
           manipulate_x=ex;
           manipulate_y=ey;
@@ -1172,16 +1169,28 @@ manipulate_capture (ClutterActor *actor,
       case CLUTTER_SCROLL:
         {
           gfloat zoom;
-          g_object_get (cluttersmith, "zoom", &zoom, NULL);
+          gfloat origin_x;
+          gfloat origin_y;
+
+          g_object_get (cluttersmith,
+                        "zoom", &zoom,
+                        "origin-x", &origin_x,
+                        "origin-y", &origin_y,
+                        NULL);
           if (event->scroll.direction == CLUTTER_SCROLL_UP)
             {
+              
               zoom *= 1.40;
             }
           else
             {
               zoom /= 1.40;
             }
-          g_object_set (cluttersmith, "zoom", zoom, NULL);
+          g_object_set (cluttersmith,
+                        "zoom", zoom,
+                        "origin-x", origin_x,
+                        "origin-y", origin_y,
+                        NULL);
         }
         return TRUE;
         break;
