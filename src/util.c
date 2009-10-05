@@ -654,6 +654,51 @@ gboolean cs_block_event (ClutterActor *actor)
   return TRUE;
 }
 
+static gint sort_spatial (gconstpointer a,
+                          gconstpointer b)
+{
+  gfloat ax,ay,bx,by;
+  clutter_actor_get_position (CLUTTER_ACTOR(a), &ax, &ay);
+  clutter_actor_get_position (CLUTTER_ACTOR(b), &bx, &by);
+
+  if (ay == by)
+    return by-ay;
+  return bx-ax;
+}
+                          
+
+void cs_container_visual_sort  (ClutterContainer *container)
+{
+  GList *c, *children = NULL;
+  children = clutter_container_get_children (container);
+
+  children = g_list_sort (children, sort_spatial);
+
+  for (c = children; c; c = c->next)
+    {
+      GList *transient_child_props = cs_build_child_transient (c->data);
+      if (transient_child_props)
+        g_object_set_data (c->data, "cs-transient", transient_child_props);
+      g_object_ref (c->data);
+      clutter_container_remove_actor (container, c->data);
+    }
+
+  for (c = children; c; c = c->next)
+    {
+      GList *transient_child_props = g_object_get_data (c->data, "cs-transient");
+      clutter_container_add_actor (container, c->data);
+      if (transient_child_props)
+        {
+          cs_apply_child_transient (c->data, transient_child_props);
+          g_object_set_data (c->data, "cs-transient", NULL);
+        }
+      g_object_unref (c->data);
+    }
+  g_list_free (children);
+}
+
+
+
 void cs_container_add_actor_at (ClutterContainer *container,
                                 ClutterActor     *actor,
                                 gint              pos)
@@ -693,6 +738,7 @@ void cs_container_add_actor_at (ClutterContainer *container,
         }
       g_object_unref (c->data);
     }
+  g_list_free (children);
 }
 
 gint cs_get_sibling_no (ClutterActor *actor)
@@ -745,6 +791,9 @@ ClutterActor *cs_actor_change_type (ClutterActor *actor,
       g_warning ("refusing to change type of stage");
       return actor;
     }
+
+  if (CLUTTER_IS_GROUP (actor))
+    cs_container_visual_sort(CLUTTER_CONTAINER (actor));
 
   new_actor = g_object_new (g_type_from_name (new_type), NULL);
   parent = clutter_actor_get_parent (actor);
