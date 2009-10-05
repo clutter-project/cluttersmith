@@ -87,18 +87,6 @@ initialize_stage ()
 
   if (args.fullscreen)
     clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
-#if 0
-  else
-    clutter_actor_set_size (stage, args.width, args.height); 
-
-  /* XXX: this is just odd, but seems to be a needed workaround,
-   * the dimensions we can resize within also seem odd
-   */
-  clutter_stage_set_user_resizable (stage, TRUE);
-  g_object_set (stage, "natural-width-set", FALSE,
-                       "natural-height-set", FALSE,
-                       NULL);
-#endif
 
   return stage;
 }

@@ -548,6 +548,10 @@ static void change_type2 (ClutterActor *button,
   ClutterActor *actor = cs_selected_get_any ();
   popup_close ();
   cs_container_remove_children (cluttersmith->property_editors);
+  if (!actor)
+    {
+      return;
+    }
   actor = cs_actor_change_type (actor, name);
 
   if (g_str_equal (name, "ClutterText"))
@@ -737,21 +741,6 @@ void cs_save_dialog_state (void)
   g_free (config_path);
 }
 
-static gboolean idle_resizable_hack (gpointer stage)
-{
-  g_object_set (stage, "natural-width", 100.0,
-                       "natural-height", 100.0,
-                       NULL);
-
-  g_object_set (stage, "min-width", 100.0,
-                       "min-height", 100.0,
-                       NULL);
-
-  g_object_set (stage, "natural-width-set", FALSE,
-                       "natural-height-set", FALSE,
-                       NULL);
-  return FALSE;
-}
 
 void cs_load_dialog_state (void)
 {
@@ -777,11 +766,10 @@ void cs_load_dialog_state (void)
 
     w = g_key_file_get_integer (keyfile, "window", "width", NULL);
     h = g_key_file_get_integer (keyfile, "window", "height", NULL);
-    if(1)if (w > 10 && h > 10)
+    if (w > 10 && h > 10)
       {
         clutter_actor_set_size (stage, w, h);
-        if(1)clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
-        g_idle_add (idle_resizable_hack, stage);
+        clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
         g_print ("%f %f\n", w, h);
         clutter_actor_get_size (stage, &w, &h);
 
