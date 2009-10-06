@@ -5,25 +5,24 @@ bin_PROGRAMS=cluttersmith
 AM_CFLAGS = $(DEPS_CFLAGS) $(GCC_FLAGS) \
 	    -D_GNU_SOURCE \
 	    -DPKGDATADIR=\"$(pkgdatadir)/\" \
+	    -DPKGLIBDIR=\"$(pkglibdir)/\" \
 	    -DLOCALEDIR=\""$(localedir)"\"
 
 BUILT_SOURCES = $(cluttersmith_built_sources)
 CLEANFILES    = $(cluttersmith_built_sources)
 
-cluttersmith_LDADD  = $(DEPS_LIBS)
-cluttersmith_LDFLAGS = -rdynamic
-cluttersmith_SOURCES = 		\
-  $(BUILT_SOURCES) \
-  actor-editing.c  \
+noinst_LTLIBRARIES = libcluttersmith.la
+  
+libcluttersmith_la_SOURCES = \
   cb-texture.c  \
   cb-texture.h  \
+  actor-editing.c  \
   cs-context.c  \
   cs-context.h  \
   cluttersmith.h  \
   hyperlink.c  \
   init-types.c  \
   json-serializer.c  \
-  main.c  \
   popup.c  \
   popup.h  \
   previews.c  \
@@ -31,10 +30,48 @@ cluttersmith_SOURCES = 		\
   scene-graph.c  \
   selection.c  \
   session-history.c  \
+  verbs.c \
   stencils.c  \
   util.c  \
-  util.h  \
-  verbs.c
+  util.h  
+
+libcluttersmith_la_LIBADD = $(DEPS_LIBS)
+libcluttersmith_la_LDFLAGS = -rdynamic
+
+cluttersmith_LDADD  = libcluttersmith.la $(DEPS_LIBS)
+cluttersmith_LDFLAGS = -rdynamic
+cluttersmith_SOURCES = 		\
+  $(BUILT_SOURCES) \
+  main.c 
+
+typelibdir = $(pkglibdir)
+typelib_DATA = ClutterSmith-0.0.typelib
+CLEANFILES += libcluttersmith.la
+
+ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile
+	$(AM_V_GEN) $(G_IR_SCANNER)			 \
+		--namespace=ClutterSmith		 \
+		--nsversion=0.1				 \
+		--include=Clutter-1.0			 \
+		--libtool="$(LIBTOOL)"    		 \
+		--add-include-path=$(builddir)     	 \
+		--library=libcluttersmith.la 		 \
+		$(libcluttersmith_la_SOURCES) 		 \
+		$(libcluttersmith_la_CPPFLAGS)		 \
+		`pkg-config --cflags clutter-1.0 ` \
+		-o $@
+CLEANFILES += ClutterSmith-0.0.gir
+
+# The dependency on libgnome-shell.la here is because g-ir-compiler opens it
+# (not the fake library, since we've already done the rewriting)
+ClutterSmith-0.0.typelib: ClutterSmith-0.0.gir libcluttersmith.la
+	$(AM_V_GEN) \
+		$(G_IR_COMPILER)						\
+			--includedir=.						\
+		ClutterSmith-0.0.gir -o $@
+CLEANFILES += ClutterSmith-0.0.typelib
+
+
 
 
 test: cluttersmith

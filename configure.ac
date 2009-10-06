@@ -8,11 +8,15 @@ AM_MAINTAINER_MODE
 
 AC_ISC_POSIX
 AC_PROG_CC
+AC_PROG_LIBTOOL
 AC_STDC_HEADERS
+
+PKG_PROG_PKG_CONFIG(0.16)
 
 PKG_CHECK_MODULES(DEPS, clutter-1.0 \
                         clutter-gst-0.90 \
-                        nbtk-1.2)
+                        nbtk-1.2 \
+                        gjs-1.0 )
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
@@ -24,7 +28,22 @@ fi
 
 AC_SUBST(GCC_FLAGS)
 
-SHAVE_INIT([autotools], [enable])
+# Sets GLIB_GENMARSHAL and GLIB_MKENUMS
+AM_PATH_GLIB_2_0()
+G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
+AC_SUBST(G_IR_SCANNER)
+G_IR_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
+AC_SUBST(G_IR_COMPILER)
+G_IR_GENERATE=`$PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0`
+AC_SUBST(G_IR_GENERATE)
+GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
+AC_SUBST(GIRDIR)
+TYPELIBDIR="$($PKG_CONFIG --variable=typelibdir gobject-introspection-1.0)"
+AC_SUBST(TYPELIBDIR)
+
+
+
+# SHAVE_INIT([autotools], [enable])
 
 AC_OUTPUT([
 Makefile

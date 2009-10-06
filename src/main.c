@@ -16,6 +16,7 @@
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
 #include "util.h"
+#include <gjs/gjs.h>
 
 /* Global structure containing information parsed from commandline parameters
  */
@@ -126,6 +127,7 @@ static gboolean idle_show_config (gpointer ignored)
 
 #ifndef COMPILEMODULE
 
+#include <gobject-introspection-1.0/girepository.h>
   
 
 gint
@@ -133,8 +135,10 @@ main (gint    argc,
       gchar **argv)
 {
   ClutterActor    *stage;
-  clutter_init (&argc, &argv);
   gst_init (&argc, &argv);
+  clutter_init (&argc, &argv);
+
+  g_irepository_prepend_search_path (PKGLIBDIR);
 
   if (!parse_args (argv))
     return -1;
@@ -144,11 +148,50 @@ main (gint    argc,
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
-
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 
+
+  {
+
+    GError      *error;
+    GjsContext  *js_context;
+    gsize len;
+    js_context = gjs_context_new_with_search_path(NULL);
+    gchar *script = g_strdup ("const ClutterSmith = imports.gi.ClutterSmith;const Gtk = imports.gi.Gtk\n ; const Clutter = imports.gi.Clutter;\n"
+" Gtk.init(0,null);\n"
+"let w = new Gtk.Window({ type: Gtk.WindowType.TOPLEVEL });\n"
+"w.add(new Gtk.Button({ label: \"Panel\" }));\n"
+"w.show_all();log (ClutterSmith.cs_selected_count());\n");
+    len = strlen (script);
+    int code;
+
+    if (!gjs_context_eval(js_context, script, len,
+                          "<code>", &code, &error)) {
+        g_free(script);
+        g_printerr("%s\n", error->message);
+        exit(1);
+    }
+   g_print ("resulted in : %i\n", (int)code);
+  }
+
   clutter_main ();
+
+  /* hack to force linkage, dynamically linking to the lib would make
+   * the need for this go away, the code is never executed, but it
+   * needs to be compiled and linked for libtool not to strip symbols
+   * away.
+   *
+   * We only need to refer to one function from each C file to ensure
+   * the .o is included in the binary.
+   */
+  if(stage==(void*)120)
+    {
+      cs_link_follow (NULL);
+      session_history_init_hack (NULL);
+      templates_container_init_hack (NULL);
+    }
   return 0;
+
 }
 #endif
 
