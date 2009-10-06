@@ -230,7 +230,7 @@ static void each_group_move (ClutterActor *actor,
   clutter_actor_set_position (actor, x-delta[0], y-delta[1]);
 }
 
-void cs_group (ClutterActor *actor)
+ClutterActor *cs_group (ClutterActor *actor)
 {
   gfloat delta[2];
   ClutterActor *parent;
@@ -254,7 +254,8 @@ void cs_group (ClutterActor *actor)
   clutter_actor_set_position (group, min_x, min_y);
   cs_selected_clear ();
   cs_selected_add (group);
-  cs_dirtied ();;
+  cs_dirtied ();
+  return group;
 }
 
 static void each_ungroup (ClutterActor *actor,
@@ -296,6 +297,60 @@ void cs_ungroup (ClutterActor *actor)
       cs_selected_add (i->data);
     }
   g_list_free (created_list);
+  cs_dirtied ();;
+}
+
+void cs_make_group_box (ClutterActor *actor)
+{
+  ClutterActor *active_actor = cs_selected_get_any ();
+  gboolean vertical = TRUE;
+  if (!active_actor)
+    return;
+  
+  {
+    GList *children, *c;
+    gint minx=9000, miny=9000, maxx=-9000, maxy=-90000;
+    children = clutter_container_get_children (CLUTTER_CONTAINER (active_actor));
+    for (c=children; c; c=c->next)
+      {
+        gfloat x, y;
+        clutter_actor_get_position (c->data, &x, &y);
+        if (x < minx)
+          minx = x;
+        if (y < miny)
+          miny = y;
+        if (x > maxx)
+          maxx = x;
+        if (y > maxy)
+          maxy = y;
+      }
+    if (maxx-minx > maxy - miny)
+      vertical = FALSE;
+  }
+
+  active_actor = cs_actor_change_type (active_actor, "NbtkBoxLayout");
+  g_object_set (G_OBJECT (active_actor), "vertical", vertical, NULL);
+  cs_selected_clear (); 
+  cs_selected_add (active_actor);
+  cs_dirtied ();;
+}
+
+void cs_make_box (ClutterActor *actor)
+{
+  cs_group (actor);
+  cs_make_group_box (actor);
+}
+
+
+void cs_make_group (ClutterActor *actor)
+{
+  ClutterActor *active_actor = cs_selected_get_any ();
+  if (!active_actor)
+    return;
+  
+  active_actor = cs_actor_change_type (active_actor, "ClutterGroup");
+  cs_selected_clear (); 
+  cs_selected_add (active_actor);
   cs_dirtied ();;
 }
 
@@ -367,7 +422,7 @@ static KeyBinding keybindings[]={
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|
    CLUTTER_SHIFT_MASK,   CLUTTER_g,         cs_ungroup},
-  {CLUTTER_CONTROL_MASK, CLUTTER_g,         cs_group},
+  {CLUTTER_CONTROL_MASK, CLUTTER_g,         (void*)cs_group},
   {CLUTTER_CONTROL_MASK, CLUTTER_p,         cs_select_parent},
 
   {0,                    CLUTTER_BackSpace, cs_remove},
@@ -529,9 +584,9 @@ void playback_popup (gint x,
   NbtkPopup *popup = cs_popup_new ();
   NbtkAction *action;
 
-  action = nbtk_action_new_full ("Edit", G_CALLBACK (cs_ui_mode),  NULL);
+  action = nbtk_action_new_full ("Edit (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
   nbtk_popup_add_action (popup, action);
-  action = nbtk_action_new_full ("Quit", G_CALLBACK (cs_quit),  NULL);
+  action = nbtk_action_new_full ("Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
   nbtk_popup_add_action (popup, action);
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
@@ -544,11 +599,12 @@ void root_popup (gint x,
   NbtkPopup *popup = cs_popup_new ();
   NbtkAction *action;
 
-  action = nbtk_action_new_full ("Browse", G_CALLBACK (cs_ui_mode),  NULL);
+  action = nbtk_action_new_full ("Browse (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
   nbtk_popup_add_action (popup, action);
   action = nbtk_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup),  NULL);
   nbtk_popup_add_action (popup, action);
-  action = nbtk_action_new_full ("Quit", G_CALLBACK (cs_quit),  NULL);
+  action = nbtk_action_new_full ("Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
   nbtk_popup_add_action (popup, action);
 
   clutter_group_add (cluttersmith->parasite_root, popup);
@@ -556,18 +612,68 @@ void root_popup (gint x,
   clutter_actor_show (CLUTTER_ACTOR (popup));
 }
 
+static void add_common (NbtkPopup *popup)
+{
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("______", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Cut (ctrl x)", G_CALLBACK (cs_cut), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Copy (ctrl c)", G_CALLBACK (cs_copy), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Duplicate (ctrl d)", G_CALLBACK (cs_duplicate), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove (delete)", G_CALLBACK (cs_remove), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Select None (shift ctrl a)", G_CALLBACK (cs_select_none), NULL));
+}
+
+
+void group_popup (ClutterActor *actor,
+                  gint          x,
+                  gint          y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Ungroup (shift ctrl g)", G_CALLBACK (cs_ungroup), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Make box", G_CALLBACK (cs_make_group_box), NULL));
+  add_common (popup);
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+
+void container_popup (ClutterActor *actor,
+                      gint          x,
+                      gint          y)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Make group", G_CALLBACK (cs_make_group), NULL));
+  add_common (popup);
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+
 
 void object_popup (ClutterActor *actor,
                    gint          x,
                    gint          y)
 {
+  if (CLUTTER_IS_GROUP (actor))
+    {
+      group_popup (actor, x, y);
+      return;
+    }
+  if (CLUTTER_IS_CONTAINER (actor))
+    {
+      container_popup (actor, x, y);
+      return;
+    }
   NbtkPopup *popup = cs_popup_new ();
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("------", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Cut", G_CALLBACK (cs_cut), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Copy", G_CALLBACK (cs_copy), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Paste", G_CALLBACK (cs_paste), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Duplicate", G_CALLBACK (cs_duplicate), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove", G_CALLBACK (cs_remove), NULL));
+  
+  add_common (popup);
 
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
@@ -579,12 +685,10 @@ void selection_popup (gint x,
                       gint y)
 {
   NbtkPopup *popup = cs_popup_new ();
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Selection",  foo,  NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Cut", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Copy", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Paste", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Duplicate", NULL, NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Group (ctrl g)", G_CALLBACK (cs_group), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Make box (ctrl b)", G_CALLBACK (cs_make_box), NULL));
+  add_common (popup);
+
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
