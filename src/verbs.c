@@ -9,7 +9,9 @@
 
 static GList *clipboard = NULL;
 
-static void each_duplicate (ClutterActor *actor)
+
+static void each_duplicate (ClutterActor *actor,
+                            GList        **new)
 {
   ClutterActor *parent, *new_actor;
   parent = cs_get_current_container ();
@@ -20,13 +22,17 @@ static void each_duplicate (ClutterActor *actor)
     x+=10;y+=10;
     clutter_actor_set_position (new_actor, x, y);
   }
-  cs_selected_clear ();
-  cs_selected_add (new_actor);
+  *new = g_list_append (*new, new_actor);
 }
 
-void cs_duplicate (ClutterActor *actor)
+void cs_duplicate (ClutterActor *ignored)
 {
-  cs_selected_foreach (G_CALLBACK (each_duplicate), NULL);
+  GList *n, *new = NULL;
+  cs_selected_foreach (G_CALLBACK (each_duplicate), &new);
+  cs_selected_clear ();
+  for (n=new; n; n=n->next)
+    cs_selected_add (n->data);
+  g_list_free (new);
   cs_dirtied ();
 }
 
@@ -37,7 +43,7 @@ static void each_remove (ClutterActor *actor)
   clutter_actor_destroy (actor);
 }
 
-void cs_remove (ClutterActor *actor)
+void cs_remove (ClutterActor *ignored)
 {
   ClutterActor *active = cs_get_active ();
   if (active)
@@ -70,7 +76,7 @@ static void each_cut (ClutterActor *actor)
   clutter_actor_destroy (actor);
 }
 
-void cs_cut (ClutterActor *actor)
+void cs_cut (ClutterActor *ignored)
 {
   ClutterActor *active = cs_get_active ();
   empty_clipboard ();
@@ -97,7 +103,7 @@ static void each_copy (ClutterActor *actor)
   clipboard = g_list_append (clipboard, new_actor);
 }
 
-void cs_copy (ClutterActor *actor)
+void cs_copy (ClutterActor *ignored)
 {
   empty_clipboard ();
   cs_selected_foreach (G_CALLBACK (each_copy), NULL);
@@ -105,7 +111,7 @@ void cs_copy (ClutterActor *actor)
 }
 
 
-void cs_paste (ClutterActor *actor)
+void cs_paste (ClutterActor *ignored)
 {
   if (clipboard)
     {
@@ -131,26 +137,26 @@ void cs_paste (ClutterActor *actor)
   cs_dirtied ();;
 }
 
-void cs_raise (ClutterActor *actor)
+void cs_raise (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_raise), NULL);
   cs_dirtied ();;
 }
 
-void cs_lower (ClutterActor *actor)
+void cs_lower (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_lower), NULL);
   cs_dirtied ();;
 }
 
 
-void cs_raise_top (ClutterActor *actor)
+void cs_raise_top (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_raise_top), NULL);
   cs_dirtied ();;
 }
 
-void cs_lower_bottom (ClutterActor *actor)
+void cs_lower_bottom (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_lower_bottom), NULL);
   cs_dirtied ();;
@@ -161,21 +167,21 @@ static void each_reset_size (ClutterActor *actor)
   clutter_actor_set_size (actor, -1, -1);
 }
 
-void cs_reset_size (ClutterActor *actor)
+void cs_reset_size (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (each_reset_size), NULL);
   cs_dirtied ();;
 }
 
-void cs_quit (ClutterActor *actor)
+void cs_quit (ClutterActor *ignored)
 {
   clutter_main_quit ();
 }
 
-void cs_focus_title (ClutterActor *actor)
+void cs_focus_title (ClutterActor *ignored)
 {
   ClutterActor *entry;
-  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (cs_find_by_id_int (actor, "title")));
+  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (cs_find_by_id_int (cluttersmith->fake_stage, "title")));
   g_assert (entry);
   if (entry)
     {
@@ -184,12 +190,12 @@ void cs_focus_title (ClutterActor *actor)
     }
 }
 
-void cs_select_none (ClutterActor *actor)
+void cs_select_none (ClutterActor *ignored)
 {
   cs_selected_clear ();
 }
 
-void cs_select_all (ClutterActor *actor)
+void cs_select_all (ClutterActor *ignored)
 {
   GList *l, *list;
   cs_selected_clear ();
@@ -230,7 +236,7 @@ static void each_group_move (ClutterActor *actor,
   clutter_actor_set_position (actor, x-delta[0], y-delta[1]);
 }
 
-ClutterActor *cs_group (ClutterActor *actor)
+ClutterActor *cs_group (ClutterActor *ignored)
 {
   gfloat delta[2];
   ClutterActor *parent;
@@ -286,7 +292,7 @@ static void each_ungroup (ClutterActor *actor,
     }
 }
 
-void cs_ungroup (ClutterActor *actor)
+void cs_ungroup (ClutterActor *ignored)
 {
   GList *i, *created_list = NULL;
   cs_set_active (NULL);
@@ -300,7 +306,7 @@ void cs_ungroup (ClutterActor *actor)
   cs_dirtied ();;
 }
 
-void cs_make_group_box (ClutterActor *actor)
+void cs_make_group_box (ClutterActor *ignored)
 {
   ClutterActor *active_actor = cs_selected_get_any ();
   gboolean vertical = TRUE;
@@ -335,14 +341,13 @@ void cs_make_group_box (ClutterActor *actor)
   cs_dirtied ();;
 }
 
-void cs_make_box (ClutterActor *actor)
+void cs_make_box (ClutterActor *ignored)
 {
-  cs_group (actor);
-  cs_make_group_box (actor);
+  cs_group (ignored);
+  cs_make_group_box (ignored);
 }
 
-
-void cs_make_group (ClutterActor *actor)
+void cs_make_group (ClutterActor *ignored)
 {
   ClutterActor *active_actor = cs_selected_get_any ();
   if (!active_actor)
@@ -354,7 +359,7 @@ void cs_make_group (ClutterActor *actor)
   cs_dirtied ();;
 }
 
-void cs_select_parent (ClutterActor *actor)
+void cs_select_parent (ClutterActor *ignored)
 {
   ClutterActor *active_actor = cs_selected_get_any ();
   if (active_actor)
@@ -384,13 +389,13 @@ void cs_select_parent (ClutterActor *actor)
 }
 
 void
-cs_help (ClutterActor *actor)
+cs_help (ClutterActor *ignored)
 {
   cs_set_project_root (PKGDATADIR "docs");
 }
 
 void
-cs_ui_mode (ClutterActor *actor)
+cs_ui_mode (ClutterActor *ignored)
 {
   switch (cs_get_ui_mode ())
     {
@@ -417,6 +422,7 @@ typedef struct KeyBinding {
   ClutterModifierType modifier;
   guint key_symbol;
   void (*callback) (ClutterActor *actor);
+  gpointer callback_data;
 } KeyBinding;
 
 static KeyBinding keybindings[]={
@@ -454,7 +460,7 @@ gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modif
       if (keybindings[i].key_symbol == key &&
           ((keybindings[i].modifier & modifier) == keybindings[i].modifier))
         {
-          keybindings[i].callback (stage);
+          keybindings[i].callback (keybindings[i].callback_data);
           return TRUE;
         }
     }
@@ -478,7 +484,7 @@ gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierTyp
       if (global_keybindings[i].key_symbol == key &&
           ((global_keybindings[i].modifier & modifier) == global_keybindings[i].modifier))
         {
-          global_keybindings[i].callback (stage);
+          global_keybindings[i].callback (global_keybindings[i].callback_data);
           return TRUE;
         }
     }
