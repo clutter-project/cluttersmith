@@ -355,6 +355,8 @@ gboolean update_overlay_positions (gpointer data)
   clutter_actor_show (cluttersmith->active_panel);
   clutter_actor_show (cluttersmith->move_handle);
   clutter_actor_show (cluttersmith->resize_handle);
+      
+  /*XXX: */ clutter_actor_hide (cluttersmith->active_panel);
 
   min_x = 65536;
   min_y = 65536;
@@ -804,6 +806,39 @@ gboolean manipulate_resize_start (ClutterActor  *actor,
   return TRUE;
 }
 
+static gfloat manipulate_pan_start_x = 0;
+static gfloat manipulate_pan_start_y = 0;
+
+
+static void do_zoom (gboolean in,
+                     gfloat   x,
+                     gfloat   y)
+{
+  gfloat zoom;
+  gfloat origin_x;
+  gfloat origin_y;
+
+  g_object_get (cluttersmith,
+                "zoom", &zoom,
+                "origin-x", &origin_x,
+                "origin-y", &origin_y,
+                NULL);
+  if (in)
+    {
+      
+      zoom *= 1.412135;
+    }
+  else
+    {
+      zoom /= 1.412135;
+    }
+  g_object_set (cluttersmith,
+                "zoom", zoom,
+                "origin-x", origin_x,
+                "origin-y", origin_y,
+                NULL);
+}
+
 static gboolean
 manipulate_pan_capture (ClutterActor *stage,
                         ClutterEvent *event,
@@ -834,6 +869,11 @@ manipulate_pan_capture (ClutterActor *stage,
         clutter_actor_queue_redraw (stage);
         g_signal_handler_disconnect (stage,
                                      manipulate_capture_handler);
+        if (manipulate_x == manipulate_pan_start_x &&
+            manipulate_y == manipulate_pan_start_y)
+          {
+            do_zoom (!(event->button.modifier_state & CLUTTER_SHIFT_MASK), manipulate_x, manipulate_y);
+          }
         manipulate_capture_handler = 0;
       default:
         break;
@@ -845,6 +885,9 @@ gboolean manipulate_pan_start (ClutterEvent  *event)
 {
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
+
+  manipulate_pan_start_x = manipulate_x;
+  manipulate_pan_start_y = manipulate_y;
 
   manipulate_capture_handler = 
      g_signal_connect (clutter_actor_get_stage (event->any.source), "captured-event",
@@ -1167,31 +1210,8 @@ manipulate_capture (ClutterActor *actor,
   switch (event->any.type)
     {
       case CLUTTER_SCROLL:
-        {
-          gfloat zoom;
-          gfloat origin_x;
-          gfloat origin_y;
-
-          g_object_get (cluttersmith,
-                        "zoom", &zoom,
-                        "origin-x", &origin_x,
-                        "origin-y", &origin_y,
-                        NULL);
-          if (event->scroll.direction == CLUTTER_SCROLL_UP)
-            {
-              
-              zoom *= 1.40;
-            }
-          else
-            {
-              zoom /= 1.40;
-            }
-          g_object_set (cluttersmith,
-                        "zoom", zoom,
-                        "origin-x", origin_x,
-                        "origin-y", origin_y,
-                        NULL);
-        }
+          do_zoom (event->scroll.direction == CLUTTER_SCROLL_UP,
+                   event->scroll.x, event->scroll.y);
         return TRUE;
         break;
       case CLUTTER_MOTION:
