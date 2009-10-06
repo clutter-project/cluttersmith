@@ -2,6 +2,7 @@
 
 #include "cluttersmith.h"
 #include "cs-context.h"
+#include <gjs/gjs.h>
 
   G_DEFINE_TYPE (CSContext, cs_context, G_TYPE_OBJECT)
 
@@ -690,8 +691,40 @@ static void title_text_changed (ClutterActor *actor)
   cs_container_remove_children (cluttersmith->scene_graph);
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
+      gchar *scriptfilename;
       session_history_add (cs_get_project_root ());
       cluttersmith->fake_stage = cs_replace_content2 (actor, "fake-stage", filename);
+
+      scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
+                                  title);
+      if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
+        {
+          GError      *error = NULL;
+          guchar *js;
+          gsize len;
+
+          if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
+            {
+               g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
+            }
+          else
+            {
+              GjsContext  *js_context = gjs_context_new_with_search_path(NULL);
+              guchar code;
+              g_print ("running js: %i {%s}\n", len, js);
+
+              if (!gjs_context_eval(js_context, js, len,
+                       "<code>", &code, &error))
+                {
+                   g_printerr("Failed: %s\n", error->message);
+                   exit(1);
+                }
+              g_print ("returned: %i\n", code);
+              g_free (js);
+              g_object_unref (js_context);
+            }
+          g_free (scriptfilename);
+        }
     }
   else
     {

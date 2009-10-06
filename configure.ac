@@ -43,7 +43,7 @@ AC_SUBST(TYPELIBDIR)
 
 
 
-# SHAVE_INIT([autotools], [enable])
+SHAVE_INIT([autotools], [enable])
 
 AC_OUTPUT([
 Makefile

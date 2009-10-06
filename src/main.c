@@ -129,7 +129,6 @@ static gboolean idle_show_config (gpointer ignored)
 
 #include <gobject-introspection-1.0/girepository.h>
   
-
 gint
 main (gint    argc,
       gchar **argv)
@@ -149,30 +148,6 @@ main (gint    argc,
   g_timeout_add (800, idle_load_default, NULL);
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
-
-
-  {
-
-    GError      *error;
-    GjsContext  *js_context;
-    gsize len;
-    js_context = gjs_context_new_with_search_path(NULL);
-    gchar *script = g_strdup ("const ClutterSmith = imports.gi.ClutterSmith;const Gtk = imports.gi.Gtk\n ; const Clutter = imports.gi.Clutter;\n"
-" Gtk.init(0,null);\n"
-"let w = new Gtk.Window({ type: Gtk.WindowType.TOPLEVEL });\n"
-"w.add(new Gtk.Button({ label: \"Panel\" }));\n"
-"w.show_all();log (ClutterSmith.cs_selected_count());\n");
-    len = strlen (script);
-    int code;
-
-    if (!gjs_context_eval(js_context, script, len,
-                          "<code>", &code, &error)) {
-        g_free(script);
-        g_printerr("%s\n", error->message);
-        exit(1);
-    }
-   g_print ("resulted in : %i\n", (int)code);
-  }
 
   clutter_main ();
 
