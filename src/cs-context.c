@@ -794,6 +794,15 @@ void cs_save_dialog_state (void)
     g_key_file_set_integer (keyfile, "canvas", "height", h);
   }
 
+  {
+    gfloat zoom, x, y;
+    g_object_get (G_OBJECT (cluttersmith), "origin-x", &x, "origin-y", &y, "zoom", &zoom, NULL);
+
+    g_key_file_set_double (keyfile, "canvas", "origin-x", x);
+    g_key_file_set_double (keyfile, "canvas", "origin-y", y);
+    g_key_file_set_double (keyfile, "canvas", "zoom", zoom);
+  }
+
   config = g_key_file_to_data (keyfile, NULL, NULL);
   g_file_set_contents (config_path, config, -1, NULL);
   g_key_file_free (keyfile);
@@ -836,6 +845,16 @@ void cs_load_dialog_state (void)
       {
         g_object_set (G_OBJECT (cluttersmith), "canvas-width", w, "canvas-height", h, NULL);
       }
+  }
+
+  {
+    gfloat zoom, x, y;
+
+    x = g_key_file_get_double (keyfile, "canvas", "origin-x", NULL);
+    y = g_key_file_get_double (keyfile, "canvas", "origin-y", NULL);
+    zoom = g_key_file_get_double (keyfile, "canvas", "zoom", NULL);
+    if (zoom > 1.0)
+    g_object_set (G_OBJECT (cluttersmith), "origin-x", x, "origin-y", y, "zoom", zoom, NULL);
   }
 
   g_key_file_free (keyfile);

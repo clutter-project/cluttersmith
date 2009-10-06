@@ -415,6 +415,66 @@ cs_ui_mode (ClutterActor *ignored)
 }
 
 
+static void dialog_toggle (gpointer action,
+                           ClutterActor *dialog)
+{
+  if (clutter_actor_get_paint_visibility (dialog))
+    {
+      clutter_actor_hide (dialog);
+    }
+  else
+    {
+      clutter_actor_show(dialog);
+    }
+  clutter_actor_queue_relayout (dialog);
+  clutter_actor_queue_relayout (clutter_actor_get_parent (dialog));
+  cs_sync_chrome ();
+  clutter_actor_queue_redraw (dialog);
+}
+
+static void dialog_toggle_toolbar (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_toolbar); }
+
+#if 0
+static void dialog_toggle_tree (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_tree); }
+
+static void dialog_toggle_property_inspector (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_property_inspector); }
+#endif
+
+static void dialog_toggle_sidebar (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_tree);
+  dialog_toggle (NULL, cluttersmith->dialog_property_inspector); }
+
+static void dialog_toggle_templates (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_templates); }
+
+static void dialog_toggle_scenes (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_scenes); }
+
+static void dialog_toggle_config (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_config); }
+
+
+static NbtkAction *dialog_toggle_action (const gchar *name,
+                                         ClutterActor *actor)
+{
+  NbtkAction *action;
+  gchar *label;
+  if (actor)
+    label = g_strdup_printf ("%s %s",
+            clutter_actor_get_paint_visibility (actor)?"hide":"show",
+            name);
+  else
+    label = g_strdup (name);
+  action = nbtk_action_new_full (label, G_CALLBACK (dialog_toggle), actor);
+  g_free (label);
+  return action;
+}
+
+
+
 /******************************************************************************/
 
 typedef struct KeyBinding {
@@ -444,6 +504,13 @@ static KeyBinding keybindings[]={
   {0,                    CLUTTER_Page_Down, cs_lower},
   {0,                    CLUTTER_Home,      cs_raise_top},
   {0,                    CLUTTER_End,       cs_lower_bottom},
+
+  {0,                    CLUTTER_F1,        dialog_toggle_toolbar},
+  {0,                    CLUTTER_F2,        dialog_toggle_sidebar},
+  {0,                    CLUTTER_F3,        dialog_toggle_templates},
+  {0,                    CLUTTER_F4,        dialog_toggle_scenes},
+  {0,                    CLUTTER_F12,       dialog_toggle_config},
+
   {0, 0, NULL},
 };
 
@@ -466,7 +533,6 @@ gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modif
 static KeyBinding global_keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_q,           cs_quit},
   {0,                    CLUTTER_Scroll_Lock, cs_ui_mode},
-  {0,                    CLUTTER_F1,          cs_help},
 
 
   /* XXX: these shouldnt be here, they will interfere with the
@@ -529,38 +595,6 @@ static void foo (void)
   g_print ("hoi\n");
 }
 
-static void dialog_toggle (gpointer action,
-                           ClutterActor *dialog)
-{
-  if (clutter_actor_get_paint_visibility (dialog))
-    {
-      clutter_actor_hide (dialog);
-    }
-  else
-    {
-      clutter_actor_show(dialog);
-    }
-  clutter_actor_queue_relayout (dialog);
-  clutter_actor_queue_relayout (clutter_actor_get_parent (dialog));
-  cs_sync_chrome ();
-}
-
-static NbtkAction *dialog_toggle_action (const gchar *name,
-                                         ClutterActor *actor)
-{
-  NbtkAction *action;
-  gchar *label;
-  if (actor)
-    label = g_strdup_printf ("%s %s",
-            clutter_actor_get_paint_visibility (actor)?"hide":"show",
-            name);
-  else
-    label = g_strdup (name);
-  action = nbtk_action_new_full (label, G_CALLBACK (dialog_toggle), actor);
-  g_free (label);
-  return action;
-}
-
 static void cs_save_dialog_state2 (gpointer ignored)
 {
   cs_save_dialog_state ();
@@ -576,22 +610,22 @@ void dialogs_popup (gint x,
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Hide All",  foo,  NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Show All",  foo,  NULL));
 
-  action = dialog_toggle_action ("Toolbar", cluttersmith->dialog_toolbar);
+  action = dialog_toggle_action ("Toolbar (F1)", cluttersmith->dialog_toolbar);
   nbtk_popup_add_action (popup, action);
 
-  action = dialog_toggle_action ("Tree", cluttersmith->dialog_tree);
+  action = dialog_toggle_action ("Tree (F2)", cluttersmith->dialog_tree);
   nbtk_popup_add_action (popup, action);
 
-  action = dialog_toggle_action ("Property Editor", cluttersmith->dialog_property_inspector);
+  action = dialog_toggle_action ("Property Editor (F2)", cluttersmith->dialog_property_inspector);
   nbtk_popup_add_action (popup, action);
 
-  action = dialog_toggle_action ("Templates", cluttersmith->dialog_templates);
+  action = dialog_toggle_action ("Templates (F3)", cluttersmith->dialog_templates);
   nbtk_popup_add_action (popup, action);
 
-  action = dialog_toggle_action ("Scenes", cluttersmith->dialog_scenes);
+  action = dialog_toggle_action ("Scenes (F4)", cluttersmith->dialog_scenes);
   nbtk_popup_add_action (popup, action);
 
-  action = dialog_toggle_action ("Config", cluttersmith->dialog_config);
+  action = dialog_toggle_action ("Config (F12)", cluttersmith->dialog_config);
   nbtk_popup_add_action (popup, action);
 
   nbtk_popup_add_action (popup, nbtk_action_new_full ("", NULL, NULL));
