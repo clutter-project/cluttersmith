@@ -825,6 +825,13 @@ ClutterActor *cs_actor_change_type (ClutterActor *actor,
 }
 
 
+gint cs_actor_ancestor_depth (ClutterActor *actor)
+{
+  gint i=0;
+  while (actor && (actor = clutter_actor_get_parent (actor)))
+   i++;
+  return i;
+}
 
 /* Functions below this line need cluttersmith infrastructure */
 #include "cluttersmith.h"
