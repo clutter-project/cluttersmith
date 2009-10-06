@@ -5,6 +5,9 @@
 #include "cluttersmith.h"
 #include "util.h"
 
+#define INDENT  16
+#define FONTSIZE "10px"
+
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 static ClutterColor  yellow = {0xff,0xff,0x44,0xff};
 static ClutterColor  blue = {0x00,000,0xff,0xff};
@@ -222,9 +225,9 @@ cs_tree_populate_iter (ClutterActor *current_container,
 
                        //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",
 
-  label = clutter_text_new_with_text ("Sans 14px", G_OBJECT_TYPE_NAME (iter));
+  label = clutter_text_new_with_text ("Liberation " FONTSIZE, G_OBJECT_TYPE_NAME (iter));
 
-  clutter_actor_set_anchor_point (label, -24.0, 0.0);
+  clutter_actor_set_anchor_point (label, -INDENT, 0.0);
   if (iter == active_actor)
     {
       clutter_text_set_color (CLUTTER_TEXT (label), &yellow);
@@ -253,7 +256,7 @@ cs_tree_populate_iter (ClutterActor *current_container,
 
       child_vbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, "vertical", TRUE, NULL);
       clutter_container_add_actor (CLUTTER_CONTAINER (vbox), child_vbox);
-      clutter_actor_set_anchor_point (child_vbox, -24.0, 0.0);
+      clutter_actor_set_anchor_point (child_vbox, -INDENT, 0.0);
 
       /*g_signal_connect (vbox, "button-press-event", G_CALLBACK (vbox_press), child_vbox);*/
 
@@ -282,7 +285,6 @@ cs_tree_populate (ClutterActor *scene_graph,
   gint level = 0;
   gint count = 0;
   cs_container_remove_children (scene_graph);
-  clutter_actor_set_width (scene_graph, 230);
 #ifdef EDIT_SELF
   cs_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
 #else

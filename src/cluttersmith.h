@@ -86,6 +86,10 @@ void object_popup    (ClutterActor *actor,
 void selection_popup (gint          x,
                       gint          y);
 
-#define EDITOR_LINE_HEIGHT 24
+
+#define CS_PROPEDITOR_LABEL_WIDTH  120
+#define CS_PROPEDITOR_EDITOR_WIDTH  80
+#define EDITOR_LINE_HEIGHT         20
+#define CS_EDITOR_LABEL_FONT "Liberation 11px"
 
 #endif

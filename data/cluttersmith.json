@@ -34,6 +34,15 @@
    
    "children":
      [
+       { "type":"NbtkBoxLayout", 
+         "children":[
+          { "type":"NbtkButton", "width":100, "height":24,
+            "children":[{"type":"ClutterText", "id":"name2", "text":"-"}]
+           "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
+         },
+           ]}
+
+
        { "type":"NbtkScrollView",
          "width":200,
          "height":100,
@@ -178,18 +187,17 @@
                   "children":[
                      { "type":"NbtkBoxLayout", 
                        "children":[
-                        { "type":"ClutterText", "width":130, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
+                        { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
                         },
 
-                        { "type":"NbtkButton", "width":130, "height":24,
+                        { "type":"NbtkButton", "width":100, "height":24,
                           "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
                           "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
                         },
                           ]}
 
                       { "type":"NbtkScrollView",
-                        "width":320,
-                        "height":100,
+                        "height":70,
                         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
 
                         "children":
@@ -204,7 +212,7 @@
                                       "spacing":2},
 
                                      {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                     { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":270
+                                     { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":240
                                        "children":[
                                        ]
                                      }
@@ -221,8 +229,8 @@
                  { 
                    "id":"cs-dialog-tree",
                    "type":"NbtkScrollView",
-                   "width":300,
-                   "height":100,
+                   "width":180,
+                   "height":70,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
                    "children":
                     [

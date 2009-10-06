@@ -3,6 +3,7 @@
 #include <math.h>
 #include "cluttersmith.h"
 
+
 typedef struct UpdateClosure
 {
   GObject      *object;
@@ -399,7 +400,9 @@ ClutterActor *property_editor_new (GObject *object,
       else
         {
           initial = g_strdup_printf ("%s", g_type_name (pspec->value_type));
-          editor = clutter_text_new_with_text ("Sans 12px", initial);
+
+
+          editor = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, initial);
           uc->editor = editor;
           update_closure_free (uc, NULL);
         }
@@ -484,11 +487,12 @@ props_populate (ClutterActor *container,
 
       {
         ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-        ClutterActor *label = clutter_text_new_with_text ("Sans 12px", properties[i]->name);
+        ClutterActor *label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, properties[i]->name);
         ClutterActor *editor = property_editor_new (object, properties[i]->name);
+        clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
         clutter_text_set_color (CLUTTER_TEXT (label), &white);
-        clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
-        clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
+        clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
+        clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
         clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
@@ -519,11 +523,12 @@ props_populate (ClutterActor *container,
                     child_properties[i]->value_type != CLUTTER_TYPE_CONTAINER)
                   {
                     ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-                    ClutterActor *label = clutter_text_new_with_text ("Sans 12px", child_properties[i]->name);
+                    ClutterActor *label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, child_properties[i]->name);
                     ClutterActor *editor = property_editor_new (G_OBJECT (child_meta), child_properties[i]->name);
                     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-                    clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
-                    clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
+                    clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
+                    clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
+                    clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
                     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
                     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
                     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);

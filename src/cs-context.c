@@ -109,7 +109,7 @@ CSContext *cluttersmith = NULL;
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
-static ClutterActor  *title, *name, *parents;
+static ClutterActor  *title, *name, *name2, *parents;
 
 
 
@@ -316,6 +316,7 @@ gboolean idle_add_stage (gpointer stage)
   /* initializing globals */
   title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
   name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
+  name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "name2"));
   parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
   cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
@@ -420,30 +421,30 @@ void actor_defaults_populate (ClutterActor *container,
 
     /* special casing of x,y,w,h to make it take up less space and always be first */
 
-    label = clutter_text_new_with_text ("Sans 12px", "pos:");
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "pos:");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_size (label, 25, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_height (label, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
 
     editor = property_editor_new (G_OBJECT (actor), "x");
-    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     editor = property_editor_new (G_OBJECT (actor), "y");
-    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
-    label = clutter_text_new_with_text ("Sans 12px", "size:");
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "size:");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_size (label, 25, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_height (label, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
 
     editor = property_editor_new (G_OBJECT (actor), "width");
-    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     editor = property_editor_new (G_OBJECT (actor), "height");
-    clutter_actor_set_size (editor, 50, EDITOR_LINE_HEIGHT);
+    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
@@ -451,7 +452,7 @@ void actor_defaults_populate (ClutterActor *container,
     /* virtual 'id' property */
 
     hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-    label = clutter_text_new_with_text ("Sans 12px", "id");
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "id");
 
     {
       editor = CLUTTER_ACTOR (nbtk_entry_new (""));
@@ -464,8 +465,12 @@ void actor_defaults_populate (ClutterActor *container,
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_size (label, 130, EDITOR_LINE_HEIGHT);
-    clutter_actor_set_size (editor, 130, EDITOR_LINE_HEIGHT);
+
+
+    clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH,
+                                   EDITOR_LINE_HEIGHT);
+    clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH,
+                                   EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 }
 
@@ -475,7 +480,10 @@ void cs_set_active (ClutterActor *item)
   if (item == NULL)
     item = clutter_stage_get_default ();
   if (item)
-    clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
+    {
+      clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
+      clutter_text_set_text (CLUTTER_TEXT (name2), G_OBJECT_TYPE_NAME (item));
+    }
 
   cs_container_remove_children (parents);
   cs_container_remove_children (cluttersmith->property_editors);
