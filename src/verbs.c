@@ -369,6 +369,18 @@ void cs_select_parent (ClutterActor *actor)
           clutter_actor_queue_redraw (active_actor);
         }
     }
+  else if (cs_get_current_container () != cluttersmith->fake_stage)
+    {
+      ClutterActor *parent = cs_get_current_container ();
+      if (parent) 
+        {
+          cs_selected_clear ();
+          cs_selected_add (parent);
+          parent = clutter_actor_get_parent (parent);
+          cs_set_current_container (parent);
+          clutter_actor_queue_redraw (active_actor);
+        }
+    }
 }
 
 void
@@ -610,6 +622,9 @@ void root_popup (gint x,
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
+
+  if (cs_get_current_container () != cluttersmith->fake_stage)
+    nbtk_popup_add_action (popup, nbtk_action_new_full ("Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
 }
 
 static void add_common (NbtkPopup *popup)
@@ -622,56 +637,33 @@ static void add_common (NbtkPopup *popup)
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove (delete)", G_CALLBACK (cs_remove), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Select None (shift ctrl a)", G_CALLBACK (cs_select_none), NULL));
+
+  if (cs_get_current_container () != cluttersmith->fake_stage)
+    nbtk_popup_add_action (popup, nbtk_action_new_full ("Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
 }
 
-
-void group_popup (ClutterActor *actor,
-                  gint          x,
-                  gint          y)
-{
-  NbtkPopup *popup = cs_popup_new ();
-  
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Ungroup (shift ctrl g)", G_CALLBACK (cs_ungroup), NULL));
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Make box", G_CALLBACK (cs_make_group_box), NULL));
-  add_common (popup);
-
-  clutter_group_add (cluttersmith->parasite_root, popup);
-  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
-  clutter_actor_show (CLUTTER_ACTOR (popup));
-}
-
-
-void container_popup (ClutterActor *actor,
-                      gint          x,
-                      gint          y)
-{
-  NbtkPopup *popup = cs_popup_new ();
-  
-  nbtk_popup_add_action (popup, nbtk_action_new_full ("Make group", G_CALLBACK (cs_make_group), NULL));
-  add_common (popup);
-
-  clutter_group_add (cluttersmith->parasite_root, popup);
-  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
-  clutter_actor_show (CLUTTER_ACTOR (popup));
-}
-
-
+void cs_change_type (ClutterActor *actor);
 
 void object_popup (ClutterActor *actor,
                    gint          x,
                    gint          y)
 {
+  NbtkPopup *popup = cs_popup_new ();
+
+  {
+    gchar *label = g_strdup_printf ("type: %s", G_OBJECT_TYPE_NAME (actor));
+  nbtk_popup_add_action (popup, nbtk_action_new_full (label, G_CALLBACK (cs_change_type), NULL));
+  }
+
   if (CLUTTER_IS_GROUP (actor))
     {
-      group_popup (actor, x, y);
-      return;
+      nbtk_popup_add_action (popup, nbtk_action_new_full ("Ungroup (shift ctrl g)", G_CALLBACK (cs_ungroup), NULL));
+      nbtk_popup_add_action (popup, nbtk_action_new_full ("Make box", G_CALLBACK (cs_make_group_box), NULL));
     }
-  if (CLUTTER_IS_CONTAINER (actor))
+  else if (CLUTTER_IS_CONTAINER (actor))
     {
-      container_popup (actor, x, y);
-      return;
+      nbtk_popup_add_action (popup, nbtk_action_new_full ("Make group", G_CALLBACK (cs_make_group), NULL));
     }
-  NbtkPopup *popup = cs_popup_new ();
   
   add_common (popup);
 
