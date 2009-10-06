@@ -832,6 +832,7 @@ static void do_zoom (gboolean in,
     {
       zoom /= 1.412135;
     }
+  
   g_object_set (cluttersmith,
                 "zoom", zoom,
                 "origin-x", origin_x,

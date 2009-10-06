@@ -27,7 +27,7 @@ static void each_duplicate (ClutterActor *actor)
 void cs_duplicate (ClutterActor *actor)
 {
   cs_selected_foreach (G_CALLBACK (each_duplicate), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 static void each_remove (ClutterActor *actor)
@@ -630,11 +630,18 @@ void root_popup (gint x,
 static void add_common (NbtkPopup *popup)
 {
   nbtk_popup_add_action (popup, nbtk_action_new_full ("______", NULL, NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Raise (PgUp)", G_CALLBACK (cs_raise), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Send to front (Home)", G_CALLBACK (cs_raise_top), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Send to back (End)", G_CALLBACK (cs_lower_bottom), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("Lower (PgDn)", G_CALLBACK (cs_lower), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("______", NULL, NULL));
+
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Cut (ctrl x)", G_CALLBACK (cs_cut), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Copy (ctrl c)", G_CALLBACK (cs_copy), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Duplicate (ctrl d)", G_CALLBACK (cs_duplicate), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Remove (delete)", G_CALLBACK (cs_remove), NULL));
+  nbtk_popup_add_action (popup, nbtk_action_new_full ("______", NULL, NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
   nbtk_popup_add_action (popup, nbtk_action_new_full ("Select None (shift ctrl a)", G_CALLBACK (cs_select_none), NULL));
 
