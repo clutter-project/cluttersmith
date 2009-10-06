@@ -16,6 +16,8 @@
     PROP_ZOOM,
     PROP_ORIGIN_X,
     PROP_ORIGIN_Y,
+    PROP_CANVAS_WIDTH,
+    PROP_CANVAS_HEIGHT,
   };
 
 
@@ -24,6 +26,8 @@
     gfloat zoom;
     gfloat origin_x;
     gfloat origin_y;
+    gfloat canvas_width;
+    gfloat canvas_height;
   };
 
 static void cs_context_get_property (GObject    *object,
@@ -67,7 +71,12 @@ cs_context_class_init (CSContextClass *klass)
   pspec = g_param_spec_float ("zoom", "Zoom", "zoom level", 0, 3200, 100, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ZOOM, pspec);
 
+  pspec = g_param_spec_int ("canvas-width", "canvas-width", "width of canvas being edited", 0, 1000, 800, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
+  g_object_class_install_property (object_class, PROP_CANVAS_WIDTH, pspec);
 
+  pspec = g_param_spec_int ("canvas-height", "canvas-height", "height of canvas being edited", 0, 1000, 480, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
+
+  g_object_class_install_property (object_class, PROP_CANVAS_HEIGHT, pspec);
   pspec = g_param_spec_float ("origin-x", "origin X", "origin X coordinate", -2000, 2000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ORIGIN_X, pspec);
 
@@ -150,13 +159,22 @@ static void cluttsmith_show_chrome (void)
   gfloat x, y;
   clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
 
+  /* move fake_stage and canvas into a single group that is transformed? */
   clutter_actor_set_position (cluttersmith->fake_stage, 
+    x-cluttersmith->priv->origin_x,
+    y-cluttersmith->priv->origin_y);
+
+  clutter_actor_set_position (cluttersmith->fake_stage_canvas, 
     x-cluttersmith->priv->origin_x,
     y-cluttersmith->priv->origin_y);
 
   clutter_actor_show (cluttersmith->parasite_ui);
   clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
                                                      cluttersmith->priv->zoom/100.0);
+
+  clutter_actor_set_scale (cluttersmith->fake_stage_canvas, cluttersmith->priv->zoom/100.0,
+                                                     cluttersmith->priv->zoom/100.0);
+
   has_chrome = TRUE;
 }
 
@@ -168,8 +186,17 @@ static void cluttsmith_hide_chrome (void)
   clutter_actor_set_position (cluttersmith->fake_stage, 
     -cluttersmith->priv->origin_x,
     -cluttersmith->priv->origin_y);
+
+  clutter_actor_set_position (cluttersmith->fake_stage_canvas, 
+    -cluttersmith->priv->origin_x,
+    -cluttersmith->priv->origin_y);
+
   clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
                                                      cluttersmith->priv->zoom/100.0);
+
+  clutter_actor_set_scale (cluttersmith->fake_stage_canvas, cluttersmith->priv->zoom/100.0,
+                                                     cluttersmith->priv->zoom/100.0);
+
   has_chrome = FALSE;
 }
 
@@ -182,6 +209,9 @@ static gboolean cs_sync_chrome_idle (gpointer data)
 {
   if (!cluttersmith) /*the singleton might not be made yet */
     return FALSE;
+  clutter_actor_set_size (cluttersmith->fake_stage_canvas,
+                          cluttersmith->priv->canvas_width,
+                          cluttersmith->priv->canvas_height);
   if (cluttersmith->ui_mode & CS_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
@@ -237,6 +267,12 @@ cs_context_get_property (GObject    *object,
       case PROP_ORIGIN_Y:
         g_value_set_float (value, priv->origin_y);
         break;
+      case PROP_CANVAS_WIDTH:
+        g_value_set_int (value, priv->canvas_width);
+        break;
+      case PROP_CANVAS_HEIGHT:
+        g_value_set_int (value, priv->canvas_height);
+        break;
 
       case PROP_FULLSCREEN:
 #if 0
@@ -265,6 +301,14 @@ cs_context_set_property (GObject      *object,
         break;
       case PROP_ZOOM:
         priv->zoom = g_value_get_float (value);
+        cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_CANVAS_WIDTH:
+        priv->canvas_width = g_value_get_int (value);
+        cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_CANVAS_HEIGHT:
+        priv->canvas_height = g_value_get_int (value);
         cs_sync_chrome_idle (NULL);
         break;
       case PROP_ORIGIN_X:
@@ -333,6 +377,7 @@ gboolean idle_add_stage (gpointer stage)
     }
     }
 
+  cluttersmith->fake_stage_canvas = CLUTTER_ACTOR (clutter_script_get_object (script, "fake-stage-canvas"));
   cluttersmith->resize_handle = CLUTTER_ACTOR (clutter_script_get_object (script, "resize-handle"));
   cluttersmith->move_handle = CLUTTER_ACTOR (clutter_script_get_object (script, "move-handle"));
   cluttersmith->active_panel = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-active-panel"));
@@ -742,6 +787,13 @@ void cs_save_dialog_state (void)
     g_key_file_set_integer (keyfile, "window", "height", h);
   }
 
+  {
+    gfloat w,h;
+    clutter_actor_get_size (cluttersmith->fake_stage_canvas, &w, &h);
+    g_key_file_set_integer (keyfile, "canvas", "width", w);
+    g_key_file_set_integer (keyfile, "canvas", "height", h);
+  }
+
   config = g_key_file_to_data (keyfile, NULL, NULL);
   g_file_set_contents (config_path, config, -1, NULL);
   g_key_file_free (keyfile);
@@ -770,18 +822,19 @@ void cs_load_dialog_state (void)
 
   {
     ClutterActor *stage = clutter_actor_get_stage (cluttersmith->parasite_root);
-    gfloat w, h;
+    gint w, h;
 
     w = g_key_file_get_integer (keyfile, "window", "width", NULL);
     h = g_key_file_get_integer (keyfile, "window", "height", NULL);
     if (w > 10 && h > 10)
       {
         clutter_actor_set_size (stage, w, h);
-        clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
-        g_print ("%f %f\n", w, h);
-        clutter_actor_get_size (stage, &w, &h);
-
-        g_print ("%f %f\n", w, h);
+      }
+    w = g_key_file_get_integer (keyfile, "canvas", "width", NULL);
+    h = g_key_file_get_integer (keyfile, "canvas", "height", NULL);
+    if (w > 10 && h > 10)
+      {
+        g_object_set (G_OBJECT (cluttersmith), "canvas-width", w, "canvas-height", h, NULL);
       }
   }
 

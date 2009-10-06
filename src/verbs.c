@@ -89,7 +89,6 @@ void cs_cut (ClutterActor *ignored)
       cs_selected_clear ();
       cs_selected_add (parent);
     }
-
 }
 
 static void each_copy (ClutterActor *actor)
@@ -432,10 +431,6 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cs_duplicate},
   {CLUTTER_CONTROL_MASK, CLUTTER_l,         cs_focus_title},
 
-  /* check for the more specific modifier state before the more generic ones */
-  {CLUTTER_CONTROL_MASK|
-   CLUTTER_SHIFT_MASK,   CLUTTER_a,         cs_select_none},
-  {CLUTTER_CONTROL_MASK, CLUTTER_a,         cs_select_all},
 
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|
@@ -472,6 +467,16 @@ static KeyBinding global_keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_q,           cs_quit},
   {0,                    CLUTTER_Scroll_Lock, cs_ui_mode},
   {0,                    CLUTTER_F1,          cs_help},
+
+
+  /* XXX: these shouldnt be here, they will interfere with the
+   * app in browse mode,. but it is here now to steal them
+   * from various entires that also want select all
+   */
+  {CLUTTER_CONTROL_MASK|
+   CLUTTER_SHIFT_MASK,   CLUTTER_a,         cs_select_none},
+  {CLUTTER_CONTROL_MASK, CLUTTER_a,         cs_select_all},
+
   {0, 0, NULL},
 };
 

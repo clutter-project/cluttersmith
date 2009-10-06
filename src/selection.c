@@ -46,13 +46,12 @@ void cs_selected_foreach (GCallback cb, gpointer data)
 {
   void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;
   GList *s;
-  s=selected;
-  for (s=selected; s; s=s->next)
+
+  for (s = selected; s; s = s->next)
     {
       ClutterActor *actor = s->data;
-      if (actor == clutter_actor_get_stage (actor))
-        continue;
-      each(actor, data);
+      if (actor != clutter_actor_get_stage (actor))
+        each(actor, data);
     }
 }
 

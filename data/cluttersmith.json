@@ -4,12 +4,21 @@
  "id":"parasite",
  "children":[
 
+{"type":"ClutterRectangle",
+ "id":"fake-stage-canvas",
+ "width":600,
+ "height":400,
+ "children":[
+    {"type":"ClutterText","text":"hello there"},
+    ]
+},
+
 {"type":"ClutterGroup",
  "id":"fake-stage",
  "width":1,
  "height":1,
  "children":[
-    {"type":"ClutterText","text":"hello there"},
+    {"type":"ClutterText","text":"If you see this text it means cluttersmith didn't load properly."},
     ]
 },
 

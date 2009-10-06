@@ -42,6 +42,7 @@ struct _CSContext
   gint          ui_mode;
   ClutterActor *parasite_root;
   ClutterActor *parasite_ui;
+  ClutterActor *fake_stage_canvas;
   ClutterActor *fake_stage;
   ClutterActor *scene_graph;
   gchar        *project_root;
