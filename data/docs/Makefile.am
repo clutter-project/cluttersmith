@@ -1,11 +1,7 @@
 
 docsdir = $(pkgdatadir)/docs
-docs_DATA = index.json \
-	    todo.json \
-	    widgets.json \
-	    LD_PRELOAD.json \
-	    help.json \
-	    roadmap.json \
-	    wtrabbit.jpg
+docs_DATA = $(wildcard $(srcdir)/*.json) \
+            $(wildcard $(srcdir)/*.js) \
+            $(wildcard $(srcdir)/*.png) 
 
 EXTRA_DIST = $(docs_DATA) 
