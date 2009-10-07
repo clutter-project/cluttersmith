@@ -696,21 +696,63 @@ static void add_common (NbtkPopup *popup)
 
 void cs_change_type (ClutterActor *actor);
 
+static gboolean is_link (ClutterActor *actor)
+{
+  return (actor && NBTK_IS_BUTTON (actor) &&
+          nbtk_widget_get_style_class_name (NBTK_WIDGET (actor)) &&
+          g_str_equal (nbtk_widget_get_style_class_name (NBTK_WIDGET (actor)),
+                    "ClutterSmithLink"));
+}
+
+void link_edit_label (NbtkAction *action,
+                      gpointer    ignored)
+{
+  ClutterActor *actor = cs_selected_get_any ();
+  if (!is_link (actor))
+    return;
+  g_print ("do it...\n");
+}
+
+void link_edit_link (NbtkAction *action,
+                     gpointer    ignored)
+{
+  ClutterActor *actor = cs_selected_get_any ();
+  if (!is_link (actor))
+    return;
+  g_print ("do it...\n");
+}
+
 void object_popup (ClutterActor *actor,
                    gint          x,
                    gint          y)
 {
   NbtkPopup *popup = cs_popup_new ();
 
-  {
-    gchar *label = g_strdup_printf ("type: %s", G_OBJECT_TYPE_NAME (actor));
-  nbtk_popup_add_action (popup, nbtk_action_new_full (label, G_CALLBACK (cs_change_type), NULL));
-  }
+
+  if (is_link (actor))
+    {
+      gchar *label = "type: Link";
+      nbtk_popup_add_action (popup, nbtk_action_new_full (label, NULL, NULL));
+    }
+  else
+    {
+      gchar *label = g_strdup_printf ("type: %s", G_OBJECT_TYPE_NAME (actor));
+      nbtk_popup_add_action (popup, nbtk_action_new_full (label, G_CALLBACK (cs_change_type), NULL));
+      g_free (label);
+    }
 
   if (CLUTTER_IS_GROUP (actor))
     {
       nbtk_popup_add_action (popup, nbtk_action_new_full ("Ungroup (shift ctrl g)", G_CALLBACK (cs_ungroup), NULL));
       nbtk_popup_add_action (popup, nbtk_action_new_full ("Make box", G_CALLBACK (cs_make_group_box), NULL));
+    }
+  else if (NBTK_IS_BUTTON (actor) &&
+           nbtk_widget_get_style_class_name (NBTK_WIDGET (actor)) &&
+           g_str_equal (nbtk_widget_get_style_class_name (NBTK_WIDGET (actor)),
+                        "ClutterSmithLink"))
+    {
+      nbtk_popup_add_action (popup, nbtk_action_new_full ("Edit link", G_CALLBACK (link_edit_link), NULL));
+      nbtk_popup_add_action (popup, nbtk_action_new_full ("Edit label", G_CALLBACK (link_edit_label), NULL));
     }
   else if (CLUTTER_IS_CONTAINER (actor))
     {
