@@ -850,6 +850,13 @@ ClutterActor *cs_actor_change_type (ClutterActor *actor,
   return new_actor;
 }
 
+ClutterActor  *get_actor (const gchar  *id)
+{
+  ClutterActor *ret;
+  ret = cs_find_by_id (clutter_stage_get_default(), id);
+  return ret;
+}
+
 
 gint cs_actor_ancestor_depth (ClutterActor *actor)
 {

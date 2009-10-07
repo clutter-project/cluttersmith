@@ -19,6 +19,10 @@ gboolean       cs_actor_has_ancestor               (ClutterActor *actor,
                                                     ClutterActor *ancestor);
 gboolean       cs_movable_press                    (ClutterActor *actor,
                                                     ClutterEvent *event);
+
+ClutterActor  *get_actor                           (const gchar  *id);
+
+
 ClutterActor  *cs_find_by_id                       (ClutterActor *stage,
                                                     const gchar  *id);
 ClutterActor  *cs_find_by_id_int                   (ClutterActor *stage,

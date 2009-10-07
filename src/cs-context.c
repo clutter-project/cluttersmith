@@ -29,6 +29,7 @@
     gfloat origin_y;
     gfloat canvas_width;
     gfloat canvas_height;
+    GjsContext  *js_context;
   };
 
 static void cs_context_get_property (GObject    *object,
@@ -93,7 +94,18 @@ cs_context_class_init (CSContextClass *klass)
 static void
 cs_context_init (CSContext *self)
 {
+  
+  gchar *code = "const ClutterSmith = imports.gi.ClutterSmith;\n"
+                "const Clutter = imports.gi.Clutter;\n"
+                "const GLib = imports.gi.GLib;\n"
+                "const Lang = imports.lang;\n"
+                "const Mainloop = imports.mainloop;\n";
+  gint len = strlen (code);
+
   self->priv = CONTEXT_PRIVATE (self);
+  self->priv->js_context = gjs_context_new_with_search_path(NULL);
+  gjs_context_eval(self->priv->js_context, (void*)code, len,
+      "<code>", NULL, NULL);
 }
 
 CSContext *
@@ -709,19 +721,20 @@ static void title_text_changed (ClutterActor *actor)
             }
           else
             {
-              GjsContext  *js_context = gjs_context_new_with_search_path(NULL);
-              guchar code;
+              gint code;
               g_print ("running js: %i {%s}\n", len, js);
 
-              if (!gjs_context_eval(js_context, js, len,
+              if (!gjs_context_eval(cluttersmith->priv->js_context, (void*)js, len,
                        "<code>", &code, &error))
                 {
                    g_printerr("Failed: %s\n", error->message);
                    exit(1);
                 }
-              g_print ("returned: %i\n", code);
+              else
+                {
+                  g_print ("returned: %i\n", code);
+                }
               g_free (js);
-              g_object_unref (js_context);
             }
           g_free (scriptfilename);
         }
