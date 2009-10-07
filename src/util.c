@@ -850,6 +850,12 @@ ClutterActor *cs_actor_change_type (ClutterActor *actor,
   return new_actor;
 }
 
+/**
+ * get_actor:
+ * @id: the id to lookup
+ *
+ * Return value: (transfer none): the actor if any or NULL
+ */
 ClutterActor  *get_actor (const gchar  *id)
 {
   ClutterActor *ret;

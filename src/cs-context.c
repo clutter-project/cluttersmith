@@ -99,7 +99,10 @@ cs_context_init (CSContext *self)
                 "const Clutter = imports.gi.Clutter;\n"
                 "const GLib = imports.gi.GLib;\n"
                 "const Lang = imports.lang;\n"
-                "const Mainloop = imports.mainloop;\n";
+                "const Mainloop = imports.mainloop;\n"
+                "function $(id) {return ClutterSmith.get_actor(id);}";
+                
+                ;
   gint len = strlen (code);
 
   self->priv = CONTEXT_PRIVATE (self);
