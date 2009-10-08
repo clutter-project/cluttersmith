@@ -86,6 +86,7 @@ void object_popup    (ClutterActor *actor,
 void selection_popup (gint          x,
                       gint          y);
 
+gboolean edit_text_start (ClutterActor *actor);
 
 #define CS_PROPEDITOR_LABEL_WIDTH  120
 #define CS_PROPEDITOR_EDITOR_WIDTH  80

@@ -741,6 +741,32 @@ void cs_container_add_actor_at (ClutterContainer *container,
   g_list_free (children);
 }
 
+ClutterActor *
+cs_container_get_child_no (ClutterContainer *container,
+                           gint              pos)
+{
+  ClutterActor *ret = NULL;
+  GList *c, *children;
+  gint i = 0;
+
+  if (!container)
+    return NULL;
+  if (!CLUTTER_IS_CONTAINER (container))
+    return NULL;
+  children = clutter_container_get_children (CLUTTER_CONTAINER (container));
+  for (c = children; c; c = c->next)
+    {
+      if (i==pos)
+        {
+          ret = c->data;
+          break;
+        }
+      i++;
+    }
+  g_list_free (children);
+  return ret;
+}
+
 gint cs_get_sibling_no (ClutterActor *actor)
 {
   ClutterActor *parent;

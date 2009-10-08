@@ -31,6 +31,8 @@ gint           cs_actor_ancestor_depth             (ClutterActor *actor);
 void           cs_container_replace_child          (ClutterContainer *container,
                                                     ClutterActor     *old,
                                                     ClutterActor     *new);
+ClutterActor  *cs_container_get_child_no           (ClutterContainer *container,
+                                                    gint              pos);
 void           cs_container_add_actor_at           (ClutterContainer *container,
                                                     ClutterActor     *actor,
                                                     gint              pos);

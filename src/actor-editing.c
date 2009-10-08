@@ -1080,7 +1080,7 @@ static ClutterActor *edited_text = NULL;
 static gboolean text_was_editable = FALSE;
 static gboolean text_was_reactive = FALSE;
 
-static gboolean edit_text_start (ClutterActor *actor)
+gboolean edit_text_start (ClutterActor *actor)
 {
   if (NBTK_IS_LABEL (actor))
     actor = nbtk_label_get_clutter_text (NBTK_LABEL (actor));

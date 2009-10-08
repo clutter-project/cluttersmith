@@ -709,22 +709,16 @@ static gboolean is_link (ClutterActor *actor)
                     "ClutterSmithLink"));
 }
 
-void link_edit_label (NbtkAction *action,
-                      gpointer    ignored)
-{
-  ClutterActor *actor = cs_selected_get_any ();
-  if (!is_link (actor))
-    return;
-  g_print ("do it...\n");
-}
-
 void link_edit_link (NbtkAction *action,
                      gpointer    ignored)
 {
   ClutterActor *actor = cs_selected_get_any ();
+  ClutterActor *text;
   if (!is_link (actor))
     return;
-  g_print ("do it...\n");
+  text = cs_container_get_child_no (CLUTTER_CONTAINER(actor), 0);
+  /* the name:link=link in the edited hyperlink is updated automatically */
+  edit_text_start (text);
 }
 
 void object_popup (ClutterActor *actor,
@@ -756,8 +750,7 @@ void object_popup (ClutterActor *actor,
            g_str_equal (nbtk_widget_get_style_class_name (NBTK_WIDGET (actor)),
                         "ClutterSmithLink"))
     {
-      nbtk_popup_add_action (popup, nbtk_action_new_full ("Edit link", G_CALLBACK (link_edit_link), NULL));
-      nbtk_popup_add_action (popup, nbtk_action_new_full ("Edit label", G_CALLBACK (link_edit_label), NULL));
+      nbtk_popup_add_action (popup, nbtk_action_new_full ("Change destination", G_CALLBACK (link_edit_link), NULL));
     }
   else if (CLUTTER_IS_CONTAINER (actor))
     {
