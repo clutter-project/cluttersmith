@@ -180,12 +180,17 @@ void cs_quit (ClutterActor *ignored)
 void cs_focus_title (ClutterActor *ignored)
 {
   ClutterActor *entry;
-  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (cs_find_by_id_int (cluttersmith->fake_stage, "title")));
+  entry = nbtk_entry_get_clutter_text (NBTK_ENTRY (cs_find_by_id_int (cluttersmith->parasite_root, "title")));
   g_assert (entry);
   if (entry)
     {
-      g_print ("trying to set key focus\n");
       clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (entry)), entry);
+
+      clutter_actor_show(cluttersmith->dialog_toolbar);
+      clutter_actor_queue_relayout (cluttersmith->dialog_toolbar);
+      clutter_actor_queue_relayout (clutter_actor_get_parent (cluttersmith->dialog_toolbar));
+      cs_sync_chrome ();
+      clutter_actor_queue_redraw (cluttersmith->dialog_toolbar);
     }
 }
 
