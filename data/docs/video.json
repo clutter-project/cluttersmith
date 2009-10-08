@@ -15,8 +15,8 @@
   "children":[
   {
     "type":"NbtkBoxLayout",
-    "x":39,
-    "y":19,
+    "x":-19,
+    "y":80,
     "width":366,
     "height":337,
     "depth":0.000,
@@ -36,8 +36,8 @@
       "type":"ClutterGstVideoTexture",
       "id":"video"
       "uri":"file://home/pippin/zim.avi",
-      "playing":true,
       "audio-volume":0.100,
+      "playing":true,
       "progress":0.000,
       "name":"",
       "x": 0,

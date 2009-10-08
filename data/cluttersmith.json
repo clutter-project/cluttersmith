@@ -266,6 +266,21 @@
                            {"name":"paint", "handler":"child_expand_init_hack"} 
                          ] 
             },
+
+            {
+              "type":"ClutterText",
+              "id":"cs-dialog-editor",
+              "line-wrap": true,
+              "font-name":"Liberation Mono 7",
+              "editable": true,
+              "reactive":true,
+              "color":"#008800ff",
+              "cursor-color":"#0000bbff",
+              "selection-color":"#000066ff",
+              "text":"",
+              "signals": [ 
+                         ] 
+            },
                  { 
                    "id":"cs-dialog-templates",
                    "style-class":"parasite-paste",

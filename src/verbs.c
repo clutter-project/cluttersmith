@@ -454,6 +454,9 @@ static void dialog_toggle_sidebar (ClutterActor *ignored)
 { dialog_toggle (NULL, cluttersmith->dialog_tree);
   dialog_toggle (NULL, cluttersmith->dialog_property_inspector); }
 
+static void dialog_toggle_editor (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_editor); }
+
 static void dialog_toggle_templates (ClutterActor *ignored)
 { dialog_toggle (NULL, cluttersmith->dialog_templates); }
 
@@ -516,6 +519,7 @@ static KeyBinding keybindings[]={
   {0,                    CLUTTER_F2,        dialog_toggle_sidebar},
   {0,                    CLUTTER_F3,        dialog_toggle_templates},
   {0,                    CLUTTER_F4,        dialog_toggle_scenes},
+  {0,                    CLUTTER_F5,        dialog_toggle_editor},
   {0,                    CLUTTER_F12,       dialog_toggle_config},
 
   {0, 0, NULL},
@@ -630,6 +634,9 @@ void dialogs_popup (gint x,
   nbtk_popup_add_action (popup, action);
 
   action = dialog_toggle_action ("Scenes (F4)", cluttersmith->dialog_scenes);
+  nbtk_popup_add_action (popup, action);
+
+  action = dialog_toggle_action ("Editor (F5)", cluttersmith->dialog_editor);
   nbtk_popup_add_action (popup, action);
 
   action = dialog_toggle_action ("Config (F12)", cluttersmith->dialog_config);

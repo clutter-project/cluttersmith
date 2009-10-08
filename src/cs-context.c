@@ -3,6 +3,7 @@
 #include "cluttersmith.h"
 #include "cs-context.h"
 #include <gjs/gjs.h>
+#include <string.h>
 
   G_DEFINE_TYPE (CSContext, cs_context, G_TYPE_OBJECT)
 
@@ -403,6 +404,7 @@ gboolean idle_add_stage (gpointer stage)
   cluttersmith->dialog_toolbar = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-toolbar"));
   cluttersmith->dialog_scenes = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-scenes"));
   cluttersmith->dialog_templates = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-templates"));
+  cluttersmith->dialog_editor= CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
   cluttersmith->dialog_property_inspector = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-property-inspector"));
 
 
@@ -725,6 +727,8 @@ static void title_text_changed (ClutterActor *actor)
           else
             {
               gint code;
+
+              clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor), (gchar*)js);
               g_print ("running js: %i {%s}\n", len, js);
 
               if (!gjs_context_eval(cluttersmith->priv->js_context, (void*)js, len,
@@ -814,15 +818,16 @@ void cs_save_dialog_state (void)
   GKeyFile *keyfile;
   keyfile = g_key_file_new ();
 
-  dialog_remember (keyfile, "cb-dialog-toolbar", cluttersmith->dialog_toolbar);
-  dialog_remember (keyfile, "cb-dialog-tree", cluttersmith->dialog_tree);
-  dialog_remember (keyfile, "cb-dialog-property-inspector", cluttersmith->dialog_property_inspector);
+  dialog_remember (keyfile, "cs-dialog-toolbar", cluttersmith->dialog_toolbar);
+  dialog_remember (keyfile, "cs-dialog-tree", cluttersmith->dialog_tree);
+  dialog_remember (keyfile, "cs-dialog-property-inspector", cluttersmith->dialog_property_inspector);
 
-  dialog_remember (keyfile, "cb-dialog-templates", cluttersmith->dialog_templates);
+  dialog_remember (keyfile, "cs-dialog-templates", cluttersmith->dialog_templates);
+  dialog_remember (keyfile, "cs-dialog-editor", cluttersmith->dialog_editor);
 
-  dialog_remember (keyfile, "cb-dialog-scenes", cluttersmith->dialog_scenes);
+  dialog_remember (keyfile, "cs-dialog-scenes", cluttersmith->dialog_scenes);
 
-  dialog_remember (keyfile, "cb-dialog-config", cluttersmith->dialog_config);
+  dialog_remember (keyfile, "cs-dialog-config", cluttersmith->dialog_config);
 
   {
     gfloat w,h;
@@ -863,15 +868,16 @@ void cs_load_dialog_state (void)
   keyfile = g_key_file_new ();
   g_key_file_load_from_file (keyfile, config_path, 0, NULL);
 
-  dialog_recall (keyfile, "cb-dialog-toolbar", cluttersmith->dialog_toolbar);
-  dialog_recall (keyfile, "cb-dialog-tree", cluttersmith->dialog_tree);
-  dialog_recall (keyfile, "cb-dialog-property-inspector", cluttersmith->dialog_property_inspector);
+  dialog_recall (keyfile, "cs-dialog-toolbar", cluttersmith->dialog_toolbar);
+  dialog_recall (keyfile, "cs-dialog-tree", cluttersmith->dialog_tree);
+  dialog_recall (keyfile, "cs-dialog-property-inspector", cluttersmith->dialog_property_inspector);
 
-  dialog_recall (keyfile, "cb-dialog-templates", cluttersmith->dialog_templates);
+  dialog_recall (keyfile, "cs-dialog-templates", cluttersmith->dialog_templates);
+  dialog_recall (keyfile, "cs-dialog-editor", cluttersmith->dialog_editor);
 
-  dialog_recall (keyfile, "cb-dialog-scenes", cluttersmith->dialog_scenes);
+  dialog_recall (keyfile, "cs-dialog-scenes", cluttersmith->dialog_scenes);
 
-  dialog_recall (keyfile, "cb-dialog-config", cluttersmith->dialog_config);
+  dialog_recall (keyfile, "cs-dialog-config", cluttersmith->dialog_config);
 
   {
     ClutterActor *stage = clutter_actor_get_stage (cluttersmith->parasite_root);

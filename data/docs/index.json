@@ -97,10 +97,17 @@
   ,
   {
     "type":"ClutterText",
+<<<<<<< HEAD
     "x":222,
     "y":184,
     "width":435,
     "height":207,
+=======
+    "x":188,
+    "y":218,
+    "width":572,
+    "height":94,
+>>>>>>> Added a javascript editor
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -132,6 +139,69 @@ The interactions and UI of the editor is subject to redesign, most features have
   ,
   {
     "type":"NbtkButton",
+<<<<<<< HEAD
+=======
+    "name":"link=todo",
+    "x":13,
+    "y":82,
+    "width":143,
+    "height":37,
+    "depth":0.000,
+    "opacity":120,
+    "scale-x":1.000,
+    "scale-y":1.000,
+    "rotation-angle-z":0.000,
+    "anchor-x":0.000,
+    "anchor-y":0.000,
+    "style-class":"ClutterSmithLink",
+    "stylable":true,
+    "has-tooltip":false,
+    "x-fill":false,
+    "y-fill":false,
+    "toggle-mode":false,
+    "checked":false,
+    "transition-duration":120,
+    "children":[
+    {
+      "type":"ClutterText",
+      "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
+      "x":59,
+      "y":11,
+      "width":25,
+      "height":15,
+      "depth":0.000,
+      "opacity":255,
+      "scale-x":1.000,
+      "scale-y":1.000,
+      "rotation-angle-z":0.000,
+      "anchor-x":0.000,
+      "anchor-y":0.000,
+      "font-name":"Liberation Sans 13px",
+      "text":"todo",
+      "color":"#000000ff",
+      "use-markup":false,
+      "line-wrap":true,
+      "justify":false,
+      "position":-1,
+      "selection-bound":-1,
+      "selection-color":"#000000ff",
+      "cursor-visible":true,
+      "cursor-color":"#000000ff",
+      "cursor-size":2,
+      "editable":false,
+      "selectable":true,
+      "activatable":false,
+      "password-char":0,
+      "max-length":0,
+      "single-line-mode":false,
+      "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
+    }
+    ]
+  }
+  ,
+  {
+    "type":"NbtkButton",
+>>>>>>> Added a javascript editor
     "name":"link=widgets",
     "x":13,
     "y":133,
