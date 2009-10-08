@@ -1152,7 +1152,8 @@ manipulate_capture (ClutterActor *actor,
        !cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root)) /* If the source is in the parasite ui,
                                                                  pass in on as normal*/
      {
-        if(manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
+        if ((cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
+            manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
           return TRUE;
      }
 
