@@ -731,7 +731,6 @@ static void title_text_changed (ClutterActor *actor)
                        "<code>", &code, &error))
                 {
                    g_printerr("Failed: %s\n", error->message);
-                   exit(1);
                 }
               else
                 {
