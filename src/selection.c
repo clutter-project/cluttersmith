@@ -26,6 +26,8 @@ static void update_active_actor (void)
     {
       cs_set_active (NULL);
     }
+  if (g_list_length (selected)>0)
+    clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (cluttersmith->parasite_root)), NULL);
 }
 
 void cs_selected_add (ClutterActor *actor)
