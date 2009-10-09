@@ -407,7 +407,6 @@ cs_ui_mode (ClutterActor *ignored)
     {
         case CS_UI_MODE_BROWSE:
           cs_set_ui_mode (CS_UI_MODE_CHROME);
-          g_print ("Run mode : edit only\n");
           break;
 /*        case CS_UI_MODE_EDIT:
           cs_set_ui_mode (CS_UI_MODE_CHROME);
@@ -416,7 +415,6 @@ cs_ui_mode (ClutterActor *ignored)
         case CS_UI_MODE_CHROME: 
         default:
           cs_set_ui_mode (CS_UI_MODE_BROWSE);
-          g_print ("Run mode : browse\n");
           break;
     }
 }

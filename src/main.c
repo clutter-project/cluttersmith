@@ -152,7 +152,7 @@ main (gint    argc,
   return 0;
 }
 
-static void* force_link_of_compilation_units_containting[]={
+void* force_link_of_compilation_units_containting[]={
   cs_link_follow,
   session_history_init_hack,
   templates_container_init_hack

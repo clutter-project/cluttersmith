@@ -90,7 +90,9 @@ void cs_link_follow (ClutterActor *actor);
 gboolean edit_text_start (ClutterActor *actor);
 void session_history_init_hack (ClutterActor  *actor);
 void templates_container_init_hack (ClutterActor  *actor);
+void cs_load (void);
 
+void cs_save (gboolean force);
 #define CS_PROPEDITOR_LABEL_WIDTH  120
 #define CS_PROPEDITOR_EDITOR_WIDTH  80
 #define EDITOR_LINE_HEIGHT         20

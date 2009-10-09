@@ -25,6 +25,7 @@
 
   struct _CSContextPrivate
   {
+    gchar  *title;
     gfloat zoom;
     gfloat origin_x;
     gfloat origin_y;
@@ -241,11 +242,36 @@ void cs_sync_chrome (void)
     }
 }
 
+static void browse_start (void)
+{
+  cs_save (TRUE);
+  g_print ("entering browse mode\n");
+}
+
+static void browse_end (void)
+{
+  cs_load ();
+  g_print ("leaving browse mode\n");
+}
+
 void cs_set_ui_mode (guint ui_mode)
 {
+
+  if (!(ui_mode & CS_UI_MODE_EDIT) &&
+      (cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+    {
+      browse_start ();
+    }
+  else if ((ui_mode & CS_UI_MODE_EDIT) &&
+      !(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+    {
+      browse_end ();
+    }
+
   cluttersmith->ui_mode = ui_mode;
   cs_selected_clear ();
   cs_sync_chrome ();
+
   g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
 }
 
@@ -656,10 +682,10 @@ void session_history_add (const gchar *dir);
 
 static gchar *filename = NULL;
 
-static void cs_save (void)
+void cs_save (gboolean force)
 {
   /* Save if we've changed */
-  if (CS_REVISION != CS_STORED_REVISION)
+  if (CS_REVISION != CS_STORED_REVISION || force)
     {
       gchar *content;
       gfloat x, y;
@@ -680,28 +706,24 @@ static void cs_save (void)
 
 gboolean cs_save_timeout (gpointer data)
 {
-  cs_save ();
+  cs_save (FALSE);
   return TRUE;
 }
 
-static void title_text_changed (ClutterActor *actor)
+void cs_load (void)
 {
-  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
-
-  cs_save ();
-
-  filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
-                              title);
   cs_container_remove_children (cluttersmith->property_editors);
   cs_container_remove_children (cluttersmith->scene_graph);
+  cs_container_remove_children (cluttersmith->fake_stage);
+
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
-      gchar *scriptfilename;
       session_history_add (cs_get_project_root ());
-      cluttersmith->fake_stage = cs_replace_content2 (actor, "fake-stage", filename);
+      gchar *scriptfilename;
+      cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
-                                  title);
+                                  cluttersmith->priv->title);
       if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
         {
           GError      *error = NULL;
@@ -743,12 +765,27 @@ static void title_text_changed (ClutterActor *actor)
     }
   else
     {
-      cluttersmith->fake_stage = cs_replace_content2 (actor, "fake-stage", NULL);
+      cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", NULL);
 
     }
   cs_set_current_container (cluttersmith->fake_stage);
-  cs_sync_chrome_idle (NULL);
   CS_REVISION = CS_STORED_REVISION = 0;
+}
+
+static void title_text_changed (ClutterActor *actor)
+{
+  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
+  
+  if (cluttersmith->priv->title)
+    g_free (cluttersmith->priv->title);
+  cluttersmith->priv->title = g_strdup (title);
+
+  cs_save (FALSE);
+
+  filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
+                              title);
+  cs_load ();
+  cs_sync_chrome_idle (NULL);
 
   cs_selected_clear ();
 }
