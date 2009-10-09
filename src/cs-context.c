@@ -247,13 +247,23 @@ static gboolean return_to_ui (gpointer ignored)
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   return FALSE;
 }
-static void browse_start (void)
+
+static void page_run_start (void)
 {
   gchar *scriptfilename;
-  cs_save (TRUE);
   g_print ("entering browse mode\n");
   scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                               cluttersmith->priv->title);
+
+
+  {
+    const gchar *text = clutter_text_get_text (CLUTTER_TEXT (cluttersmith->dialog_editor_text));
+    gint len = strlen (text);
+    if (len >= 6)
+      g_file_set_contents (scriptfilename, text, len, NULL);
+  }
+
+
   if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
     {
       GError      *error = NULL;
@@ -263,9 +273,8 @@ static void browse_start (void)
 
       len = strlen (code);
 
+      g_assert (cluttersmith->priv->page_js_context == NULL);
       cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
-      g_object_set_data_full (G_OBJECT (cluttersmith->fake_stage),
-           "js-context", cluttersmith->priv->page_js_context, (void*)g_object_unref);
       gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
   "<code>", NULL, NULL);
       if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
@@ -284,7 +293,10 @@ static void browse_start (void)
             }
           else
             {
-              g_print ("returned: %i\n", code);
+              gchar *str = g_strdup_printf ("returned: %i\n", code);
+              clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
+                                     str);
+              g_free (str);
             }
           g_free (js);
         }
@@ -292,10 +304,27 @@ static void browse_start (void)
     }
 }
 
+static void page_run_end (void)
+{
+  if (cluttersmith->priv->page_js_context)
+    {
+      g_object_unref (cluttersmith->priv->page_js_context);
+      cluttersmith->priv->page_js_context = NULL;
+    }
+}
+
+static void browse_start (void)
+{
+  page_run_end ();
+  cs_save (TRUE);
+  page_run_start ();
+}
+
 static void browse_end (void)
 {
-  cs_load ();
+  page_run_end ();
   g_print ("leaving browse mode\n");
+  cs_load ();
 }
 
 void cs_set_ui_mode (guint ui_mode)
@@ -737,6 +766,8 @@ void cs_save (gboolean force)
       gchar *content;
       gfloat x, y;
 
+      g_print ("saving\n");
+
       clutter_actor_get_position (cluttersmith->fake_stage, &x, &y);
       clutter_actor_set_position (cluttersmith->fake_stage, 0.0, 0.0);
 
@@ -753,7 +784,8 @@ void cs_save (gboolean force)
 
 gboolean cs_save_timeout (gpointer data)
 {
-  cs_save (FALSE);
+  if (cluttersmith->ui_mode & CS_UI_MODE_EDIT)
+    cs_save (FALSE);
   return TRUE;
 }
 
@@ -767,6 +799,7 @@ void cs_load (void)
     {
       gchar *scriptfilename;
       session_history_add (cs_get_project_root ());
+      g_print ("doing it\n");
       cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
@@ -791,8 +824,10 @@ void cs_load (void)
             }
           g_free (scriptfilename);
         }
-
-
+      else
+        {
+          clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), "/* */");
+        }
     }
   else
     {
@@ -815,10 +850,15 @@ static void title_text_changed (ClutterActor *actor)
 
   filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
                               title);
+
+  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+    page_run_end ();
   cs_load ();
   cs_sync_chrome_idle (NULL);
-
   cs_selected_clear ();
+
+  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+    page_run_start ();
 }
 
 char *

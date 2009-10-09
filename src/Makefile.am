@@ -48,7 +48,7 @@ typelibdir = $(pkglibdir)
 typelib_DATA = ClutterSmith-0.0.typelib
 CLEANFILES += libcluttersmith.la
 
-ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile
+ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile *.c *.h
 	$(AM_V_GEN) $(G_IR_SCANNER)			 \
 		--namespace=ClutterSmith		 \
 		--nsversion=0.1				 \

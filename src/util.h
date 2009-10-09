@@ -21,6 +21,7 @@ gboolean       cs_movable_press                    (ClutterActor *actor,
                                                     ClutterEvent *event);
 
 ClutterActor  *get_actor                           (const gchar  *id);
+ClutterActor  *get_stage (void);
 
 
 ClutterActor  *cs_find_by_id                       (ClutterActor *stage,

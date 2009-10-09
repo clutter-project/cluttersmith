@@ -22,4 +22,4 @@ $("go").connect('clicked', function(o,event) {
                                 $("video").uri = $("uri").text;
                              });
 
-asdf sadf kmsadlf q[4 ;t;.4 
+0

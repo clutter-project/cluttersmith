@@ -864,6 +864,8 @@ ClutterActor  *get_actor (const gchar  *id)
 }
 
 
+
+
 gint cs_actor_ancestor_depth (ClutterActor *actor)
 {
   gint i=0;
@@ -899,3 +901,17 @@ static void get_all_actors_int (GList         **list,
       g_list_free (children);
     }
 }
+
+
+/**
+ * get_stage:
+ *
+ * Return value: (transfer none): the actor if any or NULL
+ */
+ClutterActor  *get_stage (void)
+{
+  ClutterActor *ret;
+  ret = cluttersmith->fake_stage;
+  return ret;
+}
+
