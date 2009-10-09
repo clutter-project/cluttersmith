@@ -728,6 +728,7 @@ static void destination_set2 (NbtkAction *action,
   text = cs_container_get_child_no (CLUTTER_CONTAINER(actor), 0);
   clutter_text_set_text (CLUTTER_TEXT (text), nbtk_action_get_name (action));
   g_free (value);
+  cs_dirtied ();
 }
 
 static NbtkAction *destination_set (const gchar *name)

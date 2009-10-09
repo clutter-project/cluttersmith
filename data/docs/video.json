@@ -16,7 +16,7 @@
   {
     "type":"NbtkBoxLayout",
     "x":51,
-    "y":31,
+    "y":30,
     "width":366,
     "height":337,
     "depth":0.000,
@@ -36,9 +36,9 @@
       "type":"ClutterGstVideoTexture",
       "id":"video"
       "audio-volume":0.100,
-      "playing":true,
-      "uri":"file://home/pippin/zim.avi",
       "progress":0.000,
+      "uri":"file://home/pippin/zim.avi",
+      "playing":true,
       "name":"",
       "x": 0,
       "y": 0,
@@ -473,8 +473,8 @@
   {
     "type":"NbtkButton",
     "name":"link=index",
-    "x":399,
-    "y":377,
+    "x":51,
+    "y":401,
     "width":98,
     "height":43,
     "depth":0.000,
