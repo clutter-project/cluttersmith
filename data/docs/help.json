@@ -50,7 +50,7 @@
     "use-markup":false,
     "line-wrap":true,
     "justify":false,
-    "position":166,
+    "position":-1,
     "selection-bound":166,
     "selection-color":"#000000ff",
     "cursor-visible":true,
@@ -112,7 +112,7 @@ double click selected item to edit it (or follow hyper link when in editing mode
   {
     "type":"NbtkButton",
     "name":"link=index",
-    "x":20,
+    "x":21,
     "y":418,
     "width":143,
     "height":35,

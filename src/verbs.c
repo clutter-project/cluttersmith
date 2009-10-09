@@ -2,6 +2,7 @@
 #include <nbtk/nbtk.h>
 #include "cluttersmith.h"
 #include "util.h"
+#include <string.h>
 
 /****/
 
@@ -710,8 +711,33 @@ static gboolean is_link (ClutterActor *actor)
                     "ClutterSmithLink"));
 }
 
-void link_edit_link (NbtkAction *action,
-                     gpointer    ignored)
+static void destination_set2 (NbtkAction *action,
+                              gpointer    data)
+{
+  ClutterActor *actor = cs_selected_get_any ();
+  ClutterActor *text;
+  gchar *value;
+  value = g_strdup_printf ("link=%s", nbtk_action_get_name (action));
+  g_print ("%s\n", value);
+  clutter_actor_set_name (actor, value);
+  text = cs_container_get_child_no (CLUTTER_CONTAINER(actor), 0);
+  clutter_text_set_text (CLUTTER_TEXT (text), nbtk_action_get_name (action));
+  g_free (value);
+}
+
+static NbtkAction *destination_set (const gchar *name)
+{
+  NbtkAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = nbtk_action_new_full (label, G_CALLBACK (destination_set2), NULL);
+  g_free (label);
+  return action;
+}
+
+
+void new_scene (NbtkAction *action,
+                gpointer    ignored)
 {
   ClutterActor *actor = cs_selected_get_any ();
   ClutterActor *text;
@@ -720,6 +746,48 @@ void link_edit_link (NbtkAction *action,
   text = cs_container_get_child_no (CLUTTER_CONTAINER(actor), 0);
   /* the name:link=link in the edited hyperlink is updated automatically */
   edit_text_start (text);
+}
+
+void link_edit_link (NbtkAction *action,
+                     gpointer    ignored)
+{
+  NbtkPopup *popup = cs_popup_new ();
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+
+{
+  GDir *dir;
+  const gchar *path = cs_get_project_root ();
+  const gchar *name;
+
+  if (!path)
+    return;
+
+  action = nbtk_action_new_full ("new scene", G_CALLBACK (new_scene), NULL);
+  nbtk_popup_add_action (popup, action);
+
+  dir = g_dir_open (path, 0, NULL);
+
+  while ((name = g_dir_read_name (dir)))
+    {
+      gchar *name2;
+      if (!g_str_has_suffix (name, ".json"))
+        continue;
+      name2 = g_strdup (name);
+      *strstr (name2, ".json")='\0';
+
+      action = destination_set (name2);
+      g_free (name2);
+      nbtk_popup_add_action (popup, action);
+    }
+  g_dir_close (dir);
+}
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
 }
 
 void object_popup (ClutterActor *actor,
