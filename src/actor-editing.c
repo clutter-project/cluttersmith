@@ -357,6 +357,7 @@ gboolean update_overlay_positions (gpointer data)
   clutter_actor_show (cluttersmith->resize_handle);
       
   /*XXX: */ clutter_actor_hide (cluttersmith->active_panel);
+  /*XXX: */ clutter_actor_hide (cluttersmith->move_handle);
 
   min_x = 65536;
   min_y = 65536;
