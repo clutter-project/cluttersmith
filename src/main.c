@@ -16,7 +16,7 @@
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
 #include "util.h"
-#include <gjs/gjs.h>
+#include <gobject-introspection-1.0/girepository.h>
 
 /* Global structure containing information parsed from commandline parameters
  */
@@ -127,7 +127,6 @@ static gboolean idle_show_config (gpointer ignored)
 
 #ifndef COMPILEMODULE
 
-#include <gobject-introspection-1.0/girepository.h>
   
 gint
 main (gint    argc,
@@ -150,23 +149,13 @@ main (gint    argc,
   g_timeout_add (800, idle_show_config, NULL); /* auto-save */
 
   clutter_main ();
-
-  /* hack to force linkage, dynamically linking to the lib would make
-   * the need for this go away, the code is never executed, but it
-   * needs to be compiled and linked for libtool not to strip symbols
-   * away.
-   *
-   * We only need to refer to one function from each C file to ensure
-   * the .o is included in the binary.
-   */
-  if(stage==(void*)120)
-    {
-      cs_link_follow (NULL);
-      session_history_init_hack (NULL);
-      templates_container_init_hack (NULL);
-    }
   return 0;
-
 }
+
+static void* force_link_of_compilation_units_containting[]={
+  cs_link_follow,
+  session_history_init_hack,
+  templates_container_init_hack
+};
 #endif
 

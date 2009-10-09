@@ -30,7 +30,7 @@
     gfloat origin_y;
     gfloat canvas_width;
     gfloat canvas_height;
-    GjsContext  *js_context;
+    GjsContext  *page_js_context;
   };
 
 static void cs_context_get_property (GObject    *object,
@@ -92,24 +92,12 @@ cs_context_class_init (CSContextClass *klass)
 
 }
 
+
+
 static void
 cs_context_init (CSContext *self)
 {
-  
-  gchar *code = "const ClutterSmith = imports.gi.ClutterSmith;\n"
-                "const Clutter = imports.gi.Clutter;\n"
-                "const GLib = imports.gi.GLib;\n"
-                "const Lang = imports.lang;\n"
-                "const Mainloop = imports.mainloop;\n"
-                "function $(id) {return ClutterSmith.get_actor(id);}";
-                
-                ;
-  gint len = strlen (code);
-
   self->priv = CONTEXT_PRIVATE (self);
-  self->priv->js_context = gjs_context_new_with_search_path(NULL);
-  gjs_context_eval(self->priv->js_context, (void*)code, len,
-      "<code>", NULL, NULL);
 }
 
 CSContext *
@@ -718,8 +706,16 @@ static void title_text_changed (ClutterActor *actor)
         {
           GError      *error = NULL;
           guchar *js;
+          gchar *code = JS_PREAMBLE; 
           gsize len;
 
+          len = strlen (code);
+
+          cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
+          g_object_set_data_full (G_OBJECT (cluttersmith->fake_stage),
+               "js-context", cluttersmith->priv->page_js_context, (void*)g_object_unref);
+          gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
+      "<code>", NULL, NULL);
           if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
             {
                g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
@@ -731,7 +727,7 @@ static void title_text_changed (ClutterActor *actor)
               clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor), (gchar*)js);
               g_print ("running js: %i {%s}\n", len, js);
 
-              if (!gjs_context_eval(cluttersmith->priv->js_context, (void*)js, len,
+              if (!gjs_context_eval(cluttersmith->priv->page_js_context, (void*)js, len,
                        "<code>", &code, &error))
                 {
                    g_printerr("Failed: %s\n", error->message);

@@ -86,11 +86,23 @@ void object_popup    (ClutterActor *actor,
 void selection_popup (gint          x,
                       gint          y);
 
+void cs_link_follow (ClutterActor *actor);
 gboolean edit_text_start (ClutterActor *actor);
+void session_history_init_hack (ClutterActor  *actor);
+void templates_container_init_hack (ClutterActor  *actor);
 
 #define CS_PROPEDITOR_LABEL_WIDTH  120
 #define CS_PROPEDITOR_EDITOR_WIDTH  80
 #define EDITOR_LINE_HEIGHT         20
 #define CS_EDITOR_LABEL_FONT "Liberation 11px"
+
+
+#define JS_PREAMBLE \
+     "const ClutterSmith = imports.gi.ClutterSmith;\n"\
+                "const Clutter = imports.gi.Clutter;\n"\
+                "const GLib = imports.gi.GLib;\n"\
+                "const Lang = imports.lang;\n"\
+                "const Mainloop = imports.mainloop;\n"\
+                "function $(id) {return ClutterSmith.get_actor(id);}"
 
 #endif
