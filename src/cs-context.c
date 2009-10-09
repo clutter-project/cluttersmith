@@ -242,10 +242,54 @@ void cs_sync_chrome (void)
     }
 }
 
+static gboolean return_to_ui (gpointer ignored)
+{
+  cs_set_ui_mode (CS_UI_MODE_CHROME);
+  return FALSE;
+}
 static void browse_start (void)
 {
+  gchar *scriptfilename;
   cs_save (TRUE);
   g_print ("entering browse mode\n");
+  scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
+                              cluttersmith->priv->title);
+  if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
+    {
+      GError      *error = NULL;
+      guchar *js;
+      gchar *code = JS_PREAMBLE; 
+      gsize len;
+
+      len = strlen (code);
+
+      cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
+      g_object_set_data_full (G_OBJECT (cluttersmith->fake_stage),
+           "js-context", cluttersmith->priv->page_js_context, (void*)g_object_unref);
+      gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
+  "<code>", NULL, NULL);
+      if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
+        {
+           g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
+        }
+      else
+        {
+          gint code;
+          if (!gjs_context_eval(cluttersmith->priv->page_js_context, (void*)js, len,
+                   "<code>", &code, &error))
+            {
+               clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
+                                      error->message);
+               g_idle_add (return_to_ui, NULL);
+            }
+          else
+            {
+              g_print ("returned: %i\n", code);
+            }
+          g_free (js);
+        }
+      g_free (scriptfilename);
+    }
 }
 
 static void browse_end (void)
@@ -419,6 +463,9 @@ gboolean idle_add_stage (gpointer stage)
   cluttersmith->dialog_scenes = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-scenes"));
   cluttersmith->dialog_templates = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-templates"));
   cluttersmith->dialog_editor= CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
+  cluttersmith->dialog_editor_text = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-text"));
+  cluttersmith->dialog_editor_error = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-error"));
+
   cluttersmith->dialog_property_inspector = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-property-inspector"));
 
 
@@ -718,8 +765,8 @@ void cs_load (void)
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
-      session_history_add (cs_get_project_root ());
       gchar *scriptfilename;
+      session_history_add (cs_get_project_root ());
       cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
@@ -733,35 +780,19 @@ void cs_load (void)
 
           len = strlen (code);
 
-          cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
-          g_object_set_data_full (G_OBJECT (cluttersmith->fake_stage),
-               "js-context", cluttersmith->priv->page_js_context, (void*)g_object_unref);
-          gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
-      "<code>", NULL, NULL);
           if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
             {
                g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
             }
           else
             {
-              gint code;
-
-              clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor), (gchar*)js);
-              g_print ("running js: %i {%s}\n", len, js);
-
-              if (!gjs_context_eval(cluttersmith->priv->page_js_context, (void*)js, len,
-                       "<code>", &code, &error))
-                {
-                   g_printerr("Failed: %s\n", error->message);
-                }
-              else
-                {
-                  g_print ("returned: %i\n", code);
-                }
+              clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), (gchar*)js);
               g_free (js);
             }
           g_free (scriptfilename);
         }
+
+
     }
   else
     {
@@ -857,6 +888,8 @@ void cs_save_dialog_state (void)
 
   dialog_remember (keyfile, "cs-dialog-templates", cluttersmith->dialog_templates);
   dialog_remember (keyfile, "cs-dialog-editor", cluttersmith->dialog_editor);
+  dialog_remember (keyfile, "cs-dialog-editor-text", cluttersmith->dialog_editor_text);
+  dialog_remember (keyfile, "cs-dialog-editor-error", cluttersmith->dialog_editor_error);
 
   dialog_remember (keyfile, "cs-dialog-scenes", cluttersmith->dialog_scenes);
 

@@ -267,9 +267,13 @@
                          ] 
             },
 
-            {
-              "type":"ClutterText",
+            { "type":"NbtkBoxLayout",
               "id":"cs-dialog-editor",
+              "vertical":true,
+              "children":[
+            {
+              "id":"cs-dialog-editor-text",
+              "type":"ClutterText",
               "line-wrap": true,
               "font-name":"Liberation Mono 7",
               "editable": true,
@@ -279,7 +283,22 @@
               "selection-color":"#000066ff",
               "text":"",
               "signals": [ 
+                           {"name":"paint", "handler":"child_expand_init_hack"} 
                          ] 
+            },
+
+            {
+              "id":"cs-dialog-editor-error",
+              "type":"ClutterText",
+              "line-wrap": true,
+              "font-name":"Liberation Mono 7",
+              "color":"#ff3333ff",
+              "cursor-color":"#0000bbff",
+              "selection-color":"#000066ff",
+              "text":"",
+            },
+
+            ]
             },
                  { 
                    "id":"cs-dialog-templates",

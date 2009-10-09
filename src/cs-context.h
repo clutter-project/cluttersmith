@@ -56,6 +56,8 @@ struct _CSContext
   ClutterActor *dialog_property_inspector;
   ClutterActor *dialog_tree;
   ClutterActor *dialog_editor;
+  ClutterActor *dialog_editor_text;
+  ClutterActor *dialog_editor_error;
   ClutterActor *dialog_templates;
   ClutterActor *dialog_scenes;
 
