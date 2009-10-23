@@ -15,8 +15,8 @@
   "children":[
   {
     "type":"ClutterGroup",
-    "x":185,
-    "y":82,
+    "x":173,
+    "y":62,
     "width":572,
     "height":81,
     "depth":0.000,
@@ -97,8 +97,8 @@
   ,
   {
     "type":"ClutterText",
-    "x":222,
-    "y":184,
+    "x":197,
+    "y":185,
     "width":435,
     "height":207,
     "depth":0.000,
@@ -194,7 +194,7 @@ The interactions and UI of the editor is subject to redesign, most features have
     "type":"NbtkButton",
     "name":"link=help",
     "x":13,
-    "y":179,
+    "y":187,
     "width":143,
     "height":40,
     "depth":0.000,
@@ -324,7 +324,6 @@ The interactions and UI of the editor is subject to redesign, most features have
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "pseudo-class":"hover",
     "style-class":"ClutterSmithLink",
     "stylable":true,
     "has-tooltip":false,

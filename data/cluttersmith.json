@@ -29,6 +29,47 @@
  "id":"parasite-root",
  "children":[
 
+
+
+{
+  "id":"cs-dialog-callbacks",
+  "type":"NbtkBoxLayout",
+  "style-class":"parasite",
+  "vertical":true,
+  "reactive":true,
+  "width":300,
+  "height":200,
+  "spacing":9,
+  "x":0,
+  "y":0,
+   
+   "children":
+     [
+       { "type":"NbtkScrollView",
+         "width":300,
+         "height":200,
+         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+         "children":
+          [
+            { "type":"NbtkViewport",
+              "children":
+               [
+                 { "type":"NbtkBoxLayout", "vertical":true,
+                    "children":[
+                      {"type":"NbtkBoxLayout", "vertical":true, "id":"cs-callbacks-container",
+                       "spacing":2},
+                    ]
+                  }
+               ]
+            }
+         ]
+       }
+     ]
+            "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
+}
+
+
+
 {
   "id":"cs-active-panel",
   "type":"NbtkBoxLayout",
@@ -225,8 +266,6 @@
                                        "children":[
                                        ]
                                      }
-
-
                                    ]
                                  }
                               ]

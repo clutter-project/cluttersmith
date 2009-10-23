@@ -50,8 +50,10 @@ struct _CSContext
 
   ClutterActor *active_panel;
   ClutterActor *active_container;
+  ClutterActor *callbacks_container;
 
   ClutterActor *dialog_config;
+  ClutterActor *dialog_callbacks;
   ClutterActor *dialog_toolbar;
   ClutterActor *dialog_property_inspector;
   ClutterActor *dialog_tree;

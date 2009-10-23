@@ -4,3 +4,11 @@ This is the base for a clutter authoring environment, it is currently not
 for distribution outside Intel OTC.
 
 Compile and install as normal, further docmentation contained within the program.
+
+
+
+a userdata on each actor with a hashtable of
+  signal name -> javascript string
+...
+
+serialized as numeric path...  
