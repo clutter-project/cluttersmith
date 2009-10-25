@@ -281,6 +281,9 @@ static void page_run_start (void)
                       GList *cbs;
                       for (cbs = value; cbs; cbs=cbs->next)
                         {
+                            /* the protoype for the callback isnt correct, and
+                             * should be generated based on the signal_query
+                             */
                             g_string_append_printf (new, "/*[CS] %s:%s */  $('%s').connect('%s', function(o,event) {\n", id, (gchar*)key, id, (gchar*)key);
                             g_string_append_printf (new, "%s});/*[CS]*/\n", (gchar*)cbs->data);
                           }
@@ -677,6 +680,88 @@ static GList *cs_actor_get_js_callbacks (ClutterActor *actor,
 }
 
 static void
+callback_text_changed (ClutterText  *text,
+                       ClutterActor *actor)
+{
+  const gchar *new_text = clutter_text_get_text (text);
+  GList *c, *callbacks;
+  GHashTable *ht;
+  gint i;
+  const gchar *signal = g_object_get_data (G_OBJECT (text), "signal");
+  gint no = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (text), "no"));
+
+  ht = g_object_get_data (G_OBJECT (actor), "callbacks");
+  callbacks = g_hash_table_lookup (ht, signal);
+  for (i=0, c=callbacks; c; c=c->next, i++)
+    {
+      if (i==no)
+        {
+          g_free (c->data);
+          c->data = g_strdup (new_text);
+        }
+    }
+}
+
+static void freecode (gpointer ht)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_hash_table_iter_init (&iter, ht);
+  while (g_hash_table_iter_next (&iter, &key, &value)) 
+    {
+      g_list_foreach (value, (GFunc)g_free, NULL);
+      g_list_free (value);
+    }
+  g_hash_table_destroy (ht);
+}
+
+static void
+callbacks_populate (ClutterActor *actor);
+
+static void
+callback_add (NbtkWidget *button,
+              ClutterActor *actor)
+{
+  GList *callbacks;
+  GHashTable *ht;
+  gchar *signal = g_object_get_data (G_OBJECT (button), "signal");
+
+  ht = g_object_get_data (G_OBJECT (actor), "callbacks");
+  if (!ht)
+    {
+      ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+      g_object_set_data_full (G_OBJECT (actor), "callbacks", ht, freecode);
+    }
+
+  callbacks = g_hash_table_lookup (ht, signal);
+  callbacks = g_list_append (callbacks, g_strdup ("hoi"));
+  g_hash_table_insert (ht, g_strdup (signal), callbacks);
+  callbacks_populate (actor);
+}
+
+static void
+callbacks_add_cb (ClutterActor *actor,
+                  const gchar  *signal,
+                  const gchar  *code,
+                  gint          no)
+{
+  ClutterActor *cb = clutter_text_new_with_text ("Mono 10", code);
+
+  ClutterActor *hbox   = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+  NbtkWidget   *remove = nbtk_button_new_with_label ("-");
+  clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (remove),
+                                                                   CLUTTER_ACTOR (cb), NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
+  g_object_set (G_OBJECT (cb), "editable", TRUE, "selectable", TRUE, "reactive", TRUE, NULL);
+  g_object_set_data (G_OBJECT (cb), "no", GINT_TO_POINTER (no));
+  g_object_set_data_full (G_OBJECT (cb), "signal", g_strdup (signal), g_free);
+  g_signal_connect (cb, "text-changed", G_CALLBACK (callback_text_changed), actor);
+
+  clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
+}
+
+static void
 callbacks_populate (ClutterActor *actor)
 {
   GType type = G_OBJECT_TYPE (actor);
@@ -700,6 +785,10 @@ callbacks_populate (ClutterActor *actor)
             ClutterActor *hbox  = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
             NbtkWidget   *title = nbtk_label_new (query.signal_name);
             NbtkWidget   *add   = nbtk_button_new_with_label ("+");
+
+            g_object_set_data_full (G_OBJECT (add), "signal", g_strdup (query.signal_name), g_free);
+            g_signal_connect (add, "clicked", G_CALLBACK (callback_add), actor);
+
             clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (add),
                                                              CLUTTER_ACTOR (title), NULL);
             clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
@@ -709,24 +798,13 @@ callbacks_populate (ClutterActor *actor)
                                          NULL);
 
             {
+              gint no = 0;
               GList *l, *list = cs_actor_get_js_callbacks (actor, query.signal_name);
-              for (l=list;l;l=l->next)
+              for (l=list;l;l=l->next, no++)
                 {
-                  ClutterActor *cb = clutter_text_new_with_text ("Mono 10", l->data);
-
-                  ClutterActor *hbox   = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-                  NbtkWidget   *remove = nbtk_button_new_with_label ("-");
-                  clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (remove),
-                                                                   CLUTTER_ACTOR (cb), NULL);
-                  clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
-                  g_object_set (G_OBJECT (cb), "editable", TRUE, "selectable", TRUE, "reactive", TRUE, NULL);
-
-
-
-                  clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
+                  callbacks_add_cb (actor, query.signal_name, l->data, no);
                 }
             }
-
           }
       }
     type = g_type_parent (type);
@@ -895,20 +973,6 @@ gboolean cs_save_timeout (gpointer data)
   if (cluttersmith->ui_mode & CS_UI_MODE_EDIT)
     cs_save (FALSE);
   return TRUE;
-}
-
-static void freecode (gpointer ht)
-{
-  GHashTableIter iter;
-  gpointer key, value;
-
-  g_hash_table_iter_init (&iter, ht);
-  while (g_hash_table_iter_next (&iter, &key, &value)) 
-    {
-      g_list_foreach (value, (GFunc)g_free, NULL);
-      g_list_free (value);
-    }
-  g_hash_table_destroy (ht);
 }
 
 static void parsed_callback (const gchar *id,
