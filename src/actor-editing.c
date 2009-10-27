@@ -1387,15 +1387,11 @@ manipulate_capture (ClutterActor *actor,
           cs_last_x = event->button.x;
           cs_last_y = event->button.y;
         return TRUE;
-      case CLUTTER_ENTER:
-      case CLUTTER_LEAVE:
-        return FALSE;
       default:
         break;
     }
   return TRUE;
 }
-
 
 static gboolean playback_context (ClutterActor *actor,
                                   ClutterEvent *event)
