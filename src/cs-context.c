@@ -1230,6 +1230,7 @@ void cs_save_dialog_state (void)
   dialog_remember (keyfile, "cs-dialog-scenes", cluttersmith->dialog_scenes);
 
   dialog_remember (keyfile, "cs-dialog-config", cluttersmith->dialog_config);
+  dialog_remember (keyfile, "cs-dialog-callbacks", cluttersmith->dialog_callbacks);
 
   {
     gfloat w,h;
@@ -1280,6 +1281,7 @@ void cs_load_dialog_state (void)
   dialog_recall (keyfile, "cs-dialog-scenes", cluttersmith->dialog_scenes);
 
   dialog_recall (keyfile, "cs-dialog-config", cluttersmith->dialog_config);
+  dialog_recall (keyfile, "cs-dialog-callbacks", cluttersmith->dialog_callbacks);
 
   {
     ClutterActor *stage = clutter_actor_get_stage (cluttersmith->parasite_root);

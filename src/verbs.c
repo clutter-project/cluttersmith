@@ -464,6 +464,9 @@ static void dialog_toggle_scenes (ClutterActor *ignored)
 static void dialog_toggle_config (ClutterActor *ignored)
 { dialog_toggle (NULL, cluttersmith->dialog_config); }
 
+static void dialog_toggle_callbacks (ClutterActor *ignored)
+{ dialog_toggle (NULL, cluttersmith->dialog_callbacks); }
+
 
 static MxAction *dialog_toggle_action (const gchar *name,
                                          ClutterActor *actor)
@@ -518,6 +521,7 @@ static KeyBinding keybindings[]={
   {0,                    CLUTTER_F3,        dialog_toggle_templates},
   {0,                    CLUTTER_F4,        dialog_toggle_scenes},
   {0,                    CLUTTER_F5,        dialog_toggle_editor},
+  {0,                    CLUTTER_F6,        dialog_toggle_callbacks},
   {0,                    CLUTTER_F12,       dialog_toggle_config},
 
   {0, 0, NULL},
@@ -637,8 +641,12 @@ void dialogs_popup (gint x,
   action = dialog_toggle_action ("Editor (F5)", cluttersmith->dialog_editor);
   mx_popup_add_action (popup, action);
 
+  action = dialog_toggle_action ("Callbacks (F6)", cluttersmith->dialog_callbacks);
+  mx_popup_add_action (popup, action);
+
   action = dialog_toggle_action ("Config (F12)", cluttersmith->dialog_config);
   mx_popup_add_action (popup, action);
+
 
   mx_popup_add_action (popup, mx_action_new_full ("", NULL, NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Remember positions and visibility", G_CALLBACK (cs_save_dialog_state2), NULL));
