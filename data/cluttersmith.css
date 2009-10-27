@@ -4,10 +4,10 @@
 
 
 
-*.parasite NbtkButton,
-*.parasite NbtkButton:active,
-*.parasite NbtkButton:hover,
-*.parasite NbtkButton:checked {
+*.parasite MxButton,
+*.parasite MxButton:active,
+*.parasite MxButton:hover,
+*.parasite MxButton:checked {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 5px;
@@ -15,17 +15,17 @@
   font-size: 10px;
 }
 
-NbtkLabel, NbtkIMLabel
+MxLabel, MxIMLabel
 {
   font-family: "Times";
   font-size: 12px;
   color: black;
 }
 
-*.ParasiteToolbar NbtkButton,
-*.ParasiteToolbar NbtkButton:active,
-*.ParasiteToolbar NbtkButton:hover,
-*.ParasiteToolbar NbtkButton:checked 
+*.ParasiteToolbar MxButton,
+*.ParasiteToolbar MxButton:active,
+*.ParasiteToolbar MxButton:hover,
+*.ParasiteToolbar MxButton:checked 
 {
   font-size: 20px;
   padding-top: 5px;
@@ -34,40 +34,40 @@ NbtkLabel, NbtkIMLabel
   padding-right: 5px;
 }
 
-NbtkBoxLayout.ParasiteTreeA1 {
+MxBoxLayout.ParasiteTreeA1 {
   background-color: #000;
 }
 
-NbtkBoxLayout.ParasiteTreeB1 {
+MxBoxLayout.ParasiteTreeB1 {
   background-color: #666;
 }
 
-NbtkBoxLayout.ParasiteTreeA2 {
+MxBoxLayout.ParasiteTreeA2 {
   background-color: #222;
 }
 
-NbtkBoxLayout.ParasiteTreeB2 {
+MxBoxLayout.ParasiteTreeB2 {
   background-color: #444;
 }
 
-*.parasite NbtkButton {
+*.parasite MxButton {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
 
 
-*.parasite NbtkEntry {
+*.parasite MxEntry {
   border-image: url("file://entry-bg.png") 8 8 8 8;
   color: yellow;
   font-size: 9px;
 }
 
-*.parasite NbtkButton {
+*.parasite MxButton {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
 
-*.parasite NbtkButton:active {
+*.parasite MxButton:active {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
@@ -82,86 +82,86 @@ NbtkBoxLayout.ParasiteTreeB2 {
   padding: 1px;
 }
 
-*.parasite NbtkButton:hover {
+*.parasite MxButton:hover {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
   color: yellow;
 }
 
 
-*.parasite NbtkButton:checked {
+*.parasite MxButton:checked {
   border-image: url("file://button-bg.png") 8 8 8 8;
   color: white;
 }
 
 
 
-*.parasite NbtkScrollBar
+*.parasite MxScrollBar
 {
   background-color: #00000000;
   padding: 2px;
 }
 
 
-*.parasite NbtkButton#backward-stepper
+*.parasite MxButton#backward-stepper
 {
   border-image: url("file://button-bg.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#backward-stepper:hover,
-*.parasite NbtkButton#backward-stepper:active
+*.parasite MxButton#backward-stepper:hover,
+*.parasite MxButton#backward-stepper:active
 {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#forward-stepper
+*.parasite MxButton#forward-stepper
 {
   border-image: url("file://button-bg.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#forward-stepper:hover,
-*.parasite NbtkButton#forward-stepper:active
+*.parasite MxButton#forward-stepper:hover,
+*.parasite MxButton#forward-stepper:active
 {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#up-stepper
+*.parasite MxButton#up-stepper
 {
   border-image: url("file://button-bg.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#up-stepper:hover,
-*.parasite NbtkButton#up-stepper:active
+*.parasite MxButton#up-stepper:hover,
+*.parasite MxButton#up-stepper:active
 {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#down-stepper
+*.parasite MxButton#down-stepper
 {
   border-image: url("file://button-bg.png") 8 8 8 8;
 }
 
-*.parasite NbtkButton#down-stepper:hover,
-*.parasite NbtkButton#down-stepper:active
+*.parasite MxButton#down-stepper:hover,
+*.parasite MxButton#down-stepper:active
 {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
-*.parasite NbtkScrollBar NbtkButton#vhandle
+*.parasite MxScrollBar MxButton#vhandle
 {
   border-image: url("file://button-bg.png") 8 8 8 8;
 }
 
-*.parasite NbtkScrollBar NbtkButton#vhandle:hover
+*.parasite MxScrollBar MxButton#vhandle:hover
 {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
-*.parasite NbtkScrollBar NbtkButton#hhandle
+*.parasite MxScrollBar MxButton#hhandle
 {
   border-image: url("file://button-bg.png") 8 8 8 8;
 }
 
-*.parasite NbtkScrollBar NbtkButton#hhandle:hover
+*.parasite MxScrollBar MxButton#hhandle:hover
 {
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
@@ -181,18 +181,18 @@ NbtkBoxLayout.ParasiteTreeB2 {
 
 /* these CSS rules are currently bust.
  
-*.parasite-root   NbtkPopup {
+*.parasite-root   MxPopup {
   padding: 5;
   border-image: url("file://button-bg-hover.png") 8 8 8 8;
 }
 
-*.parasite-root   NbtkPopup > NbtkButton {
+*.parasite-root   MxPopup > MxButton {
   padding: 3;
   border-image: none;
 }
 
-*.parasite-root   NbtkPopup > NbtkButton:hover,
-*.parasite-root   NbtkPopup > NbtkButton:active {
+*.parasite-root   MxPopup > MxButton:hover,
+*.parasite-root   MxPopup > MxButton:active {
   color: white;
   border-image: url('file://menu-item.png') 2;
 }

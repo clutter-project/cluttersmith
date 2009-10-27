@@ -284,7 +284,7 @@
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=todo",
     "x":49,
     "y":80,

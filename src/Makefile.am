@@ -87,16 +87,16 @@ valgrind: all
 
 # the following are local small hacks
 CLUTTER_HEADER_DIR=/usr/local/include/clutter-1.0/clutter/
-NBTK_HEADER_DIR=/usr/local/include/nbtk-1.0/nbtk/
+MX_HEADER_DIR=/usr/local/include/mx-1.0/mx/
 
 init-types.c:  
 	echo "#include <clutter/clutter.h>" > $@
-	echo "#include <nbtk/nbtk.h>" >> $@
+	echo "#include <mx/mx.h>" >> $@
 	echo "void init_types(void){gint i = 0;" >> $@
 	for i in `grep CLUTTER_TYPE_ $(CLUTTER_HEADER_DIR)*.h | sed "s/.*CLUTTER_TYPE_/CLUTTER_TYPE_/" | sed "s/[^_A-Z].*$$//"|sort|uniq`;do \
 	    echo "i = $$i;" >> $@\
 	 ;done
-	for i in `grep NBTK_TYPE_ $(NBTK_HEADER_DIR)*.h | sed "s/.*NBTK_TYPE_/NBTK_TYPE_/" | sed "s/[^_A-Z].*$$//"|sort|uniq`;do \
+	    for i in `grep MX_TYPE_ $(MX_HEADER_DIR)*.h | sed "s/.*MX_TYPE_/MX_TYPE_/" | sed "s/[^_A-Z].*$$//"|sort|uniq`;do \
 	    echo "i = $$i;" >> $@\
 	 ;done
 	echo "}" >> $@

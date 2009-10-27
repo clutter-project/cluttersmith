@@ -93,7 +93,7 @@ the parent actor.",
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=todo",
     "x":465,
     "y":388,

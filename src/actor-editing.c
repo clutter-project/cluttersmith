@@ -1,5 +1,5 @@
 #include <clutter/clutter.h>
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
@@ -1083,8 +1083,8 @@ static gboolean text_was_reactive = FALSE;
 
 gboolean edit_text_start (ClutterActor *actor)
 {
-  if (NBTK_IS_LABEL (actor))
-    actor = nbtk_label_get_clutter_text (NBTK_LABEL (actor));
+  if (MX_IS_LABEL (actor))
+    actor = mx_label_get_clutter_text (MX_LABEL (actor));
   edited_text = actor;
 
   g_object_get (edited_text, "editable", &text_was_editable,
@@ -1130,7 +1130,7 @@ manipulate_capture (ClutterActor *actor,
         {
           /* break out when presses occur outside the ClutterText,
            * this currently means that proper mouse movement and
-           * selection is not possible for NbtkLabels and Entries
+           * selection is not possible for MxLabels and Entries
            * when edited
            */
           switch (event->any.type)
@@ -1267,7 +1267,7 @@ manipulate_capture (ClutterActor *actor,
                       return TRUE;
                     }
 
-                  if ((CLUTTER_IS_TEXT (hit) || NBTK_IS_LABEL (hit)))
+                  if ((CLUTTER_IS_TEXT (hit) || MX_IS_LABEL (hit)))
                     {
                       edit_text_start (hit);
                       return TRUE;

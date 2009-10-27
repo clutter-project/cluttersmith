@@ -16,7 +16,7 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include "popup.h"
 
 static ClutterActor *popup        = NULL;
@@ -217,18 +217,18 @@ popup_actions (gpointer *actions, gpointer userdata)
 {
   gint          i;
   gint          max_width = 0;
-  ClutterActor *group     = CLUTTER_ACTOR (g_object_new (NBTK_TYPE_GRID,
+  ClutterActor *group     = CLUTTER_ACTOR (g_object_new (MX_TYPE_GRID,
                                                          "width", 0.0,
                                                          NULL));
 
-  nbtk_widget_set_style_class_name (NBTK_WIDGET (group), "HrnPopup");
+  mx_widget_set_style_class_name (MX_WIDGET (group), "HrnPopup");
 
   for (i = 0; actions[i]; i += 2)
     {
       gfloat        w, h;
       ClutterActor *label;
 
-      label = CLUTTER_ACTOR (nbtk_button_new_with_label (actions[i]));
+      label = CLUTTER_ACTOR (mx_button_new_with_label (actions[i]));
       clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
 
       if (actions[i + 1])

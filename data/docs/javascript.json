@@ -34,7 +34,7 @@
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=video",
     "x":70,
     "y":307,

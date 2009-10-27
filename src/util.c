@@ -373,7 +373,7 @@ cs_build_transient (ClutterActor *actor)
           g_str_equal (properties[i]->name, "cogl-texture")||
           g_str_equal (properties[i]->name, "disable-slicing")||
           g_str_equal (properties[i]->name, "cogl-handle"))
-        skip = TRUE; /* to avoid duplicated parenting of NbtkButton children. */
+        skip = TRUE; /* to avoid duplicated parenting of MxButton children. */
 
       if (!(properties[i]->flags & G_PARAM_READABLE))
         skip = TRUE;

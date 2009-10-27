@@ -1,4 +1,4 @@
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include <clutter/clutter.h>
 #include <stdio.h>
 #include <stdlib.h>

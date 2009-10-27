@@ -109,7 +109,7 @@ cs_context_new (void)
 
 
 
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include <clutter/clutter.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -136,7 +136,7 @@ gchar *blacklist_types[]={"ClutterStage",
                           "ClutterStageGLX",
                           "ClutterStageX11",
                           "ClutterActor",
-                          "NbtkWidget",
+                          "MxWidget",
                           "ClutterIMText",
 
                           NULL};
@@ -498,7 +498,7 @@ static void page_run_start (void)
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
 
     cs_actor_editing_init (stage);
-    nbtk_style_load_from_file (nbtk_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
+    mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
     script = cs_get_script (actor);
 
     /* initializing globals */
@@ -610,7 +610,7 @@ static void page_run_start (void)
                                 ClutterActor *actor)
   {
       ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
-      ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+      ClutterActor *hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
     ClutterActor *label;
     ClutterActor *editor; 
 
@@ -646,15 +646,15 @@ static void page_run_start (void)
 
     /* virtual 'id' property */
 
-    hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
     label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "id");
 
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
-      g_signal_connect (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
+      g_signal_connect (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_id), actor);
-      nbtk_entry_set_text (NBTK_ENTRY (editor), clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor)));
+      mx_entry_set_text (MX_ENTRY (editor), clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor)));
     }
 
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
@@ -720,7 +720,7 @@ static void
 callbacks_populate (ClutterActor *actor);
 
 static void
-callback_add (NbtkWidget *button,
+callback_add (MxWidget *button,
               ClutterActor *actor)
 {
   GList *callbacks;
@@ -748,8 +748,8 @@ callbacks_add_cb (ClutterActor *actor,
 {
   ClutterActor *cb = clutter_text_new_with_text ("Mono 10", code);
 
-  ClutterActor *hbox   = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-  NbtkWidget   *remove = nbtk_button_new_with_label ("-");
+  ClutterActor *hbox   = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
+  MxWidget   *remove = mx_button_new_with_label ("-");
   clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (remove),
                                                                    CLUTTER_ACTOR (cb), NULL);
   clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
@@ -782,9 +782,9 @@ callbacks_populate (ClutterActor *actor)
         GSignalQuery query;
         g_signal_query (list[i], &query);
           {
-            ClutterActor *hbox  = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
-            NbtkWidget   *title = nbtk_label_new (query.signal_name);
-            NbtkWidget   *add   = nbtk_button_new_with_label ("+");
+            ClutterActor *hbox  = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
+            MxWidget   *title = mx_label_new (query.signal_name);
+            MxWidget   *add   = mx_button_new_with_label ("+");
 
             g_object_set_data_full (G_OBJECT (add), "signal", g_strdup (query.signal_name), g_free);
             g_signal_connect (add, "clicked", G_CALLBACK (callback_add), actor);
@@ -840,7 +840,7 @@ void cs_set_active (ClutterActor *item)
           while (iter && CLUTTER_IS_ACTOR (iter))
             {
               ClutterActor *new;
-              new = CLUTTER_ACTOR (nbtk_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
+              new = CLUTTER_ACTOR (mx_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
               g_signal_connect (new, "clicked", G_CALLBACK (cs_set_active_event), iter);
               clutter_container_add_actor (CLUTTER_CONTAINER (parents), new);
               iter = clutter_actor_get_parent (iter);
@@ -915,7 +915,7 @@ static void printname (gchar *name, ClutterActor *container)
       if (g_str_equal (blacklist_types[i], name))
         return;
     }
-  button = CLUTTER_ACTOR (nbtk_button_new_with_label (name));
+  button = CLUTTER_ACTOR (mx_button_new_with_label (name));
   clutter_container_add_actor (CLUTTER_CONTAINER (container), button);
   clutter_actor_set_width (button, 200);
   g_signal_connect (button, "clicked", G_CALLBACK (change_type2), name);
@@ -934,7 +934,7 @@ void cs_change_type (ClutterActor *actor)
        types = actor_types_build (NULL, CLUTTER_TYPE_ACTOR);
        types = g_list_sort (types, (void*)strcmp);
     }
-  actor = CLUTTER_ACTOR (nbtk_grid_new ());
+  actor = CLUTTER_ACTOR (mx_grid_new ());
   g_object_set (actor, "height", 600.0, "column-major", TRUE, "homogenous-columns", TRUE, NULL);
   g_list_foreach (types, (void*)printname, actor);
   popup_actor_fixed (cluttersmith->parasite_root, 0,0, actor);
@@ -1400,7 +1400,7 @@ void project_root_init_hack (ClutterActor  *actor)
     return;
   done = TRUE;
 
-  g_signal_connect (nbtk_entry_get_clutter_text (NBTK_ENTRY (actor)), "text-changed",
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (project_root_text_changed), NULL);
 }
 
@@ -1415,7 +1415,7 @@ void search_entry_init_hack (ClutterActor  *actor)
     return;
   done = TRUE;
 
-  g_signal_connect (nbtk_entry_get_clutter_text (NBTK_ENTRY (actor)), "text-changed",
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (title_text_changed), NULL);
 }
 

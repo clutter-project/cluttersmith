@@ -33,7 +33,7 @@
 
 {
   "id":"cs-dialog-callbacks",
-  "type":"NbtkBoxLayout",
+  "type":"MxBoxLayout",
   "style-class":"parasite",
   "vertical":true,
   "reactive":true,
@@ -45,18 +45,18 @@
    
    "children":
      [
-       { "type":"NbtkScrollView",
+       { "type":"MxScrollView",
          "width":300,
          "height":200,
          "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
          "children":
           [
-            { "type":"NbtkViewport",
+            { "type":"MxViewport",
               "children":
                [
-                 { "type":"NbtkBoxLayout", "vertical":true,
+                 { "type":"MxBoxLayout", "vertical":true,
                     "children":[
-                      {"type":"NbtkBoxLayout", "vertical":true, "id":"cs-callbacks-container",
+                      {"type":"MxBoxLayout", "vertical":true, "id":"cs-callbacks-container",
                        "spacing":2},
                     ]
                   }
@@ -72,7 +72,7 @@
 
 {
   "id":"cs-active-panel",
-  "type":"NbtkBoxLayout",
+  "type":"MxBoxLayout",
   "style-class":"parasite",
   "vertical":true,
   "reactive":true,
@@ -84,28 +84,28 @@
    
    "children":
      [
-       { "type":"NbtkBoxLayout", 
+       { "type":"MxBoxLayout", 
          "children":[
-          { "type":"NbtkButton", "width":100, "height":24,
+          { "type":"MxButton", "width":100, "height":24,
             "children":[{"type":"ClutterText", "id":"name2", "text":"-"}]
            "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
          },
            ]}
 
 
-       { "type":"NbtkScrollView",
+       { "type":"MxScrollView",
          "width":200,
          "height":100,
          "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
 
          "children":
           [
-            { "type":"NbtkViewport",
+            { "type":"MxViewport",
               "children":
                [
-                 { "type":"NbtkBoxLayout", "vertical":true,
+                 { "type":"MxBoxLayout", "vertical":true,
                     "children":[
-                      {"type":"NbtkBoxLayout", "vertical":true, "id":"cs-active-container",
+                      {"type":"MxBoxLayout", "vertical":true, "id":"cs-active-container",
                        "spacing":2},
                     ]
                   }
@@ -116,14 +116,14 @@
      ]
 }
 
-    {"type":"NbtkBin",
+    {"type":"MxBin",
      "id":"parasite-ui",
      "x-fill":true,
      "y-fill":true,
 
      "children":
       [
-        {"type":"NbtkBoxLayout",
+        {"type":"MxBoxLayout",
          "vertical":true,
 
           "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
@@ -131,7 +131,7 @@
            [
             {
              "id":"cs-dialog-toolbar",
-             "type":"NbtkBoxLayout",
+             "type":"MxBoxLayout",
              "style-class":"parasite",
              "reactive":true,
              "height":36.0,
@@ -146,58 +146,58 @@
 
                  { "id":"project-root",
                    "style-class":"ClutterSmithLocation",
-                   "type":"NbtkEntry",  "text": "", "width":200, "height":10,
+                   "type":"MxEntry",  "text": "", "width":200, "height":10,
                    "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
                  }
                  { "id":"title",
                    "style-class":"ClutterSmithTitle",
-                   "type":"NbtkEntry",  "text": "", "width":200, "height":10,
+                   "type":"MxEntry",  "text": "", "width":200, "height":10,
                    "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
                  }
-                 { "type":"NbtkGrid",
+                 { "type":"MxGrid",
                    "column-gap": 2.0,
                    "style-class":"ParasiteToolbar",
                    "children":
                      [
 
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"⿻",
                          "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"✂",
                          "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"⟴",
                          "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
 
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"Ꙭ",
                          "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"×",
                          "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"⤒",
                          "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"↥",
                          "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"↧",
                          "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"⤓",
                          "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"⨀", 
                          "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
 
 
-                       { "type":"NbtkButton",
+                       { "type":"MxButton",
                          "label":"?", 
                          "signals": [ {"name":"clicked", "handler":"cs_help"} ] }
 
-                       { "type":"NbtkEntry",
+                       { "type":"MxEntry",
                          "width": 30,
                          "text":"100",}
                      ],
@@ -206,7 +206,7 @@
                ]
              }
 
-            {"type":"NbtkBoxLayout",
+            {"type":"MxBoxLayout",
           "signals": [ {"name":"pick", "handler":"parasite_pick"} 
                        {"name":"paint", "handler":"child_expand_init_hack"} 
                      ] 
@@ -217,7 +217,7 @@
 
             {
             "id":"toolbar",
-            "type":"NbtkBoxLayout",
+            "type":"MxBoxLayout",
             "style-class":"parasite",
             "vertical":true,
             "reactive":true,
@@ -230,39 +230,39 @@
              
              "children":
                [
-                { "type":"NbtkBoxLayout", 
+                { "type":"MxBoxLayout", 
                   "id":"cs-dialog-property-inspector",
                   "vertical":true,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
                   "children":[
-                     { "type":"NbtkBoxLayout", 
+                     { "type":"MxBoxLayout", 
                        "children":[
                         { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
                         },
 
-                        { "type":"NbtkButton", "width":100, "height":24,
+                        { "type":"MxButton", "width":100, "height":24,
                           "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
                           "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
                         },
                           ]}
 
-                      { "type":"NbtkScrollView",
+                      { "type":"MxScrollView",
                         "height":70,
                         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
 
                         "children":
                          [
-                           { "type":"NbtkViewport",
+                           { "type":"MxViewport",
                              "children":
                               [
-                                { "type":"NbtkBoxLayout", "vertical":true,
+                                { "type":"MxBoxLayout", "vertical":true,
                                    "children":[
 
-                                     {"type":"NbtkBoxLayout", "vertical":true, "id":"property-editors",
+                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
                                       "spacing":2},
 
                                      {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                     { "type":"NbtkGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":240
+                                     { "type":"MxGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":240
                                        "children":[
                                        ]
                                      }
@@ -276,13 +276,13 @@
                  }
                  { 
                    "id":"cs-dialog-tree",
-                   "type":"NbtkScrollView",
+                   "type":"MxScrollView",
                    "width":180,
                    "height":70,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
                    "children":
                     [
-                      { "type":"NbtkViewport",
+                      { "type":"MxViewport",
                         "children":
                          [
                            { "type":"ClutterGroup", "id":"scene-graph",
@@ -306,7 +306,7 @@
                          ] 
             },
 
-            { "type":"NbtkBoxLayout",
+            { "type":"MxBoxLayout",
               "id":"cs-dialog-editor",
               "vertical":true,
               "children":[
@@ -342,15 +342,15 @@
                  { 
                    "id":"cs-dialog-templates",
                    "style-class":"parasite-paste",
-                   "type":"NbtkScrollView",
+                   "type":"MxScrollView",
                    "width":135,
                    "height":100,
                    "children":
                     [
-                      { "type":"NbtkViewport",
+                      { "type":"MxViewport",
                         "children":
                          [
-                           { "type":"NbtkBoxLayout", "id":"templates-container",
+                           { "type":"MxBoxLayout", "id":"templates-container",
                              "vertical":true, "spacing":2,
                    "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
                               "children":[
@@ -366,7 +366,7 @@
             {
             "id":"cs-dialog-scenes",
 
-            "type":"NbtkBoxLayout",
+            "type":"MxBoxLayout",
             "style-class":"parasite",
             "reactive":true,
             "height":99,
@@ -379,16 +379,16 @@
              
              "children":
                [
-                 { "type":"NbtkScrollView",
+                 { "type":"MxScrollView",
                    "height":99,
                    "width":100,
                    "signals":[{"name":"paint", "handler":"previews_parent_init_hack"} ]
                    "children":
                     [
-                      { "type":"NbtkViewport",
+                      { "type":"MxViewport",
                         "children":
                          [
-                           { "type":"NbtkBoxLayout", "id":"previews-container",
+                           { "type":"MxBoxLayout", "id":"previews-container",
                    "signals": [ {"name":"paint", "handler":"previews_container_init_hack"} ]
                               "children":[
                               ]
@@ -443,7 +443,7 @@
 
             {
             "id":"cs-dialog-config",
-            "type":"NbtkBoxLayout",
+            "type":"MxBoxLayout",
             "style-class":"parasite",
             "vertical":true,
             "reactive":true,
@@ -457,20 +457,20 @@
              
              "children":
                [
-                 { "type":"NbtkScrollView",
+                 { "type":"MxScrollView",
                    "width":300,
                    "height":100,
                    "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
 
                    "children":
                     [
-                      { "type":"NbtkViewport",
+                      { "type":"MxViewport",
                         "children":
                          [
-                           { "type":"NbtkBoxLayout", "vertical":true,
+                           { "type":"MxBoxLayout", "vertical":true,
                               "children":[
                                 {"type":"ClutterText", "color":"gray", "text":"settings"},
-                                {"type":"NbtkBoxLayout", "vertical":true, "id":"config-editors",
+                                {"type":"MxBoxLayout", "vertical":true, "id":"config-editors",
                                  "spacing":2},
 
                               ]

@@ -131,7 +131,7 @@ The interactions and UI of the editor is subject to redesign, most features have
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=widgets",
     "x":13,
     "y":133,
@@ -191,7 +191,7 @@ The interactions and UI of the editor is subject to redesign, most features have
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=help",
     "x":13,
     "y":187,
@@ -252,7 +252,7 @@ The interactions and UI of the editor is subject to redesign, most features have
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=todo",
     "x":13,
     "y":78,
@@ -311,7 +311,7 @@ The interactions and UI of the editor is subject to redesign, most features have
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=javascript",
     "x":13,
     "y":248,

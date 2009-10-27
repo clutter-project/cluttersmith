@@ -1,6 +1,6 @@
   {
     "id":"actor",
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=index",
     "style-class":"ClutterSmithLink",
     "x":0,

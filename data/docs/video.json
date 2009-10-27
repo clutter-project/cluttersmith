@@ -14,7 +14,7 @@
   "anchor-y":0.000,
   "children":[
   {
-    "type":"NbtkBoxLayout",
+    "type":"MxBoxLayout",
     "x":15,
     "y":19,
     "width":366,
@@ -59,7 +59,7 @@
     }
     ,
     {
-      "type":"NbtkBoxLayout",
+      "type":"MxBoxLayout",
       "x": 0,
       "y":265,
       "width":366,
@@ -78,7 +78,7 @@
       "spacing":0,
       "children":[
       {
-        "type":"NbtkButton",
+        "type":"MxButton",
         "id":"play"
         "x": 0,
         "y": 0,
@@ -136,7 +136,7 @@
       }
       ,
       {
-        "type":"NbtkButton",
+        "type":"MxButton",
         "id":"pause"
         "x":44,
         "y": 0,
@@ -194,7 +194,7 @@
       }
       ,
       {
-        "type":"NbtkButton",
+        "type":"MxButton",
         "id":"rewind"
         "x":99,
         "y": 0,
@@ -252,7 +252,7 @@
       }
       ,
       {
-        "type":"NbtkButton",
+        "type":"MxButton",
         "id":"rew"
         "x":156,
         "y": 0,
@@ -310,7 +310,7 @@
       }
       ,
       {
-        "type":"NbtkButton",
+        "type":"MxButton",
         "id":"ffw"
         "x":213,
         "y": 0,
@@ -370,7 +370,7 @@
     }
     ,
     {
-      "type":"NbtkBoxLayout",
+      "type":"MxBoxLayout",
       "x": 0,
       "y":304,
       "width":366,
@@ -389,7 +389,7 @@
       "spacing":0,
       "children":[
       {
-        "type":"NbtkEntry",
+        "type":"MxEntry",
         "id":"uri"
         "x": 0,
         "y": 0,
@@ -409,7 +409,7 @@
       }
       ,
       {
-        "type":"NbtkButton",
+        "type":"MxButton",
         "id":"go"
         "x":235,
         "y": 0,

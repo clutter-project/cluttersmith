@@ -1,6 +1,6 @@
   {
     "id":"actor",
-    "type":"NbtkButton",
+    "type":"MxButton",
     "x": 0,
     "y": 0,
     "width":87,

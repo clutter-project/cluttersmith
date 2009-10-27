@@ -525,7 +525,7 @@
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=index",
     "x": 7,
     "y":49,
@@ -586,7 +586,7 @@
   }
   ,
   {
-    "type":"NbtkButton",
+    "type":"MxButton",
     "name":"link=LD_PRELOAD",
     "x":551,
     "y":307,

@@ -1,5 +1,5 @@
 #include <clutter/clutter.h>
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
@@ -214,7 +214,7 @@ cs_tree_populate_iter (ClutterActor *current_container,
       return;
     }
 
-  vbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, "min-width", 100.0, "natural-width", 500.0, "vertical", TRUE,
+  vbox = g_object_new (MX_TYPE_BOX_LAYOUT, "min-width", 100.0, "natural-width", 500.0, "vertical", TRUE,
                        "style-class", 
                 
                        ((*count)%2==0)?
@@ -254,7 +254,7 @@ cs_tree_populate_iter (ClutterActor *current_container,
       GList *children, *c;
       children = clutter_container_get_children (CLUTTER_CONTAINER (iter));
 
-      child_vbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, "vertical", TRUE, NULL);
+      child_vbox = g_object_new (MX_TYPE_BOX_LAYOUT, "vertical", TRUE, NULL);
       clutter_container_add_actor (CLUTTER_CONTAINER (vbox), child_vbox);
       clutter_actor_set_anchor_point (child_vbox, -INDENT, 0.0);
 

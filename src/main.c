@@ -8,7 +8,7 @@
  */
 
 #include <clutter/clutter.h>
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

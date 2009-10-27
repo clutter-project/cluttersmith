@@ -1,4 +1,4 @@
-#include <nbtk/nbtk.h>
+#include <mx/mx.h>
 #include <stdlib.h>
 #include <math.h>
 #include "cluttersmith.h"
@@ -47,11 +47,11 @@ update_editor_double (GObject       *object,
   g_object_get (object, arg1->name, &value, NULL);
   str = g_strdup_printf ("%2.1f", value);
   if (uc->update_object_handler)
-    g_signal_handler_block (nbtk_entry_get_clutter_text (NBTK_ENTRY (uc->editor)),
+    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY (uc->editor)),
                             uc->update_object_handler);
-  nbtk_entry_set_text (NBTK_ENTRY (uc->editor), str);
+  mx_entry_set_text (MX_ENTRY (uc->editor), str);
   if (uc->update_object_handler)
-    g_signal_handler_unblock (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
+    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
   g_free (str);
 }
 
@@ -67,10 +67,10 @@ update_editor_float (GObject       *object,
   g_object_get (object, arg1->name, &value, NULL);
   str = g_strdup_printf ("%2.1f", value);
   if (uc->update_object_handler)
-    g_signal_handler_block (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
-  nbtk_entry_set_text (NBTK_ENTRY (uc->editor), str);
+    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
+  mx_entry_set_text (MX_ENTRY (uc->editor), str);
   if (uc->update_object_handler)
-    g_signal_handler_unblock (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
+    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
   g_free (str);
 }
 
@@ -98,10 +98,10 @@ update_editor_uchar (GObject       *object,
   g_object_get (object, arg1->name, &value, NULL);
   str = g_strdup_printf ("%i", (gint)value);
   if (uc->update_object_handler)
-    g_signal_handler_block (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
-  nbtk_entry_set_text (NBTK_ENTRY (uc->editor), str);
+    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
+  mx_entry_set_text (MX_ENTRY (uc->editor), str);
   if (uc->update_object_handler)
-    g_signal_handler_unblock (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
+    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
   g_free (str);
 }
 
@@ -117,10 +117,10 @@ update_editor_int (GObject       *object,
   g_object_get (object, arg1->name, &value, NULL);
   str = g_strdup_printf ("%i", value);
   if (uc->update_object_handler)
-    g_signal_handler_block (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
-  nbtk_entry_set_text (NBTK_ENTRY (uc->editor), str);
+    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
+  mx_entry_set_text (MX_ENTRY (uc->editor), str);
   if (uc->update_object_handler)
-    g_signal_handler_unblock (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
+    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
   g_free (str);
 }
 
@@ -148,10 +148,10 @@ update_editor_uint (GObject       *object,
   g_object_get (object, arg1->name, &value, NULL);
   str = g_strdup_printf ("%u", value);
   if (uc->update_object_handler)
-    g_signal_handler_block (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
-  nbtk_entry_set_text (NBTK_ENTRY (uc->editor), str);
+    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
+  mx_entry_set_text (MX_ENTRY (uc->editor), str);
   if (uc->update_object_handler)
-    g_signal_handler_unblock (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
+    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
   g_free (str);
 }
 
@@ -174,10 +174,10 @@ update_editor_string (GObject       *object,
     return;
   g_object_get (object, arg1->name, &value, NULL);
   if (uc->update_object_handler)
-    g_signal_handler_block (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
-  nbtk_entry_set_text (NBTK_ENTRY (uc->editor), value);
+    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
+  mx_entry_set_text (MX_ENTRY (uc->editor), value);
   if (uc->update_object_handler)
-    g_signal_handler_unblock (nbtk_entry_get_clutter_text (NBTK_ENTRY(uc->editor)), uc->update_object_handler);
+    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
   g_free (value);
 }
 
@@ -203,8 +203,8 @@ update_editor_boolean (GObject       *object,
   g_object_get (object, arg1->name, &value, NULL);
   if (uc->update_object_handler)
     g_signal_handler_block (uc->editor, uc->update_object_handler);
-  nbtk_button_set_checked (NBTK_BUTTON (uc->editor), value);
-  nbtk_button_set_label (NBTK_BUTTON (uc->editor), value?"1":"0");
+  mx_button_set_checked (MX_BUTTON (uc->editor), value);
+  mx_button_set_label (MX_BUTTON (uc->editor), value?"1":"0");
   if (uc->update_object_handler)
     g_signal_handler_unblock (uc->editor, uc->update_object_handler);
 }
@@ -212,13 +212,13 @@ update_editor_boolean (GObject       *object,
 
 
 static gboolean
-update_object_boolean (NbtkButton *button,
+update_object_boolean (MxButton *button,
                        gpointer    data)
 {
   UpdateClosure *uc = data;
-  g_object_set (uc->object, uc->property_name, nbtk_button_get_checked (button), NULL);
+  g_object_set (uc->object, uc->property_name, mx_button_get_checked (button), NULL);
     {
-      nbtk_button_set_label (button,  nbtk_button_get_checked (button)?" 1 ":" 0 ");
+      mx_button_set_label (button,  mx_button_get_checked (button)?" 1 ":" 0 ");
     }
   cs_dirtied ();
   return TRUE;
@@ -278,14 +278,14 @@ ClutterActor *property_editor_new (GObject *object,
 
   if (pspec->value_type == G_TYPE_FLOAT)
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_float), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+        g_signal_connect_data (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_object_float), uc,
                              update_closure_free, 0);
 
@@ -294,14 +294,14 @@ ClutterActor *property_editor_new (GObject *object,
     }
   else if (pspec->value_type == G_TYPE_DOUBLE)
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_double), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+        g_signal_connect_data (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_object_float), uc,
                              update_closure_free, 0);
 
@@ -309,14 +309,14 @@ ClutterActor *property_editor_new (GObject *object,
     }
   else if (pspec->value_type == G_TYPE_UCHAR)
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_uchar), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+        g_signal_connect_data (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_object_int), uc,
                              update_closure_free, 0);
 
@@ -324,14 +324,14 @@ ClutterActor *property_editor_new (GObject *object,
     }
   else if (pspec->value_type == G_TYPE_INT)
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_int), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+        g_signal_connect_data (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_object_int), uc,
                              update_closure_free, 0);
 
@@ -339,14 +339,14 @@ ClutterActor *property_editor_new (GObject *object,
     }
   else if (pspec->value_type == G_TYPE_UINT)
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_uint), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+        g_signal_connect_data (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_object_uint), uc,
                              update_closure_free, 0);
 
@@ -354,28 +354,28 @@ ClutterActor *property_editor_new (GObject *object,
     }
   else if (pspec->value_type == G_TYPE_STRING)
     {
-      editor = CLUTTER_ACTOR (nbtk_entry_new (""));
+      editor = CLUTTER_ACTOR (mx_entry_new (""));
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_string), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (nbtk_entry_get_clutter_text (
-                             NBTK_ENTRY (editor)), "text-changed",
+        g_signal_connect_data (mx_entry_get_clutter_text (
+                             MX_ENTRY (editor)), "text-changed",
                              G_CALLBACK (update_object_string), uc,
                              update_closure_free, 0);
       update_editor_string (object, pspec, uc);
     }
   else if (pspec->value_type == G_TYPE_BOOLEAN)
     {
-      editor = CLUTTER_ACTOR (nbtk_button_new_with_label ("-"));
-      nbtk_button_set_toggle_mode (NBTK_BUTTON (editor), TRUE);
+      editor = CLUTTER_ACTOR (mx_button_new_with_label ("-"));
+      mx_button_set_toggle_mode (MX_BUTTON (editor), TRUE);
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_boolean), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
       uc->update_object_handler =
-        g_signal_connect_data (NBTK_BUTTON (editor), "clicked",
+        g_signal_connect_data (MX_BUTTON (editor), "clicked",
                              G_CALLBACK (update_object_boolean), uc,
                              update_closure_free, 0);
       update_editor_boolean (object, pspec, uc);
@@ -391,10 +391,10 @@ ClutterActor *property_editor_new (GObject *object,
       if (g_value_transform (&value, &str_value))
         {
           initial = g_strdup_printf ("%s", g_value_get_string (&str_value));
-          editor = CLUTTER_ACTOR (nbtk_entry_new (initial));
+          editor = CLUTTER_ACTOR (mx_entry_new (initial));
           uc->editor = editor;
           if ((pspec->flags & G_PARAM_WRITABLE))
-            g_signal_connect_data (nbtk_entry_get_clutter_text (NBTK_ENTRY (editor)), "text-changed",
+            g_signal_connect_data (mx_entry_get_clutter_text (MX_ENTRY (editor)), "text-changed",
                                    G_CALLBACK (update_object_generic), uc, update_closure_free, 0);
         }
       else
@@ -486,7 +486,7 @@ props_populate (ClutterActor *container,
         continue;
 
       {
-        ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+        ClutterActor *hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
         ClutterActor *label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, properties[i]->name);
         ClutterActor *editor = property_editor_new (object, properties[i]->name);
         clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
@@ -522,7 +522,7 @@ props_populate (ClutterActor *container,
                 if (!G_TYPE_IS_OBJECT (child_properties[i]->value_type) &&
                     child_properties[i]->value_type != CLUTTER_TYPE_CONTAINER)
                   {
-                    ClutterActor *hbox = g_object_new (NBTK_TYPE_BOX_LAYOUT, NULL);
+                    ClutterActor *hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
                     ClutterActor *label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, child_properties[i]->name);
                     ClutterActor *editor = property_editor_new (G_OBJECT (child_meta), child_properties[i]->name);
                     clutter_text_set_color (CLUTTER_TEXT (label), &white);
