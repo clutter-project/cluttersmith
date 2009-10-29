@@ -678,6 +678,8 @@ void root_popup (gint x,
 
   action = mx_action_new_full ("Browse (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
   mx_popup_add_action (popup, action);
+  if (clipboard)
+    mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
   action = mx_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup),  NULL);
   mx_popup_add_action (popup, action);
   action = mx_action_new_full ("Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
@@ -703,7 +705,8 @@ static void add_common (MxPopup *popup)
 
   mx_popup_add_action (popup, mx_action_new_full ("Cut (ctrl x)", G_CALLBACK (cs_cut), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Copy (ctrl c)", G_CALLBACK (cs_copy), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
+  if (clipboard)
+    mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Duplicate (ctrl d)", G_CALLBACK (cs_duplicate), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Remove (delete)", G_CALLBACK (cs_remove), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("______", NULL, NULL));
