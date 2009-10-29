@@ -749,7 +749,7 @@ callbacks_add_cb (ClutterActor *actor,
   ClutterActor *cb = clutter_text_new_with_text ("Mono 10", code);
 
   ClutterActor *hbox   = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
-  MxWidget   *remove = mx_button_new_with_label ("-");
+  ClutterActor *remove = mx_button_new_with_label ("-");
   clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (remove),
                                                                    CLUTTER_ACTOR (cb), NULL);
   clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
@@ -783,8 +783,8 @@ callbacks_populate (ClutterActor *actor)
         g_signal_query (list[i], &query);
           {
             ClutterActor *hbox  = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
-            MxWidget   *title = mx_label_new (query.signal_name);
-            MxWidget   *add   = mx_button_new_with_label ("+");
+            ClutterActor *title = mx_label_new (query.signal_name);
+            ClutterActor *add   = mx_button_new_with_label ("+");
 
             g_object_set_data_full (G_OBJECT (add), "signal", g_strdup (query.signal_name), g_free);
             g_signal_connect (add, "clicked", G_CALLBACK (callback_add), actor);
