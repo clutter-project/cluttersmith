@@ -14,6 +14,9 @@ gjs
 
 GObject introspection files are expected to have been generated and installed
 for mx and clutter. A good way to download the sources needed is to run the
-jhbuild bootstrap of gnome-shell.
+jhbuild bootstrap of gnome-shell (see http://live.gnome.org/GnomeShell).
 
-Further docmentation is contained within the program.
+ClutterSmith needs to be installed before it works, it currently launches
+in browse mode on a tutorial. Note that the default project is read only
+since it is installed in a system location. To edit a project launch
+cluttersmith with a working directory as an argument.
