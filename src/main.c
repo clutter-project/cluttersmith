@@ -103,12 +103,32 @@ static gboolean idle_load_default (gpointer data)
   if (args.root_path)
     {
       gchar *fullpath = realpath (args.root_path, NULL);
-      cs_set_project_root (fullpath);
-      free (fullpath);
+      gchar *bname = basename (fullpath);
+      gchar *dname = dirname (fullpath);
+
+      if (g_file_test (args.root_path, G_FILE_TEST_IS_REGULAR))
+        {
+          cs_set_project_root (fullpath);
+          if (strrchr (bname, '.'))
+            *strrchr (bname, '.') = '\0';
+          cs_open_layout (bname);
+          free (fullpath);
+        }
+      else if (g_file_test (args.root_path, G_FILE_TEST_IS_DIR))
+        {
+          gchar *fullpath = realpath (args.root_path, NULL);
+          cs_set_project_root (fullpath);
+          free (fullpath);
+        }
+      else
+        {
+          g_print ("Working dir %s does not exist", args.root_path);
+        }
     }
   else
     {
       cs_set_project_root (PKGDATADIR "docs");
+      cs_open_layout ("video");
     }
 
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
