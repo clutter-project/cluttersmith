@@ -48,7 +48,7 @@ typelibdir = $(pkglibdir)
 typelib_DATA = ClutterSmith-0.0.typelib
 CLEANFILES += libcluttersmith.la
 
-ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile *.c *.h
+ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
 	$(AM_V_GEN) $(G_IR_SCANNER)			 \
 		--namespace=ClutterSmith		 \
 		--nsversion=0.1				 \
@@ -56,7 +56,7 @@ ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile *.c *.h
 		--libtool="$(LIBTOOL)"    		 \
 		--add-include-path=$(builddir)     	 \
 		--library=libcluttersmith.la 		 \
-		$(libcluttersmith_la_SOURCES) 		 \
+		$(srcdir)/*.c $(srcdir)/*.h 		 \
 		$(libcluttersmith_la_CPPFLAGS)		 \
 		`pkg-config --cflags clutter-1.0 ` \
 		-o $@

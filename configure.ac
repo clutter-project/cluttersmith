@@ -42,13 +42,9 @@ TYPELIBDIR="$($PKG_CONFIG --variable=typelibdir gobject-introspection-1.0)"
 AC_SUBST(TYPELIBDIR)
 
 
-
-SHAVE_INIT([autotools], [enable])
-
 AC_OUTPUT([
 Makefile
 autotools/Makefile
-autotools/shave
 src/Makefile
 data/Makefile
 data/templates/Makefile
