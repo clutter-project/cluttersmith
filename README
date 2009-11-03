@@ -1,14 +1,19 @@
 ClutterSmith
+------------
 
-This is the base for a clutter authoring environment, it is currently not
-for distribution outside Intel OTC.
+A a base for a Clutter authoring environment.
 
-Compile and install as normal, further docmentation contained within the program.
+Compile and install as normal, the following dependencies are needed:
 
+gobject-introspection
+gir-repository
+clutter 
+nbtk (the mx branch)
+clutter-gst 
+gjs
 
+GObject introspection files are expected to have been generated and installed
+for mx and clutter. A good way to download the sources needed is to run the
+jhbuild bootstrap of gnome-shell.
 
-a userdata on each actor with a hashtable of
-  signal name -> javascript string
-...
-
-serialized as numeric path...  
+Further docmentation is contained within the program.
