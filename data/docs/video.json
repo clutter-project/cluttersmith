@@ -15,8 +15,8 @@
   "children":[
   {
     "type":"MxBoxLayout",
-    "x":15,
-    "y":19,
+    "x":28,
+    "y":-25,
     "width":366,
     "height":337,
     "depth":0.000,
@@ -34,10 +34,10 @@
     {
       "type":"ClutterGstVideoTexture",
       "id":"video"
-      "audio-volume":0.100,
+      "playing":false,
       "progress":0.000,
       "uri":"file://home/pippin/zim.avi",
-      "playing":true,
+      "audio-volume":0.100,
       "name":"",
       "x": 0,
       "y": 0,
@@ -95,7 +95,6 @@
         "label":"play",
         "toggle-mode":false,
         "checked":false,
-        "transition-duration":120,
         "children":[
         {
           "type":"ClutterText",
@@ -110,7 +109,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Liberation Sans 13px",
+          "font-name":"Sans 13px",
           "text":"play",
           "color":"#000000ff",
           "use-markup":false,
@@ -152,7 +151,6 @@
         "label":"pause",
         "toggle-mode":false,
         "checked":false,
-        "transition-duration":120,
         "children":[
         {
           "type":"ClutterText",
@@ -167,7 +165,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Liberation Sans 13px",
+          "font-name":"Sans 13px",
           "text":"pause",
           "color":"#000000ff",
           "use-markup":false,
@@ -209,7 +207,6 @@
         "label":"rewind",
         "toggle-mode":false,
         "checked":false,
-        "transition-duration":120,
         "children":[
         {
           "type":"ClutterText",
@@ -224,7 +221,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Liberation Sans 13px",
+          "font-name":"Sans 13px",
           "text":"rewind",
           "color":"#000000ff",
           "use-markup":false,
@@ -266,7 +263,6 @@
         "label":"rew",
         "toggle-mode":false,
         "checked":false,
-        "transition-duration":120,
         "children":[
         {
           "type":"ClutterText",
@@ -281,7 +277,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Liberation Sans 13px",
+          "font-name":"Sans 13px",
           "text":"rew",
           "color":"#000000ff",
           "use-markup":false,
@@ -323,7 +319,6 @@
         "label":"ffw",
         "toggle-mode":false,
         "checked":false,
-        "transition-duration":120,
         "children":[
         {
           "type":"ClutterText",
@@ -338,7 +333,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Liberation Sans 13px",
+          "font-name":"Sans 13px",
           "text":"ffw",
           "color":"#000000ff",
           "use-markup":false,
@@ -419,7 +414,6 @@
         "label":"load",
         "toggle-mode":false,
         "checked":false,
-        "transition-duration":120,
         "children":[
         {
           "type":"ClutterText",
@@ -434,7 +428,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Liberation Sans 13px",
+          "font-name":"Sans 13px",
           "text":"load",
           "color":"#000000ff",
           "use-markup":false,
@@ -462,11 +456,12 @@
   ,
   {
     "type":"MxButton",
+    "style-class":"ClutterSmithLink",
     "name":"link=index",
-    "x":332,
-    "y":296,
+    "x":230,
+    "y":326,
     "width":98,
-    "height":43,
+    "height":31,
     "depth":0.000,
     "opacity":120,
     "scale-x":1.000,
@@ -474,22 +469,20 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "style-class":"ClutterSmithLink",
     "has-tooltip":false,
     "x-fill":false,
     "y-fill":false,
-    "label":"",
+    "label":"index",
     "toggle-mode":false,
     "checked":false,
-    "transition-duration":120,
     "children":[
     {
       "type":"ClutterText",
       "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
-      "x":33,
-      "y":14,
-      "width":31,
-      "height":15,
+      "x":10,
+      "y":10,
+      "width":78,
+      "height":11,
       "depth":0.000,
       "opacity":255,
       "scale-x":1.000,
@@ -497,7 +490,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "font-name":"Liberation Sans 13px",
+      "font-name":"Sans 13px",
       "text":"index",
       "color":"#000000ff",
       "use-markup":false,

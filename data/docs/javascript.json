@@ -16,8 +16,8 @@
   {
     "type":"ClutterRectangle",
     "id":"rectangle"
-    "x":70,
-    "y":56,
+    "x":115,
+    "y":73,
     "width":162,
     "height":132,
     "depth":0.000,
@@ -35,9 +35,10 @@
   ,
   {
     "type":"MxButton",
+    "style-class":"ClutterSmithLink",
     "name":"link=video",
-    "x":70,
-    "y":307,
+    "x":75,
+    "y":283,
     "width":143,
     "height":40,
     "depth":0.000,
@@ -47,16 +48,12 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "pseudo-class":"hover",
-    "style-class":"ClutterSmithLink",
-    "stylable":true,
     "has-tooltip":false,
     "x-fill":false,
     "y-fill":false,
-    "label":"",
+    "label":"video",
     "toggle-mode":false,
     "checked":false,
-    "transition-duration":120,
     "children":[
     {
       "type":"ClutterText",
