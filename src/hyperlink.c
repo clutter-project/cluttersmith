@@ -1,4 +1,5 @@
 #include <clutter/clutter.h>
+#include <mx/mx.h>
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
@@ -6,9 +7,18 @@
 
 void cs_link_text_changed (ClutterActor *actor)
 {
-  const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
-  gchar *new_link = g_strdup_printf ("link=%s", new_text);
-  clutter_actor_set_name (clutter_actor_get_parent (actor), new_link);
+  static gboolean in = FALSE;
+  const gchar *new_text;
+  new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
+
+  if (!in)
+    {
+      in = TRUE;
+      gchar *new_link = g_strdup_printf ("link=%s", new_text);
+      clutter_actor_set_name (clutter_actor_get_parent (actor), new_link);
+      mx_button_set_label (MX_BUTTON (clutter_actor_get_parent (actor)), new_text);
+      in = FALSE;
+    }
 }
 
 void cs_link_follow (ClutterActor *actor)
