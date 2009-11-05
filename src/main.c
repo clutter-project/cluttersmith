@@ -128,7 +128,7 @@ static gboolean idle_load_default (gpointer data)
   else
     {
       cs_set_project_root (PKGDATADIR "docs");
-      cs_open_layout ("video");
+      cs_open_layout ("index");
     }
 
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
