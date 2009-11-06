@@ -48,7 +48,7 @@
        { "type":"MxScrollView",
          "width":300,
          "height":200,
-         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+         "child::expand":true,
          "children":
           [
             { "type":"MxViewport",
@@ -66,7 +66,7 @@
        }
      ]
             "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
-}
+},
 
 
 
@@ -96,7 +96,7 @@
        { "type":"MxScrollView",
          "width":200,
          "height":100,
-         "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+         "child::expand":true,
 
          "children":
           [
@@ -207,11 +207,8 @@
              }
 
             {"type":"MxBoxLayout",
-          "signals": [ {"name":"pick", "handler":"parasite_pick"} 
-                       {"name":"paint", "handler":"child_expand_init_hack"} 
-                     ] 
-
-
+             "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+             "child::expand":true,
              "children":
                [
 
@@ -233,7 +230,7 @@
                 { "type":"MxBoxLayout", 
                   "id":"cs-dialog-property-inspector",
                   "vertical":true,
-                   "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+                  "child::expand":true,
                   "children":[
                      { "type":"MxBoxLayout", 
                        "children":[
@@ -248,7 +245,7 @@
 
                       { "type":"MxScrollView",
                         "height":70,
-                        "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+                        "child::expand":true,
 
                         "children":
                          [
@@ -279,7 +276,7 @@
                    "type":"MxScrollView",
                    "width":180,
                    "height":70,
-                   "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
+                   "child::expand":true,
                    "children":
                     [
                       { "type":"MxViewport",
@@ -301,8 +298,8 @@
               "type":"ClutterRectangle",
               "id":"fake-stage-rect",
               "color":"#00000000",
+              "child::expand":true,
               "signals": [ {"name":"pick", "handler":"no_pick"},
-                           {"name":"paint", "handler":"child_expand_init_hack"} 
                          ] 
             },
 
@@ -321,9 +318,7 @@
               "cursor-color":"#0000bbff",
               "selection-color":"#000066ff",
               "text":"",
-              "signals": [ 
-                           {"name":"paint", "handler":"child_expand_init_hack"} 
-                         ] 
+              "child::expand":true
             },
 
             {
@@ -460,8 +455,7 @@
                  { "type":"MxScrollView",
                    "width":300,
                    "height":100,
-                   "signals": [ {"name":"paint", "handler":"child_expand_init_hack"} ] 
-
+                   "child::expand":true,
                    "children":
                     [
                       { "type":"MxViewport",

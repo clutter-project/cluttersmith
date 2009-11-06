@@ -1420,13 +1420,3 @@ void search_entry_init_hack (ClutterActor  *actor)
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (title_text_changed), NULL);
 }
-
-
-void child_expand_init_hack (ClutterActor  *actor)
-{
-  if (g_object_get_data (G_OBJECT (actor), "child-expand-hack"))
-    return;
-  g_object_set_data (G_OBJECT (actor), "child-expand-hack", (void*)0xff);
-  clutter_container_child_set (CLUTTER_CONTAINER (clutter_actor_get_parent (actor)),
-                               actor, "expand", TRUE, NULL);
-}
