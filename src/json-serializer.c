@@ -212,8 +212,168 @@ properties_to_string (GString      *str,
         g_string_append_printf (str, "\n");
       }
   }
-
   g_free (properties);
+
+
+    /* should be split inot its own function */
+  if (CLUTTER_IS_ACTOR (actor))
+  {
+    ClutterActor *parent;
+    parent = clutter_actor_get_parent (actor);
+
+    if (parent && CLUTTER_IS_CONTAINER (parent))
+      {
+        ClutterChildMeta *child_meta;
+        GParamSpec **child_properties = NULL;
+        guint        n_child_properties=0;
+        child_meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (parent), actor);
+        if (child_meta)
+          {
+            child_properties = g_object_class_list_properties (
+                               G_OBJECT_GET_CLASS (child_meta),
+                               &n_child_properties);
+            for (i = 0; i < n_child_properties; i++)
+              {
+                if (!G_TYPE_IS_OBJECT (child_properties[i]->value_type) &&
+                    child_properties[i]->value_type != CLUTTER_TYPE_CONTAINER)
+                  {
+      gboolean skip = FALSE;
+#if 0
+      gint j;
+      if (cs_filter_properties)
+        {
+          for (j=0;j<n_actor_properties;j++)
+            {
+              /* ClutterActor contains so many properties that we restrict our view a bit */
+              if (actor_properties[j]==properties[i])
+                {
+                  gchar *whitelist[]={"x","y", "depth", "opacity", "width", "height",
+                                      "scale-x","scale-y", "anchor-x", "color",
+                                      "anchor-y", "rotation-angle-z",
+                                      "name", 
+                                      NULL};
+                  gint k;
+                  skip = TRUE;
+                  for (k=0;whitelist[k];k++)
+                    if (g_str_equal (properties[i]->name, whitelist[k]))
+                      skip = FALSE;
+                }
+            }
+        }
+#endif
+
+      if (! ( (properties[i]->flags & G_PARAM_READABLE) &&
+              (properties[i]->flags & G_PARAM_WRITABLE)
+          ))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+
+      {
+        if (child_properties[i]->value_type == G_TYPE_FLOAT)
+          {
+            gfloat value;
+            /* XXX: clutter fails to read it back in without truncation */
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            {
+              INDENT;g_string_append_printf (str,"\"child::%s\":%2.3f,\n",
+                                             child_properties[i]->name, value);
+            }
+          }
+        else if (child_properties[i]->value_type == G_TYPE_DOUBLE)
+          {
+            gdouble value;
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            INDENT;g_string_append_printf (str,"\"child::%s\":%2.3f,\n",
+                                           child_properties[i]->name, value);
+          }
+        else if (child_properties[i]->value_type == G_TYPE_UCHAR)
+          {
+            guchar value;
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            INDENT;g_string_append_printf (str,"\"child::%s\":%i,\n",
+                                           child_properties[i]->name, value);
+          }
+        else if (child_properties[i]->value_type == G_TYPE_INT)
+          {
+            gint value;
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            INDENT;g_string_append_printf (str,"\"child::%s\":%i,\n",
+                                           child_properties[i]->name, value);
+          }
+        else if (child_properties[i]->value_type == G_TYPE_UINT)
+          {
+            guint value;
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            INDENT;g_string_append_printf (str,"\"child::%s\":%u,\n",
+                                           child_properties[i]->name, value);
+          }
+        else if (child_properties[i]->value_type == G_TYPE_STRING)
+          {
+            gchar *value;
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (value)
+              {
+                gchar *escaped = escape_string (value);
+                INDENT;g_string_append_printf (str,"\"child::%s\":\"%s\",\n",
+                                               child_properties[i]->name, escaped);
+                g_free (escaped);
+                g_free (value);
+              }
+          }
+        else if (child_properties[i]->value_type == G_TYPE_BOOLEAN)
+          {
+            gboolean value;
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            INDENT;g_string_append_printf (str,"\"child::%s\":%s,\n",
+                                           child_properties[i]->name, value?"true":"false");
+          }
+        else if (child_properties[i]->value_type == CLUTTER_TYPE_COLOR)
+          {
+            GValue value = {0,};
+            GValue str_value = {0,};
+            g_value_init (&value, child_properties[i]->value_type);
+            g_value_init (&str_value, G_TYPE_STRING);
+            g_object_get_property (G_OBJECT (child_meta), child_properties[i]->name, &value);
+            if (g_value_transform (&value, &str_value))
+              {
+                INDENT;g_string_append_printf (str,"\"child::%s\":\"%s\",\n",
+                                               child_properties[i]->name, g_value_get_string (&str_value));
+              }
+            else
+              {
+              }
+          }
+        else
+          {
+#if 0
+            GValue value = {0,};
+            GValue str_value = {0,};
+            gchar *initial;
+            g_value_init (&value, child_properties[i]->value_type);
+            g_value_init (&str_value, G_TYPE_STRING);
+            g_object_get_property (G_OBJECT (child_meta), child_properties[i]->name, &value);
+            if (g_value_transform (&value, &str_value))
+              {
+                INDENT;g_string_append_printf (str,"\"child::%s\":%s,\n",
+                                               child_properties[i]->name, g_value_get_string (&str_value));
+              }
+            else
+              {
+              }
+#endif
+          }
+      }
+
+                  }
+              }
+            g_free (child_properties);
+          }
+      }
+  }
+
+
 }
 
 
