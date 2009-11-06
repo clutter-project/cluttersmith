@@ -19,7 +19,6 @@
   "y-fill":false,
   "toggle-mode":false,
   "checked":false,
-  "transition-duration":120,
   "children":[
   {
     "type":"ClutterText",
