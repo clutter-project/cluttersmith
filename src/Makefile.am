@@ -1,6 +1,5 @@
-QUIET_GEN = $(Q:@=@echo '  GEN   '$@;)
-
 bin_PROGRAMS=cluttersmith
+lib_LTLIBRARIES = libcluttersmith.la
 
 AM_CFLAGS = $(DEPS_CFLAGS) $(GCC_FLAGS) \
 	    -D_GNU_SOURCE \
@@ -11,7 +10,6 @@ AM_CFLAGS = $(DEPS_CFLAGS) $(GCC_FLAGS) \
 BUILT_SOURCES = $(cluttersmith_built_sources)
 CLEANFILES    = $(cluttersmith_built_sources)
 
-noinst_LTLIBRARIES = libcluttersmith.la
   
 libcluttersmith_la_SOURCES = \
   cb-texture.c  \
@@ -44,7 +42,7 @@ cluttersmith_SOURCES = 		\
   $(BUILT_SOURCES) \
   main.c 
 
-typelibdir = $(pkglibdir)
+typelibdir = $(libdir)/girepository-1.0/
 typelib_DATA = ClutterSmith-0.0.typelib
 CLEANFILES += libcluttersmith.la
 
@@ -61,6 +59,10 @@ ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile $(libcluttersm
 		`pkg-config --cflags clutter-1.0 ` \
 		-o $@
 CLEANFILES += ClutterSmith-0.0.gir
+
+girdir = $(datadir)/gir-1.0
+gir_DATA = ClutterSmith-0.0.gir
+
 
 # The dependency on libgnome-shell.la here is because g-ir-compiler opens it
 # (not the fake library, since we've already done the rewriting)
@@ -104,7 +106,5 @@ init-types.c:
 
 cluttersmith.so: *.c Makefile
 	gcc -DCOMPILEMODULE $(AM_CFLAGS) -g -shared -ldl *.c -o $@ `pkg-config clutter-1.0 gjs-1.0 nbtk-1.2 clutter-gst-0.90 --libs --cflags` 
-
-
 
 

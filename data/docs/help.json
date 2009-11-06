@@ -116,10 +116,10 @@ double click selected item to edit it (or follow hyper link when in editing mode
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=index",
-    "x":359,
-    "y":409,
-    "width":143,
-    "height":35,
+    "x":372,
+    "y":377,
+    "width":130,
+    "height":32,
     "depth":0.000,
     "opacity":120,
     "scale-x":1.000,
@@ -130,16 +130,17 @@ double click selected item to edit it (or follow hyper link when in editing mode
     "has-tooltip":false,
     "x-fill":false,
     "y-fill":false,
-    "label":"",
+    "label":"index",
     "toggle-mode":false,
     "checked":false,
     "children":[
     {
       "type":"ClutterText",
-      "x":56,
+      "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
+      "x":10,
       "y":10,
-      "width":31,
-      "height":15,
+      "width":110,
+      "height":12,
       "depth":0.000,
       "opacity":255,
       "scale-x":1.000,
@@ -151,7 +152,7 @@ double click selected item to edit it (or follow hyper link when in editing mode
       "text":"index",
       "color":"#000000ff",
       "use-markup":false,
-      "line-wrap":false,
+      "line-wrap":true,
       "justify":false,
       "position":-1,
       "selection-bound":-1,
@@ -165,6 +166,7 @@ double click selected item to edit it (or follow hyper link when in editing mode
       "password-char":0,
       "max-length":0,
       "single-line-mode":false,
+      "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
     }
     ]
   }

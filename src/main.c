@@ -16,7 +16,6 @@
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
 #include "util.h"
-#include <gobject-introspection-1.0/girepository.h>
 
 /* Global structure containing information parsed from commandline parameters
  */
@@ -155,8 +154,6 @@ main (gint    argc,
   ClutterActor    *stage;
   gst_init (&argc, &argv);
   clutter_init (&argc, &argv);
-
-  g_irepository_prepend_search_path (PKGLIBDIR);
 
   if (!parse_args (argv))
     return -1;
