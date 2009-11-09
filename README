@@ -1,0 +1,161 @@
+ClutterSmith
+============
+
+A a base for a Clutter authoring environment.
+
+ClutterSmith is highly experimental no stability or future backwards
+compatibility for the project files is guaranteed. It can currently be used
+to create json files for use with any Clutter supported language binding.
+The javascript integration with gjs goes beyond what can be statically
+decalred in a .json file. It should be possible to also use some javascript
+driven features also from other languages.
+
+Building
+--------
+
+Compile and install as normal, the following dependencies are needed:
+
+gobject-introspection
+gir-repository
+clutter 
+nbtk (the mx branch)
+clutter-gst 
+gjs
+
+GObject introspection files are expected to have been generated and installed
+for mx and clutter. A good way to download the sources needed is to run the
+jhbuild bootstrap of gnome-shell (see http://live.gnome.org/GnomeShell).
+
+ClutterSmith needs to be installed before it works, it currently launches
+in browse mode on a tutorial. Note that the default project is read only
+since it is installed in a system location. To edit a project launch
+cluttersmith with a working directory or an existing json file as the argument.
+
+Features
+--------
+
+This outline is a summary of interactions in cluttersmith, some prefixed
+with a - are not implemented yet. This is development planning sheet and not
+a user guide, many of the things listed here will probably change. The
+actions are organized based on the context where it is possible to perform
+these actions.
+
+
+actions regardsless of selection status
+ -undo
+ -redo
+
+  select all
+
+  if content in paste buffer
+    paste                 ^V
+
+  add template            click in template panel (should be drag and drop)
+  goto scene              click scene in scene list (or edit scene title)
+  add scene               edit title entry in toolbar
+  change directory        edit working dir entry in toolbar
+  enter container         double click selected item which is a container
+  edit item               double click item (like text)
+
+when have none
+  select one              click at an the item
+  select many             lasso select, starting outside any item
+
+when have any
+  add one to selection    shift+click at an item
+  toggle selection status ctrl+click at an item
+  add    many             shift+lasso select as in none
+  toggle many             ctrl+lasso select as in none
+  select none
+
+  raise                   pgup
+  lower                   pgdn
+  home                    send to front
+  end                     send to back
+
+  cut                     ^X
+  copy                    ^C 
+  delete                  delete
+ -create template         should take the paste buffer and add a new template
+
+  move
+       individual item    drag, starting in item
+         with snapping
+       multiple items     drag starting in one item
+        -with snapping
+  resize
+       individual item    drag resize handle in lower right of item
+         with swapping
+      -multiple items     drag resize handle on lower right of items
+        -with swapping
+  
+  select none
+group
+ungroup
+
+when have one
+  duplicate
+  if container
+    make group
+    ungroup
+  if link
+    change destination
+
+when have many
+  group
+  make box                   creates a box container
+ -align
+ -distribute
+
+Visualisations for selected actor
+  properties
+    child properties
+   -layout properties
+  callbacks
+    javascript code          not fully functional
+   -visual coding            snippets/blocks,with ui elements as js placeholders
+      -go to scene
+      -load scene modally
+      -animation triggering  the animations of a scene should be named..
+                             (perhaps using named transitions would be good?)
+
+
+Animation creation
+------------------
+
+An animation is a complete state transition for a subset of the scene
+graph, going from one state to another. Having implicit state transitions
+where the easing mode and target values for each state is defined could also
+be desirable and easier to work with. The following ascii art illustrates
+the capabilities I think the "complext" animation management needs to
+deal with, there is a clutter bug tracking adding such a feature, the
+animation described like this should be stored in the .json file of the
+scene.
+
+actorA             |
+  opacity          | 0.0 -sinc-- 100.0
+  x                | ? ----linear------------ 100.0 -- ease-in-out - 200.0
+  y                | ? ----linear------------ 80.0 ----- linear ---- 0.0
+  rotation-angle-x |           ? ------------------ 360.0  (rots need wrapping.)
+actorB
+  opacity          | 0.0 ----sinc-------- 100.0 ------------- 100.0
+  x                |            ? ----linear------------ 0.0 
+  y                |            ? ----linear------------ 0.0
+-----------------------------------
+
+
+
+Snippets
+--------
+
+It should be possible to program using visual blocks representing blocks
+of javascript code.
+
+change_scene (gui_string_scene_name);
+set_size (gui_string_actor_id, gui_int_width, gui_int_height);
+set_position (gui_string_actor_id, gui_int_x, gui_int_y);
+set_sub_scene (gui_string_actor_id, gui_string_scene_name);
+
+
+
+
