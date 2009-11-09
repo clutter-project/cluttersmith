@@ -20,8 +20,8 @@ gboolean       cs_actor_has_ancestor               (ClutterActor *actor,
 gboolean       cs_movable_press                    (ClutterActor *actor,
                                                     ClutterEvent *event);
 
-ClutterActor  *get_actor                           (const gchar  *id);
-ClutterActor  *get_stage (void);
+ClutterActor  *cluttersmith_get_actor              (const gchar  *id);
+ClutterActor  *cluttersmith_get_stage              (void);
 
 
 ClutterActor  *cs_find_by_id                       (ClutterActor *stage,
@@ -53,5 +53,9 @@ ClutterScript *cs_get_script                       (ClutterActor *actor);
 ClutterActor  *cs_replace_content2                 (ClutterActor *actor,
                                                     const gchar  *name,
                                                     const gchar  *new_script);
+
+void cluttersmith_init (void);
+
+void cluttersmith_print (gchar *a);
 
 #endif

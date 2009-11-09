@@ -1,13 +1,10 @@
 /* This makes an actor draggable, it is fully self contained,
- * it should probably have registered the capture with the
- * container, to ensure the user is anble to move out
- * of the actor
  */
 $("rectangle").reactive = true;
 $("rectangle").connect('button-press-event', function(actor, e)
   {
     let [X, Y] = e.get_coords ();
-    let id = actor.connect('captured-event', function (o,e)
+    let id = actor.get_stage().connect('captured-event', function (o,e)
     {
       switch (e.type())
         {
@@ -19,10 +16,7 @@ $("rectangle").connect('button-press-event', function(actor, e)
             [X,Y] = [X1, Y1];
             break;
           case Clutter.EventType.BUTTON_RELEASE:
-          case Clutter.EventType.LEAVE: /* also stop on leave, to avoid
-                                         * entering an undefined state 
-                                         */
-            actor.disconnect(id);
+            actor.get_stage().disconnect(id);
           default:
             break;
          }

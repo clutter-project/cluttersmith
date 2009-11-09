@@ -107,16 +107,16 @@ static gboolean idle_load_default (gpointer data)
 
       if (g_file_test (args.root_path, G_FILE_TEST_IS_REGULAR))
         {
-          cs_set_project_root (fullpath);
+          cluttersmith_set_project_root (fullpath);
           if (strrchr (bname, '.'))
             *strrchr (bname, '.') = '\0';
-          cs_open_layout (bname);
+          cluttersmith_load_scene (bname);
           free (fullpath);
         }
       else if (g_file_test (args.root_path, G_FILE_TEST_IS_DIR))
         {
           gchar *fullpath = realpath (args.root_path, NULL);
-          cs_set_project_root (fullpath);
+          cluttersmith_set_project_root (fullpath);
           free (fullpath);
         }
       else
@@ -126,8 +126,8 @@ static gboolean idle_load_default (gpointer data)
     }
   else
     {
-      cs_set_project_root (PKGDATADIR "docs");
-      cs_open_layout ("index");
+      cluttersmith_set_project_root (PKGDATADIR "docs");
+      cluttersmith_load_scene ("index");
     }
 
   cs_set_ui_mode (CS_UI_MODE_BROWSE);

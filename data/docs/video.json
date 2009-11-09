@@ -34,10 +34,10 @@
     {
       "type":"ClutterGstVideoTexture",
       "id":"video"
-      "playing":false,
       "progress":0.000,
       "uri":"file://home/pippin/zim.avi",
       "audio-volume":0.100,
+      "playing":false,
       "name":"",
       "x": 0,
       "y": 0,
@@ -55,6 +55,8 @@
       "repeat-y":false,
       "repeat-x":false,
       "keep-aspect-ratio":false,
+      "child::expand":false,
+      "child::y-fill":true,
     }
     ,
     {
@@ -74,6 +76,9 @@
       "vertical":false,
       "pack-start":false,
       "spacing":0,
+      "child::expand":false,
+      "child::x-fill":true,
+      "child::y-fill":true,
       "children":[
       {
         "type":"MxButton",
@@ -95,6 +100,9 @@
         "label":"play",
         "toggle-mode":false,
         "checked":false,
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
         "children":[
         {
           "type":"ClutterText",
@@ -151,6 +159,9 @@
         "label":"pause",
         "toggle-mode":false,
         "checked":false,
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
         "children":[
         {
           "type":"ClutterText",
@@ -207,6 +218,9 @@
         "label":"rewind",
         "toggle-mode":false,
         "checked":false,
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
         "children":[
         {
           "type":"ClutterText",
@@ -263,6 +277,9 @@
         "label":"rew",
         "toggle-mode":false,
         "checked":false,
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
         "children":[
         {
           "type":"ClutterText",
@@ -319,6 +336,9 @@
         "label":"ffw",
         "toggle-mode":false,
         "checked":false,
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
         "children":[
         {
           "type":"ClutterText",
@@ -374,6 +394,9 @@
       "vertical":false,
       "pack-start":false,
       "spacing":0,
+      "child::expand":false,
+      "child::x-fill":true,
+      "child::y-fill":true,
       "children":[
       {
         "type":"MxEntry",
@@ -390,8 +413,11 @@
         "anchor-x":0.000,
         "anchor-y":0.000,
         "has-tooltip":false,
-        "hint-text":"file:///home/pippin/zim.avi",
         "text":"file:///home/pippin/zim.avi",
+        "hint-text":"file:///home/pippin/zim.avi",
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
       }
       ,
       {
@@ -414,6 +440,9 @@
         "label":"load",
         "toggle-mode":false,
         "checked":false,
+        "child::expand":false,
+        "child::x-fill":true,
+        "child::y-fill":true,
         "children":[
         {
           "type":"ClutterText",

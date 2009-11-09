@@ -17,7 +17,7 @@ static gboolean load_layout (ClutterActor *actor,
   if (dot)
     *dot='\0';
   
-  cs_open_layout (new_title);
+  cluttersmith_load_scene (new_title);
   g_free (new_title);
   return TRUE;
 }
@@ -90,9 +90,12 @@ ClutterActor *preview_make (const gchar *name, const gchar *path)
 void previews_reload (ClutterActor *actor)
 {
   GDir *dir;
-  const gchar *path = cs_get_project_root ();
+  const gchar *path;
   const gchar *name;
 
+  if (!actor)
+    return;
+  path = cs_get_project_root ();
   if (!path)
     return;
 

@@ -397,7 +397,7 @@ void cs_select_parent (ClutterActor *ignored)
 void
 cs_help (ClutterActor *ignored)
 {
-  cs_set_project_root (PKGDATADIR "docs");
+  cluttersmith_set_project_root (PKGDATADIR "docs");
 }
 
 void

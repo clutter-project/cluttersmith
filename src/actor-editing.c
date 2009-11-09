@@ -1184,7 +1184,7 @@ manipulate_capture (ClutterActor *actor,
                        name = clutter_actor_get_name (hit);
                        if (name && g_str_has_prefix (name, "link="))
                          {
-                           cs_open_layout (name+5);
+                           cluttersmith_load_scene (name+5);
                            cs_selected_clear ();
                            return TRUE;
                          }
@@ -1262,7 +1262,7 @@ manipulate_capture (ClutterActor *actor,
                   const gchar *name = clutter_actor_get_name (hit);
                   if (name && g_str_has_prefix (name, "link="))
                     {
-                      cs_open_layout (name+5);
+                      cluttersmith_load_scene (name+5);
                       cs_selected_clear ();
                       return TRUE;
                     }

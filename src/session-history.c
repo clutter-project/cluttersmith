@@ -10,7 +10,7 @@
 static gboolean set_working_dir (ClutterText *text)
 {
   const gchar *dest = clutter_text_get_text (text);
-  cs_set_project_root (dest);
+  cluttersmith_set_project_root (dest);
   return TRUE;
 }
 

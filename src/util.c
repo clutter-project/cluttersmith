@@ -850,13 +850,14 @@ ClutterActor *cs_actor_change_type (ClutterActor *actor,
   return new_actor;
 }
 
+
 /**
- * get_actor:
+ * cluttersmith_get_actor:
  * @id: the id to lookup
  *
  * Return value: (transfer none): the actor if any or NULL
  */
-ClutterActor  *get_actor (const gchar  *id)
+ClutterActor  *cluttersmith_get_actor (const gchar  *id)
 {
   ClutterActor *ret;
   ret = cs_find_by_id (clutter_stage_get_default(), id);
@@ -904,14 +905,19 @@ static void get_all_actors_int (GList         **list,
 
 
 /**
- * get_stage:
+ * cluttersmith_get_stage:
  *
  * Return value: (transfer none): the actor if any or NULL
  */
-ClutterActor  *get_stage (void)
+ClutterActor  *cluttersmith_get_stage (void)
 {
   ClutterActor *ret;
   ret = cluttersmith->fake_stage;
   return ret;
 }
 
+
+void cluttersmith_print (gchar *a)
+{
+  g_print (a);
+}

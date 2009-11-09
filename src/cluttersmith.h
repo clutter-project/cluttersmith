@@ -24,10 +24,10 @@ extern CSContext *cluttersmith;
 void cs_actor_editing_init (gpointer stage);
 
 
-void   cs_set_project_root (const gchar *new_root);
+void   cluttersmith_set_project_root (const gchar *new_root);
 gchar *cs_get_project_root (void);
 
-void cs_open_layout (const gchar *new_title);
+void cluttersmith_load_scene (const gchar *new_title);
 void cs_set_active (ClutterActor *item);
 ClutterActor *cs_get_active (void);
 

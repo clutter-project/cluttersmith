@@ -24,5 +24,5 @@ void cs_link_text_changed (ClutterActor *actor)
 void cs_link_follow (ClutterActor *actor)
 {
   const gchar *link = clutter_actor_get_name (clutter_actor_get_parent (clutter_actor_get_parent (actor)));
-  cs_open_layout (link + 5);
+  cluttersmith_load_scene (link + 5);
 }
