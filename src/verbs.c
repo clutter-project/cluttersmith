@@ -60,10 +60,27 @@ void cs_remove (ClutterActor *ignored)
   if (active)
     {
       ClutterActor *parent = clutter_actor_get_parent (active);
+
+      if (active == cluttersmith->fake_stage)
+        return;
+
       cs_set_active (NULL);
       cs_selected_foreach (G_CALLBACK (each_remove), NULL);
       cs_dirtied ();
       cs_selected_clear ();
+      {
+        GList *children;
+        children = clutter_container_get_children (parent);
+        if (children)
+          {
+            cs_selected_add (children->data);
+            g_list_free (children);
+          }
+        else
+          {
+            cs_selected_add (parent);
+          }
+      }
     }
 }
 
