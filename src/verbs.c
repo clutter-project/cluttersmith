@@ -44,6 +44,16 @@ static void each_remove (ClutterActor *actor)
   clutter_actor_destroy (actor);
 }
 
+void cs_edit (ClutterActor *ignored)
+{
+  ClutterActor *active = cs_get_active ();
+  if (active)
+    {
+      cs_edit_actor_start (active);
+    }
+}
+
+
 void cs_remove (ClutterActor *ignored)
 {
   ClutterActor *active = cs_get_active ();
@@ -520,6 +530,8 @@ static KeyBinding keybindings[]={
   {0,                    CLUTTER_Home,      cs_raise_top},
   {0,                    CLUTTER_End,       cs_lower_bottom},
 
+  {0,                    CLUTTER_Return,    cs_edit},
+
   {0,                    CLUTTER_F1,        dialog_toggle_toolbar},
   {0,                    CLUTTER_F2,        dialog_toggle_sidebar},
   {0,                    CLUTTER_F3,        dialog_toggle_templates},
@@ -708,6 +720,7 @@ static void add_common (MxPopup *popup)
   action = mx_action_new_full ("reset view", G_CALLBACK (cs_view_reset),  NULL);
   mx_popup_add_action (popup, action);
   mx_popup_add_action (popup, mx_action_new_full ("______", NULL, NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Edit (Return)", G_CALLBACK (cs_edit), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Raise (PgUp)", G_CALLBACK (cs_raise), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Send to front (Home)", G_CALLBACK (cs_raise_top), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Send to back (End)", G_CALLBACK (cs_lower_bottom), NULL));

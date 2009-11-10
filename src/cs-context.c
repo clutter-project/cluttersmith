@@ -578,7 +578,7 @@ void cluttersmith_init (void)
   /* initializing globals */
   title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
 
-  g_signal_connect (stage, "captured-event", runtime_capture, NULL);
+  g_signal_connect (stage, "captured-event", G_CALLBACK (runtime_capture), NULL);
 
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   clutter_actor_show (stage);

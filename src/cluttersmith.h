@@ -91,6 +91,9 @@ gboolean edit_text_start (ClutterActor *actor);
 void session_history_init_hack (ClutterActor  *actor);
 void templates_container_init_hack (ClutterActor  *actor);
 
+gboolean cs_edit_actor_start (ClutterActor *actor);
+gboolean cs_edit_actor_end   (void);
+
 void cs_save (gboolean force);
 #define CS_PROPEDITOR_LABEL_WIDTH  120
 #define CS_PROPEDITOR_EDITOR_WIDTH  80

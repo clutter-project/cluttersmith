@@ -1090,7 +1090,7 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
   return TRUE;
 }
 
-static ClutterActor *edited_text = NULL;
+static ClutterActor *edited_actor = NULL;
 static gboolean text_was_editable = FALSE;
 static gboolean text_was_reactive = FALSE;
 
@@ -1098,11 +1098,11 @@ gboolean edit_text_start (ClutterActor *actor)
 {
   if (MX_IS_LABEL (actor))
     actor = mx_label_get_clutter_text (MX_LABEL (actor));
-  edited_text = actor;
+  edited_actor = actor;
 
-  g_object_get (edited_text, "editable", &text_was_editable,
+  g_object_get (edited_actor, "editable", &text_was_editable,
                              "reactive", &text_was_reactive, NULL);
-  g_object_set (edited_text, "editable", TRUE,
+  g_object_set (edited_actor, "editable", TRUE,
                              "reactive", TRUE, NULL);
   clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)), actor);
   return TRUE;
@@ -1110,11 +1110,29 @@ gboolean edit_text_start (ClutterActor *actor)
 
 static gboolean edit_text_end (void)
 {
-  g_object_set (edited_text, "editable", text_was_editable,
-                             "reactive", text_was_reactive, NULL);
-  edited_text = NULL;
+  g_object_set (edited_actor, "editable", text_was_editable,
+                              "reactive", text_was_reactive, NULL);
+  edited_actor = NULL;
   cs_dirtied ();
   return TRUE;
+}
+
+gboolean cs_edit_actor_start (ClutterActor *actor)
+{
+  if (CLUTTER_IS_TEXT (actor) ||
+      MX_IS_LABEL (actor))
+    return edit_text_start (actor);
+  return FALSE;
+}
+
+gboolean cs_edit_actor_end (void)
+{
+  if (!edited_actor)
+    return FALSE;
+  if (CLUTTER_IS_TEXT (edited_actor) ||
+      MX_IS_LABEL (edited_actor))
+    return edit_text_end ();
+  return FALSE;
 }
 
 gint cs_last_x = 0;
@@ -1128,20 +1146,27 @@ manipulate_capture (ClutterActor *actor,
 
 
   /* pass events through to text being edited */
-  if (edited_text)
+  if (edited_actor)
     { 
-      if (event->any.type == CLUTTER_KEY_PRESS && event->key.keyval == CLUTTER_Escape)
+      if (event->any.type == CLUTTER_KEY_PRESS &&
+          event->key.keyval == CLUTTER_Escape)
         {
-          edit_text_end ();
+          cs_edit_actor_end ();
           return TRUE;
         }
-      if (event->any.source == edited_text)
+
+      /* the passthrough of events, to perhaps
+       * another var than edited_actor, needs
+       * to be wider to support other than
+       * text editing.
+       */
+      if (event->any.source == edited_actor)
         {
           return FALSE;
         }
       else
         {
-          /* break out when presses occur outside the ClutterText,
+          /* break out when presses occur outside the edited actor,
            * this currently means that proper mouse movement and
            * selection is not possible for MxLabels and Entries
            * when edited
@@ -1149,7 +1174,7 @@ manipulate_capture (ClutterActor *actor,
           switch (event->any.type)
             {
               case CLUTTER_BUTTON_PRESS:
-                edit_text_end ();
+                cs_edit_actor_end ();
               default:
                 return TRUE;
             }
@@ -1282,7 +1307,7 @@ manipulate_capture (ClutterActor *actor,
 
                   if ((CLUTTER_IS_TEXT (hit) || MX_IS_LABEL (hit)))
                     {
-                      edit_text_start (hit);
+                      cs_edit_actor_start (hit);
                       return TRUE;
                     }
                   else if (CLUTTER_IS_CONTAINER (hit))
