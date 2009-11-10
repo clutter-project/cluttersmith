@@ -818,22 +818,35 @@ static void do_zoom (gboolean in,
   gfloat zoom;
   gfloat origin_x;
   gfloat origin_y;
+  gfloat target_x;
+  gfloat target_y;
+
+  gfloat offset_x;
+  gfloat offset_y;
+
+  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &offset_x, &offset_y);
+
+  clutter_actor_transform_stage_point (cluttersmith->fake_stage,
+                                       x, y, &target_x, &target_y);
 
   g_object_get (cluttersmith,
                 "zoom", &zoom,
-                "origin-x", &origin_x,
-                "origin-y", &origin_y,
                 NULL);
+
   if (in)
     {
-      
       zoom *= 1.412135;
     }
   else
     {
       zoom /= 1.412135;
     }
+
+  origin_x = target_x * (zoom/100) - x + offset_x;
+  origin_y = target_y * (zoom/100) - y + offset_y;
   
+  g_print ("%f %f %f %f\n", x, target_x, origin_x, zoom);
+
   g_object_set (cluttersmith,
                 "zoom", zoom,
                 "origin-x", origin_x,
