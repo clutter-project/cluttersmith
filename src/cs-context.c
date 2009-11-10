@@ -81,10 +81,10 @@ cs_context_class_init (CSContextClass *klass)
   pspec = g_param_spec_int ("canvas-height", "canvas-height", "height of canvas being edited", 0, 1000, 480, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
 
   g_object_class_install_property (object_class, PROP_CANVAS_HEIGHT, pspec);
-  pspec = g_param_spec_float ("origin-x", "origin X", "origin X coordinate", -2000, 2000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
+  pspec = g_param_spec_float ("origin-x", "origin X", "origin X coordinate", -20000, 20000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ORIGIN_X, pspec);
 
-  pspec = g_param_spec_float ("origin-y", "origin Y", "origin Y coordinate", -2000, 2000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
+  pspec = g_param_spec_float ("origin-y", "origin Y", "origin Y coordinate", -20000, 20000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ORIGIN_Y, pspec);
 
 
