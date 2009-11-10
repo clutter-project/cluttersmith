@@ -1,5 +1,6 @@
 #include <clutter/clutter.h>
 #include "util.h"
+#include <math.h>
 
 static GHashTable *layouts = NULL;
 
@@ -920,4 +921,75 @@ ClutterActor  *cluttersmith_get_stage (void)
 void cluttersmith_print (gchar *a)
 {
   g_print (a);
+}
+
+ClutterActor *
+cs_find_nearest (ClutterActor *actor,
+                 gboolean      vertical,
+                 gboolean      reverse)
+{
+  GList *s, *siblings;
+  ClutterActor *best = NULL;
+  gfloat bestdist = 200000;
+  gfloat selfx, selfy;
+
+  clutter_actor_get_transformed_position (actor, &selfx, &selfy);
+  siblings = cs_actor_get_siblings (actor);
+
+  for (s=siblings; s; s=s->next)
+    {
+      ClutterActor *sib = s->data;
+      if (sib != actor)
+        {
+          gfloat x, y;
+          gfloat dist;
+          
+          clutter_actor_get_transformed_position (sib, &x, &y);
+
+          if (vertical)
+            {
+
+#define ASSYMETRY 2
+              /* we do not check for exactly equal to avoid osciallating */
+              if ( (!reverse && y > selfy) ||
+                    (reverse && y < selfy))
+                {
+                  dist = sqrt ( (selfy-y)*(selfy-y) + ASSYMETRY * (selfx-x)*(selfx-x));
+                  if (dist < bestdist)
+                    {
+                      bestdist = dist;
+                      best = sib;
+                    }
+                }
+            }
+          else
+            {
+              if ( (!reverse && x > selfx) ||
+                    (reverse && x < selfx))
+                {
+                  dist = sqrt (ASSYMETRY *(selfy-y)*(selfy-y) + (selfx-x)*(selfx-x));
+                  if (dist < bestdist)
+                    {
+                      bestdist = dist;
+                      best = sib;
+                    }
+                }
+            }
+        }
+    }
+
+  g_list_free (siblings);
+  return best;
+}
+
+
+GList *cs_actor_get_siblings (ClutterActor *actor)
+{
+  ClutterActor *parent;
+  if (!actor)
+    return NULL;
+  parent = clutter_actor_get_parent (actor);
+  if (!parent)
+    return NULL;
+  return clutter_container_get_children (CLUTTER_CONTAINER (parent));
 }

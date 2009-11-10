@@ -870,7 +870,6 @@ static void
 callbacks_populate (ClutterActor *actor)
 {
   GType type = G_OBJECT_TYPE (actor);
-  g_print ("\n%s\n", g_type_name (type));
 
   cs_container_remove_children (cluttersmith->callbacks_container);
 
@@ -880,7 +879,6 @@ callbacks_populate (ClutterActor *actor)
     guint count;
     guint i;
     list = g_signal_list_ids (type, &count);
-    g_print (" %s\n", g_type_name (type));
     
     for (i=0; i<count;i++)
       {

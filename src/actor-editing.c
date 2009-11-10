@@ -13,16 +13,6 @@ static GHashTable *selection = NULL; /* what would be added/removed by
                                         current lasso*/
 
 
-GList *get_siblings (ClutterActor *actor)
-{
-  ClutterActor *parent;
-  if (!actor)
-    return NULL;
-  parent = clutter_actor_get_parent (actor);
-  if (!parent)
-    return NULL;
-  return clutter_container_get_children (CLUTTER_CONTAINER (parent));
-}
 
 void cs_selected_init (void);
 static void init_multi_select (void)
@@ -30,6 +20,8 @@ static void init_multi_select (void)
   selection = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
   cs_selected_init ();
 }
+
+
 
 static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
 {
@@ -81,7 +73,7 @@ ClutterActor *cs_pick (gfloat x, gfloat y)
 
 ClutterActor *cs_siblings_pick (ClutterActor *actor, gfloat x, gfloat y)
 {
-  GList *siblings = get_siblings (actor);
+  GList *siblings = cs_actor_get_siblings (actor);
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
   ret = cs_list_match (siblings, G_CALLBACK (is_in_actor), data);
@@ -1119,9 +1111,28 @@ static gboolean edit_text_end (void)
 
 gboolean cs_edit_actor_start (ClutterActor *actor)
 {
+  const gchar *name;
+  if (!actor)
+    return FALSE;
   if (CLUTTER_IS_TEXT (actor) ||
       MX_IS_LABEL (actor))
     return edit_text_start (actor);
+
+  name = clutter_actor_get_name (actor);
+  if (name && g_str_has_prefix (name, "link="))
+    {
+      cluttersmith_load_scene (name+5);
+      cs_selected_clear ();
+      return TRUE;
+    }
+  if (CLUTTER_IS_CONTAINER (actor))
+     {
+       cs_selected_clear ();
+       cs_set_current_container (actor);
+       return TRUE;
+     }
+  g_print ("unahndled enter edit for %s\n", G_OBJECT_TYPE_NAME (actor));
+
   return FALSE;
 }
 
@@ -1305,21 +1316,8 @@ manipulate_capture (ClutterActor *actor,
                       return TRUE;
                     }
 
-                  if ((CLUTTER_IS_TEXT (hit) || MX_IS_LABEL (hit)))
-                    {
-                      cs_edit_actor_start (hit);
-                      return TRUE;
-                    }
-                  else if (CLUTTER_IS_CONTAINER (hit))
-                    {
-                      g_print ("enter container\n");
-                      cs_selected_clear ();
-                      cs_set_current_container (hit);
-                    }
-                  else
-                    {
-                      g_print ("unhandled multi click on non text/container\n");
-                    }
+                  cs_edit_actor_start (hit);
+                  return TRUE;
                 }
               else
                 {

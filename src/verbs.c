@@ -385,19 +385,23 @@ void cs_select_parent (ClutterActor *ignored)
   if (active_actor)
     {
       ClutterActor *parent = clutter_actor_get_parent (active_actor);
-      if (parent) 
+      if (parent)
         {
-          cs_selected_clear ();
-          cs_selected_add (parent);
-          parent = clutter_actor_get_parent (parent);
-          cs_set_current_container (parent);
-          clutter_actor_queue_redraw (active_actor);
+          ClutterActor *gparent;
+          gparent = clutter_actor_get_parent (parent);
+          if (parent != cluttersmith->fake_stage)
+            {
+              cs_selected_clear ();
+              cs_selected_add (parent);
+              cs_set_current_container (gparent);
+              clutter_actor_queue_redraw (active_actor);
+            }
         }
     }
   else if (cs_get_current_container () != cluttersmith->fake_stage)
     {
       ClutterActor *parent = cs_get_current_container ();
-      if (parent) 
+      if (parent && parent != cluttersmith->fake_stage )
         {
           cs_selected_clear ();
           cs_selected_add (parent);
@@ -413,6 +417,60 @@ cs_help (ClutterActor *ignored)
 {
   cluttersmith_set_project_root (PKGDATADIR "docs");
 }
+
+
+static void select_nearest (gboolean vertical,
+                            gboolean reverse)
+{
+  ClutterActor *actor = cs_selected_get_any ();
+  if (actor)
+    {
+      ClutterActor *new = cs_find_nearest (actor, vertical, reverse);
+      if (new)
+        {
+          cs_selected_clear ();
+          cs_selected_add (new);
+        }
+    }
+  else
+    {
+      GList *children = clutter_container_get_children (
+                            CLUTTER_CONTAINER (cs_get_current_container ()));
+      if (children)
+        {
+          cs_selected_clear ();
+          cs_selected_add (children->data);
+          g_list_free (children);
+        }
+    }
+}
+
+void
+cs_keynav_left (ClutterActor *ignored)
+{
+  select_nearest (FALSE, TRUE);
+}
+
+void
+cs_keynav_right (ClutterActor *ignored)
+{
+  select_nearest (FALSE, FALSE);
+}
+
+void
+cs_keynav_up (ClutterActor *ignored)
+{
+  select_nearest (TRUE, TRUE);
+}
+
+void
+cs_keynav_down (ClutterActor *ignored)
+{
+  select_nearest (TRUE, FALSE);
+}
+
+
+
 
 void
 cs_ui_mode (ClutterActor *ignored)
@@ -521,7 +579,7 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK|
    CLUTTER_SHIFT_MASK,   CLUTTER_g,         cs_ungroup},
   {CLUTTER_CONTROL_MASK, CLUTTER_g,         (void*)cs_group},
-  {CLUTTER_CONTROL_MASK, CLUTTER_p,         cs_select_parent},
+  {0,                    CLUTTER_Escape,    cs_select_parent},
 
   {0,                    CLUTTER_BackSpace, cs_remove},
   {0,                    CLUTTER_Delete,    cs_remove},
@@ -531,6 +589,11 @@ static KeyBinding keybindings[]={
   {0,                    CLUTTER_End,       cs_lower_bottom},
 
   {0,                    CLUTTER_Return,    cs_edit},
+
+  {0,                    CLUTTER_Up,        cs_keynav_up},
+  {0,                    CLUTTER_Down,      cs_keynav_down},
+  {0,                    CLUTTER_Left,      cs_keynav_left},
+  {0,                    CLUTTER_Right,     cs_keynav_right},
 
   {0,                    CLUTTER_F1,        dialog_toggle_toolbar},
   {0,                    CLUTTER_F2,        dialog_toggle_sidebar},
@@ -711,7 +774,7 @@ void root_popup (gint x,
   clutter_actor_show (CLUTTER_ACTOR (popup));
 
   if (cs_get_current_container () != cluttersmith->fake_stage)
-    mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
+    mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (Escape)", G_CALLBACK (cs_select_parent), NULL));
 }
 
 static void add_common (MxPopup *popup)

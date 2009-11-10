@@ -54,6 +54,11 @@ ClutterActor  *cs_replace_content2                 (ClutterActor *actor,
                                                     const gchar  *name,
                                                     const gchar  *new_script);
 
+
+ClutterActor * cs_find_nearest                     (ClutterActor *actor,
+                                                    gboolean      vertical,
+                                                    gboolean      reverse);
+
 void cluttersmith_init (void);
 
 void cluttersmith_print (gchar *a);
