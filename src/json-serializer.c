@@ -262,8 +262,8 @@ properties_to_string (GString      *str,
         }
 #endif
 
-      if (! ( (properties[i]->flags & G_PARAM_READABLE) &&
-              (properties[i]->flags & G_PARAM_WRITABLE)
+      if (! ( (child_properties[i]->flags & G_PARAM_READABLE) &&
+              (child_properties[i]->flags & G_PARAM_WRITABLE)
           ))
         skip = TRUE;
 
