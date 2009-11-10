@@ -213,6 +213,10 @@ void cs_select_all (ClutterActor *ignored)
   g_list_free (list);
 }
 
+void cs_view_reset (ClutterActor *ignored)
+{
+  g_object_set (cluttersmith, "zoom", 100.0, "origin-x", 0.0, "origin-y", 0.0, NULL);
+}
 
 static gfloat min_x=0;
 static gfloat min_y=0;
@@ -678,6 +682,10 @@ void root_popup (gint x,
 
   action = mx_action_new_full ("Browse (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
   mx_popup_add_action (popup, action);
+
+  action = mx_action_new_full ("reset view", G_CALLBACK (cs_view_reset),  NULL);
+  mx_popup_add_action (popup, action);
+
   if (clipboard)
     mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
   action = mx_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup),  NULL);
@@ -696,6 +704,9 @@ void root_popup (gint x,
 
 static void add_common (MxPopup *popup)
 {
+  MxAction *action;
+  action = mx_action_new_full ("reset view", G_CALLBACK (cs_view_reset),  NULL);
+  mx_popup_add_action (popup, action);
   mx_popup_add_action (popup, mx_action_new_full ("______", NULL, NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Raise (PgUp)", G_CALLBACK (cs_raise), NULL));
   mx_popup_add_action (popup, mx_action_new_full ("Send to front (Home)", G_CALLBACK (cs_raise_top), NULL));
@@ -849,7 +860,6 @@ void object_popup (ClutterActor *actor,
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
 }
-
 
 void selection_popup (gint x,
                       gint y)
