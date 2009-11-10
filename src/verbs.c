@@ -62,9 +62,8 @@ void cs_remove (ClutterActor *ignored)
       ClutterActor *parent = clutter_actor_get_parent (active);
       cs_set_active (NULL);
       cs_selected_foreach (G_CALLBACK (each_remove), NULL);
-      cs_dirtied ();;
+      cs_dirtied ();
       cs_selected_clear ();
-      cs_selected_add (parent);
     }
 }
 
@@ -96,7 +95,7 @@ void cs_cut (ClutterActor *ignored)
       ClutterActor *parent = clutter_actor_get_parent (active);
       cs_set_active (NULL);
       cs_selected_foreach (G_CALLBACK (each_cut), NULL);
-      cs_dirtied ();;
+      cs_dirtied ();
       cs_selected_clear ();
       cs_selected_add (parent);
     }
@@ -117,7 +116,7 @@ void cs_copy (ClutterActor *ignored)
 {
   empty_clipboard ();
   cs_selected_foreach (G_CALLBACK (each_copy), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 
@@ -144,32 +143,32 @@ void cs_paste (ClutterActor *ignored)
       if (new_actor)
         cs_selected_add (new_actor);
     }
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_raise (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_raise), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_lower (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_lower), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 
 void cs_raise_top (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_raise_top), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_lower_bottom (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (clutter_actor_lower_bottom), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 static void each_reset_size (ClutterActor *actor)
@@ -180,7 +179,7 @@ static void each_reset_size (ClutterActor *actor)
 void cs_reset_size (ClutterActor *ignored)
 {
   cs_selected_foreach (G_CALLBACK (each_reset_size), NULL);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_quit (ClutterActor *ignored)
@@ -323,7 +322,7 @@ void cs_ungroup (ClutterActor *ignored)
       cs_selected_add (i->data);
     }
   g_list_free (created_list);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_make_group_box (ClutterActor *ignored)
@@ -358,7 +357,7 @@ void cs_make_group_box (ClutterActor *ignored)
   g_object_set (G_OBJECT (active_actor), "vertical", vertical, NULL);
   cs_selected_clear (); 
   cs_selected_add (active_actor);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_make_box (ClutterActor *ignored)
@@ -376,7 +375,7 @@ void cs_make_group (ClutterActor *ignored)
   active_actor = cs_actor_change_type (active_actor, "ClutterGroup");
   cs_selected_clear (); 
   cs_selected_add (active_actor);
-  cs_dirtied ();;
+  cs_dirtied ();
 }
 
 void cs_select_parent (ClutterActor *ignored)
