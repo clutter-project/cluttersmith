@@ -29,12 +29,9 @@
  "id":"parasite-root",
  "children":[
 
-
-
 {
   "id":"cs-dialog-callbacks",
   "type":"MxBoxLayout",
-  "style-class":"parasite",
   "vertical":true,
   "reactive":true,
   "width":300,
@@ -46,8 +43,9 @@
    "children":
      [
        { "type":"MxScrollView",
+         "style-class":"parasite",
          "width":300,
-         "height":200,
+         "height":300,
          "child::expand":true,
          "children":
           [
@@ -63,9 +61,10 @@
                ]
             }
          ]
+         "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
        }
      ]
-            "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
+     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
 },
 
 
@@ -480,8 +479,6 @@
     ]
           "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
     }
-
-
 
     ]
     }

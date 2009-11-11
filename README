@@ -73,6 +73,10 @@ when have any
   home                    send to front
   end                     send to back
 
+  selection keynav        cursor keys (shift to extend, ctrl to slide|move?)
+                          ctrl+shift to align (using cursor dir to determine
+                          side to be aligned?)
+
   cut                     ^X
   copy                    ^C 
   delete                  delete
@@ -94,10 +98,10 @@ group
 ungroup
 
 when have one
-  duplicate
+  duplicate               ^D
   if container
-    make group
-    ungroup
+    make group            ^G
+    ungroup               shift^G
   if link
     change destination
 

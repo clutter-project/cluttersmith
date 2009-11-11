@@ -117,7 +117,7 @@ The interactions and UI of the editor is subject to redesign, most features have
     "line-wrap":true,
     "justify":false,
     "position":-1,
-    "selection-bound":20,
+    "selection-bound":88,
     "selection-color":"#000000ff",
     "cursor-visible":true,
     "cursor-color":"#000000ff",
