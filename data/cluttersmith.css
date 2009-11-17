@@ -4,10 +4,10 @@
 
 
 
-*.parasite MxButton,
-*.parasite MxButton:active,
-*.parasite MxButton:hover,
-*.parasite MxButton:checked {
+.parasite MxButton,
+.parasite MxButton:active,
+.parasite MxButton:hover,
+.parasite MxButton:checked {
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 5px;
@@ -22,10 +22,10 @@ MxLabel, MxIMLabel
   color: black;
 }
 
-*.ParasiteToolbar MxButton,
-*.ParasiteToolbar MxButton:active,
-*.ParasiteToolbar MxButton:hover,
-*.ParasiteToolbar MxButton:checked 
+.ParasiteToolbar MxButton,
+.ParasiteToolbar MxButton:active,
+.ParasiteToolbar MxButton:hover,
+.ParasiteToolbar MxButton:checked 
 {
   font-size: 20px;
   padding-top: 5px;
@@ -50,150 +50,150 @@ MxBoxLayout.ParasiteTreeB2 {
   background-color: #444;
 }
 
-*.parasite MxButton {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+.parasite MxButton {
+  border-image: url("button-bg.png") 8;
   color: white;
 }
 
 
-*.parasite MxEntry {
-  border-image: url("file://entry-bg.png") 8 8 8 8;
+.parasite MxEntry {
+  border-image: url("entry-bg.png") 8;
   color: yellow;
   font-size: 9px;
 }
 
-*.parasite MxButton {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+.parasite MxButton {
+  border-image: url("button-bg.png") 8;
   color: white;
 }
 
-*.parasite MxButton:active {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+.parasite MxButton:active {
+  border-image: url("button-bg.png") 8;
   color: white;
 }
 
-*.parasite-paste  {
+.parasite-paste  {
   background-color: #444444ee;
   padding: 1px;
 }
 
-*.parasite  {
+.parasite  {
   background-color: #444444ee;
   padding: 1px;
 }
 
-*.parasite MxButton:hover {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+.parasite MxButton:hover {
+  border-image: url("button-bg-hover.png") 8;
   color: yellow;
 }
 
 
-*.parasite MxButton:checked {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+.parasite MxButton:checked {
+  border-image: url("button-bg.png") 8;
   color: white;
 }
 
 
 
-*.parasite MxScrollBar
+.parasite MxScrollBar
 {
   background-color: #00000000;
   padding: 2px;
 }
 
 
-*.parasite MxButton#backward-stepper
+.parasite MxButton#backward-stepper
 {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+  border-image: url("button-bg.png") 8;
 }
 
-*.parasite MxButton#backward-stepper:hover,
-*.parasite MxButton#backward-stepper:active
+.parasite MxButton#backward-stepper:hover,
+.parasite MxButton#backward-stepper:active
 {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
-*.parasite MxButton#forward-stepper
+.parasite MxButton#forward-stepper
 {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+  border-image: url("button-bg.png") 8;
 }
 
-*.parasite MxButton#forward-stepper:hover,
-*.parasite MxButton#forward-stepper:active
+.parasite MxButton#forward-stepper:hover,
+.parasite MxButton#forward-stepper:active
 {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
-*.parasite MxButton#up-stepper
+.parasite MxButton#up-stepper
 {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+  border-image: url("button-bg.png") 8;
 }
 
-*.parasite MxButton#up-stepper:hover,
-*.parasite MxButton#up-stepper:active
+.parasite MxButton#up-stepper:hover,
+.parasite MxButton#up-stepper:active
 {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
-*.parasite MxButton#down-stepper
+.parasite MxButton#down-stepper
 {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+  border-image: url("button-bg.png") 8;
 }
 
-*.parasite MxButton#down-stepper:hover,
-*.parasite MxButton#down-stepper:active
+.parasite MxButton#down-stepper:hover,
+.parasite MxButton#down-stepper:active
 {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
-*.parasite MxScrollBar MxButton#vhandle
+.parasite MxScrollBar MxButton#vhandle
 {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+  border-image: url("button-bg.png") 8;
 }
 
-*.parasite MxScrollBar MxButton#vhandle:hover
+.parasite MxScrollBar MxButton#vhandle:hover
 {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
-*.parasite MxScrollBar MxButton#hhandle
+.parasite MxScrollBar MxButton#hhandle
 {
-  border-image: url("file://button-bg.png") 8 8 8 8;
+  border-image: url("button-bg.png") 8;
 }
 
-*.parasite MxScrollBar MxButton#hhandle:hover
+.parasite MxScrollBar MxButton#hhandle:hover
 {
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
 
-*.parasite *.ClutterSmithTitle {
+.parasite .ClutterSmithTitle {
   font-size: 20px;
 }
 
-*.ClutterSmithLink {
-  border-image: url("file://link-bg.png") 8 8 8 8;
+.ClutterSmithLink {
+  border-image: url("link-bg.png") 8;
 }
 
-*.parasite *.ClutterSmithLocation {
+.parasite .ClutterSmithLocation {
   font-size: 12px;
 }
 
 /* these CSS rules are currently bust.
  
-*.parasite-root   MxPopup {
+.parasite-root   MxPopup {
   padding: 5;
-  border-image: url("file://button-bg-hover.png") 8 8 8 8;
+  border-image: url("button-bg-hover.png") 8;
 }
 
-*.parasite-root   MxPopup > MxButton {
+.parasite-root   MxPopup > MxButton {
   padding: 3;
   border-image: none;
 }
 
-*.parasite-root   MxPopup > MxButton:hover,
-*.parasite-root   MxPopup > MxButton:active {
+.parasite-root   MxPopup > MxButton:hover,
+.parasite-root   MxPopup > MxButton:active {
   color: white;
-  border-image: url('file://menu-item.png') 2;
+  border-image: url('menu-item.png') 2;
 }
 */
