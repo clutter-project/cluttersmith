@@ -62,6 +62,12 @@ MxBoxLayout.ParasiteTreeB2 {
   font-size: 9px;
 }
 
+.parasite MxEntry:focus {
+  border-image: url("entry-bg.png") 8;
+  color: yellow;
+  font-size: 9px;
+}
+
 .parasite MxButton {
   border-image: url("button-bg.png") 8;
   color: white;
