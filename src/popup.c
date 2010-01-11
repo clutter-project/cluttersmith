@@ -221,7 +221,7 @@ popup_actions (gpointer *actions, gpointer userdata)
                                                          "width", 0.0,
                                                          NULL));
 
-  mx_widget_set_style_class_name (MX_WIDGET (group), "HrnPopup");
+  mx_stylable_set_style_class (MX_STYLABLE (group), "HrnPopup");
 
   for (i = 0; actions[i]; i += 2)
     {

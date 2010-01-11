@@ -70,7 +70,7 @@ void cs_remove (ClutterActor *ignored)
       cs_selected_clear ();
       {
         GList *children;
-        children = clutter_container_get_children (parent);
+        children = clutter_container_get_children (CLUTTER_CONTAINER (parent));
         if (children)
           {
             cs_selected_add (children->data);
@@ -825,8 +825,8 @@ void cs_change_type (ClutterActor *actor);
 static gboolean is_link (ClutterActor *actor)
 {
   return (actor && MX_IS_BUTTON (actor) &&
-          mx_widget_get_style_class_name (MX_WIDGET (actor)) &&
-          g_str_equal (mx_widget_get_style_class_name (MX_WIDGET (actor)),
+          mx_stylable_get_style_class (MX_STYLABLE (actor)) &&
+          g_str_equal (mx_stylable_get_style_class (MX_STYLABLE (actor)),
                     "ClutterSmithLink"));
 }
 
@@ -935,8 +935,8 @@ void object_popup (ClutterActor *actor,
       mx_popup_add_action (popup, mx_action_new_full ("Make box", G_CALLBACK (cs_make_group_box), NULL));
     }
   else if (MX_IS_BUTTON (actor) &&
-           mx_widget_get_style_class_name (MX_WIDGET (actor)) &&
-           g_str_equal (mx_widget_get_style_class_name (MX_WIDGET (actor)),
+           mx_stylable_get_style_class (MX_STYLABLE (actor)) &&
+           g_str_equal (mx_stylable_get_style_class (MX_STYLABLE (actor)),
                         "ClutterSmithLink"))
     {
       mx_popup_add_action (popup, mx_action_new_full ("Change destination", G_CALLBACK (link_edit_link), NULL));
