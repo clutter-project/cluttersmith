@@ -115,7 +115,7 @@
      ]
 }
 
-    {"type":"MxBin",
+    {"type":"MxFrame",
      "id":"parasite-ui",
      "x-fill":true,
      "y-fill":true,
@@ -154,7 +154,7 @@
                    "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
                  }
                  { "type":"MxGrid",
-                   "column-gap": 2.0,
+                   "column-spacing": 2.0,
                    "style-class":"ParasiteToolbar",
                    "children":
                      [
@@ -258,7 +258,7 @@
                                       "spacing":2},
 
                                      {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":240
+                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":240
                                        "children":[
                                        ]
                                      }

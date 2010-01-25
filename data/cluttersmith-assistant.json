@@ -32,7 +32,7 @@
         [
 
           { "type":"MxGrid",
-            "column-gap": 2.0,
+            "column-spacing": 2.0,
             "style-class":"ParasiteToolbar",
             "children":
               [
@@ -97,7 +97,7 @@
                           "spacing":2},
 
                          {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                         { "type":"MxGrid",  "id":"parents", "column-gap":2, "row-gap":2, "width":270
+                         { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":270
                            "children":[
                            ]
                          }
