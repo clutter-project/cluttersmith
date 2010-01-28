@@ -67,8 +67,6 @@
      "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
 },
 
-
-
 {
   "id":"cs-active-panel",
   "type":"MxBoxLayout",
