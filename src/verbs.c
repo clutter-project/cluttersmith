@@ -567,7 +567,7 @@ static MxAction *dialog_toggle_action (const gchar *name,
             name);
   else
     label = g_strdup (name);
-  action = mx_action_new_full (label, G_CALLBACK (dialog_toggle), actor);
+  action = mx_action_new_full (label, label, G_CALLBACK (dialog_toggle), actor);
   g_free (label);
   return action;
 }
@@ -715,8 +715,8 @@ void dialogs_popup (gint x,
   MxAction *action;
   x = cs_last_x;
   y = cs_last_y;
-  mx_popup_add_action (popup, mx_action_new_full ("Hide All",  foo,  NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Show All",  foo,  NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Hide All",  "Hide All", foo,  NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Show All",  "Show All", foo,  NULL));
 
   action = dialog_toggle_action ("Toolbar (F1)", cluttersmith->dialog_toolbar);
   mx_popup_add_action (popup, action);
@@ -743,8 +743,9 @@ void dialogs_popup (gint x,
   mx_popup_add_action (popup, action);
 
 
-  mx_popup_add_action (popup, mx_action_new_full ("", NULL, NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Remember positions and visibility", G_CALLBACK (cs_save_dialog_state2), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("", "", NULL, NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Remember positions and visibility",
+      "Remember positions and visibility", G_CALLBACK (cs_save_dialog_state2), NULL));
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
@@ -756,9 +757,9 @@ void playback_popup (gint x,
   MxPopup *popup = cs_popup_new ();
   MxAction *action;
 
-  action = mx_action_new_full ("Edit (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
+  action = mx_action_new_full ("Edit (scrollock)", "Edit (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
   mx_popup_add_action (popup, action);
-  action = mx_action_new_full ("Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
+  action = mx_action_new_full ("Quit (ctrl q)", "Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
   mx_popup_add_action (popup, action);
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
@@ -771,18 +772,18 @@ void root_popup (gint x,
   MxPopup *popup = cs_popup_new ();
   MxAction *action;
 
-  action = mx_action_new_full ("Browse (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
+  action = mx_action_new_full ("Browse (scrollock)", "Browse (scrollock)", G_CALLBACK (cs_ui_mode),  NULL);
   mx_popup_add_action (popup, action);
 
-  action = mx_action_new_full ("reset view", G_CALLBACK (cs_view_reset),  NULL);
+  action = mx_action_new_full ("reset view", "reset view", G_CALLBACK (cs_view_reset),  NULL);
   mx_popup_add_action (popup, action);
 
   if (clipboard)
-    mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
-  action = mx_action_new_full ("Dialogs", G_CALLBACK (dialogs_popup),  NULL);
+    mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", "Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
+  action = mx_action_new_full ("Dialogs", "Dialogs", G_CALLBACK (dialogs_popup),  NULL);
   mx_popup_add_action (popup, action);
-  action = mx_action_new_full ("Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
-  mx_popup_add_action (popup, mx_action_new_full ("Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
+  action = mx_action_new_full ("Quit (ctrl q)", "Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
+  mx_popup_add_action (popup, mx_action_new_full ("Select All (ctrl a)", "Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
   mx_popup_add_action (popup, action);
 
   clutter_group_add (cluttersmith->parasite_root, popup);
@@ -790,34 +791,34 @@ void root_popup (gint x,
   clutter_actor_show (CLUTTER_ACTOR (popup));
 
   if (cs_get_current_container () != cluttersmith->fake_stage)
-    mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (Escape)", G_CALLBACK (cs_select_parent), NULL));
+    mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (Escape)", "Move up in tree (Escape)", G_CALLBACK (cs_select_parent), NULL));
 }
 
 static void add_common (MxPopup *popup)
 {
   MxAction *action;
-  action = mx_action_new_full ("reset view", G_CALLBACK (cs_view_reset),  NULL);
+  action = mx_action_new_full ("reset view", "reset view", G_CALLBACK (cs_view_reset),  NULL);
   mx_popup_add_action (popup, action);
-  mx_popup_add_action (popup, mx_action_new_full ("______", NULL, NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Edit (Return)", G_CALLBACK (cs_edit), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Raise (PgUp)", G_CALLBACK (cs_raise), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Send to front (Home)", G_CALLBACK (cs_raise_top), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Send to back (End)", G_CALLBACK (cs_lower_bottom), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Lower (PgDn)", G_CALLBACK (cs_lower), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("______", NULL, NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("______", "______", NULL, NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Edit (Return)", "Edit (Return)", G_CALLBACK (cs_edit), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Raise (PgUp)", "Raise (PgUp)", G_CALLBACK (cs_raise), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Send to front (Home)", "Send to front (Home)", G_CALLBACK (cs_raise_top), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Send to back (End)", "Send to back (End)", G_CALLBACK (cs_lower_bottom), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Lower (PgDn)", "Lower (PgDn)", G_CALLBACK (cs_lower), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("______", "_____", NULL, NULL));
 
-  mx_popup_add_action (popup, mx_action_new_full ("Cut (ctrl x)", G_CALLBACK (cs_cut), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Copy (ctrl c)", G_CALLBACK (cs_copy), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Cut (ctrl x)", "Cut (ctrl x)", G_CALLBACK (cs_cut), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Copy (ctrl c)", "Copy (ctrl c)", G_CALLBACK (cs_copy), NULL));
   if (clipboard)
-    mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Duplicate (ctrl d)", G_CALLBACK (cs_duplicate), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Remove (delete)", G_CALLBACK (cs_remove), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("______", NULL, NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Select None (shift ctrl a)", G_CALLBACK (cs_select_none), NULL));
+    mx_popup_add_action (popup, mx_action_new_full ("Paste (ctrl v)", "Paste (ctrl v)", G_CALLBACK (cs_paste), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Duplicate (ctrl d)", "Duplicate (ctrl d)", G_CALLBACK (cs_duplicate), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Remove (delete)", "Remove (delete)", G_CALLBACK (cs_remove), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("______", "______", NULL, NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Select All (ctrl a)", "Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Select None (shift ctrl a)", "Select None (shift ctrl a)", G_CALLBACK (cs_select_none), NULL));
 
   if (cs_get_current_container () != cluttersmith->fake_stage)
-    mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
+    mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (ctrl p)", "Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
 }
 
 void cs_change_type (ClutterActor *actor);
@@ -850,7 +851,7 @@ static MxAction *destination_set (const gchar *name)
   MxAction *action;
   gchar *label;
   label = g_strdup (name);
-  action = mx_action_new_full (label, G_CALLBACK (destination_set2), NULL);
+  action = mx_action_new_full (label, label, G_CALLBACK (destination_set2), NULL);
   g_free (label);
   return action;
 }
@@ -885,7 +886,7 @@ void link_edit_link (MxAction *action,
   if (!path)
     return;
 
-  action = mx_action_new_full ("new scene", G_CALLBACK (new_scene), NULL);
+  action = mx_action_new_full ("new scene", "new scene", G_CALLBACK (new_scene), NULL);
   mx_popup_add_action (popup, action);
 
   dir = g_dir_open (path, 0, NULL);
@@ -920,30 +921,30 @@ void object_popup (ClutterActor *actor,
   if (is_link (actor))
     {
       gchar *label = "type: Link";
-      mx_popup_add_action (popup, mx_action_new_full (label, NULL, NULL));
+      mx_popup_add_action (popup, mx_action_new_full (label, label, NULL, NULL));
     }
   else
     {
       gchar *label = g_strdup_printf ("type: %s", G_OBJECT_TYPE_NAME (actor));
-      mx_popup_add_action (popup, mx_action_new_full (label, G_CALLBACK (cs_change_type), NULL));
+      mx_popup_add_action (popup, mx_action_new_full (label, label, G_CALLBACK (cs_change_type), NULL));
       g_free (label);
     }
 
   if (CLUTTER_IS_GROUP (actor))
     {
-      mx_popup_add_action (popup, mx_action_new_full ("Ungroup (shift ctrl g)", G_CALLBACK (cs_ungroup), NULL));
-      mx_popup_add_action (popup, mx_action_new_full ("Make box", G_CALLBACK (cs_make_group_box), NULL));
+      mx_popup_add_action (popup, mx_action_new_full ("Ungroup (shift ctrl g)", "Ungroup (shift ctrl g)", G_CALLBACK (cs_ungroup), NULL));
+      mx_popup_add_action (popup, mx_action_new_full ("Make box", "Make box", G_CALLBACK (cs_make_group_box), NULL));
     }
   else if (MX_IS_BUTTON (actor) &&
            mx_stylable_get_style_class (MX_STYLABLE (actor)) &&
            g_str_equal (mx_stylable_get_style_class (MX_STYLABLE (actor)),
                         "ClutterSmithLink"))
     {
-      mx_popup_add_action (popup, mx_action_new_full ("Change destination", G_CALLBACK (link_edit_link), NULL));
+      mx_popup_add_action (popup, mx_action_new_full ("Change destination", "Change destination", G_CALLBACK (link_edit_link), NULL));
     }
   else if (CLUTTER_IS_CONTAINER (actor))
     {
-      mx_popup_add_action (popup, mx_action_new_full ("Make group", G_CALLBACK (cs_make_group), NULL));
+      mx_popup_add_action (popup, mx_action_new_full ("Make group", "Make group", G_CALLBACK (cs_make_group), NULL));
     }
   
   add_common (popup);
@@ -957,8 +958,8 @@ void selection_popup (gint x,
                       gint y)
 {
   MxPopup *popup = cs_popup_new ();
-  mx_popup_add_action (popup, mx_action_new_full ("Group (ctrl g)", G_CALLBACK (cs_group), NULL));
-  mx_popup_add_action (popup, mx_action_new_full ("Make box (ctrl b)", G_CALLBACK (cs_make_box), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Group (ctrl g)", "Group (ctrl g)", G_CALLBACK (cs_group), NULL));
+  mx_popup_add_action (popup, mx_action_new_full ("Make box (ctrl b)", "Make box (ctrl b)", G_CALLBACK (cs_make_box), NULL));
   add_common (popup);
 
   clutter_group_add (cluttersmith->parasite_root, popup);
