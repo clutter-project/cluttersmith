@@ -304,7 +304,7 @@ void no_pick (ClutterActor       *actor,
 }
 
 typedef struct TransientValue {
-  gchar  *name;
+  gchar  *property_name;
   GValue  value;
   GType   value_type;
 } TransientValue;
@@ -384,7 +384,7 @@ cs_build_transient (ClutterActor *actor)
 
         {
           TransientValue *value = g_new0 (TransientValue, 1);
-          value->name = properties[i]->name;
+          value->property_name = properties[i]->name;
           value->value_type = properties[i]->value_type;
           g_value_init (&value->value, properties[i]->value_type);
           g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
@@ -424,7 +424,7 @@ cs_apply_transient (ClutterActor *actor, GList *transient_values)
       for (val=transient_values;val;val=val->next)
         {
           TransientValue *value = val->data;
-          if (g_str_equal (value->name, properties[i]->name) &&
+          if (g_str_equal (value->property_name, properties[i]->name) &&
                           value->value_type == properties[i]->value_type)
             {
               g_object_set_property (G_OBJECT (actor), properties[i]->name, &value->value);
@@ -493,7 +493,7 @@ cs_build_child_transient (ClutterActor *actor)
 
         {
           TransientValue *value = g_new0 (TransientValue, 1);
-          value->name = properties[i]->name;
+          value->property_name = properties[i]->name;
           value->value_type = properties[i]->value_type;
           g_value_init (&value->value, properties[i]->value_type);
           g_object_get_property (G_OBJECT (child_meta), properties[i]->name, &value->value);
@@ -546,7 +546,7 @@ cs_apply_child_transient (ClutterActor *actor,
       for (val=transient_values;val;val=val->next)
         {
           TransientValue *value = val->data;
-          if (g_str_equal (value->name, properties[i]->name) &&
+          if (g_str_equal (value->property_name, properties[i]->name) &&
                            value->value_type == properties[i]->value_type)
             {
               g_object_set_property (G_OBJECT (child_meta), properties[i]->name, &value->value);

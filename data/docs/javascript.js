@@ -27,6 +27,8 @@ $("rectangle").connect('button-press-event', function(actor, e)
 )
 
 
+ClutterSmith.foobar('hi', 'there');
+
 $("rectangle").opacity = 100;
 $("rectangle").rotation_angle_y = 40;
 

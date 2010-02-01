@@ -103,7 +103,6 @@ static gboolean idle_load_default (gpointer data)
     {
       gchar *fullpath = realpath (args.root_path, NULL);
       gchar *bname = basename (fullpath);
-      gchar *dname = dirname (fullpath);
 
       if (g_file_test (args.root_path, G_FILE_TEST_IS_REGULAR))
         {
@@ -140,7 +139,7 @@ static gboolean idle_load_default (gpointer data)
 
 static gboolean idle_show_config (gpointer ignored)
 {
-  props_populate (cs_find_by_id_int (clutter_stage_get_default (), "config-editors"), G_OBJECT (cluttersmith));
+  props_populate (cs_find_by_id_int (clutter_stage_get_default (), "config-editors"), G_OBJECT (cluttersmith), FALSE);
   return FALSE;
 }
 

@@ -162,4 +162,12 @@ set_sub_scene (gui_string_actor_id, gui_string_scene_name);
 
 
 
+-------------
+
+States Machine / animator...
+
+when editing a state machine, and the mode selected is not the default state..
+this might need to be done outside the josn serialization and parsing.
+whenever the current state machine or state is changed, all properties in the
+scene should be grabbed and stored in a hashstable of gvalues.
 

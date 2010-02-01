@@ -67,6 +67,64 @@
      "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
 },
 
+
+{
+  "id":"cs-dialog-states",
+  "type":"MxBoxLayout",
+  "style-class":"parasite",
+  "vertical":true,
+  "reactive":true,
+  "width":300,
+  "height":200,
+  "spacing":9,
+  "x":0,
+  "y":0,
+   
+   "children":
+     [
+       { "type":"MxLabel",
+         "text":"States Editor"
+       },
+       { "type":"MxEntry",
+         "text":"name of machine"
+         "id":"cs-states-name",
+       },
+
+       { "type":"MxEntry",
+         "text":"*"
+         "id":"cs-state-source",
+       },
+
+       { "type":"MxEntry",
+         "text":"name of state"
+         "id":"cs-state-name",
+       },
+       { "type":"MxScrollView",
+         "width":300,
+         "height":300,
+         "child::expand":true,
+         "children":
+          [
+            { "type":"MxViewport",
+              "children":
+               [
+                 { "type":"MxBoxLayout", "vertical":true,
+                    "children":[
+                      {"type":"MxBoxLayout", "vertical":true, "id":"cs-states-container",
+                       "spacing":2},
+                    ]
+                  }
+               ]
+            }
+         ]
+         "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+       }
+     ]
+     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
+},
+
+
+
 {
   "id":"cs-active-panel",
   "type":"MxBoxLayout",

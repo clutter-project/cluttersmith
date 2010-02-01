@@ -34,6 +34,63 @@
     GjsContext  *page_js_context;
   };
 
+
+typedef struct TransientValue {
+  GObject *object;
+  gchar   *property_name;
+  GValue   value;
+  GType    value_type;
+} TransientValue;
+
+
+static GHashTable *default_ht = NULL;
+
+void cs_properties_init (void)
+{
+  default_ht = NULL;
+}
+
+void cs_properties_set_value (ClutterActor *actor,
+                              const gchar  *property_name,
+                              const GValue *value)
+{
+}
+
+void cs_properties_get_value (ClutterActor *actor,
+                              const gchar  *property_name,
+                              GValue       *value)
+{
+}
+
+static void cs_actor_store_defaults (ClutterActor *actor)
+{
+  /* if we are a container store the properties */
+  if (CLUTTER_IS_CONTAINER (actor))
+    {
+      GList *children = clutter_container_get_children (
+                               CLUTTER_CONTAINER (actor));
+      GList *c;
+
+      for (c = children; c; c = c->next)
+        {
+          cs_actor_store_defaults (c->data);
+        }
+
+      g_list_free (children);
+    }
+}
+
+void cs_properties_store_defaults (void)
+{
+  cs_actor_store_defaults (cluttersmith.fake_stage);
+}
+
+void cs_properties_restore_defaults (void)
+{
+}
+
+
+
 static void cs_context_get_property (GObject    *object,
                                      guint       property_id,
                                      GValue     *value,
@@ -42,6 +99,7 @@ static void cs_context_set_property (GObject      *object,
                                      guint         property_id,
                                      const GValue *value,
                                      GParamSpec   *pspec);
+
 
 static void
 cs_context_dispose (GObject *object)
@@ -632,6 +690,9 @@ void cluttersmith_init (void)
     cluttersmith->active_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-active-container"));
     cluttersmith->callbacks_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-callbacks-container"));
     cluttersmith->dialog_callbacks = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-callbacks"));
+    cluttersmith->states_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-states-container"));
+    cluttersmith->dialog_states = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-states"));
+
     cluttersmith->dialog_config = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-config"));
     cluttersmith->dialog_tree = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-tree"));
     cluttersmith->dialog_toolbar = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-toolbar"));
@@ -954,10 +1015,10 @@ void cs_set_active (ClutterActor *item)
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
           actor_defaults_populate (cluttersmith->property_editors, active_actor);
-          props_populate (cluttersmith->property_editors, G_OBJECT (active_actor));
+          props_populate (cluttersmith->property_editors, G_OBJECT (active_actor), FALSE);
           cs_tree_populate (cluttersmith->scene_graph, active_actor);
 
-          if(0)props_populate (cluttersmith->active_container, G_OBJECT (active_actor));
+          if(0)props_populate (cluttersmith->active_container, G_OBJECT (active_actor), FALSE);
 
           callbacks_populate (active_actor);
 
@@ -1106,11 +1167,24 @@ static void parsed_callback (const gchar *id,
   g_hash_table_insert (ht, g_strdup (signal), callbacks);
 }
 
+static void remove_state_machines (void)
+{
+  GList *i;
+  for (i = cluttersmith->state_machines; i; i = i->next)
+    {
+      g_object_unref (i->data);
+    }
+  g_list_free (cluttersmith->state_machines);
+  cluttersmith->state_machines = NULL;
+}
+
 static void cs_load (void)
 {
   cs_container_remove_children (cluttersmith->property_editors);
   cs_container_remove_children (cluttersmith->scene_graph);
   cs_container_remove_children (cluttersmith->fake_stage);
+
+  remove_state_machines ();
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
@@ -1229,6 +1303,17 @@ static void cs_load (void)
           if (cluttersmith->dialog_editor_text)
             clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), "/* */");
         }
+
+      /* create a fake set of state machines,. */
+      if (g_str_equal (cluttersmith->priv->title, "index"))
+        {
+          ClutterStates *states;
+          g_print ("loaded scene [%s]\n", cluttersmith->priv->title);
+          states = clutter_states_new ();
+          /* XXX: add actors and states */
+          cluttersmith->state_machines = g_list_append (cluttersmith->state_machines,
+                                                        states);
+        }
     }
   else
     {
@@ -1337,6 +1422,7 @@ void cs_save_dialog_state (void)
 
   dialog_remember (keyfile, "cs-dialog-config", cluttersmith->dialog_config);
   dialog_remember (keyfile, "cs-dialog-callbacks", cluttersmith->dialog_callbacks);
+  dialog_remember (keyfile, "cs-dialog-states", cluttersmith->dialog_states);
 
   {
     gfloat w,h;
@@ -1388,6 +1474,7 @@ void cs_load_dialog_state (void)
 
   dialog_recall (keyfile, "cs-dialog-config", cluttersmith->dialog_config);
   dialog_recall (keyfile, "cs-dialog-callbacks", cluttersmith->dialog_callbacks);
+  dialog_recall (keyfile, "cs-dialog-states", cluttersmith->dialog_states);
 
   {
     ClutterActor *stage = clutter_actor_get_stage (cluttersmith->parasite_root);
@@ -1462,6 +1549,18 @@ void session_history_add (const gchar *dir)
   if (original)
     g_free (original);
   g_list_free (session_history);
+}
+
+
+/**
+ * cluttersmith_foobar:
+ * @stringA: new root
+ * @stringB: new root
+ */
+void cluttersmith_foobar (const gchar *stringA,
+                          const gchar *stringB)
+{
+  g_print ("::::::::::::%s %s\n", stringA, stringB);
 }
 
 

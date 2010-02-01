@@ -15,7 +15,8 @@ typedef enum RunMode {
 
 void
 props_populate (ClutterActor *container,
-                GObject      *object);
+                GObject      *object,
+                gboolean      easing_buttons);
 
 extern CSContext *cluttersmith;
 

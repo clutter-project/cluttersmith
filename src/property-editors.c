@@ -412,7 +412,6 @@ ClutterActor *property_editor_new (GObject *object,
     }
 
 
-
   g_free (detailed_signal);
   return editor;
 }
@@ -441,7 +440,8 @@ gchar *actor_whitelist[]={"depth",
 
 void
 props_populate (ClutterActor *container,
-                GObject      *object)
+                GObject      *object,
+                gboolean      easing_button)
 {
   GParamSpec **properties;
   GParamSpec **actor_properties = NULL;
@@ -489,12 +489,19 @@ props_populate (ClutterActor *container,
         ClutterActor *hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
         ClutterActor *label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, properties[i]->name);
         ClutterActor *editor = property_editor_new (object, properties[i]->name);
+
         clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
         clutter_text_set_color (CLUTTER_TEXT (label), &white);
         clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
         clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+
+        if (easing_button)
+          {
+            ClutterActor *ease = mx_button_new ();
+            clutter_container_add_actor (CLUTTER_CONTAINER (hbox), ease);
+          }
         clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
       }
     }

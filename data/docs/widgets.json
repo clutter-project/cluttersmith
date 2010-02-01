@@ -27,8 +27,9 @@
     "anchor-x":0.000,
     "anchor-y":0.000,
     "has-tooltip":false,
-    "hint-text":"MxEntry",
     "text":"MxEntry",
+    "hint-text":"MxEntry",
+    "password-char":0,
   }
   ,
   {
@@ -146,7 +147,7 @@
     "valign":0.000,
     "halign":0.000,
     "end-align":false,
-    "column-major":false,
+    "vertical":false,
     "max-stride":0,
     "allocate-hidden":false,
     "children":[
@@ -384,6 +385,7 @@
     "vertical":true,
     "pack-start":false,
     "spacing":0,
+    "enable-animations":false,
     "children":[
     {
       "type":"ClutterText",
@@ -587,8 +589,8 @@
   {
     "type":"CBTexture",
     "name":"",
-    "x":625,
-    "y":346,
+    "x":573,
+    "y":308,
     "width":114,
     "height":99,
     "depth":0.000,
@@ -661,6 +663,61 @@
       "max-length":0,
       "single-line-mode":false,
       "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
+    }
+    ]
+  }
+  ,
+  {
+    "type":"MxButton",
+    "x":300,
+    "y":221,
+    "width":136,
+    "height":64,
+    "depth":0.000,
+    "opacity":255,
+    "scale-x":1.000,
+    "scale-y":1.000,
+    "rotation-angle-z":0.000,
+    "anchor-x":0.000,
+    "anchor-y":0.000,
+    "has-tooltip":false,
+    "x-fill":false,
+    "y-fill":false,
+    "label":"New Button",
+    "toggle-mode":false,
+    "checked":false,
+    "children":[
+    {
+      "type":"ClutterText",
+      "x":34,
+      "y":24,
+      "width":67,
+      "height":15,
+      "depth":0.000,
+      "opacity":255,
+      "scale-x":1.000,
+      "scale-y":1.000,
+      "rotation-angle-z":0.000,
+      "anchor-x":0.000,
+      "anchor-y":0.000,
+      "font-name":"Sans 13px",
+      "text":"New Button",
+      "color":"#000000ff",
+      "use-markup":false,
+      "line-wrap":false,
+      "justify":false,
+      "position":-1,
+      "selection-bound":-1,
+      "selection-color":"#000000ff",
+      "cursor-visible":true,
+      "cursor-color":"#000000ff",
+      "cursor-size":2,
+      "editable":false,
+      "selectable":true,
+      "activatable":false,
+      "password-char":0,
+      "max-length":0,
+      "single-line-mode":false,
     }
     ]
   }

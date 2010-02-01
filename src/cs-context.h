@@ -40,6 +40,7 @@ struct _CSContext
 
   CSContextPrivate *priv;
   gint          ui_mode;
+  GList        *state_machines;
   ClutterActor *parasite_root;
   ClutterActor *parasite_ui;
   ClutterActor *fake_stage_canvas;
@@ -51,6 +52,7 @@ struct _CSContext
   ClutterActor *active_panel;
   ClutterActor *active_container;
   ClutterActor *callbacks_container;
+  ClutterActor *states_container;
 
   ClutterActor *dialog_config;
   ClutterActor *dialog_callbacks;
@@ -62,6 +64,7 @@ struct _CSContext
   ClutterActor *dialog_editor_error;
   ClutterActor *dialog_templates;
   ClutterActor *dialog_scenes;
+  ClutterActor *dialog_states;
 
   ClutterActor *resize_handle;
   ClutterActor *move_handle;

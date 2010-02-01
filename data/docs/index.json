@@ -383,6 +383,7 @@ The interactions and UI of the editor is subject to redesign, most features have
     "vertical":false,
     "pack-start":false,
     "spacing":0,
+    "enable-animations":false,
     "children":[
     {
       "type":"ClutterRectangle",
