@@ -129,10 +129,9 @@ static gboolean idle_load_default (gpointer data)
       cluttersmith_load_scene ("index");
     }
 
-  cs_set_ui_mode (CS_UI_MODE_BROWSE);
 
   cs_load_dialog_state ();
-
+  cs_set_ui_mode (CS_UI_MODE_CHROME);
   clutter_actor_queue_redraw (clutter_stage_get_default());
   return FALSE;
 }
@@ -161,8 +160,9 @@ main (gint    argc,
 
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
+
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
-  g_timeout_add (800, idle_show_config, NULL); /* auto-save */
+  g_timeout_add (800, idle_show_config, NULL); 
 
   clutter_main ();
   return 0;
