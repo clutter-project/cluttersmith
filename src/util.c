@@ -304,13 +304,15 @@ void no_pick (ClutterActor       *actor,
 }
 
 typedef struct TransientValue {
-  gchar  *property_name;
-  GValue  value;
-  GType   value_type;
+  GObject     *object;
+  const gchar *property_name;
+  GValue       value;
+  GType        value_type;
 } TransientValue;
 
+
 /* XXX: this list is incomplete */
-static gchar *whitelist[]={"depth", "opacity",
+static gchar *whitelist[]={"x","y","width","height", "depth", "opacity",
                            "scale-x","scale-y", "anchor-x", "color",
                            "anchor-y", "rotation-angle-z", "rotation-angle-x",
                            "rotation-angle_y",
@@ -358,14 +360,10 @@ cs_build_transient (ClutterActor *actor)
                */
               if (actor_properties[j]==properties[i])
                 {
-                  gchar *whitelist2[]={"x","y","width","height", NULL};
                   gint k;
                   skip = TRUE;
                   for (k=0;whitelist[k];k++)
                     if (g_str_equal (properties[i]->name, whitelist[k]))
-                      skip = FALSE;
-                  for (k=0;whitelist2[k];k++)
-                    if (g_str_equal (properties[i]->name, whitelist2[k]))
                       skip = FALSE;
                 }
             }
@@ -993,3 +991,175 @@ GList *cs_actor_get_siblings (ClutterActor *actor)
     return NULL;
   return clutter_container_get_children (CLUTTER_CONTAINER (parent));
 }
+
+
+
+static GHashTable *default_values_ht = NULL;
+
+static TransientValue *
+tval_new (GObject     *object,
+          const gchar *property_name)
+{
+  TransientValue *tval;
+  tval = g_new0 (TransientValue, 1);
+  tval->object = object;
+  tval->property_name = g_intern_string (property_name);
+  return tval;
+}
+
+static void
+tval_free (TransientValue *tval)
+{
+  g_free (tval);
+}
+
+static guint tval_hash (TransientValue *tval)
+{
+  return 0;
+}
+
+static gboolean
+tval_equal (TransientValue *a,
+            TransientValue *b)
+{
+  if (a->object == b->object &&
+      a->property_name == b->property_name)
+    return TRUE;
+  return FALSE;
+}
+
+void cs_properties_init (void)
+{
+  if (default_values_ht)
+      return;
+  default_values_ht = g_hash_table_new_full ((GHashFunc)tval_hash,
+                                             (GEqualFunc)tval_equal,
+                                             (GDestroyNotify)tval_free,
+                                             NULL);
+}
+
+void cs_properties_set_value (ClutterActor *actor,
+                              const gchar  *property_name,
+                              const GValue *value)
+{
+  TransientValue *tval;
+  cs_properties_init ();
+
+  tval = tval_new (G_OBJECT (actor), property_name);
+  g_hash_table_insert (default_values_ht, tval, tval);
+}
+
+gboolean cs_properties_get_value (GObject      *object,
+                                  const gchar  *property_name,
+                                  GValue       *value)
+{
+  TransientValue key = {object, g_intern_string (property_name), };
+  TransientValue *tval;
+
+  tval = g_hash_table_lookup (default_values_ht, &key);
+
+  if (tval)
+    {
+      g_value_init (value, tval->value_type);
+      return TRUE;
+    }
+  return FALSE;
+}
+
+static void cs_actor_store_defaults (ClutterActor *actor)
+{
+  GParamSpec **properties;
+  GParamSpec **actor_properties;
+  guint        n_properties;
+  guint        n_actor_properties;
+  gint         i;
+
+  properties = g_object_class_list_properties (
+                     G_OBJECT_GET_CLASS (actor),
+                     &n_properties);
+  actor_properties = g_object_class_list_properties (
+            G_OBJECT_CLASS (g_type_class_ref (CLUTTER_TYPE_ACTOR)),
+            &n_actor_properties);
+
+  for (i = 0; i < n_properties; i++)
+    {
+      gint j;
+      gboolean skip = FALSE;
+
+        {
+          for (j=0;j<n_actor_properties;j++)
+            {
+              /* ClutterActor contains so many properties that we restrict our view a bit,
+               * applying all values seems to make clutter hick-up as well. 
+               */
+
+              if (actor_properties[j]==properties[i])
+                {
+                  gint k;
+                  skip = TRUE;
+                  for (k=0;whitelist[k];k++)
+                    if (g_str_equal (properties[i]->name, whitelist[k]))
+                      skip = FALSE;
+                }
+            }
+        }
+      if (g_str_equal (properties[i]->name, "child")||
+          /* avoid duplicated parenting of MxButton children. */
+          g_str_equal (properties[i]->name, "cogl-texture")||
+          g_str_equal (properties[i]->name, "disable-slicing")||
+          g_str_equal (properties[i]->name, "cogl-handle"))
+        skip = TRUE; 
+
+      if (!(properties[i]->flags & G_PARAM_READABLE))
+        skip = TRUE;
+
+      if (skip)
+        continue;
+        {
+          TransientValue *value = tval_new (G_OBJECT (actor),
+                                            properties[i]->name);
+
+          g_value_init (&value->value, properties[i]->value_type);
+          g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
+          g_hash_table_insert (default_values_ht, value, NULL);
+        }
+    }
+  g_free (properties);
+
+  /* XXX: also store eventual child and layout_meta's properties */
+
+  if (CLUTTER_IS_CONTAINER (actor))
+    {
+      GList *children = clutter_container_get_children (
+                               CLUTTER_CONTAINER (actor));
+      GList *c;
+
+      for (c = children; c; c = c->next)
+        {
+          cs_actor_store_defaults (c->data);
+        }
+
+      g_list_free (children);
+    }
+}
+
+void cs_properties_store_defaults (void)
+{
+  g_hash_table_remove_all (default_values_ht);
+  cs_actor_store_defaults (cluttersmith->fake_stage);
+}
+
+void cs_properties_restore_defaults (void)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_hash_table_iter_init (&iter, default_values_ht);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      TransientValue *tval = key;
+      g_object_set_property (tval->object, tval->property_name,
+                             &tval->value);
+    }
+}
+

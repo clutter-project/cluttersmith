@@ -35,62 +35,6 @@
   };
 
 
-typedef struct TransientValue {
-  GObject *object;
-  gchar   *property_name;
-  GValue   value;
-  GType    value_type;
-} TransientValue;
-
-
-static GHashTable *default_ht = NULL;
-
-void cs_properties_init (void)
-{
-  default_ht = NULL;
-}
-
-void cs_properties_set_value (ClutterActor *actor,
-                              const gchar  *property_name,
-                              const GValue *value)
-{
-}
-
-void cs_properties_get_value (ClutterActor *actor,
-                              const gchar  *property_name,
-                              GValue       *value)
-{
-}
-
-static void cs_actor_store_defaults (ClutterActor *actor)
-{
-  /* if we are a container store the properties */
-  if (CLUTTER_IS_CONTAINER (actor))
-    {
-      GList *children = clutter_container_get_children (
-                               CLUTTER_CONTAINER (actor));
-      GList *c;
-
-      for (c = children; c; c = c->next)
-        {
-          cs_actor_store_defaults (c->data);
-        }
-
-      g_list_free (children);
-    }
-}
-
-void cs_properties_store_defaults (void)
-{
-  cs_actor_store_defaults (cluttersmith.fake_stage);
-}
-
-void cs_properties_restore_defaults (void)
-{
-}
-
-
-
 static void cs_context_get_property (GObject    *object,
                                      guint       property_id,
                                      GValue     *value,
@@ -418,133 +362,131 @@ static void page_run_start (void)
   }
 
 
-  static void browse_start (void)
-  {
-    page_run_end ();
-    cs_save (TRUE);
+static void browse_start (void)
+{
+  page_run_end ();
+  cs_save (TRUE);
 
-    /* XXX: apply signal handlers */
-    page_run_start ();
-  }
+  /* XXX: apply signal handlers */
+  page_run_start ();
+}
 
-  static void cs_load (void);
+static void cs_load (void);
 
-  static void browse_end (void)
-  {
-    page_run_end ();
-    g_print ("leaving browse mode\n");
-    cs_load (); /* reverting back to saved state */
-  }
+static void browse_end (void)
+{
+  page_run_end ();
+  g_print ("leaving browse mode\n");
+  cs_load (); /* reverting back to saved state */
+}
 
-  void cs_set_ui_mode (guint ui_mode)
-  {
+void cs_set_ui_mode (guint ui_mode)
+{
 
-    if (!(ui_mode & CS_UI_MODE_EDIT) &&
-        (cluttersmith->ui_mode & CS_UI_MODE_EDIT))
-      {
-        browse_start ();
-      }
-    else if ((ui_mode & CS_UI_MODE_EDIT) &&
-        !(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
-      {
-        browse_end ();
-      }
+  if (!(ui_mode & CS_UI_MODE_EDIT) &&
+      (cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+    {
+      browse_start ();
+    }
+  else if ((ui_mode & CS_UI_MODE_EDIT) &&
+           !(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+    {
+      browse_end ();
+    }
 
-    cluttersmith->ui_mode = ui_mode;
-    cs_selected_clear ();
-    cs_sync_chrome ();
+  cluttersmith->ui_mode = ui_mode;
+  cs_selected_clear ();
+  cs_sync_chrome ();
 
-    g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
-  }
+  g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
+}
 
+static void
+cs_context_get_property (GObject    *object,
+                         guint       property_id,
+                         GValue     *value,
+                         GParamSpec *pspec)
+{ 
+  CSContext *context = CS_CONTEXT (object);
+  CSContextPrivate *priv = context->priv;
+  switch (property_id)
+    {
+      case PROP_UI_MODE:
+        g_value_set_int (value, context->ui_mode);
+        break;
+      case PROP_ZOOM:
+        g_value_set_float (value, priv->zoom);
+        break;
+      case PROP_ORIGIN_X:
+        g_value_set_float (value, priv->origin_x);
+        break;
+      case PROP_ORIGIN_Y:
+        g_value_set_float (value, priv->origin_y);
+        break;
+      case PROP_CANVAS_WIDTH:
+        g_value_set_int (value, priv->canvas_width);
+        break;
+      case PROP_CANVAS_HEIGHT:
+        g_value_set_int (value, priv->canvas_height);
+        break;
 
-  static void
-  cs_context_get_property (GObject    *object,
-                           guint       property_id,
-                           GValue     *value,
-                           GParamSpec *pspec)
-  { 
-    CSContext *context = CS_CONTEXT (object);
-    CSContextPrivate *priv = context->priv;
-    switch (property_id)
-      {
-        case PROP_UI_MODE:
-          g_value_set_int (value, context->ui_mode);
-          break;
-        case PROP_ZOOM:
-          g_value_set_float (value, priv->zoom);
-          break;
-        case PROP_ORIGIN_X:
-          g_value_set_float (value, priv->origin_x);
-          break;
-        case PROP_ORIGIN_Y:
-          g_value_set_float (value, priv->origin_y);
-          break;
-        case PROP_CANVAS_WIDTH:
-          g_value_set_int (value, priv->canvas_width);
-          break;
-        case PROP_CANVAS_HEIGHT:
-          g_value_set_int (value, priv->canvas_height);
-          break;
-
-        case PROP_FULLSCREEN:
+      case PROP_FULLSCREEN:
 #if 0
           g_value_set_boolean (value,
                                clutter_stage_get_fullscreen (
                                    CLUTTER_STAGE (clutter_stage_get_default())));
 #endif
-          break;
-        default:
-          G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      }
-  }
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+}
 
-  static void
-  cs_context_set_property (GObject      *object,
-                           guint         property_id,
-                           const GValue *value,
-                           GParamSpec   *pspec)
-  {
-    CSContext *context = CS_CONTEXT (object);
-    CSContextPrivate *priv = context->priv;
-    switch (property_id)
-      {
-        case PROP_UI_MODE:
-          cs_set_ui_mode (g_value_get_int (value));
-          break;
-        case PROP_ZOOM:
-          priv->zoom = g_value_get_float (value);
-          cs_sync_chrome_idle (NULL);
-          break;
-        case PROP_CANVAS_WIDTH:
-          priv->canvas_width = g_value_get_int (value);
-          cs_sync_chrome_idle (NULL);
-          break;
-        case PROP_CANVAS_HEIGHT:
-          priv->canvas_height = g_value_get_int (value);
-          cs_sync_chrome_idle (NULL);
-          break;
-        case PROP_ORIGIN_X:
-          priv->origin_x = g_value_get_float (value);
-          cs_sync_chrome_idle (NULL);
-          break;
-        case PROP_ORIGIN_Y:
-          priv->origin_y = g_value_get_float (value);
-          cs_sync_chrome_idle (NULL);
-          break;
+static void
+cs_context_set_property (GObject      *object,
+                         guint         property_id,
+                         const GValue *value,
+                         GParamSpec   *pspec)
+{
+  CSContext *context = CS_CONTEXT (object);
+  CSContextPrivate *priv = context->priv;
+  switch (property_id)
+    {
+      case PROP_UI_MODE:
+        cs_set_ui_mode (g_value_get_int (value));
+        break;
+      case PROP_ZOOM:
+        priv->zoom = g_value_get_float (value);
+        cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_CANVAS_WIDTH:
+        priv->canvas_width = g_value_get_int (value);
+        cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_CANVAS_HEIGHT:
+        priv->canvas_height = g_value_get_int (value);
+        cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_ORIGIN_X:
+        priv->origin_x = g_value_get_float (value);
+        cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_ORIGIN_Y:
+        priv->origin_y = g_value_get_float (value);
+        cs_sync_chrome_idle (NULL);
+        break;
 
-
-        case PROP_FULLSCREEN:
+      case PROP_FULLSCREEN:
 #if 0
             clutter_stage_set_fullscreen (CLUTTER_STAGE (
                                              clutter_stage_get_default()),
                                           g_value_get_boolean (value));
 #endif
-          break;
-        default:
-          G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      }
-  }
+        break;
+      default:
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+    }
+}
 
 /**
  * cluttersmith_load_scene:
@@ -703,7 +645,6 @@ void cluttersmith_init (void)
     cluttersmith->dialog_editor_error = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-error"));
 
     cluttersmith->dialog_property_inspector = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-property-inspector"));
-
 
     cs_manipulate_init (cluttersmith->parasite_root);
     cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));

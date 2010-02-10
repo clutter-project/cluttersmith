@@ -59,8 +59,10 @@ ClutterActor * cs_find_nearest                     (ClutterActor *actor,
                                                     gboolean      vertical,
                                                     gboolean      reverse);
 
-void cluttersmith_init (void);
+void           cs_properties_store_defaults        (void);
+void           cs_properties_restore_defaults      (void);
 
-void cluttersmith_print (gchar *a);
+void           cluttersmith_init                   (void);
+void           cluttersmith_print                  (gchar *a);
 
 #endif
