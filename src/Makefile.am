@@ -31,7 +31,9 @@ libcluttersmith_la_SOURCES = \
   verbs.c \
   stencils.c  \
   util.c  \
-  util.h  
+  util.h  \
+  clutter-states.c \
+  clutter-states.h
 
 libcluttersmith_la_LIBADD = $(DEPS_LIBS)
 libcluttersmith_la_LDFLAGS = -rdynamic

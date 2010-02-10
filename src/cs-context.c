@@ -2,6 +2,7 @@
 
 #include "cluttersmith.h"
 #include "cs-context.h"
+#include "clutter-states.h"
 #include <gjs/gjs.h>
 #include <string.h>
 
