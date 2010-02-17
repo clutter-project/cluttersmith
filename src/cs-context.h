@@ -68,6 +68,9 @@ struct _CSContext
 
   ClutterActor *resize_handle;
   ClutterActor *move_handle;
+
+  const gchar *current_state;  /* interned string */
+  /* XXX: add currently edited state machine */
 };
 
 struct _CSContextClass

@@ -1565,6 +1565,7 @@ void project_root_init_hack (ClutterActor  *actor)
 }
 
 
+
 void search_entry_init_hack (ClutterActor  *actor)
 {
   /* we hook this up to the first paint, since no other signal seems to
@@ -1577,4 +1578,51 @@ void search_entry_init_hack (ClutterActor  *actor)
 
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (title_text_changed), NULL);
+}
+
+
+static void state_name_text_changed (ClutterActor *actor)
+{
+  const gchar *state = clutter_text_get_text (CLUTTER_TEXT (actor));
+  const gchar *default_state =  g_intern_static_string ("default");
+  
+  if (cluttersmith->current_state == NULL)
+    cluttersmith->current_state = default_state;
+
+  g_print ("went to %s state from %s\n", state, cluttersmith->current_state);
+
+  if (cluttersmith->current_state == default_state)
+    {
+      cs_properties_store_defaults ();
+      g_print ("saved\n");
+    }
+  else if (g_intern_string (state) == default_state)
+    {
+      cs_properties_restore_defaults ();
+      g_print ("restored\n");
+    }
+  else
+    {
+      /* for each cached key, that is different from current value,
+       * and not in blacklist, store the values in state machine
+       */
+
+      /* update storage of this state */
+    }
+
+  cluttersmith->current_state = g_intern_string (state);
+}
+
+void state_name_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_name_text_changed), NULL);
 }

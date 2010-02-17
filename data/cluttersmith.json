@@ -85,19 +85,11 @@
        { "type":"MxLabel",
          "text":"States Editor"
        },
-       { "type":"MxEntry",
-         "text":"name of machine"
-         "id":"cs-states-name",
-       },
 
        { "type":"MxEntry",
-         "text":"*"
-         "id":"cs-state-source",
-       },
-
-       { "type":"MxEntry",
-         "text":"name of state"
+         "text":"default"
          "id":"cs-state-name",
+         "signals": [ {"name":"paint", "handler":"state_name_init_hack"} ]
        },
        { "type":"MxScrollView",
          "width":300,

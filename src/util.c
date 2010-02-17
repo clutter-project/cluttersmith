@@ -1145,6 +1145,7 @@ static void cs_actor_store_defaults (ClutterActor *actor)
 
 void cs_properties_store_defaults (void)
 {
+  cs_properties_init ();
   g_hash_table_remove_all (default_values_ht);
   cs_actor_store_defaults (cluttersmith->fake_stage);
 }
@@ -1153,6 +1154,7 @@ void cs_properties_restore_defaults (void)
 {
   GHashTableIter iter;
   gpointer key, value;
+  cs_properties_init ();
 
   g_hash_table_iter_init (&iter, default_values_ht);
   while (g_hash_table_iter_next (&iter, &key, &value))
