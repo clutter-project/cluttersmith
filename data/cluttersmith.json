@@ -103,8 +103,6 @@
              "x":0,
              "y":0,
             
-            "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
-             
              "children":
                [
 
@@ -186,99 +184,8 @@
             "x":724,
             "y":0,
             
-            "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} 
-] 
-             
              "children":
                [
-                { "type":"MxBoxLayout", 
-                  "id":"cs-dialog-property-inspector",
-                  "vertical":true,
-                  "child::expand":true,
-                  "children":[
-                     { "type":"MxBoxLayout", 
-                       "children":[
-                        { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
-                        },
-
-                        { "type":"MxButton", "width":100, "height":24,
-                          "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
-                          "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
-                        },
-                          ]}
-
-                      { "type":"MxScrollView",
-                        "height":70,
-                        "child::expand":true,
-
-                        "children":
-                         [
-                           { "type":"MxViewport",
-                             "children":
-                              [
-                                { "type":"MxBoxLayout", "vertical":true,
-                                   "children":[
-
-                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
-                                      "spacing":2},
-
-                                     {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":240
-                                       "children":[
-                                       ]
-                                     }
-                                   ]
-                                 }
-                              ]
-                           }
-                        ]
-                      }
-                   ]
-                 }
-                 { 
-                   "id":"cs-dialog-tree",
-                   "type":"MxScrollView",
-                   "width":180,
-                   "height":70,
-                   "child::expand":true,
-                   "children":
-                    [
-                      { "type":"MxViewport",
-                        "children":
-                         [
-                           { "type":"ClutterGroup", "id":"scene-graph",
-                              "children":[
-                                {"type":"ClutterText", "color":"gray", "text":"......"},
-                              ]
-                            }
-                         ]
-                      }
-                   ]
-                 }
-               ]
-             },
-
-{ 
-                   "id":"cs-dialog-templates",
-                   "style-class":"parasite-paste",
-                   "type":"MxScrollView",
-                   "width":135,
-                   "height":100,
-                   "children":
-                    [
-                      { "type":"MxViewport",
-                        "children":
-                         [
-                           { "type":"MxBoxLayout", "id":"templates-container",
-                             "vertical":true, "spacing":2,
-                   "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
-                              "children":[
-                              ]
-                            }
-                         ]
-                      }
-                   ]
-                 },
 
 {
   "id":"cs-dialog-states",
@@ -324,27 +231,69 @@
          "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
        }
      ]
-     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
 },
+                { "type":"MxBoxLayout", 
+                  "id":"cs-dialog-property-inspector",
+                  "vertical":true,
+                  "child::expand":true,
+                  "children":[
+                     { "type":"MxBoxLayout", 
+                       "children":[
+                        { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
+                        },
 
+                        { "type":"MxButton", "width":100, "height":24,
+                          "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+                          "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
+                        },
+                          ]}
+
+                      { "type":"MxScrollView",
+                        "height":70,
+                        "child::expand":true,
+
+                        "children":
+                         [
+                           { "type":"MxViewport",
+                             "children":
+                              [
+                                { "type":"MxBoxLayout", "vertical":true,
+                                   "children":[
+
+                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
+                                      "spacing":2},
+
+                                     {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
+                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":240
+                                       "children":[
+                                       ]
+                                     }
+                                   ]
+                                 }
+                              ]
+                           }
+                        ]
+                      }
+                   ]
+                 },
 {
   "id":"cs-dialog-callbacks",
   "type":"MxBoxLayout",
   "vertical":true,
   "reactive":true,
-  "width":300,
+  "width":200,
   "height":200,
   "spacing":9,
   "x":0,
   "y":0,
+  "child::expand":true,
    
    "children":
      [
        { "type":"MxScrollView",
          "style-class":"parasite",
-         "width":300,
+         "width":100,
          "height":300,
-         "child::expand":true,
          "children":
           [
             { "type":"MxViewport",
@@ -362,8 +311,53 @@
          "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
        }
      ]
-     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
 },
+
+                 { 
+                   "id":"cs-dialog-tree",
+                   "type":"MxScrollView",
+                   "width":180,
+                   "height":70,
+                   "child::expand":true,
+                   "children":
+                    [
+                      { "type":"MxViewport",
+                        "children":
+                         [
+                           { "type":"ClutterGroup", "id":"scene-graph",
+                              "children":[
+                                {"type":"ClutterText", "color":"gray", "text":"......"},
+                              ]
+                            }
+                         ]
+                      }
+                   ]
+                 }
+               ]
+             },
+
+{ 
+                   "id":"cs-dialog-templates",
+                   "style-class":"parasite-paste",
+                   "type":"MxScrollView",
+                   "width":135,
+                   "height":100,
+                   "children":
+                    [
+                      { "type":"MxViewport",
+                        "children":
+                         [
+                           { "type":"MxBoxLayout", "id":"templates-container",
+                             "vertical":true, "spacing":2,
+                   "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
+                              "children":[
+                              ]
+                            }
+                         ]
+                      }
+                   ]
+                 },
+
 
             { "type":"MxBoxLayout",
               "id":"cs-dialog-editor",
@@ -408,9 +402,6 @@
             "x":724,
             "y":0,
             
-            "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} 
-] 
-             
              "children":
                [
                  { "type":"MxScrollView",
@@ -464,8 +455,6 @@
             "x":0,
             "y":455,
             
-            "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
-             
              "children":
                [
                  { "type":"MxScrollView",

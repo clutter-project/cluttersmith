@@ -546,8 +546,8 @@ static void mode_annotate (ClutterActor *ignored)
 static void mode_edit (ClutterActor *ignored)
 {
   hide_all ();
-  clutter_actor_show (cluttersmith->dialog_tree);
   clutter_actor_show (cluttersmith->dialog_property_inspector);
+  clutter_actor_show (cluttersmith->dialog_tree);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
@@ -555,6 +555,7 @@ static void mode_edit (ClutterActor *ignored)
 static void mode_animate (ClutterActor *ignored)
 {
   hide_all ();
+  clutter_actor_show (cluttersmith->dialog_property_inspector);
   clutter_actor_show (cluttersmith->dialog_states);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -564,6 +565,7 @@ static void mode_callbacks (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_callbacks);
+  clutter_actor_show (cluttersmith->dialog_tree);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
@@ -778,8 +780,6 @@ static void add_common (MxPopup *popup)
     mx_popup_add_action (popup, mx_action_new_full ("Move up in tree (ctrl p)", "Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
 }
 
-void cs_change_type (ClutterActor *actor);
-
 static gboolean is_link (ClutterActor *actor)
 {
   return (actor && MX_IS_BUTTON (actor) &&
@@ -907,8 +907,8 @@ static void change_type2 (ClutterActor *button,
   cs_selected_add (actor);
 }
 
-static void change_type (MxAction *action,
-                         gpointer    ignored)
+void cs_change_type (MxAction *action,
+                     gpointer    ignored)
 {
   MxPopup *popup = cs_popup_new ();
   GDir *dir;
@@ -953,7 +953,7 @@ void object_popup (ClutterActor *actor,
   else
     {
       gchar *label = g_strdup_printf ("type: %s", G_OBJECT_TYPE_NAME (actor));
-      mx_popup_add_action (popup, mx_action_new_full (label, label, G_CALLBACK (change_type), NULL));
+      mx_popup_add_action (popup, mx_action_new_full (label, label, G_CALLBACK (cs_change_type), NULL));
       g_free (label);
     }
 
