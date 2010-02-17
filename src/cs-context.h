@@ -5,6 +5,7 @@
 
 #include <clutter/clutter.h>
 #include <glib-object.h>
+#include "clutter-states.h"
 
 G_BEGIN_DECLS
 
@@ -65,11 +66,16 @@ struct _CSContext
   ClutterActor *dialog_templates;
   ClutterActor *dialog_scenes;
   ClutterActor *dialog_states;
+  ClutterActor *dialog_animator;
+  ClutterActor *animator_props;
+  ClutterActor *animator_progress;
+  ClutterActor *source_state;
 
   ClutterActor *resize_handle;
   ClutterActor *move_handle;
 
   const gchar *current_state;  /* interned string */
+  ClutterStates *current_state_machine;
   /* XXX: add currently edited state machine */
 };
 

@@ -193,7 +193,7 @@
   "style-class":"parasite",
   "vertical":true,
   "reactive":true,
-  "width":300,
+  "width":200,
   "height":200,
   "spacing":9,
   "x":0,
@@ -201,8 +201,14 @@
    
    "children":
      [
-       { "type":"MxLabel",
-         "text":"States Editor"
+       { "type":"MxEntry",
+         "text":"not in use yet"
+         "id":"cs-state-machine-name",
+       },
+
+       { "type":"MxEntry",
+         "text":"*"
+         "id":"cs-source-state",
        },
 
        { "type":"MxEntry",
@@ -210,6 +216,13 @@
          "id":"cs-state-name",
          "signals": [ {"name":"paint", "handler":"state_name_init_hack"} ]
        },
+
+       { "type":"MxEntry",
+         "text":"250"
+         "id":"cs-state-duration",
+         "signals": [ {"name":"paint", "handler":"state_duration_init_hack"} ]
+       },
+
        { "type":"MxScrollView",
          "width":300,
          "height":300,
@@ -316,7 +329,7 @@
                  { 
                    "id":"cs-dialog-tree",
                    "type":"MxScrollView",
-                   "width":180,
+                   "width":230,
                    "height":70,
                    "child::expand":true,
                    "children":
@@ -340,7 +353,7 @@
                    "id":"cs-dialog-templates",
                    "style-class":"parasite-paste",
                    "type":"MxScrollView",
-                   "width":135,
+                   "width":200,
                    "height":100,
                    "children":
                     [
@@ -476,9 +489,43 @@
                    ]
                  }
                ]
-             }
+             },
 
+            {
+                "id":"cs-dialog-animator",
+                "type":"MxBoxLayout",
+                "style-class":"parasite",
+                "reactive":true,
+                "height": 100,
+                "width":700,
+                "spacing":9,
+                "x":0,
+                "y":455,
 
+                 "children":
+                   [
+                     { "type":"MxBoxLayout",
+                       "id":"cs-animator-props",
+                       "vertical":true,
+                       "children":[
+                           { }
+                         ]
+                      }
+                     { "type":"MxBoxLayout",
+                       "vertical":true,
+                       "child::expand":true,
+                       "children":[
+                         { "type":"MxSlider" 
+                           "id":"cs-animator-progress",
+                         },
+                         { "type":"ClutterRectangle",
+                           "child::expand":true,
+                         }
+                         ]
+                      }
+                   ]
+
+            },
 
           ]
           "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 

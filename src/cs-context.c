@@ -641,7 +641,11 @@ void cluttersmith_init (void)
     cluttersmith->dialog_toolbar = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-toolbar"));
     cluttersmith->dialog_scenes = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-scenes"));
     cluttersmith->dialog_templates = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-templates"));
-    cluttersmith->dialog_editor= CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
+    cluttersmith->dialog_animator = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-animator"));
+    cluttersmith->animator_progress = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-progress"));
+    cluttersmith->animator_props = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-props"));
+    cluttersmith->dialog_editor = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
+    cluttersmith->source_state = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-source-state"));
     cluttersmith->dialog_editor_text = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-text"));
     cluttersmith->dialog_editor_error = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-error"));
 
@@ -1031,14 +1035,99 @@ static void parsed_callback (const gchar *id,
   g_hash_table_insert (ht, g_strdup (signal), callbacks);
 }
 
+static void
+update_animator (ClutterStates *states,
+                 const gchar   *source_state,
+                 const gchar   *target_state)
+{
+  GList *k, *keys;
+  cs_container_remove_children (cluttersmith->animator_props);
+
+  keys = clutter_states_get_keys (states,
+                                  source_state,
+                                  target_state,
+                                  NULL,
+                                  NULL);
+                                  
+  for (k = keys; k; k = k->next)
+    {
+      ClutterStateKey *key = k->data;
+      ClutterColor white = {0xff,0xff,0xff,0xff};
+      ClutterActor *text;
+      gchar *str;
+     
+      /* if we ask for NULL we get everything, but we really
+       * only want NULL
+       */
+      if (source_state == NULL &&
+          clutter_state_key_get_source_state_name (key))
+        continue;
+
+      str = g_strdup_printf ("%p %s %i", clutter_state_key_get_object (key), 
+                          clutter_state_key_get_property_name (key),
+                          clutter_state_key_get_mode (key)
+                          );
+      text = clutter_text_new_full ("Sans 10px", str, &white);
+      g_free (str);
+      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->animator_props),
+                                   text);
+    }
+}
+
 void cs_prop_tweaked (GObject     *object,
                       const gchar *property_name)
 {
   /* XXX: if we are editing a state machine, update the
    * state being adited with the new state for this
    * property
-  g_print ("tweaked %p.%s\n", object, property_name);
    */
+  if (cluttersmith->current_state_machine &&
+      (cluttersmith->current_state != NULL &&
+       cluttersmith->current_state != g_intern_static_string ("default")))
+    {
+       const gchar *source_state = NULL;
+       GValue value = {0, };
+       GParamSpec      *pspec;
+       pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
+                                             property_name);
+       g_value_init (&value, pspec->value_type);
+       g_object_get_property (object, property_name, &value);
+
+       source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+       if (g_str_equal (source_state, "*") ||
+           g_str_equal (source_state, ""))
+         {
+           source_state = NULL;
+         }
+
+       clutter_states_set_key (cluttersmith->current_state_machine,
+                               source_state,
+                               cluttersmith->current_state,
+                               object,
+                               property_name,
+                               CLUTTER_LINEAR,
+                               &value,
+                               0.0,
+                               0.0);
+       g_value_unset (&value);
+
+       update_animator (cluttersmith->current_state_machine,
+                        source_state, cluttersmith->current_state);
+    }
+}
+
+static void update_animator2 (void)
+{
+  const gchar *source_state = NULL;
+
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    {
+      source_state = NULL;
+    }
+  update_animator (cluttersmith->current_state_machine,
+                   source_state, cluttersmith->current_state);
 }
 
 static void remove_state_machines (void)
@@ -1187,6 +1276,11 @@ static void cs_load (void)
           /* XXX: add actors and states */
           cluttersmith->state_machines = g_list_append (cluttersmith->state_machines,
                                                         states);
+          cluttersmith->current_state_machine = states;
+        }
+      else
+        {
+          cluttersmith->current_state_machine = NULL;
         }
     }
   else
@@ -1540,9 +1634,11 @@ static void state_name_text_changed (ClutterActor *actor)
        */
 
       /* update storage of this state */
+      clutter_states_change (cluttersmith->current_state_machine, state, 2000);
     }
 
   cluttersmith->current_state = g_intern_string (state);
+  update_animator2 ();
 }
 
 void state_name_init_hack (ClutterActor  *actor)

@@ -70,15 +70,17 @@ void templates_container_init_hack (ClutterActor  *actor)
             oi = cs_load_json (path);
             if (oi)
               {
+#define DIM 120.0
+
                 gfloat width, height;
                 gfloat scale;
                 clutter_actor_get_size (oi, &width, &height);
-                scale = 100/width;
-                if (100/height < scale)
-                  scale = 100/height;
+                scale = DIM/width;
+                if (DIM/height < scale)
+                  scale = DIM/height;
                 clutter_actor_set_scale (oi, scale, scale);
                 clutter_actor_set_size (group, width*scale, height*scale);
-                clutter_actor_set_size (rectangle, 100, height*scale);
+                clutter_actor_set_size (rectangle, DIM, height*scale);
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);

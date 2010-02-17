@@ -516,7 +516,7 @@ static void hide_all (void)
   clutter_actor_hide (cluttersmith->dialog_callbacks);
   clutter_actor_hide (cluttersmith->dialog_config);
   clutter_actor_hide (cluttersmith->dialog_editor);
-
+  clutter_actor_hide (cluttersmith->dialog_animator);
   clutter_actor_show (cluttersmith->dialog_toolbar);
 }
 
@@ -557,6 +557,7 @@ static void mode_animate (ClutterActor *ignored)
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_property_inspector);
   clutter_actor_show (cluttersmith->dialog_states);
+  clutter_actor_show (cluttersmith->dialog_animator);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }

@@ -700,8 +700,8 @@ manipulate_move_capture (ClutterActor *stage,
                 y-= delta[1];
                 snap_position (actor, x, y, &x, &y);
                 clutter_actor_set_position (actor, x, y);
-                cs_prop_tweaked (actor, "x");
-                cs_prop_tweaked (actor, "y");
+                cs_prop_tweaked (G_OBJECT (actor), "x");
+                cs_prop_tweaked (G_OBJECT (actor), "y");
                 g_list_free (selected);
               }
             else
@@ -769,8 +769,8 @@ manipulate_resize_capture (ClutterActor *stage,
           snap_size (actor, w, h, &w, &h);
 
           clutter_actor_set_size (actor, w, h);
-          cs_prop_tweaked (actor, "width");
-          cs_prop_tweaked (actor, "height");
+          cs_prop_tweaked (G_OBJECT (actor), "width");
+          cs_prop_tweaked (G_OBJECT (actor), "height");
           cs_dirtied ();
 
           manipulate_x=ex;
