@@ -83,6 +83,7 @@ update_object_float (ClutterText *text,
   gdouble value = g_strtod (str, NULL);
   g_object_set (uc->object, uc->property_name, value, NULL);
   cs_dirtied ();
+  cs_prop_tweaked (uc->object, uc->property_name);
   return TRUE;
 }
 
@@ -133,6 +134,7 @@ update_object_int (ClutterText *text,
     return TRUE;
   g_object_set (uc->object, uc->property_name, atoi (clutter_text_get_text (text)), NULL);
   cs_dirtied ();
+  cs_prop_tweaked (uc->object, uc->property_name);
   return TRUE;
 }
 
@@ -161,6 +163,7 @@ update_object_uint (ClutterText *text,
 {
   UpdateClosure *uc = data;
   g_object_set (uc->object, uc->property_name, atoi (clutter_text_get_text (text)), NULL);
+  cs_prop_tweaked (uc->object, uc->property_name);
   return TRUE;
 }
 
@@ -188,6 +191,7 @@ update_object_string (ClutterText *text,
   UpdateClosure *uc = data;
   g_object_set (uc->object, uc->property_name, clutter_text_get_text (text), NULL);
   cs_dirtied ();
+  cs_prop_tweaked (uc->object, uc->property_name);
   return TRUE;
 }
 
@@ -221,6 +225,7 @@ update_object_boolean (MxButton *button,
       mx_button_set_label (button,  mx_button_get_checked (button)?" 1 ":" 0 ");
     }
   cs_dirtied ();
+  cs_prop_tweaked (uc->object, uc->property_name);
   return TRUE;
 }
 
@@ -248,6 +253,7 @@ update_object_generic (ClutterText *text,
   g_value_unset (&value);
   g_value_unset (&str_value);
   cs_dirtied ();
+  cs_prop_tweaked (uc->object, uc->property_name);
   return TRUE;
 }
 

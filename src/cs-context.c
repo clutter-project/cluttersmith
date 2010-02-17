@@ -1031,6 +1031,16 @@ static void parsed_callback (const gchar *id,
   g_hash_table_insert (ht, g_strdup (signal), callbacks);
 }
 
+void cs_prop_tweaked (GObject     *object,
+                      const gchar *property_name)
+{
+  /* XXX: if we are editing a state machine, update the
+   * state being adited with the new state for this
+   * property
+  g_print ("tweaked %p.%s\n", object, property_name);
+   */
+}
+
 static void remove_state_machines (void)
 {
   GList *i;

@@ -80,6 +80,9 @@ struct _CSContextClass
 
 GType cs_context_get_type (void);
 
+void cs_prop_tweaked (GObject     *object,
+                      const gchar *property_name);
+
 CSContext *cs_context_new (void);
 
 G_END_DECLS
