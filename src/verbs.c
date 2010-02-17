@@ -830,15 +830,13 @@ void link_edit_link (MxAction *action,
                      gpointer    ignored)
 {
   MxPopup *popup = cs_popup_new ();
+  GDir *dir;
+  const gchar *path = cs_get_project_root ();
+  const gchar *name;
   gint x, y;
   x = cs_last_x;
   y = cs_last_y;
 
-
-{
-  GDir *dir;
-  const gchar *path = cs_get_project_root ();
-  const gchar *name;
 
   if (!path)
     return;
@@ -861,10 +859,82 @@ void link_edit_link (MxAction *action,
       mx_popup_add_action (popup, action);
     }
   g_dir_close (dir);
-}
 
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+static GList *actor_types_build (GList *list, GType type)
+{
+  GType *types;
+  guint  children;
+  gint   no;
+
+  if (!type)
+    return list;
+
+  list = g_list_prepend (list, (void*)g_type_name (type));
+
+  types = g_type_children (type, &children);
+
+  for (no=0; no<children; no++)
+    {
+      list = actor_types_build (list, types[no]);
+    }
+  if (types)
+    g_free (types);
+  return list;
+}
+
+static void change_type2 (ClutterActor *button,
+                          const gchar  *name)
+{
+  ClutterActor *actor = cs_selected_get_any ();
+  cs_container_remove_children (cluttersmith->property_editors);
+  if (!actor)
+    {
+      return;
+    }
+  actor = cs_actor_change_type (actor, name);
+
+  if (g_str_equal (name, "ClutterText"))
+    {
+      g_object_set (G_OBJECT (actor), "text", "New Text", NULL);
+    }
+
+  cs_selected_clear ();
+  cs_selected_add (actor);
+}
+
+static void change_type (MxAction *action,
+                         gpointer    ignored)
+{
+  MxPopup *popup = cs_popup_new ();
+  GDir *dir;
+  const gchar *path = cs_get_project_root ();
+  const gchar *name;
+  GList *a, *actor_types;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+  actor_types = actor_types_build (NULL, CLUTTER_TYPE_ACTOR);
+  actor_types = g_list_sort (actor_types, (void*)strcmp);
+
+
+  if (!actor_types)
+    return;
+
+  for (a = actor_types; a; a = a->next)
+    {
+      mx_popup_add_action (popup, mx_action_new_full (a->data, a->data,
+                                             G_CALLBACK(change_type2), a->data));
+    }
+  g_list_free (actor_types);
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, 50 /* y */);
   clutter_actor_show (CLUTTER_ACTOR (popup));
 }
 
@@ -883,7 +953,7 @@ void object_popup (ClutterActor *actor,
   else
     {
       gchar *label = g_strdup_printf ("type: %s", G_OBJECT_TYPE_NAME (actor));
-      mx_popup_add_action (popup, mx_action_new_full (label, label, G_CALLBACK (cs_change_type), NULL));
+      mx_popup_add_action (popup, mx_action_new_full (label, label, G_CALLBACK (change_type), NULL));
       g_free (label);
     }
 
