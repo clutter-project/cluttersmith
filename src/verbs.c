@@ -909,12 +909,9 @@ static void change_type2 (ClutterActor *button,
 }
 
 void cs_change_type (MxAction *action,
-                     gpointer    ignored)
+                     gpointer  ignored)
 {
   MxPopup *popup = cs_popup_new ();
-  GDir *dir;
-  const gchar *path = cs_get_project_root ();
-  const gchar *name;
   GList *a, *actor_types;
   gint x, y;
   x = cs_last_x;

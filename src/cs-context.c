@@ -644,6 +644,7 @@ void cluttersmith_init (void)
     cluttersmith->dialog_animator = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-animator"));
     cluttersmith->animator_progress = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-progress"));
     cluttersmith->animator_props = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-props"));
+    cluttersmith->state_duration = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-state-duration"));
     cluttersmith->dialog_editor = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
     cluttersmith->source_state = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-source-state"));
     cluttersmith->dialog_editor_text = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-text"));
@@ -1063,7 +1064,7 @@ update_animator (ClutterStates *states,
           clutter_state_key_get_source_state_name (key))
         continue;
 
-      str = g_strdup_printf ("%p %s %i", clutter_state_key_get_object (key), 
+      str = g_strdup_printf ("%p %s %li", clutter_state_key_get_object (key), 
                           clutter_state_key_get_property_name (key),
                           clutter_state_key_get_mode (key)
                           );
@@ -1615,17 +1616,13 @@ static void state_name_text_changed (ClutterActor *actor)
   if (cluttersmith->current_state == NULL)
     cluttersmith->current_state = default_state;
 
-  g_print ("went to %s state from %s\n", state, cluttersmith->current_state);
-
   if (cluttersmith->current_state == default_state)
     {
       cs_properties_store_defaults ();
-      g_print ("saved\n");
     }
   else if (g_intern_string (state) == default_state)
     {
       cs_properties_restore_defaults ();
-      g_print ("restored\n");
     }
   else
     {
@@ -1634,7 +1631,7 @@ static void state_name_text_changed (ClutterActor *actor)
        */
 
       /* update storage of this state */
-      clutter_states_change (cluttersmith->current_state_machine, state, 2000);
+      clutter_states_change (cluttersmith->current_state_machine, state);
     }
 
   cluttersmith->current_state = g_intern_string (state);
@@ -1653,4 +1650,37 @@ void state_name_init_hack (ClutterActor  *actor)
 
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (state_name_text_changed), NULL);
+}
+
+
+static void state_duration_text_changed (ClutterActor *actor)
+{
+  const gchar *text = clutter_text_get_text (CLUTTER_TEXT (actor));
+  const gchar *source_state = NULL;
+
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    {
+      source_state = NULL;
+    }
+
+  clutter_states_set_duration (cluttersmith->current_state_machine,
+                               source_state,
+                               cluttersmith->current_state,
+                               atoi (text));
+}
+
+void state_duration_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_duration_text_changed), NULL);
 }

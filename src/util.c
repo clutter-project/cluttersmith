@@ -1,4 +1,5 @@
 #include <clutter/clutter.h>
+#include "clutter-states.h"
 #include "util.h"
 #include <math.h>
 
@@ -1166,5 +1167,70 @@ void cs_properties_restore_defaults (void)
 }
 
 
+ClutterAnimator *
+cs_states_make_animator (ClutterStates *states,
+                         const gchar   *source_state,
+                         const gchar   *target_state)
+{
+  ClutterAnimator *animator;
+  GList *k, *keys;
+  animator = clutter_animator_new ();
+  keys = clutter_states_get_keys (states, source_state, target_state, NULL, NULL);
 
+  for (k = keys; k; k = k->next)
+    {
+      GValue value = {0, };
+      GParamSpec      *pspec;
+      ClutterStateKey *key;
+      gdouble          pre_delay;
+      gdouble          post_delay;
+      const gchar     *property_name;
+      GObject         *object;
+      key = k->data;
 
+      object = clutter_state_key_get_object (key);
+      property_name = clutter_state_key_get_property_name (key);
+      pre_delay = clutter_state_key_get_pre_delay (key);
+      post_delay = clutter_state_key_get_post_delay (key);
+      pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
+                                            property_name);
+      g_value_init (&value, pspec->value_type);
+      clutter_state_key_get_value (key, &value);
+
+      clutter_animator_set_key (animator, object, property_name,
+                                clutter_state_key_get_mode (key),
+                                1.0 - post_delay, &value);
+
+      if (source_state == NULL && clutter_state_key_get_source_state_name (key))
+        continue;
+
+      if (source_state == NULL)
+        {
+          clutter_animator_set_key (animator, object, property_name,
+                                    clutter_state_key_get_mode (key),
+                                    0.0 + pre_delay, &value);
+          clutter_animator_property_set_ease_in (animator, object, property_name, TRUE);
+        }
+      else
+        {
+           GList *keys2;
+           
+           keys2 = clutter_states_get_keys (states, NULL, source_state, object, property_name);
+           /* XXX: should prefer NULL over specifics.. */
+           if (keys2)
+             {
+                clutter_animator_set_key (animator, object, property_name,
+                                          clutter_state_key_get_mode (keys2->data),
+                                          0.0 + pre_delay, &value);
+             }
+
+           g_list_free (keys2);
+        }
+
+      g_value_unset (&value);
+
+    }
+  g_list_free (keys);
+
+  return animator;
+}

@@ -70,6 +70,7 @@ struct _CSContext
   ClutterActor *animator_props;
   ClutterActor *animator_progress;
   ClutterActor *source_state;
+  ClutterActor *state_duration;
 
   ClutterActor *resize_handle;
   ClutterActor *move_handle;
