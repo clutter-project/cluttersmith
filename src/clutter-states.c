@@ -302,6 +302,104 @@ static void clutter_states_new_frame (ClutterTimeline *timeline,
     }
 }
 
+
+/**
+ * clutter_states_change_noanim:
+ * @state_name: a #ClutterStates
+ *
+ * Change to @state_name and spend duration msecs when doing so.
+ *
+ * Return value: the #ClutterTimeline that drives the #ClutterStates instance.
+ */
+ClutterTimeline *
+clutter_states_change_noanim (ClutterStates *states,
+                              const gchar   *target_state_name)
+{
+  ClutterStatesPrivate *priv = states->priv;
+  ClutterState *state;
+
+  g_return_val_if_fail (CLUTTER_IS_STATES (states), NULL);
+  g_return_val_if_fail (target_state_name, NULL);
+
+  if (target_state_name == NULL)
+    target_state_name = "default";
+  target_state_name = g_intern_string (target_state_name);
+  if (priv->target_state_name == NULL)
+    priv->target_state_name = g_intern_static_string ("default");
+
+  if (target_state_name == priv->target_state_name)
+    {
+      /* Avoiding transitioning if the desired state
+       * is already current
+       */
+      return priv->timeline;
+    }
+
+  if (priv->current_animator)
+    {
+      clutter_animator_set_timeline (priv->current_animator, NULL);
+        priv->current_animator = NULL;
+    }
+
+  priv->source_state_name = priv->target_state_name;
+  priv->target_state_name = target_state_name;
+
+  clutter_timeline_set_duration (priv->timeline, 1);
+
+  state = g_hash_table_lookup (priv->states, target_state_name);
+
+  g_return_val_if_fail (state, NULL);
+
+  {
+    ClutterAnimator *animator;
+    animator = clutter_states_get_animator (states, priv->source_state_name,
+                                                    priv->target_state_name);
+    if (animator)
+      {
+        priv->current_animator = animator;
+        clutter_animator_set_timeline (animator, priv->timeline);
+        clutter_timeline_stop (priv->timeline);
+        clutter_timeline_rewind (priv->timeline);
+        clutter_timeline_start (priv->timeline);
+        return priv->timeline;
+      }
+  }
+
+  if (state)
+    {
+      GList *k;
+
+      for (k = state->keys; k; k = k->next)
+        {
+          ClutterStateKey *key = k->data;
+          GValue initial = {0,};
+
+          g_value_init (&initial,
+                        clutter_interval_get_value_type (key->interval));
+
+          g_object_get_property (key->object,
+                                 key->property_name, &initial);
+          if (clutter_alpha_get_mode (key->alpha) != key->mode)
+            clutter_alpha_set_mode (key->alpha, key->mode);
+          clutter_interval_set_initial_value (key->interval, &initial);
+          clutter_interval_set_final_value (key->interval, &key->value);
+
+          g_value_unset (&initial);
+        }
+
+       priv->target_state = state;
+       clutter_timeline_rewind (priv->timeline);
+       clutter_timeline_start (priv->timeline);
+    }
+  else
+    {
+      g_warning ("Anim state '%s' not found\n", target_state_name);
+    }
+
+  return priv->timeline;
+}
+
+
 /**
  * clutter_states_change:
  * @state_name: a #ClutterStates

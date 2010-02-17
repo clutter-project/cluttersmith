@@ -1082,7 +1082,54 @@ void cs_prop_tweaked (GObject     *object,
    * state being adited with the new state for this
    * property
    */
-  if (cluttersmith->current_state_machine &&
+
+  if (cluttersmith->current_animator)
+    {
+       gdouble progress = 0.0;
+       GValue value = {0, };
+       GParamSpec      *pspec;
+       pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object),
+                                             property_name);
+       g_value_init (&value, pspec->value_type);
+       g_object_get_property (object, property_name, &value);
+       
+       progress = mx_slider_get_progress (MX_SLIDER (cluttersmith->animator_progress));
+
+       clutter_animator_set_key (cluttersmith->current_animator,
+                                 object,
+                                 property_name,
+                                 CLUTTER_LINEAR,
+                                 progress,
+                                 &value);
+       g_print ("%p %p %s %f\n", cluttersmith->current_animator,
+                                 object, property_name, progress);
+       g_value_unset (&value);
+
+       /* XXX: we should update with the real animator in this case */
+       update_animator (cluttersmith->current_state_machine,
+                        NULL,
+                        cluttersmith->current_state);
+
+       {
+         GList *k, *keys;
+
+         keys = clutter_animator_get_keys (cluttersmith->current_animator,
+                                           NULL, NULL, -1);
+         for (k = keys; k; k = k->next)
+           {
+              ClutterAnimatorKey *key = k->data;
+
+              g_print ("%p.%s.%f \n", 
+                       clutter_animator_key_get_object (key),
+                       clutter_animator_key_get_property_name (key),
+                       clutter_animator_key_get_progress (key));
+           }
+         g_print ("\n");
+
+         g_list_free (keys);
+       }
+    }
+  else if (cluttersmith->current_state_machine &&
       (cluttersmith->current_state != NULL &&
        cluttersmith->current_state != g_intern_static_string ("default")))
     {
@@ -1683,4 +1730,52 @@ void state_duration_init_hack (ClutterActor  *actor)
 
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (state_duration_text_changed), NULL);
+}
+
+
+void state_elaborate_clicked (ClutterActor  *actor)
+{
+  ClutterAnimator *animator;
+  const gchar *source_state;
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    source_state = NULL;
+
+  animator = cs_states_make_animator (cluttersmith->current_state_machine,
+                                      source_state,
+                                      cluttersmith->current_state);
+  clutter_states_set_animator (cluttersmith->current_state_machine,
+                               source_state,
+                               cluttersmith->current_state,
+                               animator);
+  cluttersmith->current_animator = animator;
+
+  g_print ("elaborate\n");
+}
+
+void state_test_clicked (ClutterActor  *actor)
+{
+  ClutterAnimator *animator;
+  const gchar *source_state;
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    source_state = NULL;
+
+  if (!source_state)
+    {
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    "default");
+      cs_properties_restore_defaults ();
+    }
+  else
+    {
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    source_state);
+    }
+
+  clutter_states_change (cluttersmith->current_state_machine,
+                         cluttersmith->current_state);
+
 }

@@ -103,6 +103,8 @@ const gchar     * clutter_state_key_get_target_state_name (ClutterStateKey *stat
 ClutterStates   * clutter_states_new                  (void);
 ClutterTimeline * clutter_states_change               (ClutterStates   *states,
                                                        const gchar     *target_state_name);
+ClutterTimeline * clutter_states_change_noanim        (ClutterStates   *states,
+                                                       const gchar     *target_state_name);
 ClutterStates *   clutter_states_set_key              (ClutterStates   *states,
                                                        const gchar     *source_state_name,
                                                        const gchar     *target_state_name,

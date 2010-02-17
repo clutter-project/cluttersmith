@@ -223,6 +223,16 @@
          "signals": [ {"name":"paint", "handler":"state_duration_init_hack"} ]
        },
 
+       { "type":"MxButton",
+         "label":"elaborate"
+         "signals": [ {"name":"clicked", "handler":"state_elaborate_clicked"} ]
+       },
+
+       { "type":"MxButton",
+         "label":"test"
+         "signals": [ {"name":"clicked", "handler":"state_test_clicked"} ]
+       },
+
        { "type":"MxScrollView",
          "width":300,
          "height":300,
