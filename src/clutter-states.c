@@ -63,6 +63,7 @@ struct _ClutterStatesPrivate
   ClutterState    *target_state;
   GHashTable      *states;
   ClutterAnimator *current_animator;
+  guint            duration; /* global fallback duration */
 };
 
 /**
@@ -304,7 +305,6 @@ static void clutter_states_new_frame (ClutterTimeline *timeline,
 /**
  * clutter_states_change:
  * @state_name: a #ClutterStates
- * @duration: how long the state change should take in msecs.
  *
  * Change to @state_name and spend duration msecs when doing so.
  *
@@ -312,8 +312,7 @@ static void clutter_states_new_frame (ClutterTimeline *timeline,
  */
 ClutterTimeline *
 clutter_states_change (ClutterStates *states,
-                       const gchar   *target_state_name,
-                       guint          duration)
+                       const gchar   *target_state_name)
 {
   ClutterStatesPrivate *priv = states->priv;
   ClutterState *state;
@@ -338,14 +337,15 @@ clutter_states_change (ClutterStates *states,
   if (priv->current_animator)
     {
       clutter_animator_set_timeline (priv->current_animator, NULL);
-      priv->current_animator = NULL;
+        priv->current_animator = NULL;
     }
-
-
-  clutter_timeline_set_duration (priv->timeline, duration);
 
   priv->source_state_name = priv->target_state_name;
   priv->target_state_name = target_state_name;
+
+  clutter_timeline_set_duration (priv->timeline,
+                  clutter_states_get_duration (states, priv->source_state_name,
+                                                       priv->target_state_name));
 
   state = g_hash_table_lookup (priv->states, target_state_name);
 
@@ -808,6 +808,7 @@ clutter_states_init (ClutterStates *self)
                                         NULL, state_free);
   self->priv->source_state_name = NULL;
   self->priv->target_state_name = NULL;
+  self->priv->duration = 250;
   priv->timeline = clutter_timeline_new (1000);
   priv->slave_timeline = clutter_timeline_new (10000);
   g_signal_connect (priv->timeline, "new-frame",
@@ -1054,4 +1055,23 @@ clutter_state_key_get_target_state_name (ClutterStateKey *state_key)
 {
   g_return_val_if_fail (state_key, NULL);
   return state_key->target_state->name;
+}
+
+void
+clutter_states_set_duration (ClutterStates *states,
+                             const gchar   *source_state_name,
+                             const gchar   *target_state_name,
+                             guint          duration)
+{
+  /* XXX: handle source and target specialization */
+  states->priv->duration = duration;
+}
+
+guint
+clutter_states_get_duration (ClutterStates *states,
+                             const gchar   *source_state_name,
+                             const gchar   *target_state_name)
+{
+  /* XXX: handle source and target specialization */
+  return states->priv->duration;
 }
