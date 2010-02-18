@@ -1775,7 +1775,9 @@ void state_test_clicked (ClutterActor  *actor)
                                     source_state);
     }
 
+  g_print ("mark1\n");
   clutter_states_change (cluttersmith->current_state_machine,
                          cluttersmith->current_state);
+  g_print ("mark1\n");
 
 }

@@ -124,31 +124,6 @@ Visualisations for selected actor
                              (perhaps using named transitions would be good?)
 
 
-Animation creation
-------------------
-
-An animation is a complete state transition for a subset of the scene
-graph, going from one state to another. Having implicit state transitions
-where the easing mode and target values for each state is defined could also
-be desirable and easier to work with. The following ascii art illustrates
-the capabilities I think the "complext" animation management needs to
-deal with, there is a clutter bug tracking adding such a feature, the
-animation described like this should be stored in the .json file of the
-scene.
-
-actorA             |
-  opacity          | 0.0 -sinc-- 100.0
-  x                | ? ----linear------------ 100.0 -- ease-in-out - 200.0
-  y                | ? ----linear------------ 80.0 ----- linear ---- 0.0
-  rotation-angle-x |           ? ------------------ 360.0  (rots need wrapping.)
-actorB
-  opacity          | 0.0 ----sinc-------- 100.0 ------------- 100.0
-  x                |            ? ----linear------------ 0.0 
-  y                |            ? ----linear------------ 0.0
------------------------------------
-
-
-
 Snippets
 --------
 
@@ -159,15 +134,3 @@ change_scene (gui_string_scene_name);
 set_size (gui_string_actor_id, gui_int_width, gui_int_height);
 set_position (gui_string_actor_id, gui_int_x, gui_int_y);
 set_sub_scene (gui_string_actor_id, gui_string_scene_name);
-
-
-
--------------
-
-States Machine / animator...
-
-when editing a state machine, and the mode selected is not the default state..
-this might need to be done outside the josn serialization and parsing.
-whenever the current state machine or state is changed, all properties in the
-scene should be grabbed and stored in a hashstable of gvalues.
-

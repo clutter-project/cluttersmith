@@ -1210,6 +1210,8 @@ cs_states_make_animator (ClutterStates *states,
                                     clutter_state_key_get_mode (key),
                                     0.0 + pre_delay, &value);
           clutter_animator_property_set_ease_in (animator, object, property_name, TRUE);
+          clutter_animator_property_set_interpolation (animator, object, property_name,
+                                                       CLUTTER_INTERPOLATION_CUBIC);
         }
       else
         {

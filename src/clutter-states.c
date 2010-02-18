@@ -348,6 +348,7 @@ clutter_states_change_noanim (ClutterStates *states,
 
   state = g_hash_table_lookup (priv->states, target_state_name);
 
+  g_print ("aaaa %s\n", target_state_name);
   g_return_val_if_fail (state, NULL);
 
   {
@@ -361,6 +362,7 @@ clutter_states_change_noanim (ClutterStates *states,
         clutter_timeline_stop (priv->timeline);
         clutter_timeline_rewind (priv->timeline);
         clutter_timeline_start (priv->timeline);
+        clutter_timeline_advance (priv->timeline, 1);
         return priv->timeline;
       }
   }
@@ -390,6 +392,7 @@ clutter_states_change_noanim (ClutterStates *states,
        priv->target_state = state;
        clutter_timeline_rewind (priv->timeline);
        clutter_timeline_start (priv->timeline);
+       clutter_timeline_advance (priv->timeline, 1);
     }
   else
     {
@@ -418,6 +421,7 @@ clutter_states_change (ClutterStates *states,
   g_return_val_if_fail (CLUTTER_IS_STATES (states), NULL);
   g_return_val_if_fail (target_state_name, NULL);
 
+
   if (target_state_name == NULL)
     target_state_name = "default";
   target_state_name = g_intern_string (target_state_name);
@@ -435,15 +439,15 @@ clutter_states_change (ClutterStates *states,
   if (priv->current_animator)
     {
       clutter_animator_set_timeline (priv->current_animator, NULL);
-        priv->current_animator = NULL;
+      priv->current_animator = NULL;
     }
 
   priv->source_state_name = priv->target_state_name;
   priv->target_state_name = target_state_name;
 
   clutter_timeline_set_duration (priv->timeline,
-                  clutter_states_get_duration (states, priv->source_state_name,
-                                                       priv->target_state_name));
+               clutter_states_get_duration (states, priv->source_state_name,
+                                                    priv->target_state_name));
 
   state = g_hash_table_lookup (priv->states, target_state_name);
 
@@ -461,6 +465,11 @@ clutter_states_change (ClutterStates *states,
         clutter_timeline_rewind (priv->timeline);
         clutter_timeline_start (priv->timeline);
         return priv->timeline;
+      }
+    else
+      {
+        g_print ("failed to find %s -> %s\n", priv->source_state_name,
+                                              priv->target_state_name);
       }
   }
 
@@ -939,6 +948,9 @@ clutter_states_get_animator (ClutterStates *states,
   g_return_val_if_fail (CLUTTER_IS_STATES (states), NULL);
 
   source_state_name = g_intern_string (source_state_name);
+  if (source_state_name == g_intern_static_string ("default") ||
+      source_state_name == g_intern_static_string (""))
+    source_state_name = NULL;
   target_state_name = g_intern_string (target_state_name);
 
   target_state = g_hash_table_lookup (states->priv->states,
@@ -947,6 +959,7 @@ clutter_states_get_animator (ClutterStates *states,
     return NULL;
   
   animators = (ClutterStateAnimator*)target_state->animators->data;
+
 
   for (i=0; animators[i].animator; i++)
     {

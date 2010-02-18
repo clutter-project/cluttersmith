@@ -15,10 +15,10 @@
   "children":[
   {
     "type":"ClutterText",
-    "x":13,
+    "x":15,
     "y":28,
-    "width":336,
-    "height":400,
+    "width":335,
+    "height":428,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -48,13 +48,20 @@ Keybindings:
   Ctrl + Q - quit
   Ctrl + L - Focus Location(title)entry
   ScrollLock - toggle edit/browse mode
-  F1..Fn - toggle ui elements",
+ 
+  F1 - browse
+  F2 - annotate
+  F3 - wire frame
+  F4 - edit
+  F5 - animate
+  F6 - callbacks
+  F7 - edit javascript (being run when scene is entered)",
     "color":"#000000ff",
     "use-markup":false,
     "line-wrap":true,
     "justify":false,
-    "position":-1,
-    "selection-bound":120,
+    "position":536,
+    "selection-bound":536,
     "selection-color":"#000000ff",
     "cursor-visible":true,
     "cursor-color":"#000000ff",
@@ -71,8 +78,8 @@ Keybindings:
     "type":"ClutterText",
     "x":376,
     "y":28,
-    "width":336,
-    "height":400,
+    "width":325,
+    "height":316,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,

@@ -98,9 +98,9 @@
   {
     "type":"ClutterText",
     "x":173,
-    "y":138,
-    "width":429,
-    "height":134,
+    "y":139,
+    "width":344,
+    "height":107,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -111,13 +111,19 @@
     "font-name":"Sans 9",
     "text":"A presentation tool.
 
-The interactions and UI of the editor is subject to redesign, most features have been added in the simplest to integrate manner and not the most ideal for interaction.",
+The interactions and UI of the editor is going through redesign, most features are initially added in the simplest to integrate manner and not the most ideal for interaction.
+
+As a powertool it should ideally be possible to use cluttersmith without involving much of the chrome (sidbars and toolbars), context menus and a few select context sensitive hovering over canvas/integrated into the canvas elements will probably be good.
+
+The UI modes currently accessed through F1..Fn are
+meant to provide a dedicated working context for various tasks, most interactions with the canvas remain the same for all of them, by changing cluttersmiths json
+file different ui styles/skins can be created.",
     "color":"#000000ff",
     "use-markup":false,
     "line-wrap":true,
     "justify":false,
     "position":-1,
-    "selection-bound":88,
+    "selection-bound":-1,
     "selection-color":"#000000ff",
     "cursor-visible":true,
     "cursor-color":"#000000ff",
@@ -193,8 +199,8 @@ The interactions and UI of the editor is subject to redesign, most features have
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=javascript",
-    "x":13,
-    "y":122,
+    "x":595,
+    "y":467,
     "width":143,
     "height":37,
     "depth":0.000,
@@ -253,7 +259,7 @@ The interactions and UI of the editor is subject to redesign, most features have
     "style-class":"ClutterSmithLink",
     "name":"link=help",
     "x":13,
-    "y":180,
+    "y":119,
     "width":143,
     "height":36,
     "depth":0.000,
@@ -311,8 +317,8 @@ The interactions and UI of the editor is subject to redesign, most features have
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=widgets",
-    "x":13,
-    "y":234,
+    "x":595,
+    "y":426,
     "width":143,
     "height":38,
     "depth":0.000,
