@@ -15,6 +15,8 @@ libcluttersmith_la_SOURCES = \
   cb-texture.c  \
   cb-texture.h  \
   actor-editing.c  \
+  animator-editor.c \
+  animator-editor.h \
   cs-context.c  \
   cs-context.h  \
   cluttersmith.h  \
