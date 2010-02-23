@@ -180,6 +180,15 @@
                [
 
             {
+              "type":"ClutterRectangle",
+              "id":"fake-stage-rect",
+              "color":"#00000000",
+              "child::expand":true,
+              "signals": [ {"name":"pick", "handler":"no_pick"},
+                         ] 
+            },
+
+            {
             "id":"toolbar",
             "type":"MxBoxLayout",
             "style-class":"parasite",
@@ -492,16 +501,7 @@
              },
 
 
-            {
-              "type":"ClutterRectangle",
-              "id":"fake-stage-rect",
-              "color":"#00000000",
-              "child::expand":true,
-              "signals": [ {"name":"pick", "handler":"no_pick"},
-                         ] 
-            },
 
-,
                  
             ] }
 
