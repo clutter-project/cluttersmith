@@ -4,9 +4,11 @@
 #include "cluttersmith.h"
 #include "util.h"
 
-static gboolean add_stencil (ClutterActor *actor,
-                             ClutterEvent *event,
-                             const gchar  *path)
+static gdouble manipulate_x, manipulate_y;
+
+static gboolean add_stencil_real (gfloat        x,
+                                  gfloat        y,
+                                  const gchar  *path)
 {
   ClutterActor *parent;
   ClutterActor *new_actor;
@@ -16,12 +18,8 @@ static gboolean add_stencil (ClutterActor *actor,
   
   if (new_actor)
     {
-      gfloat sw, sh, w, h;
-
       clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
-      clutter_actor_get_size (clutter_actor_get_stage (actor), &sw, &sh);
-      clutter_actor_get_size (new_actor, &w, &h);
-      clutter_actor_set_position (new_actor, (sw-w)/2, (sh-h)/2);
+      clutter_actor_set_position (new_actor, x, y);
 
       cs_selected_clear ();
       cs_selected_add (new_actor);
@@ -32,7 +30,68 @@ static gboolean add_stencil (ClutterActor *actor,
   return TRUE;
 }
 
+static guint stencil_capture_handler = 0;
 
+static gboolean
+add_stencil_capture (ClutterActor *stage,
+                     ClutterEvent *event,
+                     gpointer      data)
+{
+    switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          gfloat delta[2];
+          gfloat x, y;
+          delta[0]=manipulate_x-event->motion.x;
+          delta[1]=manipulate_y-event->motion.y;
+          clutter_actor_get_position (data, &x, &y);
+          x-= delta[0];
+          y-= delta[1];
+          clutter_actor_set_position (data, x, y);
+          manipulate_x=event->motion.x;
+          manipulate_y=event->motion.y;
+        }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+        g_signal_handler_disconnect (stage,
+                                     stencil_capture_handler);
+        stencil_capture_handler = 0;
+
+        manipulate_x -= clutter_actor_get_x (cluttersmith->fake_stage);
+        manipulate_y -= clutter_actor_get_y (cluttersmith->fake_stage);
+        add_stencil_real (manipulate_x, manipulate_y, g_object_get_data (data, "path"));
+        clutter_actor_destroy (data);
+
+
+        clutter_actor_queue_redraw (stage);
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+
+static gboolean add_stencil (ClutterActor *actor,
+                             ClutterEvent *event,
+                             ClutterActor *stencil)
+{
+  ClutterActor *clone;
+  manipulate_x = event->button.x;
+  manipulate_y = event->button.y;
+
+  clone = clutter_clone_new (stencil);
+  clutter_container_add_actor (CLUTTER_CONTAINER (clutter_actor_get_stage (actor)),
+                               clone);
+
+  g_object_set_data (G_OBJECT (clone), "path", g_object_get_data (G_OBJECT (stencil), "path"));
+  clutter_actor_set_position (clone, manipulate_x, manipulate_y);
+
+  stencil_capture_handler = 
+     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                       G_CALLBACK (add_stencil_capture), clone);
+  clutter_actor_queue_redraw (clone);
+}
 
 void templates_container_init_hack (ClutterActor  *actor)
 {
@@ -85,7 +144,7 @@ void templates_container_init_hack (ClutterActor  *actor)
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
                 g_object_set_data_full (G_OBJECT (oi), "path", path, g_free);
-                g_signal_connect (rectangle, "button-press-event", G_CALLBACK (add_stencil), path);
+                g_signal_connect (rectangle, "button-press-event", G_CALLBACK (add_stencil), oi);
               }
               else
               {
