@@ -96,6 +96,7 @@ void gst_init (gpointer, gpointer);
 
 gboolean idle_add_stage (gpointer stage);
 
+void mode_edit2 (void);
 /* hack.. */
 static gboolean idle_load_default (gpointer data)
 {

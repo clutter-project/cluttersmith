@@ -513,6 +513,7 @@ static void hide_all (void)
   clutter_actor_hide (cluttersmith->dialog_tree);
   clutter_actor_hide (cluttersmith->dialog_property_inspector);
   clutter_actor_hide (cluttersmith->dialog_states);
+  clutter_actor_hide (cluttersmith->dialog_annotate);
   clutter_actor_hide (cluttersmith->dialog_callbacks);
   clutter_actor_hide (cluttersmith->dialog_config);
   clutter_actor_hide (cluttersmith->dialog_editor);
@@ -530,7 +531,7 @@ void mode_browse (ClutterActor *ignored)
 void mode_annotate (ClutterActor *ignored)
 {
   hide_all ();
-  clutter_actor_show (cluttersmith->dialog_tree);
+  clutter_actor_show (cluttersmith->dialog_annotate);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
@@ -832,6 +833,23 @@ static MxAction *destination_set (const gchar *name)
 }
 
 
+static void change_scene2 (MxAction *action,
+                           gpointer    data)
+{
+  cluttersmith_load_scene (mx_action_get_name (action));
+}
+
+static MxAction *change_scene (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_scene2), NULL);
+  g_free (label);
+  return action;
+}
+
+
 void new_scene (MxAction *action,
                 gpointer    ignored)
 {
@@ -873,6 +891,43 @@ void link_edit_link (MxAction *action,
       *strstr (name2, ".json")='\0';
 
       action = destination_set (name2);
+      g_free (name2);
+      mx_popup_add_action (popup, action);
+    }
+  g_dir_close (dir);
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+
+void scenes_dropdown (MxAction *action,
+                      gpointer  ignored)
+{
+  MxPopup *popup = cs_popup_new ();
+  GDir *dir;
+  const gchar *path = cs_get_project_root ();
+  const gchar *name;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+
+  if (!path)
+    return;
+
+  dir = g_dir_open (path, 0, NULL);
+
+  while ((name = g_dir_read_name (dir)))
+    {
+      gchar *name2;
+      if (!g_str_has_suffix (name, ".json"))
+        continue;
+      name2 = g_strdup (name);
+      *strstr (name2, ".json")='\0';
+
+      action = change_scene (name2);
       g_free (name2);
       mx_popup_add_action (popup, action);
     }

@@ -61,6 +61,10 @@ struct _CSContext
   ClutterActor *dialog_toolbar;
   ClutterActor *dialog_property_inspector;
   ClutterActor *dialog_tree;
+
+  ClutterActor *dialog_annotate;
+  ClutterActor *dialog_editor_annotation;
+
   ClutterActor *dialog_editor;
   ClutterActor *dialog_editor_text;
   ClutterActor *dialog_editor_error;

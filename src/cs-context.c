@@ -255,13 +255,34 @@ static gboolean return_to_ui (gpointer ignored)
   return FALSE;
 }
 
+static void save_annotation (void)
+{
+  const gchar *annotation= clutter_text_get_text (CLUTTER_TEXT (cluttersmith->dialog_editor_annotation));
+  gchar *annotationfilename;
+  gint len;
+  annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
+                              cluttersmith->priv->title);
+  len = strlen (annotation);
+  if (len >= 6)
+    {
+      g_file_set_contents (annotationfilename, annotation, len, NULL);
+      g_print ("set %s %s\n", annotationfilename, annotation);
+    }
+  g_free (annotationfilename);
+}
+
 static void page_run_start (void)
 {
   gchar *scriptfilename;
+  gchar *annotationfilename;
   g_print ("entering browse mode\n");
   scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                               cluttersmith->priv->title);
+  annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
+                              cluttersmith->priv->title);
 
+
+  save_annotation ();
 
   if (cluttersmith->dialog_editor_text)
   {
@@ -674,6 +695,8 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->animator_props = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-props"));
     cluttersmith->state_duration = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-state-duration"));
     cluttersmith->dialog_editor = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
+    cluttersmith->dialog_annotate = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-annotate"));
+    cluttersmith->dialog_editor_annotation = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-annotation"));
     cluttersmith->source_state = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-source-state"));
     cluttersmith->dialog_editor_text = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-text"));
     cluttersmith->dialog_editor_error = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-error"));
@@ -1029,6 +1052,9 @@ static gchar *filename = NULL;
 void cs_save (gboolean force)
 {
   /* Save if we've changed */
+  
+  save_annotation ();
+
   if (CS_REVISION != CS_STORED_REVISION || force)
     {
       gchar *content;
@@ -1247,11 +1273,42 @@ static void cs_load (void)
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       gchar *scriptfilename;
+      gchar *annotationfilename;
       session_history_add (cs_get_project_root ());
       cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                                   cluttersmith->priv->title);
+      annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
+                                  cluttersmith->priv->title);
+      if (g_file_test (annotationfilename, G_FILE_TEST_IS_REGULAR))
+        {
+          GError      *error = NULL;
+          gchar *txt;
+          gsize len;
+
+
+          if (!g_file_get_contents (annotationfilename, (void*)&txt, &len, &error))
+            {
+               g_printerr("failed loading file %s: %s\n", annotationfilename, error->message);
+            }
+          else
+            {
+              if (cluttersmith->dialog_editor_annotation)
+                {
+                  g_print ("LOADING %s\n", txt);
+                  clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_annotation), txt);
+                }
+              g_free (txt);
+            }
+        }
+      else
+        {
+          if (cluttersmith->dialog_editor_text)
+            clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_annotation), "...");
+        }
+
+
       if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
         {
           GError      *error = NULL;
@@ -1354,13 +1411,14 @@ static void cs_load (void)
                 clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), (gchar*)end);
               g_free (js);
             }
-          g_free (scriptfilename);
         }
       else
         {
           if (cluttersmith->dialog_editor_text)
             clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), "/* */");
         }
+      g_free (scriptfilename);
+      g_free (annotationfilename);
 
       /* create a fake set of state machines,. */
       if (g_str_equal (cluttersmith->priv->title, "index"))
@@ -1391,11 +1449,11 @@ static void title_text_changed (ClutterActor *actor)
 {
   const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
   
+  cs_save (FALSE);
   if (cluttersmith->priv->title)
     g_free (cluttersmith->priv->title);
   cluttersmith->priv->title = g_strdup (title);
 
-  cs_save (FALSE);
 
   filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
                               title);
@@ -1687,7 +1745,7 @@ void project_root_init_hack (ClutterActor  *actor)
 
 
 
-void search_entry_init_hack (ClutterActor  *actor)
+void title_entry_init_hack (ClutterActor  *actor)
 {
   /* we hook this up to the first paint, since no other signal seems to
    * be available to hook up for some additional initialization

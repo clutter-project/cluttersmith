@@ -100,20 +100,30 @@
             
              "children":
                [
-                 { "id":"cs-mode",
-                   "type":"MxComboBox",
-                   "signals": [ {"name":"clicked", "handler":"cs_mode_browse"} ] },
 
                  { "id":"project-root",
                    "style-class":"ClutterSmithLocation",
                    "type":"MxEntry",  "text": "", "width":200, "height":10,
                    "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
-                 }
+                 },
+
+                {"type":"MxBoxLayout",
+                 "children":[
+
                  { "id":"title",
                    "style-class":"ClutterSmithTitle",
-                   "type":"MxEntry",  "text": "", "width":200, "height":10,
-                   "signals": [ {"name":"paint", "handler":"search_entry_init_hack"} ]
-                 }
+                   "type":"MxEntry",  "text": "", "width":100, "height":10,
+                   "signals": [ {"name":"paint", "handler":"title_entry_init_hack"} ]
+                 },
+                 { "type":"MxButton",
+                   "label":"V",
+                   "signals": [ {"name":"clicked", "handler":"scenes_dropdown"} ] },
+                ]},
+
+                 { "id":"cs-mode",
+                   "type":"MxComboBox",
+                 },
+
                  { "type":"MxGrid",
                    "column-spacing": 2.0,
                    "style-class":"ParasiteToolbar",
@@ -157,9 +167,6 @@
                          "label":"?", 
                          "signals": [ {"name":"clicked", "handler":"cs_help"} ] }
 
-                       { "type":"MxEntry",
-                         "width": 30,
-                         "text":"100",}
                      ],
                  }
 
@@ -390,6 +397,29 @@
                       }
                    ]
                  },
+
+
+            { "type":"MxBoxLayout",
+              "id":"cs-dialog-annotate",
+              "vertical":true,
+              "width":230,
+              "style-class":"parasite",
+              "children":[
+            {
+              "id":"cs-dialog-editor-annotation",
+              "type":"ClutterText",
+              "line-wrap": true,
+              "font-name":"Liberation Sans 13",
+              "editable": true,
+              "reactive":true,
+              "color":"#ffffffff",
+              "cursor-color":"#33ff33ff",
+              "selection-color":"#44bb44ff",
+              "text":"..",
+              "child::expand":true
+            },
+            ]
+            },
 
 
             { "type":"MxBoxLayout",
