@@ -332,7 +332,7 @@ clutter_states_change_noanim (ClutterStates *states,
       /* Avoiding transitioning if the desired state
        * is already current
        */
-      return priv->timeline;
+      //return priv->timeline;
     }
 
   if (priv->current_animator)
@@ -348,7 +348,6 @@ clutter_states_change_noanim (ClutterStates *states,
 
   state = g_hash_table_lookup (priv->states, target_state_name);
 
-  g_print ("aaaa %s\n", target_state_name);
   g_return_val_if_fail (state, NULL);
 
   {
@@ -362,7 +361,6 @@ clutter_states_change_noanim (ClutterStates *states,
         clutter_timeline_stop (priv->timeline);
         clutter_timeline_rewind (priv->timeline);
         clutter_timeline_start (priv->timeline);
-        clutter_timeline_advance (priv->timeline, 1);
         return priv->timeline;
       }
   }
@@ -392,7 +390,6 @@ clutter_states_change_noanim (ClutterStates *states,
        priv->target_state = state;
        clutter_timeline_rewind (priv->timeline);
        clutter_timeline_start (priv->timeline);
-       clutter_timeline_advance (priv->timeline, 1);
     }
   else
     {

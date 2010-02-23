@@ -3,6 +3,7 @@
 #include "cluttersmith.h"
 #include "cs-context.h"
 #include "clutter-states.h"
+#include "animator-editor.h"
 #include <gjs/gjs.h>
 #include <string.h>
 
@@ -10,6 +11,8 @@
 
 #define CONTEXT_PRIVATE(o) \
     (G_TYPE_INSTANCE_GET_PRIVATE ((o), CS_TYPE_CONTEXT, CSContextPrivate))
+
+static gint cs_set_keys_freeze = 0;
 
 enum
 {
@@ -615,7 +618,19 @@ void mode_callbacks (void);
 void mode_code (void);
 void mode_config (void);
 
+void state_position_actors (gdouble        progress);
+
+void cs_animator_progress_changed (GObject    *slider,
+                                   GParamSpec *pspec,
+                                   gpointer    data)
+{
+  gdouble progress;
+  g_object_get (slider, "progress", &progress, NULL);
+  state_position_actors (progress);
+}
+
 void mode_switch (MxComboBox *combo_box,
+                  GParamSpec *pspec,
                   gpointer    data)
 {
   gint index = mx_combo_box_get_index (combo_box);
@@ -675,33 +690,41 @@ void mode_switch (MxComboBox *combo_box,
       }
       }
 
-    cluttersmith->fake_stage_canvas = CLUTTER_ACTOR (clutter_script_get_object (script, "fake-stage-canvas"));
-    cluttersmith->resize_handle = CLUTTER_ACTOR (clutter_script_get_object (script, "resize-handle"));
-    cluttersmith->move_handle = CLUTTER_ACTOR (clutter_script_get_object (script, "move-handle"));
-    cluttersmith->active_panel = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-active-panel"));
-    cluttersmith->active_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-active-container"));
-    cluttersmith->callbacks_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-callbacks-container"));
-    cluttersmith->dialog_callbacks = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-callbacks"));
-    cluttersmith->states_container = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-states-container"));
-    cluttersmith->dialog_states = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-states"));
+#define _A(actorname)  CLUTTER_ACTOR (clutter_script_get_object (script, actorname))
 
-    cluttersmith->dialog_config = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-config"));
-    cluttersmith->dialog_tree = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-tree"));
-    cluttersmith->dialog_toolbar = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-toolbar"));
-    cluttersmith->dialog_scenes = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-scenes"));
-    cluttersmith->dialog_templates = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-templates"));
-    cluttersmith->dialog_animator = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-animator"));
-    cluttersmith->animator_progress = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-progress"));
-    cluttersmith->animator_props = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-animator-props"));
-    cluttersmith->state_duration = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-state-duration"));
-    cluttersmith->dialog_editor = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor"));
-    cluttersmith->dialog_annotate = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-annotate"));
-    cluttersmith->dialog_editor_annotation = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-annotation"));
-    cluttersmith->source_state = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-source-state"));
-    cluttersmith->dialog_editor_text = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-text"));
-    cluttersmith->dialog_editor_error = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-editor-error"));
+    /* Should perhaps replace all occurances of this with the macro, it
+     * makes the code a bit smaller and more maintainable since the mappings
+     * from names to struct items wouldn't have to be maintained anymore
+     */
 
-    cluttersmith->dialog_property_inspector = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-dialog-property-inspector"));
+    cluttersmith->fake_stage_canvas = _A("fake-stage-canvas");
+    cluttersmith->resize_handle = _A("resize-handle");
+    cluttersmith->move_handle = _A("move-handle");
+    cluttersmith->active_panel = _A("cs-active-panel");
+    cluttersmith->active_container = _A("cs-active-container");
+    cluttersmith->callbacks_container = _A("cs-callbacks-container");
+    cluttersmith->dialog_callbacks = _A("cs-dialog-callbacks");
+    cluttersmith->states_container = _A("cs-states-container");
+    cluttersmith->dialog_states = _A("cs-dialog-states");
+
+    cluttersmith->dialog_config = _A("cs-dialog-config");
+    cluttersmith->dialog_tree = _A("cs-dialog-tree");
+    cluttersmith->dialog_toolbar = _A("cs-dialog-toolbar");
+    cluttersmith->dialog_scenes = _A("cs-dialog-scenes");
+    cluttersmith->dialog_templates = _A("cs-dialog-templates");
+    cluttersmith->dialog_animator = _A("cs-dialog-animator");
+    cluttersmith->animator_progress = _A("cs-animator-progress");
+    cluttersmith->animator_props = _A("cs-animator-props");
+    cluttersmith->state_duration = _A("cs-state-duration");
+    cluttersmith->dialog_editor = _A("cs-dialog-editor");
+    cluttersmith->dialog_annotate = _A("cs-dialog-annotate");
+    cluttersmith->dialog_editor_annotation = _A("cs-dialog-editor-annotation");
+    cluttersmith->source_state = _A("cs-source-state");
+    cluttersmith->dialog_editor_text = _A("cs-dialog-editor-text");
+    cluttersmith->dialog_editor_error = _A("cs-dialog-editor-error");
+
+    cluttersmith->dialog_property_inspector = _A("cs-dialog-property-inspector");
+    cluttersmith->animator_editor = _A("cs-animator-editor");
 
     cs_manipulate_init (cluttersmith->parasite_root);
     cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
@@ -1168,15 +1191,18 @@ void cs_prop_tweaked (GObject     *object,
        
        progress = mx_slider_get_progress (MX_SLIDER (cluttersmith->animator_progress));
 
-       clutter_animator_set_key (cluttersmith->current_animator,
-                                 object,
-                                 property_name,
-                                 CLUTTER_LINEAR,
-                                 progress,
-                                 &value);
+       if (cs_set_keys_freeze == 0)
+         clutter_animator_set_key (cluttersmith->current_animator,
+                                   object,
+                                   property_name,
+                                   CLUTTER_LINEAR,
+                                   progress,
+                                   &value);
        g_print ("%p %p %s %f\n", cluttersmith->current_animator,
                                  object, property_name, progress);
        g_value_unset (&value);
+
+       cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), cluttersmith->current_animator);
 
        /* XXX: we should update with the real animator in this case */
        update_animator_editor (cluttersmith->current_state_machine,
@@ -1221,6 +1247,7 @@ void cs_prop_tweaked (GObject     *object,
            source_state = NULL;
          }
 
+       if (cs_set_keys_freeze == 0)
        clutter_states_set_key (cluttersmith->current_state_machine,
                                source_state,
                                cluttersmith->current_state,
@@ -1928,4 +1955,40 @@ void state_test_clicked (ClutterActor  *actor)
 
   clutter_states_change (cluttersmith->current_state_machine,
                          cluttersmith->current_state);
+}
+
+void state_position_actors (gdouble progress)
+{
+  const gchar *source_state;
+  ClutterTimeline *timeline;
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    source_state = NULL;
+
+  /* Reset to the source of the animation */
+  if (!source_state)
+    {
+      /* if no source state specified, restore the source state */
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    "default");
+      cs_properties_restore_defaults ();
+    }
+  else
+    {
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    source_state);
+    }
+
+  timeline = clutter_states_change (cluttersmith->current_state_machine,
+                                    cluttersmith->current_state);
+  clutter_timeline_pause (timeline);
+
+  cs_set_keys_freeze ++;
+    {
+      gint frame = clutter_timeline_get_duration (timeline) * progress;
+      clutter_timeline_advance (timeline, frame);
+      g_signal_emit_by_name (timeline, "new-frame", frame, NULL);
+    }
+  cs_set_keys_freeze --;
 }

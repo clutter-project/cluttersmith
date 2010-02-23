@@ -8,7 +8,8 @@ enum
 
 struct _CsAnimatorEditorPrivate
 {
-  ClutterActor *background;
+  ClutterActor    *background;
+  ClutterAnimator *animator;
 };
 
 #define GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
@@ -25,9 +26,13 @@ cs_animator_editor_finalize (GObject *object)
 static void
 cs_animator_editor_dispose (GObject *object)
 {
-    CsAnimatorEditor *player = (CsAnimatorEditor *) object;
+    CsAnimatorEditor *editor = (CsAnimatorEditor *) object;
     CsAnimatorEditorPrivate *priv;
-    priv = player->priv;
+    priv = editor->priv;
+
+    if (priv->animator)
+      g_object_unref (priv->animator);
+    priv->animator = NULL;
 
     G_OBJECT_CLASS (cs_animator_editor_parent_class)->dispose (object);
 }
@@ -60,8 +65,8 @@ static void
 cs_animator_editor_allocate (ClutterActor *actor, const ClutterActorBox *box,
                            ClutterAllocationFlags flags)
 {
-  CsAnimatorEditor        *player = (CsAnimatorEditor *) actor;
-  CsAnimatorEditorPrivate *priv   = player->priv;
+  CsAnimatorEditor        *editor = (CsAnimatorEditor *) actor;
+  CsAnimatorEditorPrivate *priv   = editor->priv;
 
   CLUTTER_ACTOR_CLASS (cs_animator_editor_parent_class)->allocate
                              (actor, box, flags);
@@ -74,8 +79,8 @@ cs_animator_editor_allocate (ClutterActor *actor, const ClutterActorBox *box,
 static void
 cs_animator_editor_paint (ClutterActor *actor)
 {
-  CsAnimatorEditor        *player = (CsAnimatorEditor *) actor;
-  CsAnimatorEditorPrivate *priv   = player->priv;
+  CsAnimatorEditor        *editor = (CsAnimatorEditor *) actor;
+  CsAnimatorEditorPrivate *priv   = editor->priv;
 
   if (priv->background)
      clutter_actor_paint (priv->background);
@@ -138,8 +143,18 @@ cs_animator_editor_init (CsAnimatorEditor *self)
   self->priv = priv;
 
   priv->background = clutter_rectangle_new ();
+  priv->animator = NULL;
   clutter_actor_set_reactive (priv->background, TRUE);
   clutter_actor_set_parent (priv->background, CLUTTER_ACTOR (self));
   clutter_actor_show (priv->background);
+}
+
+void cs_animator_editor_set_animator (CsAnimatorEditor *animator_editor,
+                                      ClutterAnimator  *animator)
+{
+  CsAnimatorEditorPrivate *priv = animator_editor->priv;
+  if (priv->animator)
+    g_object_unref (priv->animator);
+  priv->animator = g_object_ref (animator);
 }
 

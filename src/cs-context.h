@@ -74,6 +74,7 @@ struct _CSContext
   ClutterActor *dialog_animator;
   ClutterActor *animator_props;
   ClutterActor *animator_progress;
+  ClutterActor *animator_editor;
   ClutterActor *source_state;
   ClutterActor *state_duration;
 
