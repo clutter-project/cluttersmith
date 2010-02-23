@@ -135,6 +135,7 @@ static ClutterActor  *title, *name, *name2, *parents;
 static ClutterActor *active_actor = NULL;
 void load_file (ClutterActor *actor, const gchar *title);
 
+
 gchar *blacklist_types[]={"ClutterStage",
                           "ClutterCairoTexture",
                           "ClutterStageGLX",
@@ -980,12 +981,30 @@ callbacks_populate (ClutterActor *actor)
     guint *list;
     guint count;
     guint i;
+
+
     list = g_signal_list_ids (type, &count);
     
     for (i=0; i<count;i++)
       {
         GSignalQuery query;
         g_signal_query (list[i], &query);
+
+        if (type == G_TYPE_OBJECT)
+          continue;
+        if (type == CLUTTER_TYPE_ACTOR)
+          {
+            gchar *white_list[]={"show", "motion-event", "enter-event", "leave-event", "button-press-event", "button-release-event", NULL};
+            gint i;
+            gboolean skip = TRUE;
+            for (i=0;white_list[i];i++)
+              if (g_str_equal (white_list[i], query.signal_name))
+                skip = FALSE;
+            if (skip)
+              continue;
+          }
+
+
           {
             ClutterActor *hbox  = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
             ClutterActor *title = mx_label_new (query.signal_name);
