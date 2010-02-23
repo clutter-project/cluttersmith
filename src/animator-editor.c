@@ -81,9 +81,51 @@ cs_animator_editor_paint (ClutterActor *actor)
 {
   CsAnimatorEditor        *editor = (CsAnimatorEditor *) actor;
   CsAnimatorEditorPrivate *priv   = editor->priv;
+  GObject *currobject = NULL;
+  const gchar *currprop = NULL;
+  gint width = clutter_actor_get_width (actor);
+  GList *k, *keys;
+  gint propno = 0;
 
   if (priv->background)
      clutter_actor_paint (priv->background);
+
+  if (!priv->animator)
+    return;
+
+  keys = clutter_animator_get_keys (priv->animator, NULL, NULL, -1);
+  for (k = keys; k; k = k->next)
+    {
+      ClutterAnimatorKey *key = k->data;
+      GObject *object = clutter_animator_key_get_object (key);
+      const gchar *prop = g_intern_string (clutter_animator_key_get_property_name (key));
+      gfloat progress = clutter_animator_key_get_progress (key);
+      guint mode = clutter_animator_key_get_mode (key);
+
+      if (object != currobject ||
+          prop != currprop)
+        {
+          currobject = object;
+          currprop = prop;
+          cogl_path_stroke ();
+          cogl_path_new ();
+          propno ++;
+          cogl_path_move_to (progress * width, 10 * propno);
+        }
+      else
+        {
+          cogl_path_line_to (progress * width, 10 * propno);
+          cogl_path_line_to (progress * width, 10 * propno + 2);
+          cogl_path_line_to (progress * width, 10 * propno - 2);
+          cogl_path_line_to (progress * width, 10 * propno);
+          cogl_path_stroke ();
+        }
+      cogl_path_ellipse (progress * width, 10 * propno, 5, 5);
+      cogl_path_fill ();
+      cogl_path_move_to (progress * width, 10 * propno);
+    }
+
+  g_list_free (keys);
 }
 
 static void
