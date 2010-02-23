@@ -584,6 +584,36 @@ void cluttersmith_init (void)
   clutter_actor_paint (stage);
 }
 
+
+void mode_browse (void);
+void mode_annotate (void);
+void mode_sketch (void);
+void mode_edit (void);
+void mode_animate (void);
+void mode_callbacks (void);
+void mode_code (void);
+void mode_config (void);
+
+void mode_switch (MxComboBox *combo_box,
+                  gpointer    data)
+{
+  gint index = mx_combo_box_get_index (combo_box);
+
+  switch (index)
+    {
+      case 0: mode_browse (); break;
+      case 1: mode_annotate (); break;
+      case 2: mode_sketch (); break;
+      case 3: mode_edit (); break;
+      case 4: mode_animate (); break;
+      case 5: mode_callbacks (); break;
+      case 6: mode_code (); break;
+      case 7: mode_config (); break;
+      default:
+              break;
+    }
+}
+
   gboolean idle_add_stage (gpointer stage)
   {
     ClutterActor *actor;
@@ -652,6 +682,25 @@ void cluttersmith_init (void)
 
     cs_manipulate_init (cluttersmith->parasite_root);
     cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
+
+
+    {
+      /* XXX: all of this should be in the json */
+      cluttersmith->cs_mode = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-mode"));
+
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Browse (F1)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Annotate (F2)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Sketch (F3)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Edit (F4)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Animate (F5)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Callbacks (F6)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Code (F7)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Config (F8)");
+
+      mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 0);
+
+      g_signal_connect (cluttersmith->cs_mode, "notify::index", G_CALLBACK (mode_switch), NULL);
+    }
 
     init_types ();
     return FALSE;

@@ -29,11 +29,6 @@
  "id":"parasite-root",
  "children":[
 
-
-
-
-
-
 {
   "id":"cs-active-panel",
   "type":"MxBoxLayout",
@@ -105,6 +100,9 @@
             
              "children":
                [
+                 { "id":"cs-mode",
+                   "type":"MxComboBox",
+                   "signals": [ {"name":"clicked", "handler":"cs_mode_browse"} ] },
 
                  { "id":"project-root",
                    "style-class":"ClutterSmithLocation",
@@ -206,17 +204,28 @@
          "id":"cs-state-machine-name",
        },
 
+
+{
+  "type":"MxBoxLayout",
+  "spacing":9,
+   
+   "children":
+     [
        { "type":"MxEntry",
-         "text":"*"
+         "text":"*",
+         "child::expand":"true",
          "id":"cs-source-state",
          "signals": [ {"name":"paint", "handler":"state_source_name_init_hack"} ]
        },
 
        { "type":"MxEntry",
-         "text":"default"
+         "text":"default",
+         "child::expand":"true",
          "id":"cs-state-name",
          "signals": [ {"name":"paint", "handler":"state_name_init_hack"} ]
        },
+]
+},
 
        { "type":"MxEntry",
          "text":"1000"
@@ -530,6 +539,7 @@
                            "id":"cs-animator-progress",
                          },
                          { "type":"ClutterRectangle",
+                           "color":"blue",
                            "child::expand":true,
                          }
                          ]

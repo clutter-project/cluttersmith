@@ -520,22 +520,14 @@ static void hide_all (void)
   clutter_actor_show (cluttersmith->dialog_toolbar);
 }
 
-static void mode_browse (ClutterActor *ignored)
+void mode_browse (ClutterActor *ignored)
 {
   hide_all ();
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   cs_sync_chrome ();
 }
 
-static void mode_sketch (ClutterActor *ignored)
-{
-  hide_all ();
-  clutter_actor_show (cluttersmith->dialog_templates);
-  cs_set_ui_mode (CS_UI_MODE_CHROME);
-  cs_sync_chrome ();
-}
-
-static void mode_annotate (ClutterActor *ignored)
+void mode_annotate (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_tree);
@@ -543,7 +535,15 @@ static void mode_annotate (ClutterActor *ignored)
   cs_sync_chrome ();
 }
 
-static void mode_edit (ClutterActor *ignored)
+void mode_sketch (ClutterActor *ignored)
+{
+  hide_all ();
+  clutter_actor_show (cluttersmith->dialog_templates);
+  cs_set_ui_mode (CS_UI_MODE_CHROME);
+  cs_sync_chrome ();
+}
+
+void mode_edit (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_property_inspector);
@@ -552,7 +552,7 @@ static void mode_edit (ClutterActor *ignored)
   cs_sync_chrome ();
 }
 
-static void mode_animate (ClutterActor *ignored)
+void mode_animate (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_property_inspector);
@@ -562,7 +562,7 @@ static void mode_animate (ClutterActor *ignored)
   cs_sync_chrome ();
 }
 
-static void mode_callbacks (ClutterActor *ignored)
+void mode_callbacks (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_callbacks);
@@ -571,7 +571,7 @@ static void mode_callbacks (ClutterActor *ignored)
   cs_sync_chrome ();
 }
 
-static void mode_code (ClutterActor *ignored)
+void mode_code (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_editor);
@@ -579,13 +579,30 @@ static void mode_code (ClutterActor *ignored)
   cs_sync_chrome ();
 }
 
-static void mode_config (ClutterActor *ignored)
+void mode_config (ClutterActor *ignored)
 {
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_config);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
+
+void mode_browse2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 0); }
+void mode_annotate2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 1); }
+void mode_sketch2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 2); }
+void mode_edit2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 3); }
+void mode_animate2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 4); }
+void mode_callbacks2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 5); }
+void mode_code2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 6); }
+void mode_config2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 7); }
 
 /******************************************************************************/
 
@@ -658,14 +675,14 @@ static KeyBinding global_keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_a,         cs_select_all},
 
 
-  {0,                    CLUTTER_F1,        mode_browse},
-  {0,                    CLUTTER_F2,        mode_sketch},
-  {0,                    CLUTTER_F3,        mode_annotate},
-  {0,                    CLUTTER_F4,        mode_edit},
-  {0,                    CLUTTER_F5,        mode_animate},
-  {0,                    CLUTTER_F6,        mode_callbacks},
-  {0,                    CLUTTER_F7,        mode_code},
-  {0,                    CLUTTER_F8,        mode_config},
+  {0,                    CLUTTER_F1,        mode_browse2},
+  {0,                    CLUTTER_F2,        mode_annotate2},
+  {0,                    CLUTTER_F3,        mode_sketch2},
+  {0,                    CLUTTER_F4,        mode_edit2},
+  {0,                    CLUTTER_F5,        mode_animate2},
+  {0,                    CLUTTER_F6,        mode_callbacks2},
+  {0,                    CLUTTER_F7,        mode_code2},
+  {0,                    CLUTTER_F8,        mode_config2},
 
   {0, 0, NULL},
 };
