@@ -1236,3 +1236,44 @@ cs_states_make_animator (ClutterStates *states,
 
   return animator;
 }
+
+typedef struct UpdateClosure
+{
+  GObject      *objectA;
+  GObject      *objectB;
+  gchar        *property_name;
+  gulong        update_editor_handler;
+  gulong        update_object_handler;
+} UpdateClosure;
+
+void
+cs_bridge_properties (GObject     *objectA,
+                      const gchar *property_nameA,
+                      GObject     *objectB,
+                      const gchar *property_nameB)
+{
+  GParamSpec   *pspecA, *pspecB;
+  GObjectClass *klassA, *klassB;
+  GValue        value = {0, };
+  GValue        value2 = {0, };
+
+  klassA = G_OBJECT_GET_CLASS (objectA);
+  pspecA = g_object_class_find_property (klassA, property_nameA);
+  klassB = G_OBJECT_GET_CLASS (objectB);
+  pspecB = g_object_class_find_property (klassB, property_nameA);
+
+  /* copy intitial value form B to A */
+  g_value_init (&value, pspecB->value_type);
+  g_object_get_property (objectB, property_nameB, &value);
+  g_value_init (&value2, pspecA->value_type);
+  if (!g_value_transform (&value, &value2))
+     g_warning ("failed to transform value");
+
+  /* XXX: further implementation notes, should store the update
+   * closure in a hash table stored with a qdata on objectA,
+   * and use weak references on the involved objects to ensure
+   * proper cleanup of signals if any of them disappear.
+   */
+}
+
+

@@ -11,30 +11,29 @@
 #define CONTEXT_PRIVATE(o) \
     (G_TYPE_INSTANCE_GET_PRIVATE ((o), CS_TYPE_CONTEXT, CSContextPrivate))
 
-  enum
-  {
-    PROP_0,
-    PROP_UI_MODE,
-    PROP_FULLSCREEN,
-    PROP_ZOOM,
-    PROP_ORIGIN_X,
-    PROP_ORIGIN_Y,
-    PROP_CANVAS_WIDTH,
-    PROP_CANVAS_HEIGHT,
-  };
+enum
+{
+  PROP_0,
+  PROP_UI_MODE,
+  PROP_FULLSCREEN,
+  PROP_ZOOM,
+  PROP_ORIGIN_X,
+  PROP_ORIGIN_Y,
+  PROP_CANVAS_WIDTH,
+  PROP_CANVAS_HEIGHT,
+};
 
 
-  struct _CSContextPrivate
-  {
-    gchar  *title;
-    gfloat zoom;
-    gfloat origin_x;
-    gfloat origin_y;
-    gfloat canvas_width;
-    gfloat canvas_height;
-    GjsContext  *page_js_context;
-  };
-
+struct _CSContextPrivate
+{
+  gchar  *title;
+  gfloat zoom;
+  gfloat origin_x;
+  gfloat origin_y;
+  gfloat canvas_width;
+  gfloat canvas_height;
+  GjsContext  *page_js_context;
+};
 
 static void cs_context_get_property (GObject    *object,
                                      guint       property_id,
@@ -89,7 +88,6 @@ cs_context_class_init (CSContextClass *klass)
 
   pspec = g_param_spec_float ("origin-y", "origin Y", "origin Y coordinate", -20000, 20000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ORIGIN_Y, pspec);
-
 
   pspec = g_param_spec_boolean ("fullscreen", "Fullscreen", "fullscreen", FALSE, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_FULLSCREEN, pspec);
@@ -1037,7 +1035,7 @@ static void parsed_callback (const gchar *id,
 }
 
 static void
-update_animator (ClutterStates *states,
+update_animator_editor (ClutterStates *states,
                  const gchar   *source_state,
                  const gchar   *target_state)
 {
@@ -1106,7 +1104,7 @@ void cs_prop_tweaked (GObject     *object,
        g_value_unset (&value);
 
        /* XXX: we should update with the real animator in this case */
-       update_animator (cluttersmith->current_state_machine,
+       update_animator_editor (cluttersmith->current_state_machine,
                         NULL,
                         cluttersmith->current_state);
 
@@ -1159,12 +1157,12 @@ void cs_prop_tweaked (GObject     *object,
                                0.0);
        g_value_unset (&value);
 
-       update_animator (cluttersmith->current_state_machine,
+       update_animator_editor (cluttersmith->current_state_machine,
                         source_state, cluttersmith->current_state);
     }
 }
 
-static void update_animator2 (void)
+static void update_animator_editor2 (void)
 {
   const gchar *source_state = NULL;
 
@@ -1174,7 +1172,7 @@ static void update_animator2 (void)
     {
       source_state = NULL;
     }
-  update_animator (cluttersmith->current_state_machine,
+  update_animator_editor (cluttersmith->current_state_machine,
                    source_state, cluttersmith->current_state);
 }
 
@@ -1654,6 +1652,32 @@ void search_entry_init_hack (ClutterActor  *actor)
                     G_CALLBACK (title_text_changed), NULL);
 }
 
+static void update_duration (void)
+{
+  gchar *str;
+  gint   duration;
+  const gchar *source_state = NULL;
+
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    {
+      source_state = NULL;
+    }
+
+  duration = clutter_states_get_duration (cluttersmith->current_state_machine,
+                                          source_state,
+                                          cluttersmith->current_state);
+  str = g_strdup_printf ("%i", duration);
+  g_object_set (cluttersmith->state_duration, "text", str, NULL);
+  g_free (str);
+}
+
+static void state_source_name_text_changed (ClutterActor *actor)
+{
+  update_duration ();
+  update_animator_editor2 ();
+}
 
 static void state_name_text_changed (ClutterActor *actor)
 {
@@ -1682,7 +1706,25 @@ static void state_name_text_changed (ClutterActor *actor)
     }
 
   cluttersmith->current_state = g_intern_string (state);
-  update_animator2 ();
+
+  update_duration ();
+
+
+  update_animator_editor2 ();
+}
+
+void state_source_name_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_source_name_text_changed), NULL);
 }
 
 void state_name_init_hack (ClutterActor  *actor)
@@ -1697,6 +1739,7 @@ void state_name_init_hack (ClutterActor  *actor)
 
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
                     G_CALLBACK (state_name_text_changed), NULL);
+
 }
 
 
@@ -1756,15 +1799,16 @@ void state_elaborate_clicked (ClutterActor  *actor)
 
 void state_test_clicked (ClutterActor  *actor)
 {
-  ClutterAnimator *animator;
   const gchar *source_state;
   source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     source_state = NULL;
 
+  /* Reset to the source of the animation */
   if (!source_state)
     {
+      /* if no source state specified, restore the source state */
       clutter_states_change_noanim (cluttersmith->current_state_machine,
                                     "default");
       cs_properties_restore_defaults ();
@@ -1775,9 +1819,6 @@ void state_test_clicked (ClutterActor  *actor)
                                     source_state);
     }
 
-  g_print ("mark1\n");
   clutter_states_change (cluttersmith->current_state_machine,
                          cluttersmith->current_state);
-  g_print ("mark1\n");
-
 }

@@ -915,7 +915,7 @@ clutter_states_init (ClutterStates *self)
                                         NULL, state_free);
   self->priv->source_state_name = NULL;
   self->priv->target_state_name = NULL;
-  self->priv->duration = 250;
+  self->priv->duration = 1000;
   priv->timeline = clutter_timeline_new (1000);
   priv->slave_timeline = clutter_timeline_new (10000);
   g_signal_connect (priv->timeline, "new-frame",

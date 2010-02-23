@@ -71,4 +71,12 @@ ClutterAnimator * cs_states_make_animator (ClutterStates *states,
 void           cluttersmith_init                   (void);
 void           cluttersmith_print                  (gchar *a);
 
+/* initially copies value from propertyB to propertyA,
+ * it is possible to reassing a new property to propertyA
+ */
+void           cs_bridge_properties                (GObject     *objectA,
+                                                    const gchar *propertyA,
+                                                    GObject     *objectB,
+                                                    const gchar *propertyB);
+
 #endif
