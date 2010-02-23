@@ -672,8 +672,8 @@ void mode_switch (MxComboBox *combo_box,
 
     /* initializing globals */
     title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
-    name = CLUTTER_ACTOR (clutter_script_get_object (script, "name"));
-    name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "name2"));
+    name = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
+    name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type2"));
     parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
     cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
     cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));

@@ -46,7 +46,7 @@
        { "type":"MxBoxLayout", 
          "children":[
           { "type":"MxButton", "width":100, "height":24,
-            "children":[{"type":"ClutterText", "id":"name2", "text":"-"}]
+            "children":[{"type":"ClutterText", "id":"cs-type2", "text":"-"}]
            "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
          },
            ]}
@@ -292,7 +292,7 @@
                         },
 
                         { "type":"MxButton", "width":100, "height":24,
-                          "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
+                          "children":[{"type":"ClutterText", "id":"cs-type", "text":"-"}]
                           "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
                         },
                           ]}
