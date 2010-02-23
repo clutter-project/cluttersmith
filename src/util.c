@@ -1113,6 +1113,8 @@ static void cs_actor_store_defaults (ClutterActor *actor)
 
       if (!(properties[i]->flags & G_PARAM_READABLE))
         skip = TRUE;
+      if (!(properties[i]->flags & G_PARAM_WRITABLE))
+        skip = TRUE;
 
       if (skip)
         continue;
