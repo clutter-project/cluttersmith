@@ -201,6 +201,54 @@
              "children":
                [
 
+                     { "type":"MxBoxLayout", 
+                       "id":"cs-dialog-type",
+                       "children":[
+                        { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
+                        },
+                        { "type":"MxButton", "width":100, "height":24,
+                          "children":[{"type":"ClutterText", "id":"cs-type", "text":"-"}]
+                          "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
+                        },
+                          ]
+                    },
+
+
+                { "type":"MxBoxLayout", 
+                  "id":"cs-dialog-property-inspector",
+                  "vertical":true,
+                  "child::expand":true,
+                  "children":[
+
+                      { "type":"MxScrollView",
+                        "height":70,
+                        "child::expand":true,
+
+                        "children":
+                         [
+                           { "type":"MxViewport",
+                             "children":
+                              [
+                                { "type":"MxBoxLayout", "vertical":true,
+                                   "children":[
+
+                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
+                                      "spacing":2},
+
+                                     {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
+                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":240
+                                       "children":[
+                                       ]
+                                     }
+                                   ]
+                                 }
+                              ]
+                           }
+                        ]
+                      }
+                   ]
+                 },
+
 {
   "id":"cs-dialog-states",
   "type":"MxBoxLayout",
@@ -281,50 +329,6 @@
        }
      ]
 },
-                { "type":"MxBoxLayout", 
-                  "id":"cs-dialog-property-inspector",
-                  "vertical":true,
-                  "child::expand":true,
-                  "children":[
-                     { "type":"MxBoxLayout", 
-                       "children":[
-                        { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
-                        },
-
-                        { "type":"MxButton", "width":100, "height":24,
-                          "children":[{"type":"ClutterText", "id":"cs-type", "text":"-"}]
-                          "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
-                        },
-                          ]}
-
-                      { "type":"MxScrollView",
-                        "height":70,
-                        "child::expand":true,
-
-                        "children":
-                         [
-                           { "type":"MxViewport",
-                             "children":
-                              [
-                                { "type":"MxBoxLayout", "vertical":true,
-                                   "children":[
-
-                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
-                                      "spacing":2},
-
-                                     {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":240
-                                       "children":[
-                                       ]
-                                     }
-                                   ]
-                                 }
-                              ]
-                           }
-                        ]
-                      }
-                   ]
-                 },
 {
   "id":"cs-dialog-callbacks",
   "type":"MxBoxLayout",

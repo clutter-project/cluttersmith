@@ -717,6 +717,7 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->animator_props = _A("cs-animator-props");
     cluttersmith->state_duration = _A("cs-state-duration");
     cluttersmith->dialog_editor = _A("cs-dialog-editor");
+    cluttersmith->dialog_type = _A("cs-dialog-type");
     cluttersmith->dialog_annotate = _A("cs-dialog-annotate");
     cluttersmith->dialog_editor_annotation = _A("cs-dialog-editor-annotation");
     cluttersmith->source_state = _A("cs-source-state");

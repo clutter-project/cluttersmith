@@ -514,6 +514,7 @@ static void hide_all (void)
   clutter_actor_hide (cluttersmith->dialog_property_inspector);
   clutter_actor_hide (cluttersmith->dialog_states);
   clutter_actor_hide (cluttersmith->dialog_annotate);
+  clutter_actor_hide (cluttersmith->dialog_type);
   clutter_actor_hide (cluttersmith->dialog_callbacks);
   clutter_actor_hide (cluttersmith->dialog_config);
   clutter_actor_hide (cluttersmith->dialog_editor);
@@ -549,6 +550,7 @@ void mode_edit (ClutterActor *ignored)
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_property_inspector);
   clutter_actor_show (cluttersmith->dialog_tree);
+  clutter_actor_show (cluttersmith->dialog_type);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
@@ -559,6 +561,7 @@ void mode_animate (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_property_inspector);
   clutter_actor_show (cluttersmith->dialog_states);
   clutter_actor_show (cluttersmith->dialog_animator);
+  clutter_actor_show (cluttersmith->dialog_type);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
@@ -568,6 +571,7 @@ void mode_callbacks (ClutterActor *ignored)
   hide_all ();
   clutter_actor_show (cluttersmith->dialog_callbacks);
   clutter_actor_show (cluttersmith->dialog_tree);
+  clutter_actor_show (cluttersmith->dialog_type);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
 }
