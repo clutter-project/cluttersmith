@@ -816,44 +816,55 @@ void mode_switch (MxComboBox *combo_box,
   void actor_defaults_populate (ClutterActor *container,
                                 ClutterActor *actor)
   {
-      ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
-      ClutterActor *hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
+    ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
+    ClutterActor *hbox;
     ClutterActor *label;
     ClutterActor *editor; 
 
     /* special casing of x,y,w,h to make it take up less space and always be first */
 
-    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "pos:");
+    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_height (label, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "y");
+    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
+    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
     editor = property_editor_new (G_OBJECT (actor), "x");
-    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
     editor = property_editor_new (G_OBJECT (actor), "y");
-    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
-    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "size:");
+    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "width");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_actor_set_height (label, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "height");
+    clutter_text_set_color (CLUTTER_TEXT (label), &white);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
+    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
     editor = property_editor_new (G_OBJECT (actor), "width");
-    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
     editor = property_editor_new (G_OBJECT (actor), "height");
-    clutter_actor_set_size (editor, 40, EDITOR_LINE_HEIGHT);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
     /* virtual 'id' property */
-
-    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
     label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "id");
 
     {
@@ -864,16 +875,9 @@ void mode_switch (MxComboBox *combo_box,
       mx_entry_set_text (MX_ENTRY (editor), clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor)));
     }
 
-    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), editor);
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
-
-
-    clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH,
-                                   EDITOR_LINE_HEIGHT);
-    clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH,
-                                   EDITOR_LINE_HEIGHT);
-    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 }
 
 static GList *cs_actor_get_js_callbacks (ClutterActor *actor,

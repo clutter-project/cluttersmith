@@ -361,6 +361,7 @@ ClutterActor *property_editor_new (GObject *object,
   else if (pspec->value_type == G_TYPE_STRING)
     {
       editor = CLUTTER_ACTOR (mx_entry_new (""));
+      clutter_actor_set_width (editor, 200);
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_string), uc);
@@ -427,19 +428,19 @@ ClutterActor *property_editor_new (GObject *object,
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 
 /* whitelist of properties for ClutterActor */
-gchar *actor_whitelist[]={"depth",
-                          "opacity",
-                          "scale-x",
-                          "scale-y",
-                          "anchor-x",
-                          "color",
-                          "anchor-y",
-                          "rotation-angle-x",
-                          "rotation-angle-y",
-                          "rotation-angle-z",
-                          "name",
-                          "reactive",
-                          NULL};
+gchar *actor_property_whitelist[]={"depth",
+                                   "opacity",
+                                   "scale-x",
+                                   "scale-y",
+                                   "anchor-x",
+                                   "color",
+                                   "anchor-y",
+                                   "rotation-angle-x",
+                                   "rotation-angle-y",
+                                   "rotation-angle-z",
+                                   "name",
+                                   "reactive",
+                                   NULL};
 
 
 
@@ -479,8 +480,8 @@ props_populate (ClutterActor *container,
             {
               gint k;
               skip = TRUE;
-              for (k=0;actor_whitelist[k];k++)
-                if (g_str_equal (properties[i]->name, actor_whitelist[k]))
+              for (k=0;actor_property_whitelist[k];k++)
+                if (g_str_equal (properties[i]->name, actor_property_whitelist[k]))
                   skip = FALSE;
             }
         }
@@ -498,10 +499,9 @@ props_populate (ClutterActor *container,
 
         clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
         clutter_text_set_color (CLUTTER_TEXT (label), &white);
-        clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
-        clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
-        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+        clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+        clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
 
         if (easing_button)
           {
@@ -542,8 +542,9 @@ props_populate (ClutterActor *container,
                     clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
                     clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
                     clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
-                    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+                    clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
                     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+                    clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
                     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
                   }
               }

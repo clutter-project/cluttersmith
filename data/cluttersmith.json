@@ -90,10 +90,10 @@
            [
             {
              "id":"cs-dialog-toolbar",
-             "type":"MxBoxLayout",
+             "name":"toolbar",
              "style-class":"parasite",
+             "type":"MxBoxLayout",
              "reactive":true,
-             "height":36.0,
              "spacing":9,
              "x":0,
              "y":0,
@@ -124,14 +124,14 @@
                    "type":"MxComboBox",
                  },
 
-                 { "type":"MxGrid",
-                   "column-spacing": 2.0,
+                 { "type":"MxBoxLayout",
                    "style-class":"ParasiteToolbar",
+                   "spacing":2,
                    "children":
                      [
 
                        { "type":"MxButton",
-                         "label":"⿻",
+                         "label":"Copy",
                          "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
                        { "type":"MxButton",
                          "label":"✂",
@@ -169,7 +169,6 @@
 
                      ],
                  }
-
                ]
              }
 
@@ -203,10 +202,11 @@
 
                      { "type":"MxBoxLayout", 
                        "id":"cs-dialog-type",
+                       "style-class":"ClutterSmithPropertyPane",
                        "children":[
-                        { "type":"ClutterText", "width":100, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
+                        { "type":"ClutterText", "width":100, "text":"type", "color":"white", "font-name":"Sans 12px",
                         },
-                        { "type":"MxButton", "width":100, "height":24,
+                        { "type":"MxButton", "width":100, 
                           "children":[{"type":"ClutterText", "id":"cs-type", "text":"-"}]
                           "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
                         },
@@ -221,7 +221,7 @@
                   "children":[
 
                       { "type":"MxScrollView",
-                        "height":70,
+                        "height":120,
                         "child::expand":true,
 
                         "children":
@@ -230,13 +230,14 @@
                              "children":
                               [
                                 { "type":"MxBoxLayout", "vertical":true,
+                                   "style-class":"ClutterSmithPropertyPane",
                                    "children":[
 
                                      {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
                                       "spacing":2},
 
                                      {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":240
+                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":120
                                        "children":[
                                        ]
                                      }
@@ -369,7 +370,7 @@
                  { 
                    "id":"cs-dialog-tree",
                    "type":"MxScrollView",
-                   "width":230,
+                   "width":130,
                    "height":70,
                    "child::expand":true,
                    "children":
@@ -393,16 +394,16 @@
                    "id":"cs-dialog-templates",
                    "style-class":"parasite-paste",
                    "type":"MxScrollView",
-                   "width":200,
+                   "width":400,
                    "height":100,
                    "children":
                     [
                       { "type":"MxViewport",
                         "children":
                          [
-                           { "type":"MxBoxLayout", "id":"templates-container",
-                             "vertical":true, "spacing":2,
-                   "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
+                           { "type":"MxGrid", "id":"templates-container",
+                              "width":390, "halign":0.5, "padding":5, "valign":0.5, "column-spacing":3, "row-spacing":3,
+                              "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
                               "children":[
                               ]
                             }
@@ -473,7 +474,6 @@
             "style-class":"parasite",
             "vertical":true,
             "reactive":true,
-            "width":300,
             "spacing":9,
             "x":724,
             "y":0,
@@ -481,7 +481,6 @@
              "children":
                [
                  { "type":"MxScrollView",
-                   "width":300,
                    "height":100,
                    "child::expand":true,
                    "children":
@@ -490,9 +489,11 @@
                         "children":
                          [
                            { "type":"MxBoxLayout", "vertical":true,
+                              "style-class":"ClutterSmithPropertyPane",
                               "children":[
                                 {"type":"ClutterText", "color":"gray", "text":"settings"},
                                 {"type":"MxBoxLayout", "vertical":true, "id":"config-editors",
+                                 "width": 150,
                                  "spacing":2},
 
                               ]
