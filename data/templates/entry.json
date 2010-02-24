@@ -1,6 +1,6 @@
   {
     "id":"actor",
-    "type":"MxButton",
+    "type":"MxEntry",
     "x": 0,
     "y": 0,
     "width":87,
@@ -15,7 +15,7 @@
     "has-tooltip":false,
     "x-fill":false,
     "y-fill":false,
-    "label":"Button",
+    "text":"entry",
     "toggle-mode":false,
     "checked":false,
     "children":[

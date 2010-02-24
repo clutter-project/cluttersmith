@@ -1,0 +1,8 @@
+  {
+    "type":"MxComboBox",
+    "id":"actor",
+    "x": 0,
+    "y": 0,
+    "width":128,
+    "height":32,
+  }
