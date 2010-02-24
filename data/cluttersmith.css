@@ -220,6 +220,11 @@ MxPopup > MxBoxLayout:active > MxLabel {
   border-image: url("link-bg.png") 8;
 }
 
+.ClutterSmithCallout {
+  border-image: url("link-bg.png") 8;
+}
+
+
 .ClutterSmithPropertyPane {
   padding: 0 32 0 10;
 }

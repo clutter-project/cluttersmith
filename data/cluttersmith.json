@@ -416,12 +416,34 @@
             { "type":"MxBoxLayout",
               "id":"cs-dialog-annotate",
               "vertical":true,
-              "width":230,
+              "width":280,
               "style-class":"parasite",
               "children":[
+
+{ 
+                   "style-class":"parasite-paste",
+                   "type":"MxScrollView",
+                   "width":280,
+                   "children":
+                    [
+                      { "type":"MxViewport",
+                        "children":
+                         [
+                           { "type":"MxGrid", "id":"annotation-templates-container",
+                              "halign":0.5, "padding":5, "valign":0.5, "column-spacing":3, "row-spacing":3,
+                              "signals": [ {"name":"paint", "handler":"annotation_templates_container_init_hack"} ]
+                              "children":[
+                              ]
+                            }
+                         ]
+                      }
+                   ]
+                 },
+
             {
               "id":"cs-dialog-editor-annotation",
               "type":"ClutterText",
+              "width":260,
               "line-wrap": true,
               "font-name":"Liberation Sans 13",
               "editable": true,

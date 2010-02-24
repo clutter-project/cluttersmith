@@ -1,4 +1,4 @@
-SUBDIRS = templates docs
+SUBDIRS = templates annotation-templates docs
 
 applicationsdir = $(datadir)/applications
 applications_DATA = cluttersmith.desktop

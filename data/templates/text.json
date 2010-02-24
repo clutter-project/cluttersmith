@@ -19,6 +19,7 @@
     "justify":false,
     "position":-1,
     "selection-bound":-1,
+    "selection-color":"#aaa",
     "cursor-visible":true,
     "cursor-size":2,
     "editable":false,

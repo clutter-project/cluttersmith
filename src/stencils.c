@@ -93,21 +93,14 @@ static gboolean add_stencil (ClutterActor *actor,
   clutter_actor_queue_redraw (clone);
 }
 
-void templates_container_init_hack (ClutterActor  *actor)
+static void load_path (ClutterActor *actor,
+                       const gchar  *path)
 {
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
+   GDir *dir = g_dir_open (path, 0, NULL);
+   const gchar *name;
 
-  {
-    GDir *dir = g_dir_open (PKGDATADIR "templates", 0, NULL);
-    const gchar *name;
 
-    while ((name = g_dir_read_name (dir)))
+   while ((name = g_dir_read_name (dir)))
       {
         ClutterColor  none = {0,0,0,0};
         ClutterActor *group;
@@ -123,10 +116,11 @@ void templates_container_init_hack (ClutterActor  *actor)
         clutter_rectangle_set_color (CLUTTER_RECTANGLE (rectangle), &none);
         clutter_actor_set_reactive (rectangle, TRUE);
           {
-            gchar *path;
+            gchar *path2;
             ClutterActor *oi;
-            path = g_strdup_printf (PKGDATADIR "templates/%s", name);
-            oi = cs_load_json (path);
+            path2 = g_strdup_printf ("%s/%s", path, name);
+            g_print ("%s\n", path2);
+            oi = cs_load_json (path2);
             if (oi)
               {
 #define DIM 120.0
@@ -143,18 +137,46 @@ void templates_container_init_hack (ClutterActor  *actor)
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
-                g_object_set_data_full (G_OBJECT (oi), "path", path, g_free);
+                g_object_set_data_full (G_OBJECT (oi), "path", path2, g_free);
                 g_signal_connect (rectangle, "button-press-event", G_CALLBACK (add_stencil), oi);
               }
               else
               {
-                g_free (path);
+                g_free (path2);
                 }
           }
         clutter_container_add_actor (CLUTTER_CONTAINER (actor), group);
       }
     g_dir_close (dir);
-  }
 }
 
 
+void templates_container_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  gchar *path;
+  if (done)
+    return;
+  done = TRUE;
+  path = g_strdup_printf ("%s%s", PKGDATADIR, "templates");
+  load_path (actor, path);
+  g_free (path);
+}
+
+void annotation_templates_container_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  gchar *path;
+  if (done)
+    return;
+  done = TRUE;
+  path = g_strdup_printf ("%s%s", PKGDATADIR, "annotation-templates");
+  load_path (actor, path);
+  g_free (path);
+}

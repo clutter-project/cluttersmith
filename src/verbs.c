@@ -522,11 +522,41 @@ static void hide_all (void)
   clutter_actor_show (cluttersmith->dialog_toolbar);
 }
 
+static void update_annotation_opacity (gint link_opacity, gint callout_opacity)
+{
+  GList *c, *children;
+  children = cs_container_get_children_recursive (cluttersmith->fake_stage);
+  for (c = children; c; c = c->next)
+    {
+      if (MX_IS_STYLABLE (c->data))
+        {
+          gchar *sc = mx_stylable_get_style_class (c->data);
+          if (sc && g_str_equal (sc, "ClutterSmithLink"))
+            {
+              clutter_actor_animate (c->data, CLUTTER_LINEAR, 800, "opacity", link_opacity, NULL);
+              if (link_opacity == 0)
+                clutter_actor_hide (c->data);
+              else
+                clutter_actor_show (c->data);
+            }
+          else if (sc && g_str_equal (sc, "ClutterSmithCallout"))
+            {
+              if (callout_opacity == 0)
+                clutter_actor_hide (c->data);
+              else
+                clutter_actor_show (c->data);
+              clutter_actor_animate (c->data, CLUTTER_LINEAR, 800, "opacity", callout_opacity, NULL);
+            }
+        }
+    }
+}
+
 void mode_browse (ClutterActor *ignored)
 {
   hide_all ();
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   cs_sync_chrome ();
+  update_annotation_opacity (0x44, 0x00);
 }
 
 void mode_annotate (ClutterActor *ignored)
@@ -535,6 +565,7 @@ void mode_annotate (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_annotate);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0xcc, 0xff);
 }
 
 void mode_sketch (ClutterActor *ignored)
@@ -543,6 +574,7 @@ void mode_sketch (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_templates);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0x66, 0x88);
 }
 
 void mode_edit (ClutterActor *ignored)
@@ -553,6 +585,7 @@ void mode_edit (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_type);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0x66, 0x55);
 }
 
 void mode_animate (ClutterActor *ignored)
@@ -564,6 +597,7 @@ void mode_animate (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_type);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0x66, 0x55);
 }
 
 void mode_callbacks (ClutterActor *ignored)
@@ -574,6 +608,7 @@ void mode_callbacks (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_type);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0x66, 0x55);
 }
 
 void mode_code (ClutterActor *ignored)
@@ -582,6 +617,7 @@ void mode_code (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_editor);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0x66, 0x55);
 }
 
 void mode_config (ClutterActor *ignored)
@@ -590,6 +626,7 @@ void mode_config (ClutterActor *ignored)
   clutter_actor_show (cluttersmith->dialog_config);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
+  update_annotation_opacity (0x0, 0x0);
 }
 
 void mode_browse2 (ClutterActor *ignored)

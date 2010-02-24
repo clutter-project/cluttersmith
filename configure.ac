@@ -50,5 +50,6 @@ autotools/Makefile
 src/Makefile
 data/Makefile
 data/templates/Makefile
+data/annotation-templates/Makefile
 data/docs/Makefile
 ])

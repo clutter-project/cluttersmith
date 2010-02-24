@@ -173,13 +173,21 @@ static void cluttsmith_show_chrome (void)
   clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
 
   /* move fake_stage and canvas into a single group that is transformed? */
+#if 0
   clutter_actor_set_position (cluttersmith->fake_stage, 
     x-cluttersmith->priv->origin_x,
     y-cluttersmith->priv->origin_y);
-
   clutter_actor_set_position (cluttersmith->fake_stage_canvas, 
     x-cluttersmith->priv->origin_x,
     y-cluttersmith->priv->origin_y);
+#else
+
+  clutter_actor_animate (cluttersmith->fake_stage_canvas, CLUTTER_LINEAR, 100,
+    "x", x-cluttersmith->priv->origin_x, "y", y-cluttersmith->priv->origin_y, NULL);
+  clutter_actor_animate (cluttersmith->fake_stage, CLUTTER_LINEAR, 100,
+    "x", x-cluttersmith->priv->origin_x, "y", y-cluttersmith->priv->origin_y, NULL);
+#endif
+
 
   clutter_actor_show (cluttersmith->parasite_ui);
   clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
@@ -198,13 +206,22 @@ static void cluttsmith_hide_chrome (void)
     return;
   clutter_actor_hide (cluttersmith->parasite_ui);
   clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
+
+#if 0
   clutter_actor_set_position (cluttersmith->fake_stage, 
     -cluttersmith->priv->origin_x,
     -cluttersmith->priv->origin_y);
-
   clutter_actor_set_position (cluttersmith->fake_stage_canvas, 
     -cluttersmith->priv->origin_x,
     -cluttersmith->priv->origin_y);
+#else
+  clutter_actor_animate (cluttersmith->fake_stage, CLUTTER_LINEAR, 100,
+    "x", -cluttersmith->priv->origin_x,
+    "y", -cluttersmith->priv->origin_y, NULL);
+  clutter_actor_animate (cluttersmith->fake_stage_canvas, CLUTTER_LINEAR, 100,
+    "x", -cluttersmith->priv->origin_x,
+    "y", -cluttersmith->priv->origin_y, NULL);
+#endif
 
   clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
                                                      cluttersmith->priv->zoom/100.0);
@@ -284,6 +301,7 @@ static void page_run_start (void)
                               cluttersmith->priv->title);
   annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
                               cluttersmith->priv->title);
+
 
 
   save_annotation ();
@@ -383,6 +401,7 @@ static void page_run_start (void)
         g_object_unref (cluttersmith->priv->page_js_context);
         cluttersmith->priv->page_js_context = NULL;
       }
+
   }
 
 
@@ -1498,6 +1517,11 @@ static void cs_load (void)
     }
   cs_set_current_container (cluttersmith->fake_stage);
   CS_REVISION = CS_STORED_REVISION = 0;
+
+  clutter_actor_set_position (cluttersmith->fake_stage, 
+     -cluttersmith->priv->origin_x,
+     -cluttersmith->priv->origin_y);
+
 }
 
 static void title_text_changed (ClutterActor *actor)
