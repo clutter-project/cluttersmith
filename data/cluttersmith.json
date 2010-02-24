@@ -278,14 +278,14 @@
      [
        { "type":"MxEntry",
          "text":"*",
-         "child::expand":"true",
+         "child::expand":true,
          "id":"cs-source-state",
          "signals": [ {"name":"paint", "handler":"state_source_name_init_hack"} ]
        },
 
        { "type":"MxEntry",
          "text":"default",
-         "child::expand":"true",
+         "child::expand":true,
          "id":"cs-state-name",
          "signals": [ {"name":"paint", "handler":"state_name_init_hack"} ]
        },
@@ -402,7 +402,7 @@
                         "children":
                          [
                            { "type":"MxGrid", "id":"templates-container",
-                              "width":390, "halign":0.5, "padding":5, "valign":0.5, "column-spacing":3, "row-spacing":3,
+                              "width":390, "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
                               "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
                               "children":[
                               ]
@@ -430,7 +430,7 @@
                         "children":
                          [
                            { "type":"MxGrid", "id":"annotation-templates-container",
-                              "halign":0.5, "padding":5, "valign":0.5, "column-spacing":3, "row-spacing":3,
+                              "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
                               "signals": [ {"name":"paint", "handler":"annotation_templates_container_init_hack"} ]
                               "children":[
                               ]

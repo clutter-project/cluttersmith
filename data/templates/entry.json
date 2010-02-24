@@ -13,11 +13,7 @@
     "anchor-x":0.000,
     "anchor-y":0.000,
     "has-tooltip":false,
-    "x-fill":false,
-    "y-fill":false,
     "text":"entry",
-    "toggle-mode":false,
-    "checked":false,
     "children":[
   ]
 }
