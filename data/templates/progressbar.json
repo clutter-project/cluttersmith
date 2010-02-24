@@ -4,5 +4,6 @@
     "x": 0,
     "y": 0,
     "width":128,
+    "progress":0.5,
     "height":32,
   }
