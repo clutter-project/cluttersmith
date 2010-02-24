@@ -3,6 +3,8 @@
 *.orig
 *.rej
 *.tar*
+*.lo
+*.la
 *~
 .deps
 .libs
@@ -23,3 +25,6 @@ mkinstalldirs
 omf.make
 stamp-h1
 xmldocs.make
+src/ClutterSmith-0.0.gir
+src/ClutterSmith-0.0.typelib
+src/cluttersmith
