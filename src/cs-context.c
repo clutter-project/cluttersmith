@@ -1069,7 +1069,11 @@ void cs_set_active (ClutterActor *item)
               new = CLUTTER_ACTOR (mx_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
               g_signal_connect (new, "clicked", G_CALLBACK (cs_set_active_event), iter);
               clutter_container_add_actor (CLUTTER_CONTAINER (parents), new);
-              iter = clutter_actor_get_parent (iter);
+
+              if (iter == cluttersmith->fake_stage)
+                iter = NULL;
+              else
+                iter = clutter_actor_get_parent (iter);
             }
 
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
