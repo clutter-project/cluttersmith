@@ -161,6 +161,36 @@ main (gint    argc,
 
   stage = initialize_stage ();
 
+#if 0
+  {
+    ClutterAnimator *animator = clutter_animator_new ();
+    gfloat progress;
+
+    clutter_animator_set (animator,
+            stage, "x", 1, 0.2, 600.0,
+            stage, "x", CLUTTER_LINEAR, 0.3, 500.0,
+            stage, "x", CLUTTER_LINEAR, 0.5, 600.0,
+            stage, "x", CLUTTER_LINEAR, 0.8, 50.0,
+            stage, "x", CLUTTER_LINEAR, 1.0, 30.0,
+            NULL);
+    clutter_animator_property_set_ease_in (animator, G_OBJECT (stage), "x", TRUE);
+
+    for (progress= -0.5; progress < 1.2; progress += 0.05)
+      {
+        GValue value = {0, };
+        gboolean res;
+        g_value_init (&value, G_TYPE_FLOAT);
+        res = clutter_animator_compute_value (animator, stage, "x", progress, &value);
+        g_print ("%f : %f %s\n", progress, g_value_get_float (&value), res?"!":"");
+        g_value_unset (&value);
+      }
+
+    g_object_unref (animator);
+    return 1;
+  }
+#endif
+
+
   g_timeout_add (100, idle_add_stage, stage);
   g_timeout_add (800, idle_load_default, NULL);
 

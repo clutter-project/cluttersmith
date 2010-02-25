@@ -82,8 +82,15 @@ update_object_float (ClutterText *text,
   const gchar *str = clutter_text_get_text (text);
   gdouble value = g_strtod (str, NULL);
   g_object_set (uc->object, uc->property_name, value, NULL);
-  cs_dirtied ();
-  cs_prop_tweaked (uc->object, uc->property_name);
+
+  /* hack to avoid animatiors animating the viewport properties */
+  if (!g_str_equal (uc->property_name, "origin-x") &&
+      !g_str_equal (uc->property_name, "origin-y") &&
+      !g_str_equal (uc->property_name, "zoom"))
+    {
+      cs_dirtied ();
+      cs_prop_tweaked (uc->object, uc->property_name);
+    }
   return TRUE;
 }
 

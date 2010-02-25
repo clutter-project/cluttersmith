@@ -333,6 +333,75 @@ cs_overlay_paint (ClutterActor *stage,
         }
       }
    }
+
+  /* Draw path of currently animated actor */
+  if (cluttersmith->current_animator)
+    {
+      ClutterActor *actor = cs_selected_get_any ();
+      if (actor)
+        {
+          gfloat progress;
+          GValue xv = {0, };
+          GValue yv = {0, };
+          GValue value = {0, };
+
+          g_value_init (&xv, G_TYPE_FLOAT);
+          g_value_init (&yv, G_TYPE_FLOAT);
+          g_value_init (&value, G_TYPE_FLOAT);
+
+          for (progress = 0.0; progress < 1.0; progress += 0.01)
+            {
+              ClutterVertex vertex = {0, };
+              gfloat x, y;
+              clutter_animator_compute_value (cluttersmith->current_animator,
+                                           G_OBJECT (actor), "x", progress, &xv);
+              clutter_animator_compute_value (cluttersmith->current_animator,
+                                           G_OBJECT (actor), "y", progress, &yv);
+              x = g_value_get_float (&xv);
+              y = g_value_get_float (&yv);
+              vertex.x = x;
+              vertex.y = y;
+
+              clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
+                                                      &vertex, &vertex);
+
+              cogl_path_line_to (vertex.x, vertex.y);
+            }
+          cogl_path_stroke ();
+
+          {
+            GList *k, *keys;
+
+            keys = clutter_animator_get_keys (cluttersmith->current_animator,
+                                              G_OBJECT (actor), "x", -1.0);
+            for (k = keys; k; k = k->next)
+              {
+                gdouble progress = clutter_animator_key_get_progress (k->data);
+                ClutterVertex vertex = {0, };
+                gfloat x, y;
+                g_print ("[%f]\n", progress);
+                clutter_animator_compute_value (cluttersmith->current_animator,
+                                             G_OBJECT (actor), "x", progress, &xv);
+                clutter_animator_compute_value (cluttersmith->current_animator,
+                                             G_OBJECT (actor), "y", progress, &yv);
+                x = g_value_get_float (&xv);
+                y = g_value_get_float (&yv);
+                vertex.x = x;
+                vertex.y = y;
+
+                clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
+                                                        &vertex, &vertex);
+
+                cogl_path_new ();
+                cogl_path_ellipse (vertex.x, vertex.y, 5, 5);
+                cogl_path_fill ();
+              }
+            g_list_free (keys);
+          }
+          g_value_unset (&xv);
+          g_value_unset (&yv);
+        }
+    }
 }
 
 gboolean update_overlay_positions (gpointer data)

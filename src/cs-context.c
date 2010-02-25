@@ -26,7 +26,6 @@ enum
   PROP_CANVAS_HEIGHT,
 };
 
-
 struct _CSContextPrivate
 {
   gchar  *title;
@@ -37,6 +36,7 @@ struct _CSContextPrivate
   gfloat canvas_height;
   GjsContext  *page_js_context;
 };
+
 
 static void cs_context_get_property (GObject    *object,
                                      guint       property_id,
@@ -173,7 +173,7 @@ static void cluttsmith_show_chrome (void)
   clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
 
   /* move fake_stage and canvas into a single group that is transformed? */
-#if 0
+#if 1
   clutter_actor_set_position (cluttersmith->fake_stage, 
     x-cluttersmith->priv->origin_x,
     y-cluttersmith->priv->origin_y);
@@ -181,7 +181,6 @@ static void cluttsmith_show_chrome (void)
     x-cluttersmith->priv->origin_x,
     y-cluttersmith->priv->origin_y);
 #else
-
   clutter_actor_animate (cluttersmith->fake_stage_canvas, CLUTTER_LINEAR, 100,
     "x", x-cluttersmith->priv->origin_x, "y", y-cluttersmith->priv->origin_y, NULL);
   clutter_actor_animate (cluttersmith->fake_stage, CLUTTER_LINEAR, 100,
@@ -199,6 +198,16 @@ static void cluttsmith_show_chrome (void)
   has_chrome = TRUE;
 }
 
+gfloat cluttersmith_get_origin_x (void)
+{
+  return cluttersmith->priv->origin_x;
+}
+
+gfloat cluttersmith_get_origin_y (void)
+{
+  return cluttersmith->priv->origin_y;
+}
+
 static void cluttsmith_hide_chrome (void)
 {
   gfloat x, y;
@@ -207,7 +216,7 @@ static void cluttsmith_hide_chrome (void)
   clutter_actor_hide (cluttersmith->parasite_ui);
   clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
 
-#if 0
+#if 1
   clutter_actor_set_position (cluttersmith->fake_stage, 
     -cluttersmith->priv->origin_x,
     -cluttersmith->priv->origin_y);

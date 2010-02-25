@@ -89,6 +89,7 @@ struct _CSContext
   /* XXX: add currently edited state machine */
 };
 
+
 struct _CSContextClass
 {
   GObjectClass parent_class;
@@ -98,6 +99,10 @@ GType cs_context_get_type (void);
 
 void cs_prop_tweaked (GObject     *object,
                       const gchar *property_name);
+
+
+gfloat cluttersmith_get_origin_x (void);
+gfloat cluttersmith_get_origin_y (void);
 
 CSContext *cs_context_new (void);
 
