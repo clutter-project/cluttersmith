@@ -71,6 +71,7 @@ struct _CSContext
   ClutterActor *dialog_editor_error;
   ClutterActor *dialog_templates;
   ClutterActor *dialog_scenes;
+  ClutterActor *dialog_export;
   ClutterActor *dialog_states;
   ClutterActor *dialog_animator;
   ClutterActor *animator_props;

@@ -673,7 +673,8 @@ void mode_switch (MxComboBox *combo_box,
       case 4: mode_animate (); break;
       case 5: mode_callbacks (); break;
       case 6: mode_code (); break;
-      case 7: mode_config (); break;
+      case 7: mode_export (); break;
+      case 8: mode_config (); break;
       default:
               break;
     }
@@ -740,6 +741,7 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->dialog_tree = _A("cs-dialog-tree");
     cluttersmith->dialog_toolbar = _A("cs-dialog-toolbar");
     cluttersmith->dialog_scenes = _A("cs-dialog-scenes");
+    cluttersmith->dialog_export = _A("cs-dialog-export");
     cluttersmith->dialog_templates = _A("cs-dialog-templates");
     cluttersmith->dialog_animator = _A("cs-dialog-animator");
     cluttersmith->animator_progress = _A("cs-animator-progress");
@@ -771,7 +773,8 @@ void mode_switch (MxComboBox *combo_box,
       mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Animate (F5)");
       mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Callbacks (F6)");
       mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Code (F7)");
-      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Config (F8)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Export (F8)");
+      mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Config (F9)");
 
       mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 0);
 

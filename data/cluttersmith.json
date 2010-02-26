@@ -91,12 +91,9 @@
             {
              "id":"cs-dialog-toolbar",
              "name":"toolbar",
-             "style-class":"parasite",
              "type":"MxBoxLayout",
-             "reactive":true,
-             "spacing":9,
-             "x":0,
-             "y":0,
+             "style-class":"parasite",
+             "spacing":2,
             
              "children":
                [
@@ -124,37 +121,36 @@
                    "type":"MxComboBox",
                  },
 
-
-                       { "type":"MxButton",
-                         "name":"cs-copy",
-                         "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-cut",
-                         "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-paste",
-                         "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-duplicate",
-                         "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-remove",
-                         "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-raise-top",
-                         "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-raise",
-                         "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-lower",
-                         "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-bottom",
-                         "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
-                       { "type":"MxButton",
-                         "name":"cs-reset-size",
-                         "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-copy",
+                   "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-cut",
+                   "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-paste",
+                   "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-duplicate",
+                   "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-remove",
+                   "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-raise-top",
+                   "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-raise",
+                   "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-lower",
+                   "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-bottom",
+                   "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
+                 { "type":"MxButton",
+                   "name":"cs-reset-size",
+                   "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
 
                ]
              }
@@ -254,12 +250,28 @@
          "text":"Export"
        },
    
+       { "type":"MxLabel",
+         "text":"PNG",
+       },
+
        { "type":"MxEntry",
          "text":"/tmp/cluttersmith.png"
        },
 
+       { "type":"MxLabel",
+         "text":"PDF",
+       },
+
        { "type":"MxEntry",
          "text":"/tmp/cluttersmith.pdf"
+       },
+
+       { "type":"MxLabel",
+         "text":"rpm",
+       },
+
+       { "type":"MxEntry",
+         "text":"/tmp/cluttersmith.rpm"
        }
     ]
 },

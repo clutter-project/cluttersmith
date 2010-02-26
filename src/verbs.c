@@ -519,6 +519,7 @@ static void hide_all (void)
   clutter_actor_hide (cluttersmith->dialog_config);
   clutter_actor_hide (cluttersmith->dialog_editor);
   clutter_actor_hide (cluttersmith->dialog_animator);
+  clutter_actor_hide (cluttersmith->dialog_export);
   clutter_actor_show (cluttersmith->dialog_toolbar);
 }
 
@@ -620,6 +621,15 @@ void mode_code (ClutterActor *ignored)
   update_annotation_opacity (0x66, 0x55);
 }
 
+void mode_export (ClutterActor *ignored)
+{
+  hide_all ();
+  clutter_actor_show (cluttersmith->dialog_export);
+  cs_set_ui_mode (CS_UI_MODE_CHROME);
+  cs_sync_chrome ();
+  update_annotation_opacity (0x0, 0x0);
+}
+
 void mode_config (ClutterActor *ignored)
 {
   hide_all ();
@@ -643,8 +653,10 @@ void mode_callbacks2 (ClutterActor *ignored)
 { mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 5); }
 void mode_code2 (ClutterActor *ignored)
 { mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 6); }
-void mode_config2 (ClutterActor *ignored)
+void mode_export2(ClutterActor *ignored)
 { mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 7); }
+void mode_config2 (ClutterActor *ignored)
+{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 8); }
 
 /******************************************************************************/
 
@@ -717,14 +729,15 @@ static KeyBinding global_keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_a,         cs_select_all},
 
 
-  {0,                    CLUTTER_F1,        mode_browse2},
-  {0,                    CLUTTER_F2,        mode_annotate2},
-  {0,                    CLUTTER_F3,        mode_sketch2},
-  {0,                    CLUTTER_F4,        mode_edit2},
-  {0,                    CLUTTER_F5,        mode_animate2},
-  {0,                    CLUTTER_F6,        mode_callbacks2},
-  {0,                    CLUTTER_F7,        mode_code2},
-  {0,                    CLUTTER_F8,        mode_config2},
+  {0,   CLUTTER_F1,  mode_browse2},
+  {0,   CLUTTER_F2,  mode_annotate2},
+  {0,   CLUTTER_F3,  mode_sketch2},
+  {0,   CLUTTER_F4,  mode_edit2},
+  {0,   CLUTTER_F5,  mode_animate2},
+  {0,   CLUTTER_F6,  mode_callbacks2},
+  {0,   CLUTTER_F7,  mode_code2},
+  {0,   CLUTTER_F8,  mode_export2},
+  {0,   CLUTTER_F9,  mode_config2},
 
   {0, 0, NULL},
 };

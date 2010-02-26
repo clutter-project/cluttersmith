@@ -501,11 +501,9 @@ props_populate (ClutterActor *container,
 
       {
         ClutterActor *hbox = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
-        ClutterActor *label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, properties[i]->name);
+        ClutterActor *label = mx_label_new (properties[i]->name);
         ClutterActor *editor = property_editor_new (object, properties[i]->name);
 
-        clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
-        clutter_text_set_color (CLUTTER_TEXT (label), &white);
         clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
         clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
