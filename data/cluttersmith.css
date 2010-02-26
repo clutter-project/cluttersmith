@@ -205,53 +205,54 @@ MxPopup > MxBoxLayout:active > MxLabel {
 }
 
 #cs-play {
-  x-mx-icon-name: slideshow-play;
-  x-mx-icon-size: 20;
+  -mx-icon-name: slideshow-play;
+  -mx-icon-size: 20;
 }
 
 #cs-copy {
-  x-mx-icon-name: edit-copy;
-  x-mx-icon-size: 18;
+  -mx-icon-name: edit-copy;
+  -mx-icon-size: 18;
 }
+
 #cs-cut {
-  x-mx-icon-name: edit-cut;
-  x-mx-icon-size: 18;
+  -mx-icon-name: edit-cut;
+  -mx-icon-size: 18;
 }
 #cs-paste {
-  x-mx-icon-name: edit-paste;
-  x-mx-icon-size: 18;
+  -mx-icon-name: edit-paste;
+  -mx-icon-size: 18;
 }
 #cs-duplicate {
-  x-mx-icon-name: unknown;
-  x-mx-icon-size: 18;
+  -mx-icon-name: unknown;
+  -mx-icon-size: 18;
 }
 #cs-remove {
-  x-mx-icon-name: edit-clear;
-  x-mx-icon-size: 18;
+  -mx-icon-name: edit-clear;
+  -mx-icon-size: 18;
 }
 #cs-raise-top {
-  x-mx-icon-name: top;
-  x-mx-icon-size: 18;
+  -mx-icon-name: top;
+  -mx-icon-size: 18;
 }
 #cs-raise {
-  x-mx-icon-name: up;
-  x-mx-icon-size: 18;
+  -mx-icon-name: up;
+  -mx-icon-size: 18;
 }
 #cs-lower {
-  x-mx-icon-name: down;
-  x-mx-icon-size: 18;
+  -mx-icon-name: down;
+  -mx-icon-size: 18;
 }
 #cs-bottom {
-  x-mx-icon-name: bottom;
-  x-mx-icon-size: 18;
+  -mx-icon-name: bottom;
+  -mx-icon-size: 18;
 }
 #cs-reset-size {
-  x-mx-icon-name: reload;
-  x-mx-icon-size: 18;
+  -mx-icon-name: reload;
+  -mx-icon-size: 18;
 }
 #cs-help {
-  x-mx-icon-name: info;
-  x-mx-icon-size: 18;
+  -mx-icon-name: info;
+  -mx-icon-size: 18;
 }
 
 .parasite .ClutterSmithTitle {
