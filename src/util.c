@@ -1277,5 +1277,3 @@ cs_bridge_properties (GObject     *objectA,
    * proper cleanup of signals if any of them disappear.
    */
 }
-
-

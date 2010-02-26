@@ -5,13 +5,19 @@
 #include "cluttersmith.h"
 #include "util.h"
 
-static guint stage_capture_handler = 0;
-
 ClutterActor      *lasso;
 static gint        lx, ly;
 static GHashTable *selection = NULL; /* what would be added/removed by
                                         current lasso*/
 
+/*
+ * Shared state used by all the separate states the event handling can
+ * the substates are exclusive (can be extended to have a couple of stages
+ * that allow falling through to each other, but a fixed event pipeline
+ * is an simpler initial base).
+ */
+static gfloat manipulate_x;
+static gfloat manipulate_y;
 
 
 void cs_selected_init (void);
@@ -349,7 +355,7 @@ cs_overlay_paint (ClutterActor *stage,
           g_value_init (&yv, G_TYPE_FLOAT);
           g_value_init (&value, G_TYPE_FLOAT);
 
-          for (progress = 0.0; progress < 1.0; progress += 0.01)
+          for (progress = 0.0; progress < 1.0; progress += 0.004)
             {
               ClutterVertex vertex = {0, };
               gfloat x, y;
@@ -368,18 +374,194 @@ cs_overlay_paint (ClutterActor *stage,
               cogl_path_line_to (vertex.x, vertex.y);
             }
           cogl_path_stroke ();
+        }
+    }
+}
+
+static GList *handles = NULL;
+typedef struct AnimatorHandle {
+  ClutterAnimator *animator;
+  GObject         *object;
+  gint             key_no;
+
+  ClutterActor    *actor;
+} AnimatorHandle;
+
+static gboolean
+handle_move_capture (ClutterActor *stage,
+                     ClutterEvent *event,
+                     gpointer      data)
+{
+  AnimatorHandle *handle = data;
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          gfloat delta[2];
+          delta[0]=manipulate_x-event->motion.x;
+          delta[1]=manipulate_y-event->motion.y;
+          cs_dirtied ();
+
+          {
+            GList *xlist = clutter_animator_get_keys (handle->animator,
+                                                      handle->object,
+                                                      "x", -1);
+            GList *ylist = clutter_animator_get_keys (handle->animator,
+                                                      handle->object,
+                                                      "y", -1);
+            ClutterAnimatorKey *xkey;
+            ClutterAnimatorKey *ykey;
+            GValue              xvalue = {0, };
+            GValue              yvalue = {0, };
+            gdouble progress;
+
+            g_value_init (&xvalue, G_TYPE_FLOAT);
+            g_value_init (&yvalue, G_TYPE_FLOAT);
+
+            xkey = g_list_nth_data (xlist, handle->key_no);
+            ykey = g_list_nth_data (ylist, handle->key_no);
+            g_list_free (xlist);
+            g_list_free (ylist);
+
+            progress = clutter_animator_key_get_progress (xkey);
+
+            clutter_animator_key_get_value (xkey, &xvalue);
+            clutter_animator_key_get_value (ykey, &yvalue);
+
+            clutter_animator_set (handle->animator,
+                                  handle->object, "x",
+                                  CLUTTER_LINEAR,
+                                  progress, 
+                                  g_value_get_float (&xvalue) - delta[0],
+                                  
+                                  NULL);
+            clutter_animator_set (handle->animator,
+                                  handle->object, "y",
+                                  CLUTTER_LINEAR,
+                                  progress, 
+                                  g_value_get_float (&yvalue) - delta[1],
+                                  NULL);
+
+            g_value_unset (&xvalue);
+            g_value_unset (&yvalue);
+
+          }
+
+          manipulate_x=event->motion.x;
+          manipulate_y=event->motion.y;
+        }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+        g_signal_handlers_disconnect_by_func (stage, handle_move_capture, data);
+        hor_pos = 0;
+        ver_pos = 0;
+
+        clutter_actor_queue_redraw (stage);
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+static gboolean handle_event (ClutterActor *actor,
+                              ClutterEvent *event,
+                              gpointer      data)
+{
+  AnimatorHandle *handle = data;
+
+  switch (clutter_event_type (event))
+    {
+      case CLUTTER_BUTTON_PRESS:
+        manipulate_x = event->button.x;
+        manipulate_y = event->button.y;
+
+        g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                          G_CALLBACK (handle_move_capture), handle);
+        return TRUE;
+      case CLUTTER_ENTER:
+        clutter_actor_set_opacity (actor, 0xff);
+        break;
+      case CLUTTER_LEAVE:
+        clutter_actor_set_opacity (actor, 0xaa);
+        break;
+      default:
+        break;
+    }
+  return FALSE;
+}
+
+
+static void ensure_animator_handle (ClutterAnimator *animator,
+                                    GObject         *object,
+                                    gfloat           x,
+                                    gfloat           y,
+                                    gint             key_no)
+{
+  AnimatorHandle *handle;
+  GList *h;
+  for (h = handles; h; h=h->next)
+    {
+      handle = h->data;
+      if (handle->key_no == key_no)
+        {
+          if (object == NULL)
+            {
+              handles = g_list_remove (handles, handle);
+              clutter_actor_destroy (handle->actor);
+              g_free (handle);
+              return;
+            }
+          break;
+        }
+      else
+        handle = NULL;
+    }
+  if (!object)
+    return;
+  if (!handle)
+    {
+      handle = g_new0 (AnimatorHandle, 1);
+      handle->key_no = key_no;
+      handle->actor = clutter_texture_new_from_file (PKGDATADIR "link-bg.png", NULL);
+      clutter_actor_set_opacity (handle->actor, 0xaa);
+      clutter_actor_set_anchor_point_from_gravity (handle->actor, CLUTTER_GRAVITY_CENTER);
+      clutter_actor_set_size (handle->actor, 20, 20);
+      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->parasite_root),
+                                   handle->actor);
+      handles = g_list_append (handles, handle);
+      clutter_actor_set_reactive (handle->actor, TRUE);
+      g_signal_connect   (handle->actor, "event", G_CALLBACK (handle_event), handle);
+    }
+  handle->object = object;
+  handle->animator = animator;
+  clutter_actor_set_position (handle->actor, x, y);
+}
+
+gboolean update_overlay_positions (gpointer data)
+{
+  /* Update positions of drag handles */
+  if (cluttersmith->current_animator)
+    {
+      ClutterActor *actor = cs_selected_get_any ();
+      gint i = 0;
+      if (actor)
+        {
+          GValue xv = {0, };
+          GValue yv = {0, };
+
+          g_value_init (&xv, G_TYPE_FLOAT);
+          g_value_init (&yv, G_TYPE_FLOAT);
 
           {
             GList *k, *keys;
 
             keys = clutter_animator_get_keys (cluttersmith->current_animator,
                                               G_OBJECT (actor), "x", -1.0);
-            for (k = keys; k; k = k->next)
+            for (k = keys, i = 0; k; k = k->next, i++)
               {
                 gdouble progress = clutter_animator_key_get_progress (k->data);
                 ClutterVertex vertex = {0, };
                 gfloat x, y;
-                g_print ("[%f]\n", progress);
                 clutter_animator_compute_value (cluttersmith->current_animator,
                                              G_OBJECT (actor), "x", progress, &xv);
                 clutter_animator_compute_value (cluttersmith->current_animator,
@@ -392,20 +574,21 @@ cs_overlay_paint (ClutterActor *stage,
                 clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
                                                         &vertex, &vertex);
 
-                cogl_path_new ();
-                cogl_path_ellipse (vertex.x, vertex.y, 5, 5);
-                cogl_path_fill ();
+                ensure_animator_handle (cluttersmith->current_animator,
+                                        G_OBJECT (actor), vertex.x, vertex.y, i);
               }
             g_list_free (keys);
           }
           g_value_unset (&xv);
           g_value_unset (&yv);
         }
+      for (; i<100; i++)
+        {
+          ensure_animator_handle (NULL, NULL, 0,0, i);
+        }
     }
-}
 
-gboolean update_overlay_positions (gpointer data)
-{
+
   if (cs_selected_count ()==0 && lasso == NULL)
     {
       clutter_actor_hide (cluttersmith->active_panel);
@@ -434,6 +617,7 @@ gboolean update_overlay_positions (gpointer data)
      clutter_actor_set_position (cluttersmith->active_panel, min_x, max_y);
    }
 
+
  return TRUE;
 }
 
@@ -445,15 +629,6 @@ void cs_actor_editing_init (gpointer stage)
   init_multi_select ();
 }
 
-/*
- * Shared state used by all the separate states the event handling can
- * the substates are exclusive (can be extended to have a couple of stages
- * that allow falling through to each other, but a fixed event pipeline
- * is an simpler initial base).
- */
-static guint  manipulate_capture_handler = 0;
-static gfloat manipulate_x;
-static gfloat manipulate_y;
 
 #define SNAP_THRESHOLD  2
 
@@ -788,9 +963,7 @@ manipulate_move_capture (ClutterActor *stage,
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
-        g_signal_handler_disconnect (stage,
-                                     manipulate_capture_handler);
-        manipulate_capture_handler = 0;
+        g_signal_handlers_disconnect_by_func (stage, manipulate_move_capture, data);
         hor_pos = 0;
         ver_pos = 0;
 
@@ -807,9 +980,8 @@ gboolean manipulate_move_start (ClutterActor  *actor,
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
 
-  manipulate_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (manipulate_move_capture), actor);
+  g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                    G_CALLBACK (manipulate_move_capture), actor);
   clutter_actor_queue_redraw (actor);
   return TRUE;
 }
@@ -850,9 +1022,7 @@ manipulate_resize_capture (ClutterActor *stage,
         hor_pos = 0;
         ver_pos = 0;
         clutter_actor_queue_redraw (stage);
-        g_signal_handler_disconnect (stage,
-                                     manipulate_capture_handler);
-        manipulate_capture_handler = 0;
+        g_signal_handlers_disconnect_by_func (stage, manipulate_resize_capture, data);
       default:
         break;
     }
@@ -868,9 +1038,8 @@ gboolean manipulate_resize_start (ClutterActor  *actor,
 
   clutter_actor_transform_stage_point (first_actor, event->button.x, event->button.y, &manipulate_x, &manipulate_y);
 
-  manipulate_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (manipulate_resize_capture), actor);
+  g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                    G_CALLBACK (manipulate_resize_capture), actor);
   return TRUE;
 }
 
@@ -949,14 +1118,12 @@ manipulate_pan_capture (ClutterActor *stage,
         break;
       case CLUTTER_BUTTON_RELEASE:
         clutter_actor_queue_redraw (stage);
-        g_signal_handler_disconnect (stage,
-                                     manipulate_capture_handler);
+        g_signal_handlers_disconnect_by_func (stage, manipulate_pan_capture, data);
         if (manipulate_x == manipulate_pan_start_x &&
             manipulate_y == manipulate_pan_start_y)
           {
             do_zoom (!(event->button.modifier_state & CLUTTER_SHIFT_MASK), manipulate_x, manipulate_y);
           }
-        manipulate_capture_handler = 0;
       default:
         break;
     }
@@ -971,9 +1138,8 @@ gboolean manipulate_pan_start (ClutterEvent  *event)
   manipulate_pan_start_x = manipulate_x;
   manipulate_pan_start_y = manipulate_y;
 
-  manipulate_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (event->any.source), "captured-event",
-                       G_CALLBACK (manipulate_pan_capture), NULL);
+  g_signal_connect (clutter_actor_get_stage (event->any.source), "captured-event",
+                    G_CALLBACK (manipulate_pan_capture), NULL);
   return TRUE;
 }
 
@@ -1109,9 +1275,7 @@ manipulate_lasso_capture (ClutterActor *stage,
         g_hash_table_remove_all (selection);
 
         clutter_actor_queue_redraw (stage);
-        g_signal_handler_disconnect (stage,
-                                     manipulate_capture_handler);
-        manipulate_capture_handler = 0;
+        g_signal_handlers_disconnect_by_func (stage, manipulate_lasso_capture, data);
         clutter_actor_destroy (lasso);
         lasso = NULL;
       default:
@@ -1150,9 +1314,8 @@ static gboolean manipulate_lasso_start (ClutterActor  *actor,
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
 
-  manipulate_capture_handler = 
-     g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
-                       G_CALLBACK (manipulate_lasso_capture), actor);
+  g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                    G_CALLBACK (manipulate_lasso_capture), actor);
 
   return TRUE;
 }
@@ -1518,16 +1681,8 @@ static gboolean playback_context (ClutterActor *actor,
 
 void cs_manipulate_init (ClutterActor *actor)
 {
-  if (stage_capture_handler)
-    {
-      g_signal_handler_disconnect (clutter_actor_get_stage (actor),
-                                   stage_capture_handler);
-      stage_capture_handler = 0;
-    }
-
-  stage_capture_handler = 
-     g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
-                             G_CALLBACK (manipulate_capture), NULL);
+  g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
+                          G_CALLBACK (manipulate_capture), NULL);
   g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
                     G_CALLBACK (playback_context), NULL);
 }
