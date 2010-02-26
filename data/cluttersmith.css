@@ -297,3 +297,18 @@ MxPopup > MxBoxLayout:active > MxLabel {
   border-image: url('menu-item.png') 2;
 }
 */
+
+.parasite MxExpander {
+  font-size: 15;
+  border-image: url("button-bg.png") 8;
+  color: white;
+}
+
+.parasite MxExpander:hover {
+  border-image: url("button-bg-hover.png") 8;
+  color: white;
+}
+
+.parasite MxExpander:active {
+  border-image: url("button-bg.png") 8;
+}
