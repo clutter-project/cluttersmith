@@ -444,7 +444,6 @@ handle_move_capture (ClutterActor *stage,
 
             g_value_unset (&xvalue);
             g_value_unset (&yvalue);
-
           }
 
           manipulate_x=event->motion.x;
@@ -455,6 +454,31 @@ handle_move_capture (ClutterActor *stage,
         g_signal_handlers_disconnect_by_func (stage, handle_move_capture, data);
         hor_pos = 0;
         ver_pos = 0;
+
+        if (clutter_event_get_button (event)==3)
+          {
+            GList *xlist = clutter_animator_get_keys (handle->animator,
+                                                      handle->object,
+                                                      "x", -1);
+            GList *ylist = clutter_animator_get_keys (handle->animator,
+                                                      handle->object,
+                                                      "y", -1);
+            ClutterAnimatorKey *xkey;
+            ClutterAnimatorKey *ykey;
+            gdouble progress;
+
+            xkey = g_list_nth_data (xlist, handle->key_no);
+            ykey = g_list_nth_data (ylist, handle->key_no);
+            g_list_free (xlist);
+            g_list_free (ylist);
+            progress = clutter_animator_key_get_progress (xkey);
+
+            clutter_animator_remove_key (handle->animator,
+                                         handle->object, "x", progress);
+            if (ykey)
+            clutter_animator_remove_key (handle->animator,
+                                         handle->object, "y", progress);
+          }
 
         clutter_actor_queue_redraw (stage);
       default:
