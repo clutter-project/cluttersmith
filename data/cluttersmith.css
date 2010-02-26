@@ -8,11 +8,6 @@
 .parasite MxButton:active,
 .parasite MxButton:hover,
 .parasite MxButton:checked {
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 4px;
-  padding-right: 4px;
-  font-size: 12px;
 }
 
 MxLabel, MxIMLabel
@@ -32,10 +27,6 @@ MxLabel, MxIMLabel
 .ParasiteToolbar MxButton:checked 
 {
   font-size: 13px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
 }
 
 MxBoxLayout.ParasiteTreeA1 {
@@ -58,7 +49,6 @@ MxBoxLayout.ParasiteTreeB2 {
   border-image: url("button-bg.png") 8;
   color: white;
 }
-
 
 .parasite MxEntry {
   border-image: url("entry-bg.png") 8;
@@ -210,10 +200,62 @@ MxPopup > MxBoxLayout:active > MxLabel {
   color: white;
 }
 
+#cs-play {
+  x-mx-icon-name: slideshow-play;
+  x-mx-icon-size: 24;
+}
 
+#cs-copy {
+  x-mx-icon-name: edit-copy;
+  x-mx-icon-size: 24;
+}
+#cs-cut {
+  x-mx-icon-name: edit-cut;
+  x-mx-icon-size: 24;
+}
+#cs-paste {
+  x-mx-icon-name: edit-paste;
+  x-mx-icon-size: 24;
+}
+#cs-duplicate {
+  x-mx-icon-name: unknown;
+  x-mx-icon-size: 24;
+}
+#cs-remove {
+  x-mx-icon-name: edit-clear;
+  x-mx-icon-size: 24;
+}
+#cs-raise-top {
+  x-mx-icon-name: top;
+  x-mx-icon-size: 24;
+}
+#cs-raise {
+  x-mx-icon-name: up;
+  x-mx-icon-size: 24;
+}
+#cs-lower {
+  x-mx-icon-name: down;
+  x-mx-icon-size: 24;
+}
+#cs-bottom {
+  x-mx-icon-name: bottom;
+  x-mx-icon-size: 24;
+}
+#cs-reset-size {
+  x-mx-icon-name: reload;
+  x-mx-icon-size: 24;
+}
+#cs-help {
+  x-mx-icon-name: info;
+  x-mx-icon-size: 24;
+}
 
 .parasite .ClutterSmithTitle {
   font-size: 20px;
+}
+
+.parasite MxLabel {
+  color: white;
 }
 
 .ClutterSmithLink {
