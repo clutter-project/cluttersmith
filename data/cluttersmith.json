@@ -103,6 +103,7 @@
 
                  { "id":"project-root",
                    "style-class":"ClutterSmithLocation",
+                   "tooltip-text":"Project directory",
                    "type":"MxEntry",  "text": "", "width":200, "height":10,
                    "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
                  },
@@ -112,44 +113,56 @@
 
                  { "id":"title",
                    "style-class":"ClutterSmithTitle",
+                   "tooltip-text":"Currently edited scene, name a new one to create it.",
                    "type":"MxEntry",  "text": "", "width":100, "height":10,
                    "signals": [ {"name":"paint", "handler":"title_entry_init_hack"} ]
                  },
                  { "type":"MxButton",
                    "label":"V",
+                   "tooltip-text":"Switch to scene",
                    "signals": [ {"name":"clicked", "handler":"scenes_dropdown"} ] },
                 ]},
 
 
                  { "type":"MxButton",
                    "name":"cs-copy",
+                   "tooltip-text":"Copy",
                    "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
                  { "type":"MxButton",
                    "name":"cs-cut",
+                   "tooltip-text":"Cut",
                    "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
                  { "type":"MxButton",
                    "name":"cs-paste",
+                   "tooltip-text":"Paste",
                    "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
                  { "type":"MxButton",
                    "name":"cs-duplicate",
+                   "tooltip-text":"Duplicate",
                    "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
                  { "type":"MxButton",
                    "name":"cs-remove",
+                   "tooltip-text":"Remove",
                    "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
                  { "type":"MxButton",
                    "name":"cs-raise-top",
+                   "tooltip-text":"Send to front",
                    "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
                  { "type":"MxButton",
                    "name":"cs-raise",
+                   "tooltip-text":"Raise",
                    "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
                  { "type":"MxButton",
                    "name":"cs-lower",
+                   "tooltip-text":"Lower",
                    "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
                  { "type":"MxButton",
                    "name":"cs-bottom",
+                   "tooltip-text":"Send to bottom",
                    "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
                  { "type":"MxButton",
                    "name":"cs-reset-size",
+                   "tooltip-text":"Reset size",
                    "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
                ]
              }
@@ -175,7 +188,7 @@
             "style-class":"parasite",
             "vertical":true,
             "reactive":true,
-            "spacing":9,
+            "spacing":2,
             
             "children":
               [
@@ -288,6 +301,7 @@
   "type":"MxExpander",
   "label":"Animation",
   "expanded":true,
+  "signals": [ {"name":"expand-complete", "handler":"cs_states_expand_complete"} ]
   "children":[
 
 {
@@ -523,6 +537,7 @@
             { "type":"MxBoxLayout",
               "vertical":true,
               "width":200,
+              "height":300,
               "style-class":"parasite",
               "children":[
             {
@@ -566,6 +581,7 @@
            {"type":"MxLabel", "text":"settings"},
            {"type":"MxBoxLayout", "vertical":true, "id":"config-editors",
             "width":200,
+            "height":200,
             "spacing":2},
            ]
       }
