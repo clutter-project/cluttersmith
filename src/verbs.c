@@ -538,7 +538,6 @@ static void update_annotation_opacity (gint link_opacity, gint callout_opacity)
 
 void mode_browse (ClutterActor *ignored)
 {
-  hide_all ();
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   cs_sync_chrome ();
   update_annotation_opacity (0x44, 0x00);
@@ -546,18 +545,14 @@ void mode_browse (ClutterActor *ignored)
 
 void mode_annotate (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_animator, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
@@ -567,18 +562,14 @@ void mode_annotate (ClutterActor *ignored)
 
 void mode_sketch (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
   g_object_set (cluttersmith->dialog_templates, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_animator, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
@@ -588,19 +579,15 @@ void mode_sketch (ClutterActor *ignored)
 
 void mode_edit (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
 
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_animator, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
 
 
@@ -611,22 +598,15 @@ void mode_edit (ClutterActor *ignored)
 
 void mode_animate (ClutterActor *ignored)
 {
-  hide_all ();
-
-  show_all ();
-
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-
-  //clutter_actor_show (cluttersmith->dialog_animator);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -635,15 +615,11 @@ void mode_animate (ClutterActor *ignored)
 
 void mode_callbacks (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
-
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
@@ -656,15 +632,11 @@ void mode_callbacks (ClutterActor *ignored)
 
 void mode_code (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
-
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", TRUE, NULL);
@@ -678,15 +650,11 @@ void mode_code (ClutterActor *ignored)
 
 void mode_export (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
-
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
@@ -699,15 +667,11 @@ void mode_export (ClutterActor *ignored)
 
 void mode_config (ClutterActor *ignored)
 {
-  hide_all ();
-  show_all ();
-
   g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_type, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
   g_object_set (cluttersmith->dialog_config, "expanded", TRUE, NULL);
   g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);

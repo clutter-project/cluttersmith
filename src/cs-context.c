@@ -646,6 +646,7 @@ void mode_animate (void);
 void mode_callbacks (void);
 void mode_code (void);
 void mode_config (void);
+void mode_export (void);
 
 void state_position_actors (gdouble        progress);
 
@@ -706,6 +707,7 @@ void mode_switch (MxComboBox *combo_box,
     name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type2"));
     parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
     cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+    cluttersmith->property_editors_core = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors-core"));
     cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
     cluttersmith->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
     cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
@@ -1085,6 +1087,7 @@ void cs_set_active (ClutterActor *item)
 
   cs_container_remove_children (parents);
   cs_container_remove_children (cluttersmith->property_editors);
+  cs_container_remove_children (cluttersmith->property_editors_core);
   cs_container_remove_children (cluttersmith->scene_graph);
 
     {
@@ -1113,7 +1116,7 @@ void cs_set_active (ClutterActor *item)
 
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
-          actor_defaults_populate (cluttersmith->property_editors, active_actor);
+          actor_defaults_populate (cluttersmith->property_editors_core, active_actor);
           props_populate (cluttersmith->property_editors, G_OBJECT (active_actor), FALSE);
           cs_tree_populate (cluttersmith->scene_graph, active_actor);
 

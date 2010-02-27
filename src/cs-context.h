@@ -49,6 +49,7 @@ struct _CSContext
   ClutterActor *scene_graph;
   gchar        *project_root;
   ClutterActor *property_editors;
+  ClutterActor *property_editors_core;
 
   ClutterActor *active_panel;
   ClutterActor *active_container;

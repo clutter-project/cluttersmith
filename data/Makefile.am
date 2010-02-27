@@ -16,6 +16,10 @@ res_DATA = \
   cluttersmith.css \
   cluttersmith.json \
   cluttersmith-assistant.json \
-  cluttersmith.png 
+  cluttersmith.png \
+  expander-arrow-up.png \
+  expander-arrow-up-hover.png \
+  expander-arrow-down.png \
+  expander-arrow-down-hover.png
 
 EXTRA_DIST = $(icons_DATA) $(applications_DATA) $(res_DATA) 

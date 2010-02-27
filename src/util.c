@@ -616,6 +616,10 @@ cs_find_by_id2 (ClutterActor *stage, const gchar *id, gboolean skip_int)
         }
     }
   g_list_free (list);
+  if (!ret)
+    {
+      g_warning ("not finding %s\n", id);
+    }
   return ret;
 }
 

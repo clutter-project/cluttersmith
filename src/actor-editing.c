@@ -1292,6 +1292,11 @@ manipulate_capture (ClutterActor *actor,
   if ((clutter_get_motion_events_enabled()==FALSE) ||
       cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root))
     {
+      if (event->any.type == CLUTTER_MOTION)
+        {
+          cs_last_x = event->motion.x;
+          cs_last_y = event->motion.y;
+        }
       return FALSE;
     }
   switch (event->any.type)

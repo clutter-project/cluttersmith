@@ -35,7 +35,7 @@
   "style-class":"parasite",
   "vertical":true,
   "reactive":true,
-  "width":300,
+  "width":240,
   "height":100,
   "spacing":9,
   "x":0,
@@ -98,30 +98,10 @@
              "children":
                [
                  { "id":"cs-mode",
+                   "width":230,
                    "type":"MxComboBox",
                  },
 
-                 { "id":"project-root",
-                   "style-class":"ClutterSmithLocation",
-                   "tooltip-text":"Project directory",
-                   "type":"MxEntry",  "text": "", "width":200, "height":10,
-                   "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
-                 },
-
-                {"type":"MxBoxLayout",
-                 "children":[
-
-                 { "id":"title",
-                   "style-class":"ClutterSmithTitle",
-                   "tooltip-text":"Currently edited scene, name a new one to create it.",
-                   "type":"MxEntry",  "text": "", "width":100, "height":10,
-                   "signals": [ {"name":"paint", "handler":"title_entry_init_hack"} ]
-                 },
-                 { "type":"MxButton",
-                   "label":"V",
-                   "tooltip-text":"Switch to scene",
-                   "signals": [ {"name":"clicked", "handler":"scenes_dropdown"} ] },
-                ]},
 
 
                  { "type":"MxButton",
@@ -176,6 +156,7 @@
 
            { "type":"MxScrollView",
              "height":200,
+             "style-class":"sidebarscroll",
 
              "children":
              [
@@ -193,17 +174,84 @@
             "children":
               [
 
+{
+  "id":"cs-dialog-project",
+  "style-class":"parasite",
+  "type":"MxExpander",
+  "label":"Project",
+  "expanded":true,
+  "children":[
+     {
+       "type":"MxBoxLayout",
+       "style-class":"ClutterSmithPropertyPane",
+       "vertical":true,
+       "width":240,
+       "spacing":2,
+       "children":
+       [
+          {"type":"MxLabel", "text":"Title"},
+          {"type":"MxEntry", "text":"calc"},
+          { 
+            "id":"project-root","type":"MxEntry",  "text": ""
+            "style-class":"ClutterSmithLocation",
+            "tooltip-text":"Project directory",
+            "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
+          },
+
+          {"type":"MxLabel", "text":"Scenes"},
+                {"type":"MxBoxLayout",
+                 "children":[
+
+                 { "id":"title",
+                   "style-class":"ClutterSmithTitle",
+                   "tooltip-text":"Currently edited scene, name a new one to create it.",
+                   "type":"MxEntry",  "text": "", "child::expand":true, "height":10,
+                   "signals": [ {"name":"paint", "handler":"title_entry_init_hack"} ]
+                 },
+                 { "type":"MxButton",
+                   "label":"V",
+                   "tooltip-text":"Switch to scene",
+                   "signals": [ {"name":"clicked", "handler":"scenes_dropdown"} ] },
+                ]},
+
+
+          {
+            "type":"MxBoxLayout",
+            "vertical":true,
+            "id":"cs-scenes-container",
+            "spacing":2,
+            "children":
+               [
+               ]
+          }
+        ]
+     }
+  ]
+},
+
+{
+  "id":"cs-dialog-selected",
+  "style-class":"parasite",
+  "type":"MxExpander",
+  "label":"Selected",
+  "expanded":true,
+  "children":[
                  { "type":"MxBoxLayout", 
                     "id":"cs-dialog-type",
+                    "width":240,
                     "style-class":"ClutterSmithPropertyPane",
+                    "vertical":true,
                     "children":[
-                     { "type":"MxLabel", "width":100, "text":"type" },
-                     { "type":"MxButton", "width":100, 
+                     { "type":"MxButton",  
                        "children":[{"type":"ClutterText", "id":"cs-type", "text":"-"}]
                        "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
                      },
-                       ]
+                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors-core",
+                     "spacing":2},
+                     ]
                  },
+  ]
+},
 
 
                 { 
@@ -216,7 +264,7 @@
 
                       { "type":"MxScrollView",
                         "child::expand":true,
-                        "height":300,
+                        "height":240,
 
                         "children":
                          [
@@ -231,7 +279,7 @@
                                       "spacing":2},
 
                                      {"type":"MxLabel", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":120
+                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":200
                                        "children":[
                                        ]
                                      }
@@ -246,54 +294,6 @@
 
 
 
-{
-  "id":"cs-dialog-export",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "expanded":true,
-  "label":"Export",
-  "children":[
-
-  {
-  "type":"MxBoxLayout",
-  "style-class":"ClutterSmithPropertyPane",
-  "vertical":true,
-  "reactive":true,
-  "width":200,
-  "height":200,
-  "spacing":9,
-  "x":0,
-  "y":0,
-   
-   "children":
-     [
-       { "type":"MxLabel",
-         "text":"PNG",
-       },
-
-       { "type":"MxEntry",
-         "text":"/tmp/cluttersmith.png"
-       },
-
-       { "type":"MxLabel",
-         "text":"PDF",
-       },
-
-       { "type":"MxEntry",
-         "text":"/tmp/cluttersmith.pdf"
-       },
-
-       { "type":"MxLabel",
-         "text":"rpm",
-       },
-
-       { "type":"MxEntry",
-         "text":"/tmp/cluttersmith.rpm"
-       }
-    ]
-  }
-  ]
-},
 
 {
   "id":"cs-dialog-states",
@@ -308,7 +308,7 @@
   "type":"MxBoxLayout",
   "vertical":true,
   "reactive":true,
-  "width":200,
+  "width":240,
   "style-class":"ClutterSmithPropertyPane",
   "spacing":9,
   "x":0,
@@ -377,8 +377,7 @@
 {
   "type":"MxBoxLayout",
   "vertical":true,
-  "reactive":true,
-  "width":200,
+  "width":240,
   "height":300,
   "spacing":9,
   "x":0,
@@ -389,7 +388,7 @@
      [
        { "type":"MxScrollView",
          "style-class":"parasite",
-         "width":100,
+         "width":240,
          "height":300,
          "children":
           [
@@ -405,7 +404,6 @@
                ]
             }
          ]
-         "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
        }
      ]
 },
@@ -423,7 +421,7 @@
 
                  { 
                    "type":"MxScrollView",
-                   "width":200,
+                   "width":240,
                    "height":200,
                    "child::expand":true,
                    "children":
@@ -453,7 +451,7 @@
   "children":[
 { 
                    "type":"MxScrollView",
-                   "height":300,
+                   "height":240,
                    "children":
                     [
                       { "type":"MxViewport",
@@ -536,8 +534,8 @@
   "children":[
             { "type":"MxBoxLayout",
               "vertical":true,
-              "width":200,
-              "height":300,
+              "width":240,
+              "height":240,
               "style-class":"parasite",
               "children":[
             {
@@ -567,6 +565,54 @@
             },
 ]},
 
+{
+  "id":"cs-dialog-export",
+  "style-class":"parasite",
+  "type":"MxExpander",
+  "expanded":true,
+  "label":"Export",
+  "children":[
+
+  {
+  "type":"MxBoxLayout",
+  "style-class":"ClutterSmithPropertyPane",
+  "vertical":true,
+  "reactive":true,
+  "width":240,
+  "height":200,
+  "spacing":9,
+  "x":0,
+  "y":0,
+   
+   "children":
+     [
+       { "type":"MxLabel",
+         "text":"PNG",
+       },
+
+       { "type":"MxEntry",
+         "text":"/tmp/cluttersmith.png"
+       },
+
+       { "type":"MxLabel",
+         "text":"PDF",
+       },
+
+       { "type":"MxEntry",
+         "text":"/tmp/cluttersmith.pdf"
+       },
+
+       { "type":"MxLabel",
+         "text":"rpm",
+       },
+
+       { "type":"MxEntry",
+         "text":"/tmp/cluttersmith.rpm"
+       }
+    ]
+  }
+  ]
+},
 
 {
   "id":"cs-dialog-config",
@@ -582,7 +628,8 @@
            {"type":"MxBoxLayout", "vertical":true, "id":"config-editors",
             "width":200,
             "height":200,
-            "spacing":2},
+            "spacing":2
+            }
            ]
       }
 ]}
