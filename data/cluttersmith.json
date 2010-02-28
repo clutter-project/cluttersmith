@@ -192,7 +192,7 @@
           {"type":"MxBoxLayout",
             "children":[
 
-            { "type":"MxEntry",  "id":"project-title", "hint-text":"project", "child::expand":true, "height":10,
+            { "type":"MxEntry",  "id":"cs-project-title", "hint-text":"project", "child::expand":true, "height":10,
               "signals": [ {"name":"paint", "handler":"project_title_init_hack"} ]
                  },
                  { "type":"MxButton",

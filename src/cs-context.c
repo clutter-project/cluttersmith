@@ -739,7 +739,7 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->dialog_callbacks = _A("cs-dialog-callbacks");
     cluttersmith->states_container = _A("cs-states-container");
     cluttersmith->dialog_states = _A("cs-dialog-states");
-
+    cluttersmith->project_title = _A("cs-project-title");
     cluttersmith->dialog_config = _A("cs-dialog-config");
     cluttersmith->dialog_tree = _A("cs-dialog-tree");
     cluttersmith->dialog_toolbar = _A("cs-dialog-toolbar");
@@ -1655,6 +1655,7 @@ void cluttersmith_foobar (const gchar *stringA,
   g_print ("::::::::::::%s %s\n", stringA, stringB);
 }
 
+static gboolean title_frozen = FALSE;
 
 /**
  * cluttersmith_set_project_root:
@@ -1668,6 +1669,7 @@ void cluttersmith_set_project_root (const gchar *new_root)
     {
       return;
     }
+
 
   project_root = cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "project-root");
   if (project_root)
@@ -1689,15 +1691,33 @@ gchar *cs_get_project_root (void)
 static void project_root_text_changed (ClutterActor *actor)
 {
   const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
+  const gchar *project_title;
+  title_frozen = TRUE;
   if (cluttersmith->project_root)
     g_free (cluttersmith->project_root);
   cluttersmith->project_root = g_strdup (new_text);
 
+  if (!new_text)
+    return;
+
+  project_title = strrchr (new_text, '/');
+  if (project_title)
+    {
+      mx_entry_set_text (MX_ENTRY (cluttersmith->project_title),
+                                   project_title + 1);
+    }
+  else
+    {
+      mx_entry_set_text (MX_ENTRY (cluttersmith->project_title),
+                                   "-");
+    }
+  
   if (g_file_test (cluttersmith->project_root, G_FILE_TEST_IS_DIR))
     {
       previews_reload (cs_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
       cluttersmith_load_scene ("index");
     }
+  title_frozen = FALSE;
 }
 
 
@@ -1705,6 +1725,9 @@ static void project_title_text_changed (ClutterActor *actor)
 {
   const gchar *new_title = clutter_text_get_text (CLUTTER_TEXT (actor));
   gchar *path;
+
+  if (title_frozen)
+    return;
 
   path = g_strdup_printf ("%s/cluttersmith/%s",
                           g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),

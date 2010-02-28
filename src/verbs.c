@@ -999,6 +999,68 @@ void link_edit_link (MxAction *action,
 }
 
 
+static void change_project2 (MxAction *action,
+                           gpointer    data)
+{
+  cluttersmith_set_project_root (mx_action_get_name (action));
+}
+
+static MxAction *change_project (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_project2), NULL);
+  g_free (label);
+  return action;
+}
+
+void projects_dropdown (MxAction *action,
+                        gpointer  ignored)
+{
+  MxPopup *popup = cs_popup_new ();
+  const gchar *name;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+    {
+  gchar *config_path = cs_make_config_file ("session-history");
+  gchar *original = NULL;
+
+  if (g_file_get_contents (config_path, &original, NULL, NULL))
+    {
+      gchar *start, *end;
+      start=end=original;
+      while (*start)
+        {
+          end = strchr (start, '\n');
+          if (*end)
+            {
+              ClutterActor *foo;
+              MxAction     *action;
+              *end = '\0';
+
+              action = change_project (start);
+              mx_popup_add_action (popup, action);
+              start = end+1;
+            }
+          else
+            {
+              start = end;
+            }
+        }
+      g_free (original);
+    }
+  }
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
+
+
 void scenes_dropdown (MxAction *action,
                       gpointer  ignored)
 {

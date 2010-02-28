@@ -42,12 +42,14 @@ struct _CSContext
   CSContextPrivate *priv;
   gint          ui_mode;
   GList        *state_machines;
+  gchar        *project_root;
+
   ClutterActor *parasite_root;
   ClutterActor *parasite_ui;
   ClutterActor *fake_stage_canvas;
   ClutterActor *fake_stage;
+  ClutterActor *project_title;
   ClutterActor *scene_graph;
-  gchar        *project_root;
   ClutterActor *property_editors;
   ClutterActor *property_editors_core;
 
