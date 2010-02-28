@@ -137,12 +137,6 @@ static gboolean idle_load_default (gpointer data)
   return FALSE;
 }
 
-static gboolean idle_show_config (gpointer ignored)
-{
-  props_populate (cs_find_by_id_int (clutter_stage_get_default (), "config-editors"), G_OBJECT (cluttersmith), FALSE);
-  return FALSE;
-}
-
 #ifndef COMPILEMODULE
 
   
@@ -193,7 +187,6 @@ main (gint    argc,
   g_timeout_add (800, idle_load_default, NULL);
 
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
-  g_timeout_add (800, idle_show_config, NULL); 
 
   clutter_main ();
   return 0;

@@ -765,6 +765,8 @@ void mode_switch (MxComboBox *combo_box,
     cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
 
 
+    props_populate (_A("config-editors"), G_OBJECT (cluttersmith), FALSE);
+
     {
       /* XXX: all of this should be in the json */
       cluttersmith->cs_mode = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-mode"));

@@ -116,6 +116,7 @@
                    "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
                  { "type":"MxButton",
                    "name":"cs-duplicate",
+                   "label":"duplicate",
                    "tooltip-text":"Duplicate",
                    "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
                  { "type":"MxButton",
@@ -187,9 +188,20 @@
        "spacing":2,
        "children":
        [
-          {"type":"MxEntry", "hint-text":"project name", "id":"project-title",
-            "signals": [ {"name":"paint", "handler":"project_title_init_hack"} ]
-          },
+
+          {"type":"MxBoxLayout",
+            "children":[
+
+            { "type":"MxEntry",  "id":"project-title", "hint-text":"project", "child::expand":true, "height":10,
+              "signals": [ {"name":"paint", "handler":"project_title_init_hack"} ]
+                 },
+                 { "type":"MxButton",
+                   "label":"  V  ",
+                   "tooltip-text":"Previous projects",
+                   "signals": [ {"name":"clicked", "handler":"projects_dropdown"} ] },
+                ]},
+
+
           { 
             "id":"project-root","type":"MxEntry",  "text": ""
             "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
