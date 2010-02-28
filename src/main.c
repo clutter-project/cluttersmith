@@ -131,8 +131,6 @@ static gboolean idle_load_default (gpointer data)
     }
 
 
-  cs_load_dialog_state ();
-
   mode_edit2 ();
 
   clutter_actor_queue_redraw (clutter_stage_get_default());

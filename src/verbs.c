@@ -201,7 +201,6 @@ void cs_reset_size (ClutterActor *ignored)
 
 void cs_quit (ClutterActor *ignored)
 {
-  cs_save_dialog_state ();
   clutter_main_quit ();
 }
 

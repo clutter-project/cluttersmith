@@ -59,8 +59,6 @@ void     cs_selected_foreach   (GCallback     cb,
 gboolean cs_save_timeout       (gpointer      data);
 gpointer cs_selected_match     (GCallback     match_fun,
                                           gpointer      data);
-void cs_load_dialog_state (void);
-void cs_save_dialog_state (void);
 ClutterActor *cs_selected_get_any (void);
 
 /*****/
