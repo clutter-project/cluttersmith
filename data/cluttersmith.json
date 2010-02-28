@@ -102,8 +102,6 @@
                    "type":"MxComboBox",
                  },
 
-
-
                  { "type":"MxButton",
                    "name":"cs-copy",
                    "tooltip-text":"Copy",
@@ -189,27 +187,25 @@
        "spacing":2,
        "children":
        [
-          {"type":"MxLabel", "text":"Title"},
-          {"type":"MxEntry", "text":"calc"},
+          {"type":"MxEntry", "hint-text":"project name", "id":"project-title",
+            "signals": [ {"name":"paint", "handler":"project_title_init_hack"} ]
+          },
           { 
             "id":"project-root","type":"MxEntry",  "text": ""
-            "style-class":"ClutterSmithLocation",
-            "tooltip-text":"Project directory",
             "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
           },
 
-          {"type":"MxLabel", "text":"Scenes"},
+          {"type":"MxLabel", "text":"Scene"},
                 {"type":"MxBoxLayout",
                  "children":[
 
                  { "id":"title",
                    "style-class":"ClutterSmithTitle",
-                   "tooltip-text":"Currently edited scene, name a new one to create it.",
                    "type":"MxEntry",  "text": "", "child::expand":true, "height":10,
                    "signals": [ {"name":"paint", "handler":"title_entry_init_hack"} ]
                  },
                  { "type":"MxButton",
-                   "label":"V",
+                   "label":"  V  ",
                    "tooltip-text":"Switch to scene",
                    "signals": [ {"name":"clicked", "handler":"scenes_dropdown"} ] },
                 ]},
@@ -641,6 +637,11 @@
        }
      ]
      }
+        {
+          "type":"MxBoxLayout",
+          "vertical":true,
+          "child::expand":true,
+          "children":[
             {
               "type":"ClutterRectangle",
               "id":"fake-stage-rect",
@@ -649,21 +650,13 @@
               "signals": [ {"name":"pick", "handler":"no_pick"},
                          ] 
             },
-
-
-
-                 
-            ] }
-
-
-
+   
             {
                 "id":"cs-dialog-animator",
                 "type":"MxBoxLayout",
                 "style-class":"parasite",
                 "reactive":true,
                 "height": 150,
-                "width":700,
                 "spacing":9,
                 "x":0,
                 "y":455,
@@ -695,6 +688,16 @@
 
             },
 
+          ]
+        }
+
+
+
+                 
+            ] }
+
+
+            
           ]
           "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
         }

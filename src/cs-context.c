@@ -5,6 +5,7 @@
 #include "clutter-states.h"
 #include "animator-editor.h"
 #include <gjs/gjs.h>
+#include <gio/gio.h>
 #include <string.h>
 
   G_DEFINE_TYPE (CSContext, cs_context, G_TYPE_OBJECT)
@@ -1137,8 +1138,17 @@ static gchar *filename = NULL;
 void cs_save (gboolean force)
 {
   /* Save if we've changed */
-  
-  save_annotation ();
+  if (filename)
+    {
+      GFile *gf = g_file_new_for_path (filename);
+      GFile *gf_parent = g_file_new_for_path (filename);
+
+      gf_parent = g_file_get_parent (gf);
+      g_file_make_directory_with_parents (gf_parent, NULL, NULL);
+      g_object_unref (gf_parent);
+      g_object_unref (gf);
+      save_annotation ();
+    }
 
   if (CS_REVISION != CS_STORED_REVISION || force)
     {
@@ -1822,6 +1832,45 @@ static void project_root_text_changed (ClutterActor *actor)
       cluttersmith_load_scene ("index");
     }
 }
+
+
+static void project_title_text_changed (ClutterActor *actor)
+{
+  const gchar *new_title = clutter_text_get_text (CLUTTER_TEXT (actor));
+  gchar *path;
+
+  path = g_strdup_printf ("%s/cluttersmith/%s",
+                          g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+                          new_title);
+  cluttersmith_set_project_root (path);
+  g_free (path);
+  /*
+  if (cluttersmith->project_root)
+    g_free (cluttersmith->project_root);
+  cluttersmith->project_root = g_strdup (new_text);
+
+  if (g_file_test (cluttersmith->project_root, G_FILE_TEST_IS_DIR))
+    {
+      previews_reload (cs_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
+      cluttersmith_load_scene ("index");
+    }
+    */
+}
+
+void project_title_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (project_title_text_changed), NULL);
+}
+
 
 void project_root_init_hack (ClutterActor  *actor)
 {
