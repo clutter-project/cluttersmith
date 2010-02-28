@@ -238,6 +238,59 @@
 },
 
 {
+  "id":"cs-dialog-annotate",
+  "style-class":"parasite",
+  "type":"MxExpander",
+  "label":"Annotations",
+  "expanded":true,
+  "children":[
+            { "type":"MxBoxLayout",
+              "vertical":true,
+              "width":240,
+              "height":400,
+              "children":[
+
+{ 
+                   "style-class":"parasite-paste",
+                   "type":"MxScrollView",
+                   "width":240,
+                   "children":
+                    [
+                      { "type":"MxViewport",
+                        "children":
+                         [
+                           { "type":"MxGrid", "id":"annotation-templates-container",
+                              "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
+                              "signals": [ {"name":"paint", "handler":"annotation_templates_container_init_hack"} ]
+                              "children":[
+                              ]
+                            }
+                         ]
+                      }
+                   ]
+                 },
+
+            {
+              "id":"cs-dialog-editor-annotation",
+              "type":"ClutterText",
+              "width":240,
+              "height":400,
+              "line-wrap": true,
+              "font-name":"Liberation Sans 13",
+              "editable": true,
+              "reactive":true,
+              "color":"#ffffffff",
+              "cursor-color":"#33ff33ff",
+              "selection-color":"#44bb44ff",
+              "text":"..",
+              "child::expand":true
+            },
+            ]
+            },
+          ]
+}
+
+{
   "id":"cs-dialog-selected",
   "style-class":"parasite",
   "type":"MxExpander",
@@ -479,58 +532,6 @@
 }
 
 
-{
-  "id":"cs-dialog-annotate",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Scene / Annotation",
-  "expanded":true,
-  "children":[
-            { "type":"MxBoxLayout",
-              "vertical":true,
-              "width":240,
-              "height":400,
-              "children":[
-
-{ 
-                   "style-class":"parasite-paste",
-                   "type":"MxScrollView",
-                   "width":240,
-                   "children":
-                    [
-                      { "type":"MxViewport",
-                        "children":
-                         [
-                           { "type":"MxGrid", "id":"annotation-templates-container",
-                              "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
-                              "signals": [ {"name":"paint", "handler":"annotation_templates_container_init_hack"} ]
-                              "children":[
-                              ]
-                            }
-                         ]
-                      }
-                   ]
-                 },
-
-            {
-              "id":"cs-dialog-editor-annotation",
-              "type":"ClutterText",
-              "width":240,
-              "height":400,
-              "line-wrap": true,
-              "font-name":"Liberation Sans 13",
-              "editable": true,
-              "reactive":true,
-              "color":"#ffffffff",
-              "cursor-color":"#33ff33ff",
-              "selection-color":"#44bb44ff",
-              "text":"..",
-              "child::expand":true
-            },
-            ]
-            },
-          ]
-}
 
 
 {

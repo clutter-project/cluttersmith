@@ -1,7 +1,7 @@
 #include "cluttersmith.h"
 #include <animator-editor.h>
 
-#define ANIM_PROPERTY_ROW_HEIGHT 10
+#define ANIM_PROPERTY_ROW_HEIGHT 20
 
 enum
 {
@@ -239,7 +239,8 @@ static gboolean temporal_event (ClutterActor *actor,
   return FALSE;
 }
 
-static void ensure_temporal_animator_handle (ClutterAnimator *animator,
+static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
+                                             ClutterAnimator *animator,
                                              GObject         *object,
                                              const gchar     *property_name,
                                              gint             prop_no,
@@ -269,13 +270,17 @@ static void ensure_temporal_animator_handle (ClutterAnimator *animator,
     return;
   if (!handle)
     {
+      ClutterColor red = {0xff,0,0,0xff};
       handle = g_new0 (TemporalKeyHandle, 1);
       handle->key_no = key_no;
-      handle->actor = clutter_texture_new_from_file (PKGDATADIR "link-bg.png", NULL);
+      handle->actor = clutter_rectangle_new ();
+      clutter_rectangle_set_color (CLUTTER_RECTANGLE (handle->actor), &red);
+
+      //clutter_texture_new_from_file (PKGDATADIR "link-bg.png", NULL);
       clutter_actor_set_opacity (handle->actor, 0xaa);
       clutter_actor_set_anchor_point_from_gravity (handle->actor, CLUTTER_GRAVITY_CENTER);
-      clutter_actor_set_size (handle->actor, 20, 20);
-      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->parasite_root),
+      clutter_actor_set_size (handle->actor, 10, 10);
+      clutter_container_add_actor (CLUTTER_CONTAINER (aeditor->priv->group),
                                    handle->actor);
       temporal_handles = g_list_append (temporal_handles, handle);
       clutter_actor_set_reactive (handle->actor, TRUE);
@@ -285,7 +290,7 @@ static void ensure_temporal_animator_handle (ClutterAnimator *animator,
   handle->animator = animator;
 
   clutter_actor_set_position (handle->actor,
-      progress * clutter_actor_get_width (CLUTTER_ACTOR (handle->editor)),
+      progress * clutter_actor_get_width (CLUTTER_ACTOR (aeditor)),
       ANIM_PROPERTY_ROW_HEIGHT * key_no);
 }
 
@@ -341,7 +346,8 @@ cs_animator_editor_paint (ClutterActor *actor)
       cogl_path_fill ();
       cogl_path_move_to (progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno);
 
-      ensure_temporal_animator_handle (priv->animator,
+      ensure_temporal_animator_handle (editor,
+                                       priv->animator,
                                        object,
                                        clutter_animator_key_get_property_name (key),
                                        propno,
@@ -591,7 +597,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
       handle = g_new0 (SpatialKeyHandle, 1);
       handle->key_no = key_no;
       handle->actor = clutter_texture_new_from_file (PKGDATADIR "link-bg.png", NULL);
-      clutter_actor_set_opacity (handle->actor, 0xaa);
+      clutter_actor_set_opacity (handle->actor, 0xff);
       clutter_actor_set_anchor_point_from_gravity (handle->actor, CLUTTER_GRAVITY_CENTER);
       clutter_actor_set_size (handle->actor, 20, 20);
       clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->parasite_root),

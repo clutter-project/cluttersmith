@@ -59,6 +59,8 @@ struct _CSContext
   ClutterActor *states_container;
 
   ClutterActor *cs_mode;
+  ClutterActor *dialog_project;
+  ClutterActor *dialog_selected;
   ClutterActor *dialog_config;
   ClutterActor *dialog_callbacks;
   ClutterActor *dialog_toolbar;

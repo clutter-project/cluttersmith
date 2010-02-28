@@ -738,6 +738,8 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->callbacks_container = _A("cs-callbacks-container");
     cluttersmith->dialog_callbacks = _A("cs-dialog-callbacks");
     cluttersmith->states_container = _A("cs-states-container");
+    cluttersmith->dialog_project = _A("cs-dialog-project");
+    cluttersmith->dialog_selected = _A("cs-dialog-selected");
     cluttersmith->dialog_states = _A("cs-dialog-states");
     cluttersmith->project_title = _A("cs-project-title");
     cluttersmith->dialog_config = _A("cs-dialog-config");
