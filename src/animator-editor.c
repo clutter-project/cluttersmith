@@ -23,6 +23,7 @@ typedef struct TemporalKeyHandle {
   ClutterAnimator  *animator;
   GObject          *object;
   gint              key_no;
+  const gchar      *property_name;
   ClutterActor     *actor;
 } TemporalKeyHandle;
 
@@ -240,6 +241,7 @@ static gboolean temporal_event (ClutterActor *actor,
 }
 
 static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
+                                             gint             width,
                                              ClutterAnimator *animator,
                                              GObject         *object,
                                              const gchar     *property_name,
@@ -288,10 +290,11 @@ static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
     }
   handle->object = object;
   handle->animator = animator;
+  handle->property_name = property_name;
 
   clutter_actor_set_position (handle->actor,
-      progress * clutter_actor_get_width (CLUTTER_ACTOR (aeditor)),
-      ANIM_PROPERTY_ROW_HEIGHT * key_no);
+      progress * width,
+      ANIM_PROPERTY_ROW_HEIGHT * prop_no);
 }
 
 static void
@@ -308,12 +311,10 @@ cs_animator_editor_paint (ClutterActor *actor)
 
   if (priv->background)
      clutter_actor_paint (priv->background);
-  if (priv->group)
-     clutter_actor_paint (priv->group);
-
   if (!priv->animator)
     return;
 
+  cogl_set_source_color4ub (255, 128, 128, 255);
   keys = clutter_animator_get_keys (priv->animator, NULL, NULL, -1);
   for (k = keys; k; k = k->next)
     {
@@ -331,7 +332,6 @@ cs_animator_editor_paint (ClutterActor *actor)
           cogl_path_stroke ();
           cogl_path_new ();
           propno ++;
-          key_no = 0;
           cogl_path_move_to (progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno);
         }
       else
@@ -342,14 +342,13 @@ cs_animator_editor_paint (ClutterActor *actor)
           cogl_path_line_to (progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno);
           cogl_path_stroke ();
         }
-      cogl_path_ellipse (progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno, 5, 5);
-      cogl_path_fill ();
       cogl_path_move_to (progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno);
 
       ensure_temporal_animator_handle (editor,
+                                       width,
                                        priv->animator,
                                        object,
-                                       clutter_animator_key_get_property_name (key),
+                                       prop, 
                                        propno,
                                        progress,
                                        key_no);
@@ -357,6 +356,9 @@ cs_animator_editor_paint (ClutterActor *actor)
     }
 
   g_list_free (keys);
+
+  if (priv->group)
+     clutter_actor_paint (priv->group);
 }
 
 static void

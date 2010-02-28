@@ -687,13 +687,13 @@
                        "vertical":true,
                        "child::expand":true,
                        "children":[
-                         { "type":"MxSlider" 
-                           "id":"cs-animator-progress",
-                "signals": [ {"name":"notify::progress", "handler":"cs_animator_progress_changed"} ] 
-                         },
                          { "type":"CsAnimatorEditor",
                            "id":"cs-animator-editor",
                            "child::expand":true,
+                         },
+                         { "type":"MxSlider" 
+                           "id":"cs-animator-progress",
+                "signals": [ {"name":"notify::progress", "handler":"cs_animator_progress_changed"} ] 
                          }
                          ]
                       }

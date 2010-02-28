@@ -862,17 +862,11 @@ void mode_switch (MxComboBox *combo_box,
     /* special casing of x,y,w,h to make it take up less space and always be first */
 
     hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x");
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x, y");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
     clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
-    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "y");
-    clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
-    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
-    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
     editor = property_editor_new (G_OBJECT (actor), "x");
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
     clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
@@ -882,17 +876,11 @@ void mode_switch (MxComboBox *combo_box,
     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
     hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "width");
+    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "width, height");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
     clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
-    label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "height");
-    clutter_text_set_color (CLUTTER_TEXT (label), &white);
-    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
-    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
-    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
     editor = property_editor_new (G_OBJECT (actor), "width");
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
     clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);

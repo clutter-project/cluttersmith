@@ -355,7 +355,7 @@ cs_overlay_paint (ClutterActor *stage,
           g_value_init (&yv, G_TYPE_FLOAT);
           g_value_init (&value, G_TYPE_FLOAT);
 
-          for (progress = 0.0; progress < 1.0; progress += 0.004)
+          for (progress = 0.0; progress < 1.0; progress += 0.01)
             {
               ClutterVertex vertex = {0, };
               gfloat x, y;
