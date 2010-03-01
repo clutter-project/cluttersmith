@@ -1,741 +1,972 @@
-{"type":"ClutterGroup",
- "width":1,
- "height":1,
- "id":"parasite",
- "children":[
-
-{"type":"ClutterRectangle",
- "id":"fake-stage-canvas",
- "width":600,
- "height":400,
- "children":[
-    {"type":"ClutterText","text":"hello there"},
-    ]
-},
-
-{"type":"ClutterGroup",
- "id":"fake-stage",
- "width":1,
- "height":1,
- "children":[
-    {"type":"ClutterText","text":"If you see this text it means cluttersmith didn't load properly."},
-    ]
-},
-
-
-{"type":"ClutterGroup",
- "width":1,
- "height":1,
- "id":"parasite-root",
- "children":[
-
 {
-  "id":"cs-active-panel",
-  "type":"MxBoxLayout",
-  "style-class":"parasite",
-  "vertical":true,
-  "reactive":true,
-  "width":240,
-  "height":100,
-  "spacing":9,
-  "x":0,
-  "y":0,
-   
-   "children":
-     [
-       { "type":"MxBoxLayout", 
-         "children":[
-          { "type":"MxButton", "width":100, "height":24,
-            "children":[{"type":"ClutterText", "id":"cs-type2", "text":"-"}]
-           "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
-         },
-           ]}
-
-
-       { "type":"MxScrollView",
-         "width":200,
-         "height":100,
-         "child::expand":true,
-
-         "children":
-          [
-                 { "type":"MxBoxLayout", "vertical":true,
-                    "children":[
-                      {"type":"MxBoxLayout", "vertical":true, "id":"cs-active-container",
-                       "spacing":2},
-                    ]
-                  }
-         ]
-       }
-     ]
-}
-
-    {"type":"MxFrame",
-     "id":"parasite-ui",
-     "x-fill":true,
-     "y-fill":true,
-
-     "children":
-      [
-        {"type":"MxBoxLayout",
-         "vertical":true,
-
-          "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
-         "children":
-           [
-            {
-             "id":"cs-dialog-toolbar",
-             "name":"toolbar",
-             "type":"MxBoxLayout",
-             "style-class":"parasite",
-             "spacing":2,
-            
-             "children":
-               [
-                 { "id":"cs-mode",
-                   "width":230,
-                   "type":"MxComboBox",
-                 },
-
-                 { "type":"MxButton",
-                   "name":"cs-copy",
-                   "tooltip-text":"Copy",
-                   "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-cut",
-                   "tooltip-text":"Cut",
-                   "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-paste",
-                   "tooltip-text":"Paste",
-                   "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-duplicate",
-                   "label":"duplicate",
-                   "tooltip-text":"Duplicate",
-                   "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-remove",
-                   "tooltip-text":"Remove",
-                   "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-raise-top",
-                   "tooltip-text":"Send to front",
-                   "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-raise",
-                   "tooltip-text":"Raise",
-                   "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-lower",
-                   "tooltip-text":"Lower",
-                   "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-bottom",
-                   "tooltip-text":"Send to bottom",
-                   "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
-                 { "type":"MxButton",
-                   "name":"cs-reset-size",
-                   "tooltip-text":"Reset size",
-                   "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
-               ]
-             }
-
-            {"type":"MxBoxLayout",
-             "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
-             "child::expand":true,
-             "children":
-               [
-
-
-           { "type":"MxScrollView",
-             "height":200,
-             "style-class":"sidebarscroll",
-
-             "children":
-             [
-
-            {
-            "type":"MxBoxLayout",
-            "style-class":"parasite",
-            "vertical":true,
-            "reactive":true,
-            "spacing":2,
-            
-            "children":
-              [
-
-{
-  "id":"cs-dialog-project",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Project",
-  "expanded":true,
+  "type":"ClutterGroup",
+  "width":1,
+  "height":1,
+  "id":"parasite",
   "children":[
-     {
-       "type":"MxBoxLayout",
-       "style-class":"ClutterSmithPropertyPane",
-       "vertical":true,
-       "width":240,
-       "spacing":2,
-       "children":
-       [
-
-          {"type":"MxBoxLayout",
-            "children":[
-
-            {"type":"MxLabel", "text":"Title"},
-            { "type":"MxEntry",  "id":"cs-project-title", "hint-text":"project", "child::expand":true, "height":10,
-              "signals": [ {"name":"paint", "handler":"project_title_init_hack"} ]
-                 },
-                 { "type":"MxButton",
-                   "label":"  V  ",
-                   "tooltip-text":"Previous projects",
-                   "signals": [ {"name":"clicked", "handler":"projects_dropdown"} ] },
-                ]},
-
-
-          { 
-            "id":"project-root","type":"MxEntry",  "text": ""
-            "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
-          },
-
-                {"type":"MxBoxLayout",
-                 "children":[
-
-                 {"type":"MxLabel", "text":"Scene"},
-                 { "id":"title",
-                   "style-class":"ClutterSmithTitle",
-                   "type":"MxEntry",  "text": "", "child::expand":true, "height":10,
-                   "signals": [ {"name":"paint", "handler":"title_entry_init_hack"} ]
-                 },
-                 { "type":"MxButton",
-                   "label":"  V  ",
-                   "tooltip-text":"Switch to scene",
-                   "signals": [ {"name":"clicked", "handler":"scenes_dropdown"} ] },
-                ]},
-
-
-          {
-            "type":"MxBoxLayout",
-            "vertical":true,
-            "id":"cs-scenes-container",
-            "spacing":2,
-            "children":
-               [
-               ]
-          }
-        ]
-     }
-  ]
-},
-
-{
-  "id":"cs-dialog-annotate",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Annotations",
-  "expanded":true,
-  "children":[
-            { "type":"MxBoxLayout",
-              "vertical":true,
-              "width":240,
-              "height":400,
-              "children":[
-
-{ 
-                   "style-class":"parasite-paste",
-                   "type":"MxScrollView",
-                   "width":240,
-                   "children":
-                    [
-                           { "type":"MxGrid", "id":"annotation-templates-container",
-                              "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
-                              "signals": [ {"name":"paint", "handler":"annotation_templates_container_init_hack"} ]
-                              "children":[
-                              ]
-                            }
-                   ]
-                 },
-
-            {
-              "id":"cs-dialog-editor-annotation",
-              "type":"ClutterText",
-              "width":240,
-              "height":400,
-              "line-wrap": true,
-              "font-name":"Liberation Sans 13",
-              "editable": true,
-              "reactive":true,
-              "color":"#ffffffff",
-              "cursor-color":"#33ff33ff",
-              "selection-color":"#44bb44ff",
-              "text":"..",
-              "child::expand":true
-            },
-            ]
-            },
-          ]
-}
-
-{
-  "id":"cs-dialog-selected",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Selected",
-  "expanded":true,
-  "children":[
-                 { "type":"MxBoxLayout", 
-                    "id":"cs-dialog-type",
-                    "width":240,
-                    "style-class":"ClutterSmithPropertyPane",
-                    "vertical":true,
-                    "children":[
-                     { "type":"MxButton",  
-                       "children":[{"type":"ClutterText", "id":"cs-type", "text":"-"}]
-                       "signals": [ {"name":"clicked", "handler":"cs_change_type"} ] 
-                     },
-                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors-core",
-                     "spacing":2},
-                     ]
-                 },
-  ]
-},
-
-
-                { 
-                  "id":"cs-dialog-property-inspector",
-                  "style-class":"parasite",
-                  "type":"MxExpander",
-                  "expanded":true,
-                  "label":"Properties",
-                  "children":[
-
-                      { "type":"MxScrollView",
-                        "child::expand":true,
-                        "height":240,
-
-                        "children":
-                         [
-                                { "type":"MxBoxLayout", "vertical":true,
-                                   "style-class":"ClutterSmithPropertyPane",
-                                   "children":[
-
-                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors", "width":200,
-                                      "spacing":2},
-
-                                     {"type":"MxLabel", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":190
-                                       "children":[
-                                       ]
-                                     }
-                                   ]
-                                 }
-                        ]
-                      }
-                   ]
-                 },
-
-
-
-
-{
-  "id":"cs-dialog-states",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Animation",
-  "expanded":true,
-  "signals": [ {"name":"expand-complete", "handler":"cs_states_expand_complete"} ]
-  "children":[
-
-{
-  "type":"MxBoxLayout",
-  "vertical":true,
-  "reactive":true,
-  "width":240,
-  "style-class":"ClutterSmithPropertyPane",
-  "spacing":9,
-  "x":0,
-  "y":0,                            
-   
-   "children":
-     [
-
-
-{
-  "type":"MxBoxLayout",
-  "spacing":2,
-   
-   "children":
-     [
-       { "type":"MxLabel", "text":"Statemachine" },
-       { "type":"MxEntry",
-         "text":"not in use yet"
-         "id":"cs-state-machine-name",
-       },
-   ]},
-
-
-{
-  "type":"MxBoxLayout",
-  "spacing":2,
-   
-   "children":
-     [
-       { "type":"MxLabel", "text":"Source, Target" },
-       { "type":"MxEntry",
-         "text":"*",
-         "child::expand":true,
-         "id":"cs-source-state",
-         "signals": [ {"name":"paint", "handler":"state_source_name_init_hack"} ]
-       },
-
-       { "type":"MxEntry",
-         "text":"default",
-         "child::expand":true,
-         "id":"cs-state-name",
-         "signals": [ {"name":"paint", "handler":"state_name_init_hack"} ]
-       },
-]
-},
-
-       { "type":"MxLabel", "text":"Duration (ms)" },
-       { "type":"MxEntry",
-         "text":"1000"
-         "id":"cs-state-duration",
-         "signals": [ {"name":"paint", "handler":"state_duration_init_hack"} ]
-       },
-
-       { "type":"MxButton",
-         "label":"elaborate"
-         "signals": [ {"name":"clicked", "handler":"state_elaborate_clicked"} ]
-       },
-
-       { "type":"MxButton",
-         "label":"test"
-         "signals": [ {"name":"clicked", "handler":"state_test_clicked"} ]
-       },
-     ]
-  }]
-}
-,
-
-{
-  "id":"cs-dialog-callbacks",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Callbacks",
-  "expanded":true,
-  "children":[
-{
-  "type":"MxBoxLayout",
-  "vertical":true,
-  "width":240,
-  "height":300,
-  "spacing":9,
-  "x":0,
-  "y":0,
-  "child::expand":true,
-   
-   "children":
-     [
-       { "type":"MxScrollView",
-         "style-class":"parasite",
-         "width":240,
-         "height":300,
-         "children":
-          [
-                 { "type":"MxBoxLayout", "vertical":true,
-                    "children":[
-                      {"type":"MxBoxLayout", "vertical":true, "id":"cs-callbacks-container",
-                       "spacing":2},
-                    ]
-                  }
-         ]
-       }
-     ]
-},
-]
-}
-
-
-{
-  "id":"cs-dialog-tree",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Hierarchy",
-  "expanded":true,
-  "children":[
-
-                 { 
-                   "type":"MxScrollView",
-                   "width":240,
-                   "height":200,
-                   "child::expand":true,
-                   "children":
-                    [
-                      { "type":"MxViewport",
-                        "children":
-                         [
-                           { "type":"ClutterGroup", "id":"scene-graph",
-                              "children":[
-                                {"type":"ClutterText", "color":"gray", "text":"......"},
-                              ]
-                            }
-                         ]
-                      }
-                   ]
-                 }
-
-                ]
-              }
-
-{
-  "id":"cs-dialog-templates",
-  "style-class":"parasite-paste",
-  "type":"MxExpander",
-  "label":"Stencils",
-  "expanded":true,
-  "children":[
-{ 
-                   "type":"MxScrollView",
-                   "height":300,
-                   "children":
-                    [
-                           { "type":"MxGrid", "name":"cs-templates-container", "id":"templates-container",
-                              "width":260, "halign":0.5, "valign":1.0, "column-spacing":3, "row-spacing":3,
-                              "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
-                              "children":[
-                              ]
-                            }
-                   ]
-                 },
-        ]
-}
-
-
-
-
-{
-  "id":"cs-dialog-editor",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"JavaScript",
-  "expanded":true,
-  "children":[
-            { "type":"MxBoxLayout",
-              "vertical":true,
-              "width":240,
-              "height":240,
-              "style-class":"parasite",
-              "children":[
-            {
-              "id":"cs-dialog-editor-text",
-              "type":"ClutterText",
-              "line-wrap": true,
-              "font-name":"Liberation Mono 9",
-              "editable": true,
-              "reactive":true,
-              "color":"#ffffffff",
-              "cursor-color":"#33ff33ff",
-              "selection-color":"#44bb44ff",
-              "text":"",
-              "child::expand":true
-            },
-
-            {
-              "id":"cs-dialog-editor-error",
-              "type":"ClutterText",
-              "line-wrap": true,
-              "font-name":"Liberation Mono 9",
-              "color":"#ffffbbff",
-              "text":"",
-            },
-
-            ]
-            },
-]},
-
-{
-  "id":"cs-dialog-export",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "expanded":true,
-  "label":"Export",
-  "children":[
-
-  {
-  "type":"MxBoxLayout",
-  "style-class":"ClutterSmithPropertyPane",
-  "vertical":true,
-  "reactive":true,
-  "width":240,
-  "height":200,
-  "spacing":9,
-  "x":0,
-  "y":0,
-   
-   "children":
-     [
-       { "type":"MxLabel",
-         "text":"PNG",
-       },
-
-       { "type":"MxEntry",
-         "text":"/tmp/cluttersmith.png"
-       },
-
-       { "type":"MxLabel",
-         "text":"PDF",
-       },
-
-       { "type":"MxEntry",
-         "text":"/tmp/cluttersmith.pdf"
-       },
-
-       { "type":"MxLabel",
-         "text":"rpm",
-       },
-
-       { "type":"MxEntry",
-         "text":"/tmp/cluttersmith.rpm"
-       }
-    ]
-  }
-  ]
-},
-
-{
-  "id":"cs-dialog-config",
-  "style-class":"parasite",
-  "type":"MxExpander",
-  "label":"Settings",
-  "expanded":true,
-  "children":[
-      { "type":"MxBoxLayout", "vertical":true,
-        "style-class":"ClutterSmithPropertyPane",
-        "children":[
-           {"type":"MxBoxLayout", "vertical":true, "id":"config-editors",
-            "width":200,
-            "height":200,
-            "spacing":2
-            }
-           ]
-      }
-]}
-
-
-               ]
-             },
-     ]
-     }
+    {
+      "type":"ClutterRectangle",
+      "id":"fake-stage-canvas",
+      "width":600,
+      "height":400,
+      "children":[
         {
+          "type":"ClutterText",
+          "text":"hello there"
+        }
+      ]
+    },
+    {
+      "type":"ClutterGroup",
+      "id":"fake-stage",
+      "width":1,
+      "height":1,
+      "children":[
+        {
+          "type":"ClutterText",
+          "text":"If you see this text it means cluttersmith didn't load properly."
+        }
+      ]
+    },
+    {
+      "type":"ClutterGroup",
+      "width":1,
+      "height":1,
+      "id":"parasite-root",
+      "children":[
+        {
+          "id":"cs-active-panel",
           "type":"MxBoxLayout",
+          "style-class":"parasite",
           "vertical":true,
-          "child::expand":true,
+          "reactive":true,
+          "width":240,
+          "height":100,
+          "spacing":9,
+          "x":0,
+          "y":0,
           "children":[
             {
-              "type":"ClutterRectangle",
-              "id":"fake-stage-rect",
-              "color":"#00000000",
-              "child::expand":true,
-              "signals": [ {"name":"pick", "handler":"no_pick"},
-                         ] 
+              "type":"MxBoxLayout",
+              "children":[
+                {
+                  "type":"MxButton",
+                  "width":100,
+                  "height":24,
+                  "children":[
+                    {
+                      "type":"ClutterText",
+                      "id":"cs-type2",
+                      "text":"-"
+                    }
+                  ],
+                  "signals":[
+                    {
+                      "name":"clicked",
+                      "handler":"cs_change_type"
+                    }
+                  ]
+                }
+              ]
             },
-   
             {
-                "id":"cs-dialog-animator",
-                "type":"MxBoxLayout",
-                "style-class":"parasite",
-                "reactive":true,
-                "height": 150,
-                "spacing":9,
-                "x":0,
-                "y":455,
+              "type":"MxScrollView",
+              "width":200,
+              "height":100,
+              "child::expand":true,
+              "children":[
+                {
+                  "type":"MxBoxLayout",
+                  "vertical":true,
+                  "children":[
+                    {
+                      "type":"MxBoxLayout",
+                      "vertical":true,
+                      "id":"cs-active-container",
+                      "spacing":2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type":"MxFrame",
+          "id":"parasite-ui",
+          "x-fill":true,
+          "y-fill":true,
+          "children":[
+            {
+              "type":"MxBoxLayout",
+              "vertical":true,
+              "signals":[
+                {
+                  "name":"pick",
+                  "handler":"parasite_pick"
+                }
+              ],
+              "children":[
+                {
+                  "id":"cs-dialog-toolbar",
+                  "name":"toolbar",
+                  "type":"MxBoxLayout",
+                  "style-class":"parasite",
+                  "spacing":2,
+                  "children":[
+                    {
+                      "id":"cs-mode",
+                      "width":230,
+                      "type":"MxComboBox"
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-copy",
+                      "tooltip-text":"Copy",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_copy"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-cut",
+                      "tooltip-text":"Cut",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_cut"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-paste",
+                      "tooltip-text":"Paste",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_paste"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-duplicate",
+                      "label":"duplicate",
+                      "tooltip-text":"Duplicate",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_duplicate"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-remove",
+                      "tooltip-text":"Remove",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_remove"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-raise-top",
+                      "tooltip-text":"Send to front",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_raise_top"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-raise",
+                      "tooltip-text":"Raise",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_raise"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-lower",
+                      "tooltip-text":"Lower",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_lower"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-bottom",
+                      "tooltip-text":"Send to bottom",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_lower_bottom"
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxButton",
+                      "name":"cs-reset-size",
+                      "tooltip-text":"Reset size",
+                      "signals":[
+                        {
+                          "name":"clicked",
+                          "handler":"cs_reset_size"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type":"MxBoxLayout",
+                  "signals":[
+                    {
+                      "name":"pick",
+                      "handler":"parasite_pick"
+                    }
+                  ],
+                  "child::expand":true,
+                  "children":[
+                    {
+                      "type":"MxScrollView",
+                      "height":200,
+                      "style-class":"sidebarscroll",
+                      "children":[
+                        {
+                          "type":"MxBoxLayout",
+                          "style-class":"parasite",
+                          "vertical":true,
+                          "reactive":true,
+                          "spacing":2,
+                          "children":[
+                            {
+                              "id":"cs-dialog-project",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Project",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "style-class":"ClutterSmithPropertyPane",
+                                  "vertical":true,
+                                  "width":240,
+                                  "spacing":2,
+                                  "children":[
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "children":[
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"Title"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "id":"cs-project-title",
+                                          "hint-text":"project",
+                                          "child::expand":true,
+                                          "height":10,
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"project_title_init_hack"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  V  ",
+                                          "tooltip-text":"Previous projects",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"projects_dropdown"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id":"project-root",
+                                      "type":"MxEntry",
+                                      "text":"",
+                                      "signals":[
+                                        {
+                                          "name":"paint",
+                                          "handler":"project_root_init_hack"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "children":[
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"Scene"
+                                        },
+                                        {
+                                          "id":"title",
+                                          "style-class":"ClutterSmithTitle",
+                                          "type":"MxEntry",
+                                          "text":"",
+                                          "child::expand":true,
+                                          "height":10,
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"title_entry_init_hack"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  V  ",
+                                          "tooltip-text":"Switch to scene",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"scenes_dropdown"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "vertical":true,
+                                      "id":"cs-scenes-container",
+                                      "spacing":2,
+                                      "children":[
 
-                 "children":
-                   [
-                     { "type":"MxBoxLayout",
-                       "id":"cs-animator-props",
-                       "vertical":true,
-                       "children":[
-                           { }
-                         ]
-                      }
-                     { "type":"MxBoxLayout",
-                       "vertical":true,
-                       "child::expand":true,
-                       "children":[
-                         { "type":"CsAnimatorEditor",
-                           "id":"cs-animator-editor",
-                           "child::expand":true,
-                         },
-                         { "type":"MxSlider" 
-                           "id":"cs-animator-progress",
-                "signals": [ {"name":"notify::progress", "handler":"cs_animator_progress_changed"} ] 
-                         }
-                         ]
-                      }
-                   ]
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-annotate",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Annotations",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "vertical":true,
+                                  "width":240,
+                                  "height":400,
+                                  "children":[
+                                    {
+                                      "style-class":"parasite-paste",
+                                      "type":"MxScrollView",
+                                      "width":240,
+                                      "children":[
+                                        {
+                                          "type":"MxGrid",
+                                          "id":"annotation-templates-container",
+                                          "halign":0.5,
+                                          "valign":0.5,
+                                          "column-spacing":3,
+                                          "row-spacing":3,
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"annotation_templates_container_init_hack"
+                                            }
+                                          ],
+                                          "children":[
 
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id":"cs-dialog-editor-annotation",
+                                      "type":"ClutterText",
+                                      "width":240,
+                                      "height":400,
+                                      "line-wrap":true,
+                                      "font-name":"Liberation Sans 13",
+                                      "editable":true,
+                                      "reactive":true,
+                                      "color":"#ffffffff",
+                                      "cursor-color":"#33ff33ff",
+                                      "selection-color":"#44bb44ff",
+                                      "text":"..",
+                                      "child::expand":true
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-selected",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Selected",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "id":"cs-dialog-type",
+                                  "width":240,
+                                  "style-class":"ClutterSmithPropertyPane",
+                                  "vertical":true,
+                                  "children":[
+                                    {
+                                      "type":"MxButton",
+                                      "children":[
+                                        {
+                                          "type":"ClutterText",
+                                          "id":"cs-type",
+                                          "text":"-"
+                                        }
+                                      ],
+                                      "signals":[
+                                        {
+                                          "name":"clicked",
+                                          "handler":"cs_change_type"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "vertical":true,
+                                      "id":"property-editors-core",
+                                      "spacing":2
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-property-inspector",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "expanded":true,
+                              "label":"Properties",
+                              "children":[
+                                {
+                                  "type":"MxScrollView",
+                                  "child::expand":true,
+                                  "height":240,
+                                  "children":[
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "vertical":true,
+                                      "style-class":"ClutterSmithPropertyPane",
+                                      "children":[
+                                        {
+                                          "type":"MxBoxLayout",
+                                          "vertical":true,
+                                          "id":"property-editors",
+                                          "width":200,
+                                          "spacing":2
+                                        },
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"ancestors:"
+                                        },
+                                        {
+                                          "type":"MxGrid",
+                                          "id":"parents",
+                                          "column-spacing":2,
+                                          "row-spacing":2,
+                                          "width":190,
+                                          "children":[
+
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-states",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Animation",
+                              "expanded":true,
+                              "signals":[
+                                {
+                                  "name":"expand-complete",
+                                  "handler":"cs_states_expand_complete"
+                                }
+                              ],
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "vertical":true,
+                                  "reactive":true,
+                                  "width":240,
+                                  "style-class":"ClutterSmithPropertyPane",
+                                  "spacing":9,
+                                  "x":0,
+                                  "y":0,
+                                  "children":[
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "spacing":2,
+                                      "children":[
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"Statemachine"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"not in use yet",
+                                          "id":"cs-state-machine-name"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "spacing":2,
+                                      "children":[
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"Source, Target"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"*",
+                                          "child::expand":true,
+                                          "id":"cs-source-state",
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"state_source_name_init_hack"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"default",
+                                          "child::expand":true,
+                                          "id":"cs-state-name",
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"state_name_init_hack"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxLabel",
+                                      "text":"Duration (ms)"
+                                    },
+                                    {
+                                      "type":"MxEntry",
+                                      "text":"1000",
+                                      "id":"cs-state-duration",
+                                      "signals":[
+                                        {
+                                          "name":"paint",
+                                          "handler":"state_duration_init_hack"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxButton",
+                                      "label":"elaborate",
+                                      "signals":[
+                                        {
+                                          "name":"clicked",
+                                          "handler":"state_elaborate_clicked"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type":"MxButton",
+                                      "label":"test",
+                                      "signals":[
+                                        {
+                                          "name":"clicked",
+                                          "handler":"state_test_clicked"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-callbacks",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Callbacks",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "vertical":true,
+                                  "width":240,
+                                  "height":300,
+                                  "spacing":9,
+                                  "x":0,
+                                  "y":0,
+                                  "child::expand":true,
+                                  "children":[
+                                    {
+                                      "type":"MxScrollView",
+                                      "style-class":"parasite",
+                                      "width":240,
+                                      "height":300,
+                                      "children":[
+                                        {
+                                          "type":"MxBoxLayout",
+                                          "vertical":true,
+                                          "children":[
+                                            {
+                                              "type":"MxBoxLayout",
+                                              "vertical":true,
+                                              "id":"cs-callbacks-container",
+                                              "spacing":2
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-tree",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Hierarchy",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxScrollView",
+                                  "width":240,
+                                  "height":200,
+                                  "child::expand":true,
+                                  "children":[
+                                    {
+                                      "type":"MxViewport",
+                                      "children":[
+                                        {
+                                          "type":"ClutterGroup",
+                                          "id":"scene-graph",
+                                          "children":[
+                                            {
+                                              "type":"ClutterText",
+                                              "color":"gray",
+                                              "text":"......"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-templates",
+                              "style-class":"parasite-paste",
+                              "type":"MxExpander",
+                              "label":"Stencils",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxScrollView",
+                                  "height":300,
+                                  "children":[
+                                    {
+                                      "type":"MxGrid",
+                                      "name":"cs-templates-container",
+                                      "id":"templates-container",
+                                      "width":260,
+                                      "halign":0.5,
+                                      "valign":1.0,
+                                      "column-spacing":3,
+                                      "row-spacing":3,
+                                      "signals":[
+                                        {
+                                          "name":"paint",
+                                          "handler":"templates_container_init_hack"
+                                        }
+                                      ],
+                                      "children":[
+
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-editor",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"JavaScript",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "vertical":true,
+                                  "width":240,
+                                  "height":240,
+                                  "style-class":"parasite",
+                                  "children":[
+                                    {
+                                      "id":"cs-dialog-editor-text",
+                                      "type":"ClutterText",
+                                      "line-wrap":true,
+                                      "font-name":"Liberation Mono 9",
+                                      "editable":true,
+                                      "reactive":true,
+                                      "color":"#ffffffff",
+                                      "cursor-color":"#33ff33ff",
+                                      "selection-color":"#44bb44ff",
+                                      "text":"",
+                                      "child::expand":true
+                                    },
+                                    {
+                                      "id":"cs-dialog-editor-error",
+                                      "type":"ClutterText",
+                                      "line-wrap":true,
+                                      "font-name":"Liberation Mono 9",
+                                      "color":"#ffffbbff",
+                                      "text":""
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-export",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "expanded":true,
+                              "label":"Export",
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "style-class":"ClutterSmithPropertyPane",
+                                  "vertical":true,
+                                  "reactive":true,
+                                  "width":240,
+                                  "height":200,
+                                  "spacing":9,
+                                  "x":0,
+                                  "y":0,
+                                  "children":[
+                                    {
+                                      "type":"MxLabel",
+                                      "text":"PNG"
+                                    },
+                                    {
+                                      "type":"MxEntry",
+                                      "text":"/tmp/cluttersmith.png"
+                                    },
+                                    {
+                                      "type":"MxLabel",
+                                      "text":"PDF"
+                                    },
+                                    {
+                                      "type":"MxEntry",
+                                      "text":"/tmp/cluttersmith.pdf"
+                                    },
+                                    {
+                                      "type":"MxLabel",
+                                      "text":"rpm"
+                                    },
+                                    {
+                                      "type":"MxEntry",
+                                      "text":"/tmp/cluttersmith.rpm"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-config",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Settings",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxBoxLayout",
+                                  "vertical":true,
+                                  "style-class":"ClutterSmithPropertyPane",
+                                  "children":[
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "vertical":true,
+                                      "id":"config-editors",
+                                      "width":200,
+                                      "height":200,
+                                      "spacing":2
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type":"MxBoxLayout",
+                      "vertical":true,
+                      "child::expand":true,
+                      "children":[
+                        {
+                          "type":"ClutterRectangle",
+                          "id":"fake-stage-rect",
+                          "color":"#00000000",
+                          "child::expand":true,
+                          "signals":[
+                            {
+                              "name":"pick",
+                              "handler":"no_pick"
+                            }
+                          ]
+                        },
+                        {
+                          "id":"cs-dialog-animator",
+                          "type":"MxBoxLayout",
+                          "style-class":"parasite",
+                          "reactive":true,
+                          "height":150,
+                          "spacing":9,
+                          "x":0,
+                          "y":455,
+                          "children":[
+                            {
+                              "type":"MxBoxLayout",
+                              "id":"cs-animator-props",
+                              "vertical":true,
+                              "children":[
+                                {
+
+                                }
+                              ]
+                            },
+                            {
+                              "type":"MxBoxLayout",
+                              "vertical":true,
+                              "child::expand":true,
+                              "children":[
+                                {
+                                  "type":"CsAnimatorEditor",
+                                  "id":"cs-animator-editor",
+                                  "child::expand":true
+                                },
+                                {
+                                  "type":"MxSlider",
+                                  "id":"cs-animator-progress",
+                                  "signals":[
+                                    {
+                                      "name":"notify::progress",
+                                      "handler":"cs_animator_progress_changed"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "signals":[
+                {
+                  "name":"pick",
+                  "handler":"parasite_pick"
+                }
+              ]
+            }
+          ],
+          "signals":[
+            {
+              "name":"pick",
+              "handler":"parasite_pick"
+            }
+          ]
+        },
+        {
+          "id":"resize-handle",
+          "type":"ClutterText",
+          "color":"red",
+          "opacity":100,
+          "reactive":true,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"manipulate_resize_start"
             },
-
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
+          ],
+          "anchor-gravity":"center",
+          "font-name":"Sans 40px",
+          "text":"⇲"
+        },
+        {
+          "id":"move-handle",
+          "anchor-gravity":"center",
+          "type":"ClutterText",
+          "color":"red",
+          "font-name":"Sans 40px",
+          "text":"⤱",
+          "reactive":true,
+          "opacity":100,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"manipulate_move_start"
+            },
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
           ]
         }
-
-
-
-                 
-            ] }
-
-
-            
-          ]
-          "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+      ],
+      "signals":[
+        {
+          "name":"pick",
+          "handler":"parasite_pick"
         }
-
-    ]
-          "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+      ]
     }
-
-     {"id":"resize-handle",
-      "type":"ClutterText",
-      "color":"red",
-      "opacity":100,
-      "reactive":true,
-      "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"}
-                   {"name":"enter-event", "handler":"cs_canvas_handler_enter"}
-                   {"name":"leave-event", "handler":"cs_canvas_handler_leave"}
-      
-      ] 
-      "anchor-gravity":"center",
-      "font-name":"Sans 40px",
-      "text":"⇲"
-     },
-
-     {"id":"move-handle",
-      "anchor-gravity":"center",
-      "type":"ClutterText",
-      "color":"red",
-      "font-name":"Sans 40px",
-      "text":"⤱"
-      "reactive":true,
-      "opacity":100,
-      "signals": [ {"name":"button-press-event", "handler":"manipulate_move_start"} 
-                   {"name":"enter-event", "handler":"cs_canvas_handler_enter"}
-                   {"name":"leave-event", "handler":"cs_canvas_handler_leave"}
-
-    ] 
-     }
-
-
-
-
-    ]
-          "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
-    }
-
-    ]
-    }
-]
+  ]
 }
