@@ -16,7 +16,7 @@ PKG_PROG_PKG_CONFIG(0.16)
 
 PKG_CHECK_MODULES(DEPS, clutter-1.0 \
                         clutter-gst-1.0 \
-                        glib-2.0 >= 2.22.0 \
+                        [glib-2.0 >= 2.22.4] \
                         mx-1.0 \
                         gjs-1.0 )
 AC_SUBST(DEPS_CFLAGS)
