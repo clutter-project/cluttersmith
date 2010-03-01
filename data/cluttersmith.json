@@ -512,14 +512,14 @@
   "children":[
 { 
                    "type":"MxScrollView",
-                   "height":240,
+                   "height":300,
                    "children":
                     [
                       { "type":"MxViewport",
                         "children":
                          [
-                           { "type":"MxGrid", "id":"templates-container",
-                              "width":200, "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
+                           { "type":"MxGrid", "name":"cs-templates-container", "id":"templates-container",
+                              "width":260, "halign":0.5, "valign":1.0, "column-spacing":3, "row-spacing":3,
                               "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
                               "children":[
                               ]

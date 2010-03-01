@@ -78,7 +78,11 @@ MxBoxLayout.ParasiteTreeB2 {
 
 .parasite-paste  {
   background-color: #444444ee;
-  padding: 1px;
+  padding: 4px;
+}
+
+
+#templates-container {
 }
 
 .parasite  {
@@ -270,7 +274,16 @@ MxPopup > MxBoxLayout:active > MxLabel {
   font-size: 20px;
 }
 
+#cs-templates-container MxLabel {
+  color : red;
+}
+
 .parasite MxLabel {
+  color: white;
+  font-size: 10px;
+}
+
+.parasite-paste MxLabel {
   color: white;
   font-size: 10px;
 }

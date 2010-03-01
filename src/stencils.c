@@ -91,6 +91,7 @@ static gboolean add_stencil (ClutterActor *actor,
      g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                        G_CALLBACK (add_stencil_capture), clone);
   clutter_actor_queue_redraw (clone);
+  return TRUE;
 }
 
 static void load_path (ClutterActor *actor,
@@ -102,7 +103,7 @@ static void load_path (ClutterActor *actor,
 
    while ((name = g_dir_read_name (dir)))
       {
-        ClutterColor  none = {0,0,0,0};
+        ClutterColor  none = {0xff,0xff,0xff,0x00};
         ClutterActor *group;
         ClutterActor *rectangle;
 
@@ -123,20 +124,32 @@ static void load_path (ClutterActor *actor,
             oi = cs_load_json (path2);
             if (oi)
               {
-#define DIM 120.0
+                ClutterActor *label;
+                ClutterColor  white = {0xff,0xff,0xff,0xff};
+#define DIM 100.0
 
                 gfloat width, height;
                 gfloat scale;
+                gchar *name2 = g_strdup (name);
                 clutter_actor_get_size (oi, &width, &height);
                 scale = DIM/width;
                 if (DIM/height < scale)
                   scale = DIM/height;
                 clutter_actor_set_scale (oi, scale, scale);
-                clutter_actor_set_size (group, width*scale, height*scale);
                 clutter_actor_set_size (rectangle, DIM, height*scale);
+                if (strrchr (name2, '.'))
+                   *strrchr (name2, '.') = '\0';
+
+                label = clutter_text_new_with_text ("Sans 10px", name2);
+                g_free (name2);
+                clutter_text_set_color (CLUTTER_TEXT (label), &white);
 
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), oi);
+                clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
                 clutter_container_add_actor (CLUTTER_CONTAINER (group), rectangle);
+                clutter_actor_set_y (label, clutter_actor_get_height (rectangle));
+                clutter_actor_set_size (group, DIM, height*scale +
+                                                            clutter_actor_get_height (label));
                 g_object_set_data_full (G_OBJECT (oi), "path", path2, g_free);
                 g_signal_connect (rectangle, "button-press-event", G_CALLBACK (add_stencil), oi);
               }
