@@ -59,17 +59,12 @@
 
          "children":
           [
-            { "type":"MxViewport",
-              "children":
-               [
                  { "type":"MxBoxLayout", "vertical":true,
                     "children":[
                       {"type":"MxBoxLayout", "vertical":true, "id":"cs-active-container",
                        "spacing":2},
                     ]
                   }
-               ]
-            }
          ]
        }
      ]
@@ -159,9 +154,6 @@
 
              "children":
              [
-               { "type":"MxViewport",
-                 "children":
-                 [
 
             {
             "type":"MxBoxLayout",
@@ -257,17 +249,12 @@
                    "width":240,
                    "children":
                     [
-                      { "type":"MxViewport",
-                        "children":
-                         [
                            { "type":"MxGrid", "id":"annotation-templates-container",
                               "halign":0.5, "valign":0.5, "column-spacing":3, "row-spacing":3,
                               "signals": [ {"name":"paint", "handler":"annotation_templates_container_init_hack"} ]
                               "children":[
                               ]
                             }
-                         ]
-                      }
                    ]
                  },
 
@@ -330,9 +317,6 @@
 
                         "children":
                          [
-                           { "type":"MxViewport",
-                             "children":
-                              [
                                 { "type":"MxBoxLayout", "vertical":true,
                                    "style-class":"ClutterSmithPropertyPane",
                                    "children":[
@@ -347,8 +331,6 @@
                                      }
                                    ]
                                  }
-                              ]
-                           }
                         ]
                       }
                    ]
@@ -463,17 +445,12 @@
          "height":300,
          "children":
           [
-            { "type":"MxViewport",
-              "children":
-               [
                  { "type":"MxBoxLayout", "vertical":true,
                     "children":[
                       {"type":"MxBoxLayout", "vertical":true, "id":"cs-callbacks-container",
                        "spacing":2},
                     ]
                   }
-               ]
-            }
          ]
        }
      ]
@@ -525,17 +502,12 @@
                    "height":300,
                    "children":
                     [
-                      { "type":"MxViewport",
-                        "children":
-                         [
                            { "type":"MxGrid", "name":"cs-templates-container", "id":"templates-container",
                               "width":260, "halign":0.5, "valign":1.0, "column-spacing":3, "row-spacing":3,
                               "signals": [ {"name":"paint", "handler":"templates_container_init_hack"} ]
                               "children":[
                               ]
                             }
-                         ]
-                      }
                    ]
                  },
         ]
@@ -655,8 +627,6 @@
 
                ]
              },
-          ]
-       }
      ]
      }
         {
