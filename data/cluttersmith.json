@@ -192,6 +192,7 @@
           {"type":"MxBoxLayout",
             "children":[
 
+            {"type":"MxLabel", "text":"Title"},
             { "type":"MxEntry",  "id":"cs-project-title", "hint-text":"project", "child::expand":true, "height":10,
               "signals": [ {"name":"paint", "handler":"project_title_init_hack"} ]
                  },
@@ -207,10 +208,10 @@
             "signals": [ {"name":"paint", "handler":"project_root_init_hack"} ]
           },
 
-          {"type":"MxLabel", "text":"Scene"},
                 {"type":"MxBoxLayout",
                  "children":[
 
+                 {"type":"MxLabel", "text":"Scene"},
                  { "id":"title",
                    "style-class":"ClutterSmithTitle",
                    "type":"MxEntry",  "text": "", "child::expand":true, "height":10,
@@ -336,11 +337,11 @@
                                    "style-class":"ClutterSmithPropertyPane",
                                    "children":[
 
-                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
+                                     {"type":"MxBoxLayout", "vertical":true, "id":"property-editors", "width":200,
                                       "spacing":2},
 
                                      {"type":"MxLabel", "text":"ancestors:"},
-                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":200
+                                     { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":190
                                        "children":[
                                        ]
                                      }
@@ -377,20 +378,29 @@
    
    "children":
      [
-       { "type":"MxLabel", "text":"State machine name" },
+
+
+{
+  "type":"MxBoxLayout",
+  "spacing":2,
+   
+   "children":
+     [
+       { "type":"MxLabel", "text":"Statemachine" },
        { "type":"MxEntry",
          "text":"not in use yet"
          "id":"cs-state-machine-name",
        },
+   ]},
 
-       { "type":"MxLabel", "text":"Source        Target" },
 
 {
   "type":"MxBoxLayout",
-  "spacing":9,
+  "spacing":2,
    
    "children":
      [
+       { "type":"MxLabel", "text":"Source, Target" },
        { "type":"MxEntry",
          "text":"*",
          "child::expand":true,
@@ -633,7 +643,6 @@
       { "type":"MxBoxLayout", "vertical":true,
         "style-class":"ClutterSmithPropertyPane",
         "children":[
-           {"type":"MxLabel", "text":"settings"},
            {"type":"MxBoxLayout", "vertical":true, "id":"config-editors",
             "width":200,
             "height":200,

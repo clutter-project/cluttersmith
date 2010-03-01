@@ -865,7 +865,7 @@ void mode_switch (MxComboBox *combo_box,
     label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x, y");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
+    clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
 
     editor = property_editor_new (G_OBJECT (actor), "x");
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
@@ -879,7 +879,7 @@ void mode_switch (MxComboBox *combo_box,
     label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "width, height");
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
-    clutter_container_child_set (CLUTTER_CONTAINER (hbox), label, "expand", TRUE, NULL);
+    clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
 
     editor = property_editor_new (G_OBJECT (actor), "width");
     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
@@ -890,6 +890,7 @@ void mode_switch (MxComboBox *combo_box,
 
     clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
+    hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
     /* virtual 'id' property */
     label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "id");
 
@@ -901,8 +902,11 @@ void mode_switch (MxComboBox *combo_box,
       mx_entry_set_text (MX_ENTRY (editor), clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor)));
     }
 
-    clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
-    clutter_container_add_actor (CLUTTER_CONTAINER (container), editor);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+    clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+    clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+    clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+    clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
     clutter_text_set_color (CLUTTER_TEXT (label), &white);
 }
 

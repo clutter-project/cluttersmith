@@ -368,7 +368,6 @@ ClutterActor *property_editor_new (GObject *object,
   else if (pspec->value_type == G_TYPE_STRING)
     {
       editor = CLUTTER_ACTOR (mx_entry_new (""));
-      clutter_actor_set_width (editor, 200);
       uc->editor = editor;
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_string), uc);
@@ -504,7 +503,8 @@ props_populate (ClutterActor *container,
         ClutterActor *label = mx_label_new (properties[i]->name);
         ClutterActor *editor = property_editor_new (object, properties[i]->name);
 
-        clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
+        clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+        clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
         clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
 

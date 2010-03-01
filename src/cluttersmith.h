@@ -94,7 +94,7 @@ gboolean cs_edit_actor_start (ClutterActor *actor);
 gboolean cs_edit_actor_end   (void);
 
 void cs_save (gboolean force);
-#define CS_PROPEDITOR_LABEL_WIDTH  120
+#define CS_PROPEDITOR_LABEL_WIDTH  100
 #define CS_PROPEDITOR_EDITOR_WIDTH  80
 #define EDITOR_LINE_HEIGHT          23
 #define CS_EDITOR_LABEL_FONT "Liberation 11px"
