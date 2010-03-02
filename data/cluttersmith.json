@@ -516,46 +516,13 @@
                                       "children":[
                                         {
                                           "type":"MxLabel",
-                                          "text":"Statemachine"
+                                          "text":"Animation"
                                         },
                                         {
                                           "type":"MxEntry",
                                           "text":"not in use yet",
-                                          "id":"cs-state-machine-name"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type":"MxBoxLayout",
-                                      "spacing":2,
-                                      "children":[
-                                        {
-                                          "type":"MxLabel",
-                                          "text":"Source, Target"
-                                        },
-                                        {
-                                          "type":"MxEntry",
-                                          "text":"*",
                                           "child::expand":true,
-                                          "id":"cs-source-state",
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"state_source_name_init_hack"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "type":"MxEntry",
-                                          "text":"default",
-                                          "child::expand":true,
-                                          "id":"cs-state-name",
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"state_name_init_hack"
-                                            }
-                                          ]
+                                          "id":"cs-animation-name"
                                         }
                                       ]
                                     },
@@ -571,16 +538,6 @@
                                         {
                                           "name":"paint",
                                           "handler":"state_duration_init_hack"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type":"MxButton",
-                                      "label":"elaborate",
-                                      "signals":[
-                                        {
-                                          "name":"clicked",
-                                          "handler":"state_elaborate_clicked"
                                         }
                                       ]
                                     },
