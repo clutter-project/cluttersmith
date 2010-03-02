@@ -778,6 +778,11 @@ gboolean idle_add_stage (gpointer stage)
 
     props_populate (_A("config-editors"), G_OBJECT (cluttersmith), FALSE);
 
+
+#ifdef COMPILEMODULE
+    clutter_actor_hide (cluttersmith->fake_stage_canvas);
+#endif
+
     {
       /* XXX: all of this should be in the json */
       cluttersmith->cs_mode = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-mode"));
