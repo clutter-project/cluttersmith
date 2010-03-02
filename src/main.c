@@ -73,32 +73,16 @@ parse_args (gchar **argv)
   return TRUE;
 }
 
-static ClutterActor *
-initialize_stage ()
-{
-  ClutterActor *stage;
-  ClutterColor  color;
-
-  stage = clutter_stage_get_default ();
-  clutter_color_from_string (&color, "gray");
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &color);
-  clutter_actor_show (stage);
-
-  if (args.fullscreen)
-    clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
-  clutter_actor_set_size (stage, 1024, 600);
-
-  return stage;
-}
-
 void gst_init (gpointer, gpointer);
 
 gboolean idle_add_stage (gpointer stage);
 
 void mode_edit2 (void);
-/* hack.. */
-static gboolean idle_load_default (gpointer data)
+
+#ifndef COMPILEMODULE
+  /* when compiling as an LD_PRELOAD module, we do not use main */
+
+static void load_project (void)
 {
   if (args.root_path)
     {
@@ -130,16 +114,32 @@ static gboolean idle_load_default (gpointer data)
       cluttersmith_load_scene ("index");
     }
 
-
   mode_edit2 ();
 
   clutter_actor_queue_redraw (clutter_stage_get_default());
-  return FALSE;
 }
 
-#ifndef COMPILEMODULE
 
-  
+static ClutterActor *
+initialize_stage ()
+{
+  ClutterActor *stage;
+  ClutterColor  color;
+
+  stage = clutter_stage_get_default ();
+  clutter_color_from_string (&color, "gray");
+  clutter_stage_set_color (CLUTTER_STAGE (stage), &color);
+  clutter_actor_show (stage);
+
+  if (args.fullscreen)
+    clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
+  clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
+  clutter_actor_set_size (stage, 1024, 600);
+
+  return stage;
+}
+
+
 gint
 main (gint    argc,
       gchar **argv)
@@ -152,40 +152,8 @@ main (gint    argc,
     return -1;
 
   stage = initialize_stage ();
-
-#if 0
-  {
-    ClutterAnimator *animator = clutter_animator_new ();
-    gfloat progress;
-
-    clutter_animator_set (animator,
-            stage, "x", 1, 0.2, 600.0,
-            stage, "x", CLUTTER_LINEAR, 0.3, 500.0,
-            stage, "x", CLUTTER_LINEAR, 0.5, 600.0,
-            stage, "x", CLUTTER_LINEAR, 0.8, 50.0,
-            stage, "x", CLUTTER_LINEAR, 1.0, 30.0,
-            NULL);
-    clutter_animator_property_set_ease_in (animator, G_OBJECT (stage), "x", TRUE);
-
-    for (progress= -0.5; progress < 1.2; progress += 0.05)
-      {
-        GValue value = {0, };
-        gboolean res;
-        g_value_init (&value, G_TYPE_FLOAT);
-        res = clutter_animator_compute_value (animator, stage, "x", progress, &value);
-        g_print ("%f : %f %s\n", progress, g_value_get_float (&value), res?"!":"");
-        g_value_unset (&value);
-      }
-
-    g_object_unref (animator);
-    return 1;
-  }
-#endif
-
-
-  g_timeout_add (100, idle_add_stage, stage);
-  g_timeout_add (800, idle_load_default, NULL);
-
+  idle_add_stage (stage);
+  load_project ();
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
 
   clutter_main ();
@@ -197,5 +165,5 @@ void* force_link_of_compilation_units_containting[]={
   session_history_init_hack,
   templates_container_init_hack
 };
-#endif
 
+#endif

@@ -48,6 +48,8 @@ static void cs_context_set_property (GObject      *object,
                                      const GValue *value,
                                      GParamSpec   *pspec);
 
+static void project_root_text_changed (ClutterActor *actor);
+static void title_text_changed (ClutterActor *actor);
 
 static void
 cs_context_dispose (GObject *object)
@@ -682,25 +684,25 @@ void mode_switch (MxComboBox *combo_box,
     }
 }
 
-  gboolean idle_add_stage (gpointer stage)
-  {
-    ClutterActor *actor;
-    ClutterScript *script;
+gboolean idle_add_stage (gpointer stage)
+{
+  ClutterActor *actor;
+  ClutterScript *script;
 
-    cluttersmith = cs_context_new ();
+  cluttersmith = cs_context_new ();
 
-#ifdef COMPILEMODULE
-    actor = cs_load_json (PKGDATADIR "cluttersmith-assistant.json");
-#else
-    actor = cs_load_json (PKGDATADIR "cluttersmith.json");
-#endif
+/*#ifdef COMPILEMODULE
+  actor = cs_load_json (PKGDATADIR "cluttersmith-assistant.json");
+#else*/
+  actor = cs_load_json (PKGDATADIR "cluttersmith.json");
+/*#endif*/
 
-    g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
-    clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
+  g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
 
-    cs_actor_editing_init (stage);
-    mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
-    script = cs_get_script (actor);
+  cs_actor_editing_init (stage);
+  mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
+   script = cs_get_script (actor);
 
     /* initializing globals */
     title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
@@ -713,7 +715,7 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
     cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
-      {
+  {
     if (cluttersmith->parasite_ui)
       {
         g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), cluttersmith->parasite_ui);
@@ -721,7 +723,7 @@ void mode_switch (MxComboBox *combo_box,
         /* do an initial sync of the ui-size */
         stage_size_changed (stage, NULL, cluttersmith->parasite_ui);
       }
-      }
+  }
 
 #define _A(actorname)  CLUTTER_ACTOR (clutter_script_get_object (script, actorname))
 
@@ -731,6 +733,7 @@ void mode_switch (MxComboBox *combo_box,
      */
 
     cluttersmith->fake_stage_canvas = _A("fake-stage-canvas");
+    cluttersmith->project_root_entry = _A("project-root");
     cluttersmith->resize_handle = _A("resize-handle");
     cluttersmith->move_handle = _A("move-handle");
     cluttersmith->active_panel = _A("cs-active-panel");
@@ -763,9 +766,15 @@ void mode_switch (MxComboBox *combo_box,
     cluttersmith->dialog_property_inspector = _A("cs-dialog-property-inspector");
     cluttersmith->animator_editor = _A("cs-animator-editor");
 
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (title)), "text-changed",
+                    G_CALLBACK (title_text_changed), NULL);
+
+    g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->project_root_entry)), "text-changed",
+                    G_CALLBACK (project_root_text_changed), NULL);
+
+
     cs_manipulate_init (cluttersmith->parasite_root);
     cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
-
 
     props_populate (_A("config-editors"), G_OBJECT (cluttersmith), FALSE);
 
@@ -1755,36 +1764,6 @@ void project_title_init_hack (ClutterActor  *actor)
                     G_CALLBACK (project_title_text_changed), NULL);
 }
 
-
-void project_root_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (project_root_text_changed), NULL);
-}
-
-
-
-void title_entry_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (title_text_changed), NULL);
-}
 
 static void update_duration (void)
 {

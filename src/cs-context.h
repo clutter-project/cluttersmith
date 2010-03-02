@@ -48,6 +48,7 @@ struct _CSContext
   ClutterActor *parasite_ui;
   ClutterActor *fake_stage_canvas;
   ClutterActor *fake_stage;
+  ClutterActor *project_root_entry;
   ClutterActor *project_title;
   ClutterActor *scene_graph;
   ClutterActor *property_editors;

@@ -304,13 +304,7 @@
                                     {
                                       "id":"project-root",
                                       "type":"MxEntry",
-                                      "text":"",
-                                      "signals":[
-                                        {
-                                          "name":"paint",
-                                          "handler":"project_root_init_hack"
-                                        }
-                                      ]
+                                      "text":""
                                     },
                                     {
                                       "type":"MxBoxLayout",
@@ -325,13 +319,7 @@
                                           "type":"MxEntry",
                                           "text":"",
                                           "child::expand":true,
-                                          "height":10,
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"title_entry_init_hack"
-                                            }
-                                          ]
+                                          "height":10
                                         },
                                         {
                                           "type":"MxButton",
