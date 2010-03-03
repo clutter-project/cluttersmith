@@ -1035,7 +1035,6 @@ void projects_dropdown (MxAction *action,
                         gpointer  ignored)
 {
   MxPopup *popup = cs_popup_new ();
-  const gchar *name;
   gint x, y;
   x = cs_last_x;
   y = cs_last_y;
@@ -1053,7 +1052,6 @@ void projects_dropdown (MxAction *action,
           end = strchr (start, '\n');
           if (*end)
             {
-              ClutterActor *foo;
               MxAction     *action;
               *end = '\0';
 
@@ -1112,6 +1110,43 @@ void scenes_dropdown (MxAction *action,
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
 }
+
+static void change_animation2 (MxAction *action,
+                              gpointer    data)
+{
+  mx_entry_set_text (MX_ENTRY (cluttersmith->animation_name), mx_action_get_name (action));
+}
+
+static MxAction *change_animation (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_animation2), NULL);
+  g_free (label);
+  return action;
+}
+
+void animations_dropdown (MxAction *action,
+                          gpointer  ignored)
+{
+  MxPopup *popup = cs_popup_new ();
+  GList *i;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+  for (i = cluttersmith->animators; i; i=i->next)
+    {
+       action = change_animation (g_object_get_data (i->data, "id"));
+       mx_popup_add_action (popup, action);
+    }
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
 
 static GList *actor_types_build (GList *list, GType type)
 {

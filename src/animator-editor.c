@@ -354,6 +354,15 @@ cs_animator_editor_paint (ClutterActor *actor)
                                        key_no);
       key_no ++;
     }
+  for (;key_no < 100;key_no ++)
+      ensure_temporal_animator_handle (editor,
+                                       0,
+                                       NULL,
+                                       NULL,
+                                       0, 
+                                       0,
+                                       0.0,
+                                       key_no);
 
   g_list_free (keys);
 

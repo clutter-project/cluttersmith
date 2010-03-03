@@ -31,8 +31,8 @@ G_BEGIN_DECLS
   (G_TYPE_INSTANCE_GET_CLASS ((obj), \
   CS_TYPE_CONTEXT, CSContextClass))
 
-typedef struct _CSContext CSContext;
-typedef struct _CSContextClass CSContextClass;
+typedef struct _CSContext        CSContext;
+typedef struct _CSContextClass   CSContextClass;
 typedef struct _CSContextPrivate CSContextPrivate;
 
 struct _CSContext
@@ -41,6 +41,7 @@ struct _CSContext
 
   CSContextPrivate *priv;
   gint          ui_mode;
+  GList        *animators;
   GList        *state_machines;
   gchar        *project_root;
 
@@ -80,6 +81,7 @@ struct _CSContext
   ClutterActor *dialog_export;
   ClutterActor *dialog_states;
   ClutterActor *dialog_animator;
+  ClutterActor *animation_name;
   ClutterActor *animator_props;
   ClutterActor *animator_progress;
   ClutterActor *animator_editor;
@@ -112,6 +114,7 @@ gfloat cluttersmith_get_origin_x (void);
 gfloat cluttersmith_get_origin_y (void);
 
 CSContext *cs_context_new (void);
+void cs_set_current_animator (ClutterAnimator *animator);
 
 G_END_DECLS
 

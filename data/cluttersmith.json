@@ -516,29 +516,56 @@
                                       "children":[
                                         {
                                           "type":"MxLabel",
-                                          "text":"Animation"
+                                          "text":"Name"
                                         },
                                         {
                                           "type":"MxEntry",
-                                          "text":"not in use yet",
+                                          "text":"",
                                           "child::expand":true,
                                           "id":"cs-animation-name"
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  V  ",
+                                          "tooltip-text":"Animations",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"animations_dropdown"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  X  ",
+                                          "tooltip-text":"Remove animation",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"animation_remove"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
-                                    {
-                                      "type":"MxLabel",
-                                      "text":"Duration (ms)"
-                                    },
-                                    {
-                                      "type":"MxEntry",
-                                      "text":"1000",
-                                      "id":"cs-state-duration",
-                                      "signals":[
+                                    { "type":"MxBoxLayout",
+                                      "children":[
                                         {
-                                          "name":"paint",
-                                          "handler":"state_duration_init_hack"
-                                        }
+                                          "type":"MxLabel",
+                                          "text":"Duration (ms)"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"1000",
+                                          "child::expand":true,
+                                          "id":"cs-state-duration",
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"state_duration_init_hack"
+                                            }
+                                          ]
+                                        },
                                       ]
                                     },
                                     {
