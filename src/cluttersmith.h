@@ -107,5 +107,6 @@ void cs_save (gboolean force);
                 "const Lang = imports.lang;\n"\
                 "const Mainloop = imports.mainloop;\n"\
                 "function $(id) {return ClutterSmith.get_actor(id);}"
+MxPopup *cs_popup_new (void);
 
 #endif

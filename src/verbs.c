@@ -835,7 +835,7 @@ static void popup_action_activated (gpointer a, gpointer b)
   clutter_actor_hide (a);
 }
 
-static MxPopup *cs_popup_new (void)
+MxPopup *cs_popup_new (void)
 {
   MxPopup *popup;
   popup = MX_POPUP (mx_popup_new ());

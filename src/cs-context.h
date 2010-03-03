@@ -4,6 +4,7 @@
 #define _CS_CONTEXT_H
 
 #include <clutter/clutter.h>
+#include <mx/mx.h>
 #include <glib-object.h>
 #include "clutter-states.h"
 

@@ -55,12 +55,13 @@ ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile $(libcluttersm
 		--namespace=ClutterSmith		 \
 		--nsversion=0.1				 \
 		--include=Clutter-1.0			 \
+		--include=Mx-1.0			 \
 		--libtool="$(LIBTOOL)"    		 \
 		--add-include-path=$(builddir)     	 \
 		--library=libcluttersmith.la 		 \
 		$(srcdir)/*.c $(srcdir)/*.h 		 \
 		$(libcluttersmith_la_CPPFLAGS)		 \
-		`pkg-config --cflags clutter-1.0 ` \
+		`pkg-config --cflags mx-1.0 clutter-1.0 ` \
 		-o $@
 CLEANFILES += ClutterSmith-0.0.gir
 

@@ -1,4 +1,5 @@
 #include "cluttersmith.h"
+#include <mx/mx.h>
 #include <animator-editor.h>
 
 #define ANIM_PROPERTY_ROW_HEIGHT 20
@@ -10,27 +11,21 @@ enum
 
 static GList *spatial_handles = NULL;
 static GList *temporal_handles = NULL;
-typedef struct SpatialKeyHandle {
-  ClutterAnimator *animator;
-  GObject         *object;
-  gint             key_no;
-
-  ClutterActor    *actor;
-} SpatialKeyHandle;
-
-typedef struct TemporalKeyHandle {
-  CsAnimatorEditor *editor;
+typedef struct KeyHandle {
   ClutterAnimator  *animator;
   GObject          *object;
   gdouble           progress;
   gint              key_no;
   const gchar      *property_name;
   ClutterActor     *actor;
-} TemporalKeyHandle;
+  CsAnimatorEditor *editor;
+} KeyHandle;
 
 static gdouble manipulate_x;
 static gdouble manipulate_y;
 
+static void key_context_menu (MxAction *action,
+                              gpointer  handle);
 
 struct _CsAnimatorEditorPrivate
 {
@@ -40,6 +35,7 @@ struct _CsAnimatorEditorPrivate
   ClutterActor    *group;           /* internal group used to manage
                                      * temporal key handles
                                      */
+  gdouble          progress;
   GList           *temporal_handle;
 };
 
@@ -121,7 +117,7 @@ temporal_capture (ClutterActor *stage,
                   ClutterEvent *event,
                   gpointer      data)
 {
-  TemporalKeyHandle *handle = data;
+  KeyHandle *handle = data;
   switch (event->any.type)
     {
       case CLUTTER_MOTION:
@@ -215,24 +211,7 @@ temporal_capture (ClutterActor *stage,
 
         if (clutter_event_get_button (event)==3)
           {
-            clutter_animator_remove_key (handle->animator,
-                                         handle->object,
-                                         handle->property_name,
-                                         handle->progress);
-            if (handle->property_name == g_intern_static_string ("x"))
-              {
-                clutter_animator_remove_key (handle->animator,
-                                             handle->object,
-                                             "y",
-                                             handle->progress);
-              }
-            else if (handle->property_name == g_intern_static_string ("y"))
-              {
-                clutter_animator_remove_key (handle->animator,
-                                             handle->object,
-                                             "x",
-                                             handle->progress);
-              }
+            key_context_menu (NULL, handle);
           }
 
         clutter_actor_queue_redraw (stage);
@@ -246,7 +225,7 @@ static gboolean temporal_event (ClutterActor *actor,
                                 ClutterEvent *event,
                                 gpointer      data)
 {
-  SpatialKeyHandle *handle = data;
+  KeyHandle *handle = data;
 
   switch (clutter_event_type (event))
     {
@@ -278,7 +257,7 @@ static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
                                              gdouble          progress,
                                              gint             key_no)
 {
-  TemporalKeyHandle *handle;
+  KeyHandle *handle;
   GList *h;
   for (h = temporal_handles; h; h=h->next)
     {
@@ -302,7 +281,7 @@ static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
   if (!handle)
     {
       ClutterColor red = {0xff,0,0,0xff};
-      handle = g_new0 (TemporalKeyHandle, 1);
+      handle = g_new0 (KeyHandle, 1);
       handle->key_no = key_no;
       handle->actor = clutter_rectangle_new ();
       clutter_rectangle_set_color (CLUTTER_RECTANGLE (handle->actor), &red);
@@ -398,12 +377,23 @@ cs_animator_editor_paint (ClutterActor *actor)
 
   if (priv->group)
      clutter_actor_paint (priv->group);
+
+  priv->progress = 0.5;
+  cogl_set_source_color4ub (255, 128, 128, 255);
+  cogl_path_new ();
+  cogl_path_move_to (priv->progress * width, 0);
+  cogl_path_line_to (priv->progress * width, clutter_actor_get_height (actor));
+  cogl_path_stroke ();
 }
 
 static void
 cs_animator_editor_pick (ClutterActor *actor, const ClutterColor *color)
 {
-    cs_animator_editor_paint (actor);
+  CsAnimatorEditor        *editor = (CsAnimatorEditor *) actor;
+  CsAnimatorEditorPrivate *priv   = editor->priv;
+
+  if (priv->group)
+     clutter_actor_paint (priv->group);
 }
 
 static void
@@ -479,6 +469,73 @@ void cs_animator_editor_set_animator (CsAnimatorEditor *animator_editor,
   priv->animator = g_object_ref (animator);
 }
 
+#if 0
+static void key_callback (MxAction *action,
+                          gpointer    data)
+{
+  mx_entry_set_text (MX_ENTRY (cluttersmith->animation_name), mx_action_get_name (action));
+}
+
+static MxAction *change_animation (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_animation2), NULL);
+  g_free (label);
+  return action;
+}
+#endif
+
+static void key_remove (MxAction *max_action, 
+                        gpointer  data)
+{
+  KeyHandle *handle = data;
+
+  clutter_animator_remove_key (handle->animator,
+                               handle->object,
+                               handle->property_name,
+                               handle->progress);
+  if (handle->property_name == g_intern_static_string ("x"))
+    {
+      clutter_animator_remove_key (handle->animator,
+                                   handle->object,
+                                   "y",
+                                   handle->progress);
+    }
+  else if (handle->property_name == g_intern_static_string ("y"))
+    {
+      clutter_animator_remove_key (handle->animator,
+                                   handle->object,
+                                   "x",
+                                   handle->progress);
+    }
+}
+
+static void key_context_menu (MxAction *action,
+                              gpointer  handle)
+{
+  MxPopup *popup = cs_popup_new ();
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+  action = mx_action_new_full ("remove-key", "Remove Key", G_CALLBACK (key_remove), handle);
+  mx_popup_add_action (popup, action);
+  action = mx_action_new_full ("make-smooth", "Cubic interpolation", NULL, NULL);
+  mx_popup_add_action (popup, action);
+  action = mx_action_new_full ("make-smooth", "Ease value in", NULL, NULL);
+  mx_popup_add_action (popup, action);
+  action = mx_action_new_full ("ease-1", "Set easing mode foo", NULL, NULL);
+  mx_popup_add_action (popup, action);
+  action = mx_action_new_full ("ease-2", "Set easing mode bar", NULL, NULL);
+  mx_popup_add_action (popup, action);
+
+  clutter_group_add (cluttersmith->parasite_root, popup);
+  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (popup));
+}
+
 
 
 static gboolean
@@ -486,7 +543,7 @@ handle_move_capture (ClutterActor *stage,
                      ClutterEvent *event,
                      gpointer      data)
 {
-  SpatialKeyHandle *handle = data;
+  KeyHandle *handle = data;
   switch (event->any.type)
     {
       case CLUTTER_MOTION:
@@ -549,27 +606,7 @@ handle_move_capture (ClutterActor *stage,
 
         if (clutter_event_get_button (event)==3)
           {
-            GList *xlist = clutter_animator_get_keys (handle->animator,
-                                                      handle->object,
-                                                      "x", -1);
-            GList *ylist = clutter_animator_get_keys (handle->animator,
-                                                      handle->object,
-                                                      "y", -1);
-            ClutterAnimatorKey *xkey;
-            ClutterAnimatorKey *ykey;
-            gdouble progress;
-
-            xkey = g_list_nth_data (xlist, handle->key_no);
-            ykey = g_list_nth_data (ylist, handle->key_no);
-            g_list_free (xlist);
-            g_list_free (ylist);
-            progress = clutter_animator_key_get_progress (xkey);
-
-            clutter_animator_remove_key (handle->animator,
-                                         handle->object, "x", progress);
-            if (ykey)
-            clutter_animator_remove_key (handle->animator,
-                                         handle->object, "y", progress);
+            key_context_menu (NULL, handle);
           }
 
         clutter_actor_queue_redraw (stage);
@@ -583,7 +620,7 @@ static gboolean spatial_event (ClutterActor *actor,
                               ClutterEvent *event,
                               gpointer      data)
 {
-  SpatialKeyHandle *handle = data;
+  KeyHandle *handle = data;
 
   switch (clutter_event_type (event))
     {
@@ -610,9 +647,10 @@ static void ensure_animator_handle (ClutterAnimator *animator,
                                     GObject         *object,
                                     gfloat           x,
                                     gfloat           y,
-                                    gint             key_no)
+                                    gint             key_no,
+                                    gdouble          progress)
 {
-  SpatialKeyHandle *handle;
+  KeyHandle *handle;
   GList *h;
   for (h = spatial_handles; h; h=h->next)
     {
@@ -635,7 +673,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
     return;
   if (!handle)
     {
-      handle = g_new0 (SpatialKeyHandle, 1);
+      handle = g_new0 (KeyHandle, 1);
       handle->key_no = key_no;
       handle->actor = clutter_texture_new_from_file (PKGDATADIR "link-bg.png", NULL);
       clutter_actor_set_opacity (handle->actor, 0xff);
@@ -649,6 +687,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
     }
   handle->object = object;
   handle->animator = animator;
+  handle->progress = progress;
   clutter_actor_set_position (handle->actor, x, y);
 }
 
@@ -691,7 +730,8 @@ void animator_editor_update_handles (void)
                                                         &vertex, &vertex);
 
                 ensure_animator_handle (cluttersmith->current_animator,
-                                        G_OBJECT (actor), vertex.x, vertex.y, i);
+                                        G_OBJECT (actor), vertex.x, vertex.y, i,
+                                        progress);
               }
             g_list_free (keys);
           }
@@ -700,7 +740,7 @@ void animator_editor_update_handles (void)
         }
       for (; i<100; i++)
         {
-          ensure_animator_handle (NULL, NULL, 0,0, i);
+          ensure_animator_handle (NULL, NULL, 0,0, i, 0.0);
         }
     }
 }
