@@ -22,6 +22,7 @@ typedef struct TemporalKeyHandle {
   CsAnimatorEditor *editor;
   ClutterAnimator  *animator;
   GObject          *object;
+  gdouble           progress;
   gint              key_no;
   const gchar      *property_name;
   ClutterActor     *actor;
@@ -120,58 +121,89 @@ temporal_capture (ClutterActor *stage,
                   ClutterEvent *event,
                   gpointer      data)
 {
-  SpatialKeyHandle *handle = data;
+  TemporalKeyHandle *handle = data;
   switch (event->any.type)
     {
       case CLUTTER_MOTION:
         {
-          gfloat delta[2];
-          delta[0]=manipulate_x-event->motion.x;
-          delta[1]=manipulate_y-event->motion.y;
+          gfloat delta;
+
+          delta = (manipulate_x-event->motion.x * 1.0) / clutter_actor_get_width (cluttersmith->animator_editor);
           cs_dirtied ();
 
           {
-            GList *xlist = clutter_animator_get_keys (handle->animator,
-                                                      handle->object,
-                                                      "x", -1);
-            GList *ylist = clutter_animator_get_keys (handle->animator,
-                                                      handle->object,
-                                                      "y", -1);
+            GList *xlist;
+            const gchar *other_property = NULL;
             ClutterAnimatorKey *xkey;
-            ClutterAnimatorKey *ykey;
             GValue              xvalue = {0, };
-            GValue              yvalue = {0, };
             gdouble progress;
+            gdouble new_progress;
 
-            g_value_init (&xvalue, G_TYPE_FLOAT);
-            g_value_init (&yvalue, G_TYPE_FLOAT);
+            progress = handle->progress;
+            new_progress = progress-delta;
 
-            xkey = g_list_nth_data (xlist, handle->key_no);
-            ykey = g_list_nth_data (ylist, handle->key_no);
+            if (new_progress > 1.0)
+              new_progress = 1.0;
+            if (new_progress < 0.0)
+              new_progress = 0.0;
+
+            xlist = clutter_animator_get_keys (handle->animator,
+                                               handle->object,
+                                               handle->property_name,
+                                               handle->progress);
+            g_assert (xlist);
+
+            xkey = xlist->data;
+            g_value_init (&xvalue, clutter_animator_key_get_property_type (xkey));
             g_list_free (xlist);
-            g_list_free (ylist);
-
-            progress = clutter_animator_key_get_progress (xkey);
 
             clutter_animator_key_get_value (xkey, &xvalue);
-            clutter_animator_key_get_value (ykey, &yvalue);
+            clutter_animator_remove_key (handle->animator,
+                                         handle->object,
+                                         handle->property_name,
+                                         progress);
+            clutter_animator_set_key (handle->animator,
+                                      handle->object,
+                                      handle->property_name,
+                                      CLUTTER_LINEAR,
+                                      new_progress,
+                                      &xvalue);
 
-            clutter_animator_set (handle->animator,
-                                  handle->object, "x",
-                                  CLUTTER_LINEAR,
-                                  progress, 
-                                  g_value_get_float (&xvalue) - delta[0],
-                                  
-                                  NULL);
-            clutter_animator_set (handle->animator,
-                                  handle->object, "y",
-                                  CLUTTER_LINEAR,
-                                  progress, 
-                                  g_value_get_float (&yvalue) - delta[1],
-                                  NULL);
+            if (handle->property_name == g_intern_static_string ("x"))
+              {
+                other_property = "y";
+              }
+            else if (handle->property_name == g_intern_static_string ("y"))
+              {
+                other_property = "x";
+              }
+
+            if (other_property)  /* make x and y properties be
+                                    dealt with together */
+              {
+                xlist = clutter_animator_get_keys (handle->animator,
+                                                   handle->object,
+                                                   other_property,
+                                                   handle->progress);
+                g_assert (xlist);
+
+                xkey = xlist->data;
+                g_list_free (xlist);
+
+                clutter_animator_key_get_value (xkey, &xvalue);
+                clutter_animator_remove_key (handle->animator,
+                                             handle->object,
+                                             other_property,
+                                             progress);
+                clutter_animator_set_key (handle->animator,
+                                          handle->object,
+                                          other_property,
+                                          CLUTTER_LINEAR,
+                                          new_progress,
+                                          &xvalue);
+              }
 
             g_value_unset (&xvalue);
-            g_value_unset (&yvalue);
           }
 
           manipulate_x=event->motion.x;
@@ -183,27 +215,24 @@ temporal_capture (ClutterActor *stage,
 
         if (clutter_event_get_button (event)==3)
           {
-            GList *xlist = clutter_animator_get_keys (handle->animator,
-                                                      handle->object,
-                                                      "x", -1);
-            GList *ylist = clutter_animator_get_keys (handle->animator,
-                                                      handle->object,
-                                                      "y", -1);
-            ClutterAnimatorKey *xkey;
-            ClutterAnimatorKey *ykey;
-            gdouble progress;
-
-            xkey = g_list_nth_data (xlist, handle->key_no);
-            ykey = g_list_nth_data (ylist, handle->key_no);
-            g_list_free (xlist);
-            g_list_free (ylist);
-            progress = clutter_animator_key_get_progress (xkey);
-
             clutter_animator_remove_key (handle->animator,
-                                         handle->object, "x", progress);
-            if (ykey)
-            clutter_animator_remove_key (handle->animator,
-                                         handle->object, "y", progress);
+                                         handle->object,
+                                         handle->property_name,
+                                         handle->progress);
+            if (handle->property_name == g_intern_static_string ("x"))
+              {
+                clutter_animator_remove_key (handle->animator,
+                                             handle->object,
+                                             "y",
+                                             handle->progress);
+              }
+            else if (handle->property_name == g_intern_static_string ("y"))
+              {
+                clutter_animator_remove_key (handle->animator,
+                                             handle->object,
+                                             "x",
+                                             handle->progress);
+              }
           }
 
         clutter_actor_queue_redraw (stage);
@@ -290,6 +319,7 @@ static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
     }
   handle->object = object;
   handle->animator = animator;
+  handle->progress = progress;
   handle->property_name = property_name;
 
   clutter_actor_set_position (handle->actor,
