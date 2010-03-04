@@ -24,8 +24,8 @@ typedef struct KeyHandle {
 static gdouble manipulate_x;
 static gdouble manipulate_y;
 
-static void key_context_menu (MxAction *action,
-                              gpointer  handle);
+static void key_context_menu (MxAction  *action,
+                              KeyHandle *handle);
 
 struct _CsAnimatorEditorPrivate
 {
@@ -429,7 +429,7 @@ text_end (void)
       clutter_actor_destroy (texts_i->data);
       tmp = texts_i;
       texts_i = texts_i->next;
-      texts = g_list_remove (texts, tmp);
+      texts = g_list_remove (texts, tmp->data);
     }
 }
 
@@ -697,8 +697,56 @@ static void key_remove (MxAction *max_action,
     }
 }
 
-static void key_context_menu (MxAction *action,
-                              gpointer  handle)
+static void make_cubic (MxAction *max_action, 
+                        gpointer  data)
+{
+  KeyHandle *handle = data;
+
+  clutter_animator_property_set_interpolation (handle->animator,
+                                               handle->object,
+                                               handle->property_name,
+                                               CLUTTER_INTERPOLATION_CUBIC);
+  if (g_str_equal (handle->property_name, "x"))
+    clutter_animator_property_set_interpolation (handle->animator,
+                                                 handle->object, "y",
+                                                 CLUTTER_INTERPOLATION_CUBIC);
+}
+
+static void make_linear (MxAction *max_action, 
+                        gpointer  data)
+{
+  KeyHandle *handle = data;
+
+  clutter_animator_property_set_interpolation (handle->animator,
+                                               handle->object,
+                                               handle->property_name,
+                                               CLUTTER_INTERPOLATION_LINEAR);
+  if (g_str_equal (handle->property_name, "x"))
+    clutter_animator_property_set_interpolation (handle->animator,
+                                                 handle->object, "y",
+                                                 CLUTTER_INTERPOLATION_LINEAR);
+}
+
+static void toggle_ease_in (MxAction *max_action, 
+                            gpointer  data)
+{
+  KeyHandle *handle = data;
+  gboolean value = !clutter_animator_property_get_ease_in (handle->animator,
+                                         handle->object,
+                                         handle->property_name);
+
+  clutter_animator_property_set_ease_in (handle->animator,
+                                         handle->object,
+                                         handle->property_name,
+                                         value);
+  if (g_str_equal (handle->property_name, "x"))
+    clutter_animator_property_set_ease_in (handle->animator,
+                                           handle->object, "y",
+                                           value);
+}
+
+static void key_context_menu (MxAction  *action,
+                              KeyHandle *handle)
 {
   MxPopup *popup = cs_popup_new ();
   gint x, y;
@@ -707,13 +755,18 @@ static void key_context_menu (MxAction *action,
 
   action = mx_action_new_full ("remove-key", "Remove Key", G_CALLBACK (key_remove), handle);
   mx_popup_add_action (popup, action);
-  action = mx_action_new_full ("make-smooth", "Cubic interpolation", NULL, NULL);
+  
+  if (clutter_animator_property_get_interpolation (handle->animator, handle->object, handle->property_name) == CLUTTER_INTERPOLATION_LINEAR)
+    action = mx_action_new_full ("make-smooth", "set smooth", G_CALLBACK (make_cubic), handle);
+  else
+    action = mx_action_new_full ("make-linear", "unset smooth", G_CALLBACK (make_linear), handle);
   mx_popup_add_action (popup, action);
-  action = mx_action_new_full ("make-smooth", "Ease value in", NULL, NULL);
-  mx_popup_add_action (popup, action);
-  action = mx_action_new_full ("ease-1", "Set easing mode foo", NULL, NULL);
-  mx_popup_add_action (popup, action);
-  action = mx_action_new_full ("ease-2", "Set easing mode bar", NULL, NULL);
+
+  if (clutter_animator_property_get_ease_in (handle->animator, handle->object, handle->property_name))
+    action = mx_action_new_full ("unset-ease-in", "unset ease-in", G_CALLBACK (toggle_ease_in), handle);
+  else
+    action = mx_action_new_full ("set-ease-in", "set ease-in", G_CALLBACK (toggle_ease_in), handle);
+
   mx_popup_add_action (popup, action);
 
   clutter_group_add (cluttersmith->parasite_root, popup);
@@ -832,6 +885,7 @@ static gboolean spatial_event (ClutterActor *actor,
 
 static void ensure_animator_handle (ClutterAnimator *animator,
                                     GObject         *object,
+                                    const gchar     *property_name,
                                     gfloat           x,
                                     gfloat           y,
                                     gint             key_no,
@@ -875,6 +929,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
   handle->object = object;
   handle->animator = animator;
   handle->progress = progress;
+  handle->property_name = property_name;
   handle->editor = CS_ANIMATOR_EDITOR (cluttersmith->animator_editor);
   clutter_actor_set_position (handle->actor, x, y);
 }
@@ -918,7 +973,9 @@ void animator_editor_update_handles (void)
                                                         &vertex, &vertex);
 
                 ensure_animator_handle (cluttersmith->current_animator,
-                                        G_OBJECT (actor), vertex.x, vertex.y, i,
+                                        G_OBJECT (actor), 
+                                        "x", 
+                                        vertex.x, vertex.y, i,
                                         progress);
               }
             g_list_free (keys);
@@ -928,7 +985,7 @@ void animator_editor_update_handles (void)
         }
       for (; i<100; i++)
         {
-          ensure_animator_handle (NULL, NULL, 0,0, i, 0.0);
+          ensure_animator_handle (NULL, NULL, NULL, 0,0, i, 0.0);
         }
     }
 }
