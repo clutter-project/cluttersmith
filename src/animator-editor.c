@@ -163,7 +163,6 @@ animator_editor_event (ClutterActor *actor,
           manipulate_x = event->button.x;
           manipulate_y = event->button.y;
 
-
           g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                             G_CALLBACK (animator_editor_capture), actor);
           return TRUE;

@@ -1138,7 +1138,7 @@ void animations_dropdown (MxAction *action,
 
   for (i = cluttersmith->animators; i; i=i->next)
     {
-       action = change_animation (g_object_get_data (i->data, "id"));
+       action = change_animation (clutter_scriptable_get_id (i->data));
        mx_popup_add_action (popup, action);
     }
 

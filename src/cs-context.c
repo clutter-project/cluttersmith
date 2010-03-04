@@ -1166,7 +1166,8 @@
 
     if (CS_REVISION != CS_STORED_REVISION || force)
       {
-        gchar *content;
+        GString *str = g_string_new ("[");
+        gchar *tmp;
         gfloat x, y;
 
         g_print ("saving\n");
@@ -1174,13 +1175,30 @@
         clutter_actor_get_position (cluttersmith->fake_stage, &x, &y);
         clutter_actor_set_position (cluttersmith->fake_stage, 0.0, 0.0);
 
-        content  = json_serialize_subtree (cluttersmith->fake_stage);
+        tmp = json_serialize_subtree (cluttersmith->fake_stage);
+        g_string_append (str, tmp);
+        g_free (tmp);
+
+        if (cluttersmith->animators)
+        {
+          GList *a;
+          g_string_append (str, "\n");
+          for (a = cluttersmith->animators; a; a=a->next)
+            {
+              tmp = json_serialize_animator (a->data);
+              g_string_append (str, ",");
+              g_string_append (str, tmp);
+              g_free (tmp);
+            }
+        }
+        g_string_append (str, "]");
+
         clutter_actor_set_position (cluttersmith->fake_stage, x, y);
         if (filename)
           {
-            g_file_set_contents (filename, content, -1, NULL);
+            g_file_set_contents (filename, str->str, -1, NULL);
           }
-        g_free (content);
+        g_string_free (str, TRUE);
         CS_STORED_REVISION = CS_REVISION;
       }
   }
@@ -1365,15 +1383,22 @@
                      source_state, cluttersmith->current_state);
   }
 
-  static void remove_state_machines (void)
-  {
-    GList *i;
-    for (i = cluttersmith->state_machines; i; i = i->next)
+static void remove_state_machines (void)
+{
+  GList *i;
+  for (i = cluttersmith->state_machines; i; i = i->next)
     {
       g_object_unref (i->data);
     }
   g_list_free (cluttersmith->state_machines);
   cluttersmith->state_machines = NULL;
+  for (i = cluttersmith->animators; i; i = i->next)
+    {
+      g_object_unref (i->data);
+    }
+  g_list_free (cluttersmith->animators);
+  cluttersmith->animators = NULL;
+
 }
 
 static void cs_load (void)
@@ -1390,6 +1415,25 @@ static void cs_load (void)
       gchar *annotationfilename;
       session_history_add (cs_get_project_root ());
       cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
+
+      {
+        ClutterScript *script = cs_get_script (cluttersmith->fake_stage);
+        GList *o, *objects;
+        g_assert (script);
+        objects = clutter_script_list_objects (script);
+
+        for (o = objects; o; o = o->next)
+          {
+            if (CLUTTER_IS_ANIMATOR (o->data))
+             {
+                ClutterAnimator *animator = o->data;
+                cluttersmith->animators = g_list_append (cluttersmith->animators, animator);
+                g_print ("added an animator\n");
+             }
+          }
+
+        g_list_free (objects);
+      }
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                                   cluttersmith->priv->title);
@@ -1602,7 +1646,7 @@ static void animation_name_changed (ClutterActor *actor)
 
   for (a=cluttersmith->animators; a; a=a->next)
     {
-      const gchar *id = g_object_get_data (a->data, "id");
+      const gchar *id = clutter_scriptable_get_id (a->data);
 
       if (id && g_str_equal (id, name))
         {
@@ -1611,7 +1655,7 @@ static void animation_name_changed (ClutterActor *actor)
         }
     }
   animator = clutter_animator_new ();
-  g_object_set_data_full (G_OBJECT (animator), "id", g_strdup (name), g_free);
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (animator), name);
   cluttersmith->animators = g_list_append (cluttersmith->animators, animator);
 
   cs_set_current_animator (animator);

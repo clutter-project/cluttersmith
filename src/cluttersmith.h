@@ -92,6 +92,7 @@ void templates_container_init_hack (ClutterActor  *actor);
 
 gboolean cs_edit_actor_start (ClutterActor *actor);
 gboolean cs_edit_actor_end   (void);
+gchar *json_serialize_animator (ClutterAnimator *animator);
 
 void cs_save (gboolean force);
 #define CS_PROPEDITOR_LABEL_WIDTH  100
