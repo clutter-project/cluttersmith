@@ -1579,7 +1579,7 @@ void cs_set_current_animator (ClutterAnimator *animator)
       g_list_free (keys);
     }
   cluttersmith->current_animator = animator;
-  cs_animator_editor_set_animator (cluttersmith->animator_editor, animator);
+  cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), animator);
 }
 
 static void animation_name_changed (ClutterActor *actor)

@@ -488,8 +488,15 @@ cs_animator_editor_paint (ClutterActor *actor)
 
   cogl_set_source_color4ub (255, 128, 128, 255);
   cogl_path_new ();
-  cogl_path_move_to (priv->progress * width, 0);
-  cogl_path_line_to (priv->progress * width, clutter_actor_get_height (actor));
+
+  {
+    gdouble progress;
+    ClutterTimeline *timeline;
+    timeline = clutter_animator_get_timeline (priv->animator);
+    progress = clutter_timeline_get_progress (timeline);
+    cogl_path_move_to (progress * width, 0);
+    cogl_path_line_to (progress * width, clutter_actor_get_height (actor));
+  }
   cogl_path_stroke ();
 }
 
@@ -803,7 +810,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
   handle->object = object;
   handle->animator = animator;
   handle->progress = progress;
-  handle->editor = cluttersmith->animator_editor;
+  handle->editor = CS_ANIMATOR_EDITOR (cluttersmith->animator_editor);
   clutter_actor_set_position (handle->actor, x, y);
 }
 
