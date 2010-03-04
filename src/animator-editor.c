@@ -39,6 +39,23 @@ struct _CsAnimatorEditorPrivate
   GList           *temporal_handle;
 };
 
+void state_position_actors (gdouble progress);
+
+void
+cs_animator_editor_set_progress (CsAnimatorEditor *animator_editor,
+                                 gdouble           progress)
+{
+  animator_editor->priv->progress = progress;
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (animator_editor));
+  state_position_actors (progress);
+}
+
+gdouble
+cs_animator_editor_get_progress (CsAnimatorEditor *animator_editor)
+{
+  return animator_editor->priv->progress;
+}
+
 #define GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
                                                        CS_TYPE_ANIMATOR_EDITOR, \
                                                        CsAnimatorEditorPrivate))
@@ -82,10 +99,93 @@ cs_animator_editor_set_property (GObject      *object,
     }
 }
 
+static gboolean
+animator_editor_capture (ClutterActor *stage,
+                         ClutterEvent *event,
+                         gpointer      data)
+{
+  CsAnimatorEditor *animator_editor = data;
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          gfloat progress;
+          clutter_actor_transform_stage_point (CLUTTER_ACTOR (animator_editor),
+            event->motion.x, event->motion.y, &progress, NULL);
+
+          progress = progress / clutter_actor_get_width (CLUTTER_ACTOR (animator_editor));
+
+          if (progress > 1.0)
+            progress = 1.0;
+          else if (progress < 0.0)
+            progress = 0.0;
+
+          cs_animator_editor_set_progress (animator_editor, progress);
+
+          clutter_actor_queue_redraw (CLUTTER_ACTOR (animator_editor));
+
+          manipulate_x=event->motion.x;
+          manipulate_y=event->motion.y;
+        }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+        g_signal_handlers_disconnect_by_func (stage, animator_editor_capture, data);
+        clutter_actor_queue_redraw (stage);
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+static gboolean
+animator_editor_event (ClutterActor *actor,
+                       ClutterEvent *event,
+                       gpointer      data)
+{
+  switch (clutter_event_type (event))
+    {
+      case CLUTTER_BUTTON_PRESS:
+        {
+          gfloat progress;
+          clutter_actor_transform_stage_point (actor,
+            event->motion.x, event->motion.y, &progress, NULL);
+
+          progress = progress / clutter_actor_get_width (actor);
+
+          if (progress > 1.0)
+            progress = 1.0;
+          else if (progress < 0.0)
+            progress = 0.0;
+
+          cs_animator_editor_set_progress (CS_ANIMATOR_EDITOR (actor),
+                                           progress);
+
+          manipulate_x = event->button.x;
+          manipulate_y = event->button.y;
+
+
+          g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                            G_CALLBACK (animator_editor_capture), actor);
+          return TRUE;
+        }
+      default:
+        return FALSE;
+    }
+}
+
 static void
-cs_animator_editor_get_property (GObject *object, guint prop_id,
-                               GValue     *value,
-                               GParamSpec *pspec)
+cs_animator_editor_constructed (GObject *object)
+{
+  g_object_set (object, "reactive", TRUE, NULL);
+  g_signal_connect (object, "event", G_CALLBACK (animator_editor_event), NULL);
+}
+  
+
+static void
+cs_animator_editor_get_property (GObject    *object,
+                                 guint       prop_id,
+                                 GValue     *value,
+                                 GParamSpec *pspec)
 {
   switch (prop_id)
     {
@@ -200,10 +300,13 @@ temporal_capture (ClutterActor *stage,
               }
 
             g_value_unset (&xvalue);
+            cs_animator_editor_set_progress (handle->editor, new_progress);
           }
+
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
+          clutter_actor_queue_redraw (stage);
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
@@ -235,6 +338,7 @@ static gboolean temporal_event (ClutterActor *actor,
 
         g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                           G_CALLBACK (temporal_capture), handle);
+        cs_animator_editor_set_progress (handle->editor, handle->progress);
         return TRUE;
       case CLUTTER_ENTER:
         clutter_actor_set_opacity (actor, 0xff);
@@ -297,6 +401,7 @@ static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
       g_signal_connect   (handle->actor, "event", G_CALLBACK (temporal_event), handle);
     }
   handle->object = object;
+  handle->editor = aeditor;
   handle->animator = animator;
   handle->progress = progress;
   handle->property_name = property_name;
@@ -332,6 +437,9 @@ cs_animator_editor_paint (ClutterActor *actor)
       const gchar *prop = g_intern_string (clutter_animator_key_get_property_name (key));
       gfloat progress = clutter_animator_key_get_progress (key);
       //guint mode = clutter_animator_key_get_mode (key);
+      
+      if (prop == g_intern_static_string ("y"))
+        continue;
 
       if (object != currobject ||
           prop != currprop)
@@ -378,7 +486,6 @@ cs_animator_editor_paint (ClutterActor *actor)
   if (priv->group)
      clutter_actor_paint (priv->group);
 
-  priv->progress = 0.5;
   cogl_set_source_color4ub (255, 128, 128, 255);
   cogl_path_new ();
   cogl_path_move_to (priv->progress * width, 0);
@@ -387,13 +494,18 @@ cs_animator_editor_paint (ClutterActor *actor)
 }
 
 static void
-cs_animator_editor_pick (ClutterActor *actor, const ClutterColor *color)
+cs_animator_editor_pick (ClutterActor       *actor,
+                         const ClutterColor *color)
 {
   CsAnimatorEditor        *editor = (CsAnimatorEditor *) actor;
   CsAnimatorEditorPrivate *priv   = editor->priv;
 
+  CLUTTER_ACTOR_CLASS (cs_animator_editor_parent_class)->pick (actor, color);
+
   if (priv->group)
      clutter_actor_paint (priv->group);
+
+  
 }
 
 static void
@@ -433,6 +545,7 @@ cs_animator_editor_class_init (CsAnimatorEditorClass *klass)
     o_class->finalize     = cs_animator_editor_finalize;
     o_class->set_property = cs_animator_editor_set_property;
     o_class->get_property = cs_animator_editor_get_property;
+    o_class->constructed  = cs_animator_editor_constructed;
 
     a_class->allocate = cs_animator_editor_allocate;
     a_class->paint    = cs_animator_editor_paint;
@@ -596,6 +709,8 @@ handle_move_capture (ClutterActor *stage,
             g_value_unset (&xvalue);
             g_value_unset (&yvalue);
           }
+          
+          state_position_actors (cs_animator_editor_get_progress (handle->editor));
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -688,6 +803,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
   handle->object = object;
   handle->animator = animator;
   handle->progress = progress;
+  handle->editor = cluttersmith->animator_editor;
   clutter_actor_set_position (handle->actor, x, y);
 }
 

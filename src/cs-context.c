@@ -754,7 +754,6 @@
       cluttersmith->dialog_export = _A("cs-dialog-export");
       cluttersmith->dialog_templates = _A("cs-dialog-templates");
       cluttersmith->dialog_animator = _A("cs-dialog-animator");
-      cluttersmith->animator_progress = _A("cs-animator-progress");
       cluttersmith->animator_props = _A("cs-animator-props");
       cluttersmith->state_duration = _A("cs-state-duration");
       cluttersmith->dialog_editor = _A("cs-dialog-editor");
@@ -1279,7 +1278,7 @@
          g_value_init (&value, pspec->value_type);
          g_object_get_property (object, property_name, &value);
          
-         progress = mx_slider_get_progress (MX_SLIDER (cluttersmith->animator_progress));
+         progress = cs_animator_editor_get_progress (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor));
 
          if (cs_set_keys_freeze == 0)
            clutter_animator_set_key (cluttersmith->current_animator,
@@ -1288,8 +1287,6 @@
                                      CLUTTER_LINEAR,
                                      progress,
                                      &value);
-         g_print ("%p %p %s %f\n", cluttersmith->current_animator,
-                                   object, property_name, progress);
          g_value_unset (&value);
 
          cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), cluttersmith->current_animator);
@@ -1566,7 +1563,6 @@ static void cs_load (void)
   clutter_actor_set_position (cluttersmith->fake_stage, 
      -cluttersmith->priv->origin_x,
      -cluttersmith->priv->origin_y);
-
 }
 
 void cs_set_current_animator (ClutterAnimator *animator)
@@ -1583,6 +1579,7 @@ void cs_set_current_animator (ClutterAnimator *animator)
       g_list_free (keys);
     }
   cluttersmith->current_animator = animator;
+  cs_animator_editor_set_animator (cluttersmith->animator_editor, animator);
 }
 
 static void animation_name_changed (ClutterActor *actor)

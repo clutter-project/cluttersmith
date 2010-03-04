@@ -47,6 +47,10 @@ GType cs_animator_editor_get_type (void) G_GNUC_CONST;
 void cs_animator_editor_set_animator (CsAnimatorEditor *animator_editor,
                                       ClutterAnimator  *animator);
 
+void cs_animator_editor_set_progress (CsAnimatorEditor *animator_editor,
+                                      gdouble           progress); 
+gdouble cs_animator_editor_get_progress (CsAnimatorEditor *animator_editor);
+
 G_END_DECLS
 
 #endif /* __CS_ANIMATOR_EDITOR_H__ */
