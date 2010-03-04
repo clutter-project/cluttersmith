@@ -1922,6 +1922,7 @@ void state_name_init_hack (ClutterActor  *actor)
 static void state_duration_text_changed (ClutterActor *actor)
 {
   const gchar *text = clutter_text_get_text (CLUTTER_TEXT (actor));
+#if 0
   const gchar *source_state = NULL;
 
   source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
@@ -1935,6 +1936,9 @@ static void state_duration_text_changed (ClutterActor *actor)
                                source_state,
                                cluttersmith->current_state,
                                atoi (text));
+#endif
+  if (cluttersmith->current_animator)
+    clutter_animator_set_duration (cluttersmith->current_animator, atoi (text));
 }
 
 void state_duration_init_hack (ClutterActor  *actor)

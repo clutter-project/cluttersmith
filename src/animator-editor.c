@@ -411,6 +411,53 @@ static void ensure_temporal_animator_handle (CsAnimatorEditor *aeditor,
       ANIM_PROPERTY_ROW_HEIGHT * prop_no);
 }
 
+static GList *texts = NULL;
+static GList *texts_i = NULL;
+
+static void
+text_start (void)
+{
+  texts_i = texts;
+}
+
+static void
+text_end (void)
+{
+  while (texts_i)
+    {
+      GList *tmp;
+      clutter_actor_destroy (texts_i->data);
+      tmp = texts_i;
+      texts_i = texts_i->next;
+      texts = g_list_remove (texts, tmp);
+    }
+}
+
+static void
+text_draw (ClutterActor *group,
+           gint          x,
+           gint          y,
+           const gchar  *string)
+{
+  ClutterActor *text = NULL;
+  if (texts_i)
+    {
+      text = texts_i->data;
+      texts_i=texts_i->next;
+    }
+  else
+    {
+      ClutterColor green = {0x00,0xff,0x00,0xff};
+      text = clutter_text_new_full ("Sans 10px", string, &green);
+      clutter_container_add_actor (CLUTTER_CONTAINER (group), text);
+      texts = g_list_append (texts, text);
+    }
+  g_assert (text);
+  clutter_text_set_text (CLUTTER_TEXT (text), string); 
+  clutter_actor_set_position (text, x, y);
+}
+
+
 static void
 cs_animator_editor_paint (ClutterActor *actor)
 {
@@ -428,6 +475,7 @@ cs_animator_editor_paint (ClutterActor *actor)
   if (!priv->animator)
     return;
 
+  text_start ();
   cogl_set_source_color4ub (255, 128, 128, 255);
   keys = clutter_animator_get_keys (priv->animator, NULL, NULL, -1);
   for (k = keys; k; k = k->next)
@@ -449,6 +497,9 @@ cs_animator_editor_paint (ClutterActor *actor)
           cogl_path_stroke ();
           cogl_path_new ();
           propno ++;
+
+          text_draw (priv->group, 60, ANIM_PROPERTY_ROW_HEIGHT * propno - 12,
+              g_str_equal (prop, "x")?"position":prop);
           cogl_path_move_to (progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno);
         }
       else
@@ -469,6 +520,18 @@ cs_animator_editor_paint (ClutterActor *actor)
                                        propno,
                                        progress,
                                        key_no);
+      {
+        GValue value = {0,};
+
+        g_value_init (&value, G_TYPE_STRING);
+        clutter_animator_key_get_value (key, &value);
+
+        text_draw (priv->group, progress * width, ANIM_PROPERTY_ROW_HEIGHT * propno - 12,
+            g_value_get_string (&value));
+        g_value_unset (&value);
+      }
+
+
       key_no ++;
     }
   for (;key_no < 100;key_no ++)
@@ -498,6 +561,8 @@ cs_animator_editor_paint (ClutterActor *actor)
     cogl_path_line_to (progress * width, clutter_actor_get_height (actor));
   }
   cogl_path_stroke ();
+
+  text_end ();
 }
 
 static void
