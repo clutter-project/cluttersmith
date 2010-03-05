@@ -147,6 +147,17 @@ animator_editor_event (ClutterActor *actor,
       case CLUTTER_BUTTON_PRESS:
         {
           gfloat progress;
+
+          if (clutter_event_get_click_count (event)>1)
+            {
+              if (cluttersmith->current_animator)
+                {
+                  cs_properties_restore_defaults ();
+                  clutter_animator_start (cluttersmith->current_animator);
+                }
+              return TRUE;
+            }
+
           clutter_actor_transform_stage_point (actor,
             event->motion.x, event->motion.y, &progress, NULL);
 
