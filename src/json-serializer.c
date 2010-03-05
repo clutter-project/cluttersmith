@@ -58,7 +58,7 @@ properties_to_string (GString      *str,
 
   {
     const gchar *id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
-    if (id && id[0]!='\0' /* && !g_str_has_prefix(id, "script-") */)
+    if (id && id[0]!='\0' && !g_str_has_prefix(id, "script-"))
       {
         INDENT;g_string_append_printf (str,"\"id\":\"%s\"\n", id);
       }

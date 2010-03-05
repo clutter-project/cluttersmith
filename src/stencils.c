@@ -6,9 +6,10 @@
 
 static gdouble manipulate_x, manipulate_y;
 
-static gboolean add_stencil_real (gfloat        x,
-                                  gfloat        y,
-                                  const gchar  *path)
+
+static gboolean add_stencil_real (gfloat       x,
+                                  gfloat       y,
+                                  const gchar *path)
 {
   ClutterActor *parent;
   ClutterActor *new_actor;
@@ -18,12 +19,18 @@ static gboolean add_stencil_real (gfloat        x,
   
   if (new_actor)
     {
+      gchar *name = g_strdup (strrchr (path, '/')+1);
+
+      * (strrchr (name, '.')) = '\0';
+
       clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
       clutter_actor_set_position (new_actor, x, y);
 
       cs_selected_clear ();
+      cs_actor_make_id_unique (new_actor, name);
       cs_selected_add (new_actor);
-      clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (new_actor), "");
+
+      g_free (name);
     }
 
   cs_dirtied ();

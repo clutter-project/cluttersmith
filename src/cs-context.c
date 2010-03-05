@@ -887,7 +887,16 @@ ClutterTimeline *cluttersmith_animator_start (const gchar *animator)
     update_id (ClutterText *text,
                gpointer     data)
     {
-      clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), clutter_text_get_text (text));
+      //clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), clutter_text_get_text (text));
+      const gchar *set;
+      const gchar *stem;
+      stem = clutter_text_get_text (text);
+      cs_actor_make_id_unique (data, stem);
+      set = clutter_scriptable_get_id (data);
+      if (!g_str_equal (stem, set))
+        {
+          clutter_text_set_text (CLUTTER_TEXT (text), set);
+        }
       return TRUE;
     }
 

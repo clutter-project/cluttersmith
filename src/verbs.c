@@ -158,7 +158,9 @@ void cs_paste (ClutterActor *ignored)
         }
       cs_selected_clear ();
       if (new_actor)
-        cs_selected_add (new_actor);
+        {
+          cs_selected_add (new_actor);
+        }
     }
   cs_dirtied ();
 }

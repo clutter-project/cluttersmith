@@ -71,6 +71,9 @@ ClutterAnimator * cs_states_make_animator (ClutterStates *states,
 void           cluttersmith_init                   (void);
 void           cluttersmith_print                  (gchar *a);
 
+void           cs_actor_make_id_unique             (ClutterActor *actor,
+                                                    const gchar  *stem);
+
 /* initially copies value from propertyB to propertyA,
  * it is possible to reassing a new property to propertyA
  */

@@ -582,6 +582,7 @@ ClutterActor *cs_duplicator (ClutterActor *actor, ClutterActor *parent)
     }
 
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), new_actor);
+  cs_actor_make_id_unique (new_actor, NULL);
   return new_actor;
 }
 
@@ -1280,4 +1281,38 @@ cs_bridge_properties (GObject     *objectA,
    * and use weak references on the involved objects to ensure
    * proper cleanup of signals if any of them disappear.
    */
+}
+
+void
+cs_actor_make_id_unique (ClutterActor *actor,
+                         const gchar  *stem)
+{
+  GList *a, *actors;
+  GString *str;
+  gint     count = 0;
+
+  if (!stem)
+   stem = G_OBJECT_TYPE_NAME (actor);
+  str = g_string_new (stem);
+  actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cluttersmith->fake_stage));
+
+again:
+  for (a = actors; a; a = a->next)
+    {
+      if (a->data != actor &&
+          CLUTTER_IS_SCRIPTABLE (a->data))
+        {
+          const gchar *id = clutter_scriptable_get_id (a->data);
+          if (id && g_str_equal (id, str->str))
+            {
+              count ++;
+              g_string_printf (str, "%s%i", stem, count);
+              goto again;
+            }
+        }
+    }
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (actor), str->str);
+
+  g_list_free (actors);
+  g_string_free (str, TRUE);
 }
