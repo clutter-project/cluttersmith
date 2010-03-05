@@ -559,6 +559,29 @@
       }
   }
 
+
+/**
+ * cluttersmith_animator_start:
+ * @new_title: new scene
+ *
+ * Return value: (transfer none): the timeline involved.
+ */
+ClutterTimeline *cluttersmith_animator_start (const gchar *animator)
+{
+  GList *a;
+  g_print ("trying to start %s\n", animator);
+  for (a = cluttersmith->animators; a; a = a->next)
+    {
+      const gchar *name = clutter_scriptable_get_id (a->data);
+      if (name && g_str_equal (name, animator))
+        {
+          return clutter_animator_start (a->data);
+        }
+    }
+  g_print ("failed\n");
+  return NULL;
+}
+
   static gboolean
   runtime_capture (ClutterActor *actor,
                    ClutterEvent *event,
@@ -1405,9 +1428,9 @@ static void cs_load (void)
 {
   cs_container_remove_children (cluttersmith->property_editors);
   cs_container_remove_children (cluttersmith->scene_graph);
+  remove_state_machines ();
   cs_container_remove_children (cluttersmith->fake_stage);
 
-  remove_state_machines ();
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {

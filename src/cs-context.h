@@ -115,6 +115,7 @@ gfloat cluttersmith_get_origin_y (void);
 
 CSContext *cs_context_new (void);
 void cs_set_current_animator (ClutterAnimator *animator);
+ClutterTimeline *cluttersmith_animator_start (const gchar *animator);
 
 G_END_DECLS
 
