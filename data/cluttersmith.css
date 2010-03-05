@@ -325,10 +325,6 @@ MxPopup > MxBoxLayout:active > MxLabel {
 */
 
 
-.parasite MxExpander > MxLabel {
-  color: red;
-}
-
 .parasite MxExpander {
   border-image: url("button-bg.png") 3;
   color: white;
@@ -342,7 +338,8 @@ MxPopup > MxBoxLayout:active > MxLabel {
 }
 
 .parasite MxExpander:active {
-  border-image: url("button-bg.png") 3;
+  border-image: url("expander-active.png") 11 3 8 3;
+  padding: 2;
 }
 
 MxExpander > *#mx-expander-arrow-closed {

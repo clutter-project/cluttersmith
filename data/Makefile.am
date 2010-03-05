@@ -17,6 +17,7 @@ res_DATA = \
   cluttersmith.json \
   cluttersmith-assistant.json \
   cluttersmith.png \
+  expander-active.png \
   expander-arrow-up.png \
   expander-arrow-up-hover.png \
   expander-arrow-down.png \
