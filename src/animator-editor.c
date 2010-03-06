@@ -244,6 +244,7 @@ temporal_capture (ClutterActor *stage,
             GValue              xvalue = {0, };
             gdouble progress;
             gdouble new_progress;
+            guint mode;
 
             progress = handle->progress;
             new_progress = progress-delta;
@@ -264,6 +265,8 @@ temporal_capture (ClutterActor *stage,
             g_list_free (xlist);
 
             clutter_animator_key_get_value (xkey, &xvalue);
+            mode = clutter_animator_key_get_mode (xkey);
+
             clutter_animator_remove_key (handle->animator,
                                          handle->object,
                                          handle->property_name,
@@ -271,7 +274,7 @@ temporal_capture (ClutterActor *stage,
             clutter_animator_set_key (handle->animator,
                                       handle->object,
                                       handle->property_name,
-                                      CLUTTER_LINEAR,
+                                      mode,
                                       new_progress,
                                       &xvalue);
 
@@ -287,6 +290,7 @@ temporal_capture (ClutterActor *stage,
             if (other_property)  /* make x and y properties be
                                     dealt with together */
               {
+                guint mode;
                 xlist = clutter_animator_get_keys (handle->animator,
                                                    handle->object,
                                                    other_property,
@@ -297,6 +301,7 @@ temporal_capture (ClutterActor *stage,
                 g_list_free (xlist);
 
                 clutter_animator_key_get_value (xkey, &xvalue);
+                mode = clutter_animator_key_get_mode (xkey);
                 clutter_animator_remove_key (handle->animator,
                                              handle->object,
                                              other_property,
@@ -304,7 +309,7 @@ temporal_capture (ClutterActor *stage,
                 clutter_animator_set_key (handle->animator,
                                           handle->object,
                                           other_property,
-                                          CLUTTER_LINEAR,
+                                          mode,
                                           new_progress,
                                           &xvalue);
               }
@@ -813,6 +818,7 @@ handle_move_capture (ClutterActor *stage,
             GValue              xvalue = {0, };
             GValue              yvalue = {0, };
             gdouble progress;
+            guint   mode;
 
             g_value_init (&xvalue, G_TYPE_FLOAT);
             g_value_init (&yvalue, G_TYPE_FLOAT);
@@ -826,17 +832,18 @@ handle_move_capture (ClutterActor *stage,
 
             clutter_animator_key_get_value (xkey, &xvalue);
             clutter_animator_key_get_value (ykey, &yvalue);
+            mode = clutter_animator_key_get_mode (xkey);
 
             clutter_animator_set (handle->animator,
                                   handle->object, "x",
-                                  CLUTTER_LINEAR,
+                                  mode,
                                   progress, 
                                   g_value_get_float (&xvalue) - delta[0],
                                   
                                   NULL);
             clutter_animator_set (handle->animator,
                                   handle->object, "y",
-                                  CLUTTER_LINEAR,
+                                  mode,
                                   progress, 
                                   g_value_get_float (&yvalue) - delta[1],
                                   NULL);
