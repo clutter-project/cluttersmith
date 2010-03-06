@@ -1,6 +1,7 @@
 #include "cluttersmith.h"
 #include <mx/mx.h>
 #include <animator-editor.h>
+#include "util.h"
 
 #define ANIM_PROPERTY_ROW_HEIGHT 20
 
@@ -760,6 +761,76 @@ static void toggle_ease_in (MxAction *max_action,
                                            value);
 }
 
+
+static void set_animation_mode (MxAction *action, 
+                                gpointer  data)
+{
+  GList *list;
+  ClutterAnimatorKey *key;
+  KeyHandle *handle = data;
+  GValue     value = {0, };
+  gdouble progress;
+  guint   mode;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+
+  list = clutter_animator_get_keys (handle->animator,
+                                    handle->object,
+                                    handle->property_name,
+                                    handle->progress);
+  key = list->data;
+  g_assert (key);
+  g_value_init (&value, clutter_animator_key_get_property_type (key));
+  g_list_free (list);
+
+  enum_class = g_type_class_peek (CLUTTER_TYPE_ANIMATION_MODE);
+  enum_value = g_enum_get_value_by_nick (enum_class, mx_action_get_name (action));
+
+  progress = clutter_animator_key_get_progress (key);
+  mode = enum_value->value;
+  clutter_animator_key_get_value (key, &value);
+
+  clutter_animator_set_key (handle->animator,
+                            handle->object,
+                            handle->property_name,
+                            mode,
+                            handle->progress, 
+                            &value);
+                        
+  g_value_unset (&value);
+
+  if (g_str_equal (handle->property_name, "x"))
+    {
+      const gchar *property_name = "y";
+      list = clutter_animator_get_keys (handle->animator,
+                                        handle->object,
+                                        property_name,
+                                        handle->progress);
+
+      key = list->data;
+      g_assert (key);
+      g_value_init (&value, clutter_animator_key_get_property_type (key));
+      g_list_free (list);
+
+      enum_class = g_type_class_peek (CLUTTER_TYPE_ANIMATION_MODE);
+      enum_value = g_enum_get_value_by_nick (enum_class, mx_action_get_name (action));
+
+      progress = clutter_animator_key_get_progress (key);
+      mode = enum_value->value;
+
+      clutter_animator_key_get_value (key, &value);
+      clutter_animator_set_key (handle->animator,
+                                handle->object,
+                                property_name,
+                                mode,
+                                handle->progress, 
+                                &value);
+                            
+      g_value_unset (&value);
+     }
+}
+
+
 static void key_context_menu (MxAction  *action,
                               KeyHandle *handle)
 {
@@ -781,9 +852,32 @@ static void key_context_menu (MxAction  *action,
     action = mx_action_new_full ("unset-ease-in", "unset ease-in", G_CALLBACK (toggle_ease_in), handle);
   else
     action = mx_action_new_full ("set-ease-in", "set ease-in", G_CALLBACK (toggle_ease_in), handle);
-
   mx_popup_add_action (popup, action);
 
+  action = mx_action_new_full ("-----------", "-----------", NULL, NULL);
+  mx_popup_add_action (popup, action);
+
+  {
+    /* This popup will not even fit on stage if full... */
+    gchar *easing_modes[] = {"linear",
+                             "ease-out-bounce",
+                             "ease-in-cubic",
+                             "ease-out-cubic",
+                             "ease-in-out-cubic",
+                             "ease-in-expo",
+                             "ease-out-expo",
+                             "ease-in-out-expo",
+                             NULL};
+    gint i;
+    for (i=0; easing_modes[i]; i++)
+      {
+        action = mx_action_new_full (easing_modes[i], easing_modes[i],
+                                     G_CALLBACK (set_animation_mode), handle);
+        mx_popup_add_action (popup, action);
+      }
+  }
+
+  /* make sure we show up within the bounds of the screen */
   clutter_group_add (cluttersmith->parasite_root, popup);
   clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
   clutter_actor_show (CLUTTER_ACTOR (popup));
