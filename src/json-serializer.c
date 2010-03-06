@@ -215,7 +215,7 @@ properties_to_string (GString      *str,
   g_free (properties);
 
 
-    /* should be split inot its own function */
+  /* should be split into its own function */
   if (CLUTTER_IS_ACTOR (actor))
   {
     ClutterActor *parent;
@@ -372,8 +372,6 @@ properties_to_string (GString      *str,
           }
       }
   }
-
-
 }
 
 
@@ -516,14 +514,21 @@ animator_to_string (GString         *str,
 
         {
           GValue value = {0,};
+          GEnumClass *enum_class;
+          GEnumValue *enum_value;
+
+          mode = clutter_animator_key_get_mode (key);
+          enum_class = g_type_class_peek (CLUTTER_TYPE_ANIMATION_MODE);
+          enum_value = g_enum_get_value (enum_class, mode);
           g_value_init (&value, G_TYPE_STRING); /* XXX: this isnt very robust */
           clutter_animator_key_get_value (key, &value);
           g_string_append_printf (str, "%s[%f, \"%s\", %s]\n",
-                                  gotprop?",":" ", progress, "linear", g_value_get_string (&value));
+                                  gotprop?",":" ", progress,
+                                  enum_value->value_nick,
+                                  g_value_get_string (&value));
           g_value_unset (&value);
         }
         gotprop=TRUE;
-        mode = 0; //XXX just to use it
         
         curobject = object;
         curprop = prop;
