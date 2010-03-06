@@ -355,7 +355,7 @@ cs_overlay_paint (ClutterActor *stage,
           g_value_init (&yv, G_TYPE_FLOAT);
           g_value_init (&value, G_TYPE_FLOAT);
 
-          for (progress = 0.0; progress < 1.0; progress += 0.01)
+          for (progress = 0.0; progress < 1.0; progress += 0.004)
             {
               ClutterVertex vertex = {0, };
               gfloat x, y;
@@ -374,6 +374,48 @@ cs_overlay_paint (ClutterActor *stage,
               cogl_path_line_to (vertex.x, vertex.y);
             }
           cogl_path_stroke ();
+        }
+
+#define DIFF         0.01
+
+      if (actor)
+        {
+          gfloat progress;
+          GValue xv = {0, };
+          GValue yv = {0, };
+          GValue value = {0, };
+
+          g_value_init (&xv, G_TYPE_FLOAT);
+          g_value_init (&yv, G_TYPE_FLOAT);
+          g_value_init (&value, G_TYPE_FLOAT);
+
+          for (progress = 0.0; progress < 1.0; progress += DIFF)
+            {
+              ClutterVertex vertex = {0, };
+              gfloat x, y;
+              clutter_animator_compute_value (cluttersmith->current_animator,
+                                           G_OBJECT (actor), "x", progress, &xv);
+              clutter_animator_compute_value (cluttersmith->current_animator,
+                                           G_OBJECT (actor), "y", progress, &yv);
+              x = g_value_get_float (&xv);
+              y = g_value_get_float (&yv);
+
+              clutter_animator_compute_value (cluttersmith->current_animator,
+                                           G_OBJECT (actor), "x", progress + DIFF, &xv);
+              clutter_animator_compute_value (cluttersmith->current_animator,
+                                           G_OBJECT (actor), "y", progress + DIFF, &yv);
+
+              vertex.x = x;
+              vertex.y = y;
+              clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
+                                                      &vertex, &vertex);
+              x = vertex.x;
+              y = vertex.y;
+
+              cogl_set_source_color4ub (255, 0, 0, 32);
+              cogl_path_ellipse (x, y, 5, 5);
+              cogl_path_fill ();
+            }
         }
     }
 }
