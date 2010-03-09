@@ -1027,10 +1027,31 @@ ClutterTimeline *cluttersmith_animator_start (const gchar *animator)
       }
 
     callbacks = g_hash_table_lookup (ht, signal);
-    callbacks = g_list_append (callbacks, g_strdup ("hoi"));
+    callbacks = g_list_append (callbacks, g_strdup ("hello void"));
     g_hash_table_insert (ht, g_strdup (signal), callbacks);
     callbacks_populate (actor);
   }
+
+static void
+callback_removed (MxButton     *button,
+                  ClutterActor *actor)
+{
+  GHashTable *ht;
+  GList *callbacks;
+  GObject *cb = g_object_get_data (G_OBJECT (button), "script");
+  gchar *signal = g_object_get_data (G_OBJECT (cb), "signal");
+  gint no = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (cb), "no"));
+  g_print ("trying to remove a %s %i callback from %p\n", signal, no, actor);
+
+  ht = g_object_get_data (G_OBJECT (actor), "callbacks");
+  if (!ht)
+    return;
+
+  callbacks = g_hash_table_lookup (ht, signal);
+  callbacks = g_list_remove (callbacks, g_list_nth_data (callbacks, no));
+  g_hash_table_insert (ht, g_strdup (signal), callbacks);
+  callbacks_populate (actor);
+}
 
   static void
   callbacks_add_cb (ClutterActor *actor,
@@ -1048,7 +1069,10 @@ ClutterTimeline *cluttersmith_animator_start (const gchar *animator)
     g_object_set (G_OBJECT (cb), "editable", TRUE, "selectable", TRUE, "reactive", TRUE, NULL);
     g_object_set_data (G_OBJECT (cb), "no", GINT_TO_POINTER (no));
     g_object_set_data_full (G_OBJECT (cb), "signal", g_strdup (signal), g_free);
+    g_object_set_data (G_OBJECT (remove), "script", cb);
     g_signal_connect (cb, "text-changed", G_CALLBACK (callback_text_changed), actor);
+
+    g_signal_connect (remove, "clicked", G_CALLBACK (callback_removed), actor);
 
     clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
   }
