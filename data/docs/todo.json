@@ -1,4 +1,4 @@
-{
+[{
   "type":"ClutterGroup",
   "id":"actor"
   "x": 0,
@@ -897,8 +897,8 @@ load_scene_in_actor (actor, scene)
   {
     "type":"MxButton",
     "style-class":"ClutterSmithCallout",
-    "x":455,
-    "y":153,
+    "x":531,
+    "y":142,
     "width":253,
     "height":176,
     "depth":0.000,
@@ -948,5 +948,40 @@ load_scene_in_actor (actor, scene)
     }
     ]
   }
+  ,
+  {
+    "type":"ClutterText",
+    "id":"ClutterText"
+    "x":111,
+    "y":436,
+    "width":431,
+    "height":24,
+    "depth":0.000,
+    "opacity":255,
+    "scale-x":1.000,
+    "scale-y":1.000,
+    "rotation-angle-z":0.000,
+    "anchor-x":0.000,
+    "anchor-y":0.000,
+    "font-name":"Sans 10",
+    "text":"Much of ClutterSmiths code should be migrated to javascript",
+    "color":"#000000ff",
+    "use-markup":false,
+    "line-wrap":true,
+    "justify":false,
+    "position":-1,
+    "selection-bound":-1,
+    "selection-color":"#000000ff",
+    "cursor-visible":true,
+    "cursor-color":"#000000ff",
+    "cursor-size":2,
+    "editable":false,
+    "selectable":true,
+    "activatable":false,
+    "password-char":0,
+    "max-length":0,
+    "single-line-mode":false,
+  }
   ]
 }
+]
