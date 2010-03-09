@@ -14,6 +14,7 @@ CLEANFILES    = $(cluttersmith_built_sources)
 libcluttersmith_la_SOURCES = \
   cb-texture.c  \
   cb-texture.h  \
+  export.c \
   actor-editing.c  \
   animator-editor.c \
   animator-editor.h \

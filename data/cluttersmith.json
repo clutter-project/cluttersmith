@@ -747,29 +747,43 @@
                                   "x":0,
                                   "y":0,
                                   "children":[
-                                    {
-                                      "type":"MxLabel",
-                                      "text":"PNG"
+                                    { "type":"MxBoxLayout",
+                                      "children":[
+                                        {
+                                          "type":"MxEntry",
+                                          "id":"cs-png-path",
+                                          "child::expand":true,
+                                          "text":"/tmp/cluttersmith.png"
+                                        },{
+                                          "type":"MxButton",
+                                          "label":"export PNG",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"cs_export_png"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     },
-                                    {
-                                      "type":"MxEntry",
-                                      "text":"/tmp/cluttersmith.png"
-                                    },
-                                    {
-                                      "type":"MxLabel",
-                                      "text":"PDF"
-                                    },
-                                    {
-                                      "type":"MxEntry",
-                                      "text":"/tmp/cluttersmith.pdf"
-                                    },
-                                    {
-                                      "type":"MxLabel",
-                                      "text":"rpm"
-                                    },
-                                    {
-                                      "type":"MxEntry",
-                                      "text":"/tmp/cluttersmith.rpm"
+                                    { "type":"MxBoxLayout",
+                                      "children":[
+                                        {
+                                          "type":"MxEntry",
+                                          "child::expand":true,
+                                          "id":"cs-pdf-path",
+                                          "text":"/tmp/cluttersmith.pdf"
+                                        },{
+                                          "type":"MxButton",
+                                          "label":"export PDF",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"cs_export_pdf"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -919,7 +933,7 @@
             {
               "name":"leave-event",
               "handler":"cs_canvas_handler_leave"
-            }
+            },
           ]
         }
       ],

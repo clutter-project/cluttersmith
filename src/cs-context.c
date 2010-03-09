@@ -1053,6 +1053,8 @@ callback_removed (MxButton     *button,
   callbacks_populate (actor);
 }
 
+/* popup a choice of,.. code, change scene, run animator 
+ */
   static void
   callbacks_add_cb (ClutterActor *actor,
                     const gchar  *signal,
@@ -2155,4 +2157,21 @@ void state_position_actors (gdouble progress)
       g_signal_emit_by_name (timeline, "new-frame", frame, NULL);
     }
   cs_set_keys_freeze --;
+}
+
+void cs_export_png (void)
+{
+  export_png (mx_entry_get_text (MX_ENTRY (title)),
+              mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
+                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
+                                 "cs-png-path"))));
+
+}
+
+void cs_export_pdf (void)
+
+{
+  export_pdf (mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
+                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
+        "cs-pdf-path"))));
 }

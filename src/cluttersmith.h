@@ -110,4 +110,8 @@ void cs_save (gboolean force);
                 "function $(id) {return ClutterSmith.get_actor(id);}"
 MxPopup *cs_popup_new (void);
 
+void export_png (const gchar *scene,
+                 const gchar *png);
+void export_pdf (const gchar *pdf);
+
 #endif
