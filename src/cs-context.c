@@ -422,6 +422,7 @@
   {
     page_run_end ();
     cs_save (TRUE);
+    clutter_actor_hide (cluttersmith->fake_stage_canvas);
 
     /* XXX: apply signal handlers */
     page_run_start ();
@@ -433,6 +434,7 @@
   {
     page_run_end ();
     g_print ("leaving browse mode\n");
+    clutter_actor_show (cluttersmith->fake_stage_canvas);
     cs_load (); /* reverting back to saved state */
   }
 
