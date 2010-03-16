@@ -1,4 +1,4 @@
-{
+[{
   "type":"ClutterGroup",
   "id":"actor"
   "x": 0,
@@ -16,8 +16,8 @@
   {
     "type":"ClutterRectangle",
     "id":"rectangle"
-    "x":115,
-    "y":73,
+    "x":101,
+    "y":70,
     "width":162,
     "height":132,
     "depth":0.000,
@@ -37,8 +37,8 @@
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=video",
-    "x":75,
-    "y":283,
+    "x":62,
+    "y":264,
     "width":143,
     "height":40,
     "depth":0.000,
@@ -96,8 +96,8 @@
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=index",
-    "x":234,
-    "y":343,
+    "x":249,
+    "y":325,
     "width":98,
     "height":31,
     "depth":0.000,
@@ -152,3 +152,4 @@
   }
   ]
 }
+]

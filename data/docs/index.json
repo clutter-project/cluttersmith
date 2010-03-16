@@ -1,4 +1,4 @@
-{
+[{
   "type":"ClutterGroup",
   "id":"actor"
   "x": 0,
@@ -17,8 +17,8 @@
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=javascript",
-    "x":427,
-    "y":456,
+    "x":299,
+    "y":389,
     "width":143,
     "height":37,
     "depth":0.000,
@@ -76,8 +76,8 @@
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=widgets",
-    "x":427,
-    "y":415,
+    "x":299,
+    "y":345,
     "width":143,
     "height":38,
     "depth":0.000,
@@ -198,7 +198,7 @@
       "line-wrap":true,
       "justify":false,
       "position":-1,
-      "selection-bound":-1,
+      "selection-bound":10,
       "selection-color":"#000000ff",
       "cursor-visible":true,
       "cursor-color":"#000000ff",
@@ -215,10 +215,10 @@
   ,
   {
     "type":"ClutterText",
-    "x":223,
-    "y":168,
-    "width":344,
-    "height":107,
+    "x":130,
+    "y":143,
+    "width":285,
+    "height":132,
     "depth":0.000,
     "opacity":255,
     "scale-x":1.000,
@@ -227,15 +227,9 @@
     "anchor-x":0.000,
     "anchor-y":0.000,
     "font-name":"Sans 9",
-    "text":"A presentation tool.
+    "text":"A tool for visually creating and modifying Clutter scene graphs.
 
-The interactions and UI of the editor is going through redesign, most features are initially added in the simplest to integrate manner and not the most ideal for interaction.
-
-As a powertool it should ideally be possible to use cluttersmith without involving much of the chrome (sidbars and toolbars), context menus and a few select context sensitive hovering over canvas/integrated into the canvas elements will probably be good.
-
-The UI modes currently accessed through F1..Fn are
-meant to provide a dedicated working context for various tasks, most interactions with the canvas remain the same for all of them, by changing cluttersmiths json
-file different ui styles/skins can be created.",
+The project cluttersmith initially launches with is read-only, enter a new Project title in the project title expander to the left to start a new project.",
     "color":"#000000ff",
     "use-markup":false,
     "line-wrap":true,
@@ -258,8 +252,8 @@ file different ui styles/skins can be created.",
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=todo",
-    "x":53,
-    "y":412,
+    "x":77,
+    "y":389,
     "width":143,
     "height":37,
     "depth":0.000,
@@ -317,8 +311,8 @@ file different ui styles/skins can be created.",
     "type":"MxButton",
     "style-class":"ClutterSmithLink",
     "name":"link=help",
-    "x":53,
-    "y":467,
+    "x":77,
+    "y":345,
     "width":143,
     "height":36,
     "depth":0.000,
@@ -429,3 +423,4 @@ file different ui styles/skins can be created.",
   }
   ]
 }
+]
