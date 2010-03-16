@@ -5,8 +5,8 @@ TryExec=cluttersmith
 Exec=cluttersmith %U
 Icon=cluttersmith.png
 Terminal=false
-Categories=Audio;Video;AudioVideo;
-Name=cluttersmith
+Categories=Development
+Name=Cluttersmith
 GenericName=Clutter Scene Graph Editor
-Comment=Do design mockups or ui definition editing for clutter.
+Comment=Visual Clutter design tool
 
