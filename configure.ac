@@ -2,6 +2,7 @@ AC_PREREQ(2.53)
 AC_INIT(cluttersmith, 0.0, [Clutter Scene Graph Editor])
 AM_INIT_AUTOMAKE()
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+AS_AM_REALLY_SILENT
 AC_CONFIG_MACRO_DIR([autotools])
 AC_CONFIG_SRCDIR(src/cluttersmith.h)
 AM_CONFIG_HEADER(config.h)
