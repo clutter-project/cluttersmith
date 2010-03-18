@@ -32,19 +32,10 @@ PKG_CHECK_MODULES(DEPS, [clutter-1.0 \
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
+GOBJECT_INTROSPECTION_REQUIRE([0.6.4])
+
 AS_COMPILER_FLAGS([COMPILER_FLAGS], ["-Wall"])
 AC_SUBST(COMPILER_FLAGS)
-
-G_IR_SCANNER=`$PKG_CONFIG --variable=g_ir_scanner gobject-introspection-1.0`
-AC_SUBST(G_IR_SCANNER)
-G_IR_COMPILER=`$PKG_CONFIG --variable=g_ir_compiler gobject-introspection-1.0`
-AC_SUBST(G_IR_COMPILER)
-G_IR_GENERATE=`$PKG_CONFIG --variable=g_ir_generate gobject-introspection-1.0`
-AC_SUBST(G_IR_GENERATE)
-GIRDIR=`$PKG_CONFIG --variable=girdir gobject-introspection-1.0`
-AC_SUBST(GIRDIR)
-TYPELIBDIR="$($PKG_CONFIG --variable=typelibdir gobject-introspection-1.0)"
-AC_SUBST(TYPELIBDIR)
 
 AC_CONFIG_FILES([
 Makefile

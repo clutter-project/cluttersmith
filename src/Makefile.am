@@ -47,12 +47,13 @@ cluttersmith_SOURCES = 		\
   $(BUILT_SOURCES) \
   main.c 
 
-typelibdir = $(libdir)/girepository-1.0/
-typelib_DATA = ClutterSmith-0.0.typelib
 CLEANFILES += libcluttersmith.la
 
-ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
-	$(AM_V_GEN) $(G_IR_SCANNER)			 \
+girdir = $(datadir)/gir-1.0
+gir_DATA = ClutterSmith-0.0.gir
+
+ClutterSmith-0.0.gir: $(INTROSPECTION_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
+	$(AM_V_GEN) $(INTROSPECTION_SCANNER)			 \
 		--namespace=ClutterSmith		 \
 		--nsversion=0.1				 \
 		--include=Clutter-1.0			 \
@@ -66,16 +67,14 @@ ClutterSmith-0.0.gir: $(G_IR_SCANNER) libcluttersmith.la Makefile $(libcluttersm
 		-o $@
 CLEANFILES += ClutterSmith-0.0.gir
 
-girdir = $(datadir)/gir-1.0
-gir_DATA = ClutterSmith-0.0.gir
+typelibdir = $(libdir)/girepository-1.0/
+typelib_DATA = ClutterSmith-0.0.typelib
 
-
-# The dependency on libgnome-shell.la here is because g-ir-compiler opens it
+# The dependency on libcluttersmith.la here is because g-ir-compiler opens it
 # (not the fake library, since we've already done the rewriting)
 ClutterSmith-0.0.typelib: ClutterSmith-0.0.gir libcluttersmith.la
-	$(AM_V_GEN) \
-		$(G_IR_COMPILER)						\
-			--includedir=.						\
+	$(AM_V_GEN) $(INTROSPECTION_COMPILER)		\
+		--includedir=.				\
 		ClutterSmith-0.0.gir -o $@
 CLEANFILES += ClutterSmith-0.0.typelib
 
