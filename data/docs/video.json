@@ -1,6 +1,6 @@
 {
   "type":"ClutterGroup",
-  "id":"actor"
+  "id":"actor",
   "x": 0,
   "y": 0,
   "width":514,
@@ -34,7 +34,7 @@
     "children":[
     {
       "type":"ClutterGstVideoTexture",
-      "id":"video"
+      "id":"video",
       "audio-volume":0.100,
       "playing":false,
       "progress":0.000,
@@ -58,7 +58,7 @@
       "keep-aspect-ratio":false,
       "child::expand":false,
       "child::x-fill":true,
-      "child::y-fill":true,
+      "child::y-fill":true
     }
     ,
     {
@@ -85,7 +85,7 @@
       "children":[
       {
         "type":"MxButton",
-        "id":"play"
+        "id":"play",
         "x": 0,
         "y": 0,
         "width":44,
@@ -137,14 +137,14 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false,
+          "single-line-mode":false
         }
         ]
       }
       ,
       {
         "type":"MxButton",
-        "id":"pause"
+        "id":"pause",
         "x":44,
         "y": 0,
         "width":55,
@@ -196,14 +196,14 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false,
+          "single-line-mode":false
         }
         ]
       }
       ,
       {
         "type":"MxButton",
-        "id":"rewind"
+        "id":"rewind",
         "x":99,
         "y": 0,
         "width":57,
@@ -255,14 +255,14 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false,
+          "single-line-mode":false
         }
         ]
       }
       ,
       {
         "type":"MxButton",
-        "id":"rew"
+        "id":"rew",
         "x":156,
         "y": 0,
         "width":57,
@@ -314,14 +314,14 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false,
+          "single-line-mode":false
         }
         ]
       }
       ,
       {
         "type":"MxButton",
-        "id":"ffw"
+        "id":"ffw",
         "x":213,
         "y": 0,
         "width":57,
@@ -373,7 +373,7 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false,
+          "single-line-mode":false
         }
         ]
       }
@@ -404,7 +404,7 @@
       "children":[
       {
         "type":"MxEntry",
-        "id":"uri"
+        "id":"uri",
         "x": 0,
         "y": 0,
         "width":235,
@@ -422,12 +422,12 @@
         "password-char":0,
         "child::expand":false,
         "child::x-fill":true,
-        "child::y-fill":true,
+        "child::y-fill":true
       }
       ,
       {
         "type":"MxButton",
-        "id":"go"
+        "id":"go",
         "x":235,
         "y": 0,
         "width":34,
@@ -479,7 +479,7 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false,
+          "single-line-mode":false
         }
         ]
       }
@@ -512,7 +512,7 @@
     "children":[
     {
       "type":"ClutterText",
-      "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
+      "name":"json-extra:,\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
       "x":10,
       "y":10,
       "width":78,
