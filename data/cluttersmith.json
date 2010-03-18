@@ -565,7 +565,7 @@
                                               "handler":"state_duration_init_hack"
                                             }
                                           ]
-                                        },
+                                        }
                                       ]
                                     },
                                     {
@@ -933,7 +933,7 @@
             {
               "name":"leave-event",
               "handler":"cs_canvas_handler_leave"
-            },
+            }
           ]
         }
       ],
