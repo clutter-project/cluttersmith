@@ -5,6 +5,13 @@
 #include <clutter/clutter.h>
 #include "cluttersmith.h"
 
+static void
+free_data (guchar  *pixels,
+           gpointer  data)
+{
+  g_free (pixels);
+}
+
 void export_png (const gchar *scene,
                  const gchar *png)
 {
@@ -26,12 +33,12 @@ void export_png (const gchar *scene,
                               "canvas-height", &height,
                               NULL);
 
-  g_print ("exporting scene %s to %s  %f,%f %fx%f\n", scene, png,
+  g_print ("exporting scene %s to %s  %f,%f %dx%d\n", scene, png,
            x, y, width, height);
 
   pixels = clutter_stage_read_pixels (
-             clutter_actor_get_stage (cluttersmith->fake_stage),
-                                      x, y, width, height);
+             (ClutterStage *)clutter_actor_get_stage (cluttersmith->fake_stage),
+             x, y, width, height);
   pixbuf = gdk_pixbuf_new_from_data (pixels,
                                      GDK_COLORSPACE_RGB,
                                      TRUE,
@@ -39,7 +46,7 @@ void export_png (const gchar *scene,
                                      width,
                                      height,
                                      ((gint)(width)) * 4,
-                                     G_CALLBACK (g_free),
+                                     free_data,
                                      NULL);
 
   gdk_pixbuf_save (pixbuf, png, "png", &error, NULL);

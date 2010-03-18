@@ -1294,7 +1294,7 @@ cs_actor_make_id_unique (ClutterActor *actor,
   if (!stem)
    stem = G_OBJECT_TYPE_NAME (actor);
   str = g_string_new (stem);
-  actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cluttersmith->fake_stage));
+  actors = cs_container_get_children_recursive (cluttersmith->fake_stage);
 
 again:
   for (a = actors; a; a = a->next)
