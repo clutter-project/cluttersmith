@@ -1,7 +1,7 @@
 bin_PROGRAMS=cluttersmith
 lib_LTLIBRARIES = libcluttersmith.la
 
-AM_CFLAGS = $(DEPS_CFLAGS) $(GCC_FLAGS) \
+AM_CFLAGS = $(DEPS_CFLAGS) $(COMPILER_FLAGS) \
 	    -D_GNU_SOURCE \
 	    -DPKGDATADIR=\"$(pkgdatadir)/\" \
 	    -DPKGLIBDIR=\"$(pkglibdir)/\" \
