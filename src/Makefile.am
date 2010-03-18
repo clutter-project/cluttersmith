@@ -24,8 +24,6 @@ libcluttersmith_la_SOURCES = \
   hyperlink.c  \
   init-types.c  \
   json-serializer.c  \
-  popup.c  \
-  popup.h  \
   previews.c  \
   property-editors.c  \
   scene-graph.c  \

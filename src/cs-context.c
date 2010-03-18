@@ -124,7 +124,6 @@
 #include <string.h>
 #include <dlfcn.h>
 #include "util.h"
-#include "popup.h"
 #include "cluttersmith.h"
 
   CSContext *cluttersmith = NULL;
