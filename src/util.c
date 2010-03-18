@@ -44,7 +44,7 @@ ClutterActor *cs_load_json (const gchar *name)
 
   if (g_file_test (name, G_FILE_TEST_IS_REGULAR))
     {
-      clutter_script_load_from_file (script, name, NULL);
+      clutter_script_load_from_file (script, name, &error);
     }
   else
     {
