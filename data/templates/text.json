@@ -27,5 +27,5 @@
     "activatable":false,
     "password-char":0,
     "max-length":0,
-    "single-line-mode":false,
+    "single-line-mode":false
   }
