@@ -8,6 +8,7 @@
 #include <gio/gio.h>
 #include <string.h>
 
+  gchar *json_serialize_subtree (ClutterActor *root);
     G_DEFINE_TYPE (CSContext, cs_context, G_TYPE_OBJECT)
 
 #define CONTEXT_PRIVATE(o) \
@@ -192,6 +193,19 @@
 
 
     clutter_actor_show (cluttersmith->parasite_ui);
+
+    /* Workaround for ClutterScript / json not obeying the x-fill
+     * specified in cluttersmith.json
+     */
+      {
+        gboolean x_fill;
+        g_object_get (cluttersmith->parasite_ui, "x-fill", &x_fill, NULL);
+        if (!x_fill)
+          {
+            g_print ("Warning: Forcing x-fill property of #parasite-ui\n");
+            g_object_set (cluttersmith->parasite_ui, "x-fill", TRUE, NULL);
+          }
+      }
     clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
                                                        cluttersmith->priv->zoom/100.0);
 
@@ -725,6 +739,9 @@ ClutterTimeline *cluttersmith_animator_start (const gchar *animator)
     g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
     clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
 
+    //g_print ("%s", json_serialize_subtree (actor));
+    //exit (1);
+
     cs_actor_editing_init (stage);
     mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
      script = cs_get_script (actor);
@@ -1202,7 +1219,6 @@ callback_removed (MxButton     *button,
       }
   }
 
-  gchar *json_serialize_subtree (ClutterActor *root);
 
   void session_history_add (const gchar *dir);
 
