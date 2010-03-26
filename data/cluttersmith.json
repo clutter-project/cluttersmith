@@ -38,7 +38,7 @@
           "id":"cs-active-panel",
           "type":"MxBoxLayout",
           "style-class":"parasite",
-          "vertical":true,
+          "orientation":"vertical",
           "reactive":true,
           "width":240,
           "height":100,
@@ -77,11 +77,11 @@
               "children":[
                 {
                   "type":"MxBoxLayout",
-                  "vertical":true,
+                  "orientation":"vertical",
                   "children":[
                     {
                       "type":"MxBoxLayout",
-                      "vertical":true,
+                      "orientation":"vertical",
                       "id":"cs-active-container",
                       "spacing":2
                     }
@@ -99,7 +99,7 @@
           "children":[
             {
               "type":"MxBoxLayout",
-              "vertical":true,
+              "orientation":"vertical",
               "signals":[
                 {
                   "name":"pick",
@@ -250,7 +250,7 @@
                         {
                           "type":"MxBoxLayout",
                           "style-class":"parasite",
-                          "vertical":true,
+                          "orientation":"vertical",
                           "reactive":true,
                           "spacing":2,
                           "children":[
@@ -264,7 +264,7 @@
                                 {
                                   "type":"MxBoxLayout",
                                   "style-class":"ClutterSmithPropertyPane",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "width":240,
                                   "spacing":2,
                                   "children":[
@@ -336,7 +336,7 @@
                                     },
                                     {
                                       "type":"MxBoxLayout",
-                                      "vertical":true,
+                                      "orientation":"vertical",
                                       "id":"cs-scenes-container",
                                       "spacing":2,
                                       "children":[
@@ -356,7 +356,7 @@
                               "children":[
                                 {
                                   "type":"MxBoxLayout",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "width":240,
                                   "height":400,
                                   "children":[
@@ -368,8 +368,8 @@
                                         {
                                           "type":"MxGrid",
                                           "id":"annotation-templates-container",
-                                          "halign":0.5,
-                                          "valign":0.5,
+                                          "horizontal-adjustment":0.5,
+                                          "vertical-adjustment":0.5,
                                           "column-spacing":3,
                                           "row-spacing":3,
                                           "signals":[
@@ -415,7 +415,7 @@
                                   "id":"cs-dialog-type",
                                   "width":240,
                                   "style-class":"ClutterSmithPropertyPane",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "children":[
                                     {
                                       "type":"MxButton",
@@ -435,7 +435,7 @@
                                     },
                                     {
                                       "type":"MxBoxLayout",
-                                      "vertical":true,
+                                      "orientation":"vertical",
                                       "id":"property-editors-core",
                                       "spacing":2
                                     }
@@ -457,12 +457,12 @@
                                   "children":[
                                     {
                                       "type":"MxBoxLayout",
-                                      "vertical":true,
+                                      "orientation":"vertical",
                                       "style-class":"ClutterSmithPropertyPane",
                                       "children":[
                                         {
                                           "type":"MxBoxLayout",
-                                          "vertical":true,
+                                          "orientation":"vertical",
                                           "id":"property-editors",
                                           "width":200,
                                           "spacing":2
@@ -502,7 +502,7 @@
                               "children":[
                                 {
                                   "type":"MxBoxLayout",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "reactive":true,
                                   "width":240,
                                   "style-class":"ClutterSmithPropertyPane",
@@ -532,17 +532,6 @@
                                             {
                                               "name":"clicked",
                                               "handler":"animations_dropdown"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "type":"MxButton",
-                                          "label":"  X  ",
-                                          "tooltip-text":"Remove animation",
-                                          "signals":[
-                                            {
-                                              "name":"clicked",
-                                              "handler":"animation_remove"
                                             }
                                           ]
                                         }
@@ -591,7 +580,7 @@
                               "children":[
                                 {
                                   "type":"MxBoxLayout",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "width":240,
                                   "height":300,
                                   "spacing":9,
@@ -607,11 +596,11 @@
                                       "children":[
                                         {
                                           "type":"MxBoxLayout",
-                                          "vertical":true,
+                                          "orientation":"vertical",
                                           "children":[
                                             {
                                               "type":"MxBoxLayout",
-                                              "vertical":true,
+                                              "orientation":"vertical",
                                               "id":"cs-callbacks-container",
                                               "spacing":2
                                             }
@@ -672,8 +661,8 @@
                                       "name":"cs-templates-container",
                                       "id":"templates-container",
                                       "width":260,
-                                      "halign":0.5,
-                                      "valign":1.0,
+                                      "horizontal-adjustment":0.5,
+                                      "vertical-adjustment":1.0,
                                       "column-spacing":3,
                                       "row-spacing":3,
                                       "signals":[
@@ -699,7 +688,7 @@
                               "children":[
                                 {
                                   "type":"MxBoxLayout",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "width":240,
                                   "height":240,
                                   "style-class":"parasite",
@@ -739,7 +728,7 @@
                                 {
                                   "type":"MxBoxLayout",
                                   "style-class":"ClutterSmithPropertyPane",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "reactive":true,
                                   "width":240,
                                   "height":200,
@@ -798,12 +787,12 @@
                               "children":[
                                 {
                                   "type":"MxBoxLayout",
-                                  "vertical":true,
+                                  "orientation":"vertical",
                                   "style-class":"ClutterSmithPropertyPane",
                                   "children":[
                                     {
                                       "type":"MxBoxLayout",
-                                      "vertical":true,
+                                      "orientation":"vertical",
                                       "id":"config-editors",
                                       "width":200,
                                       "height":200,
@@ -819,7 +808,7 @@
                     },
                     {
                       "type":"MxBoxLayout",
-                      "vertical":true,
+                      "orientation":"vertical",
                       "child::expand":true,
                       "children":[
                         {
@@ -847,7 +836,7 @@
                             {
                               "type":"MxBoxLayout",
                               "id":"cs-animator-props",
-                              "vertical":true,
+                              "orientation":"vertical",
                               "children":[
                                 {
 
@@ -856,7 +845,7 @@
                             },
                             {
                               "type":"MxBoxLayout",
-                              "vertical":true,
+                              "orientation":"vertical",
                               "child::expand":true,
                               "children":[
                                 {

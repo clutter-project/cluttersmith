@@ -69,7 +69,7 @@ cs_selection_pick (gfloat x, gfloat y)
 ClutterActor *cs_pick (gfloat x, gfloat y)
 {
   GList *actors = cs_container_get_children_recursive (
-      clutter_actor_get_stage(cluttersmith->parasite_root));
+      CLUTTER_CONTAINER (clutter_actor_get_stage(cluttersmith->parasite_root)));
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
   ret = cs_list_match (actors, G_CALLBACK (is_in_actor), data);
@@ -1377,12 +1377,12 @@ manipulate_capture (ClutterActor *actor,
                 {
                   if (cs_selected_count ()>1)
                     {
-                      selection_popup (x,y);
+                      selection_menu (x,y);
                       return FALSE;
                     }
                   else
                     {
-                      object_popup (cs_selected_get_any (), x,y);
+                      object_menu (cs_selected_get_any (), x,y);
                       return FALSE;
                     }
                 }
@@ -1428,7 +1428,7 @@ manipulate_capture (ClutterActor *actor,
               gboolean stage_child = FALSE;
               if (clutter_event_get_button (event) == 3)
                 {
-                  root_popup (x,y);
+                  root_menu (x,y);
                   return FALSE;
                 }
 
@@ -1517,7 +1517,7 @@ static gboolean playback_context (ClutterActor *actor,
   if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
       clutter_event_get_button (event)==3)
     {
-      playback_popup (event->button.x, event->button.y);
+      playback_menu (event->button.x, event->button.y);
       return TRUE;
     }
   return FALSE;

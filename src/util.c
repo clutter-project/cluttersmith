@@ -590,10 +590,10 @@ ClutterActor *cs_duplicator (ClutterActor *actor, ClutterActor *parent)
 static void get_all_actors_int (GList **list, ClutterActor *actor, gboolean skip_own);
 
 GList *
-cs_container_get_children_recursive (ClutterActor *actor)
+cs_container_get_children_recursive (ClutterContainer *container)
 {
   GList *ret = NULL;
-  get_all_actors_int (&ret, actor, TRUE);
+  get_all_actors_int (&ret, CLUTTER_ACTOR (container), TRUE);
   return ret;
 }
 
@@ -890,6 +890,10 @@ static void get_all_actors_int (GList         **list,
   const gchar *id;
   if (skip_own && cs_actor_has_ancestor (actor, cluttersmith->parasite_root))
     return;
+
+  if (!actor)
+    return;
+
   id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
 
   if (!CLUTTER_IS_STAGE (actor))
@@ -1294,7 +1298,7 @@ cs_actor_make_id_unique (ClutterActor *actor,
   if (!stem)
    stem = G_OBJECT_TYPE_NAME (actor);
   str = g_string_new (stem);
-  actors = cs_container_get_children_recursive (cluttersmith->fake_stage);
+  actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cluttersmith->fake_stage));
 
 again:
   for (a = actors; a; a = a->next)

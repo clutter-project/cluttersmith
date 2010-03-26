@@ -75,15 +75,15 @@ void cs_sync_chrome (void);
 extern gint cs_last_x;
 extern gint cs_last_y;
 
-void playback_popup  (gint          x,
-                      gint          y);
-void root_popup      (gint          x,
-                      gint          y);
-void object_popup    (ClutterActor *actor,
-                      gint          x,
-                      gint          y);
-void selection_popup (gint          x,
-                      gint          y);
+void playback_menu  (gint          x,
+                     gint          y);
+void root_menu      (gint          x,
+                     gint          y);
+void object_menu    (ClutterActor *actor,
+                     gint          x,
+                     gint          y);
+void selection_menu (gint          x,
+                     gint          y);
 
 void cs_link_follow (ClutterActor *actor);
 gboolean edit_text_start (ClutterActor *actor);
@@ -108,7 +108,8 @@ void cs_save (gboolean force);
                 "const Lang = imports.lang;\n"\
                 "const Mainloop = imports.mainloop;\n"\
                 "function $(id) {return ClutterSmith.get_actor(id);}"
-MxPopup *cs_popup_new (void);
+
+MxMenu *cs_menu_new (void);
 
 void export_png (const gchar *scene,
                  const gchar *png);

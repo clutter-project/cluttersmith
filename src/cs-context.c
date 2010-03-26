@@ -341,7 +341,7 @@ static void page_run_start (void)
     if (len >= 6 || 1)
       {
         GList *actors, *a;
-        actors = cs_container_get_children_recursive (cluttersmith_get_stage ());
+        actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cluttersmith_get_stage ()));
       
         for (a = actors; a; a = a->next)
           {
@@ -957,7 +957,7 @@ void actor_defaults_populate (ClutterActor *container,
   /* virtual 'id' property */
   label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "id");
 
-  editor = CLUTTER_ACTOR (mx_entry_new (""));
+  editor = CLUTTER_ACTOR (mx_entry_new ());
   g_signal_connect (mx_entry_get_clutter_text (
                     MX_ENTRY (editor)), "text-changed",
                     G_CALLBACK (update_id), actor);
@@ -1128,8 +1128,10 @@ callbacks_populate (ClutterActor *actor)
 
           {
             ClutterActor *hbox  = g_object_new (MX_TYPE_BOX_LAYOUT, NULL);
-            ClutterActor *title = mx_label_new (query.signal_name);
+            ClutterActor *title = mx_label_new ();
             ClutterActor *add   = mx_button_new_with_label ("+");
+
+            mx_label_set_text (MX_LABEL (title), query.signal_name);
 
             g_object_set_data_full (G_OBJECT (add), "signal", g_strdup (query.signal_name), g_free);
             g_signal_connect (add, "clicked", G_CALLBACK (callback_add), actor);

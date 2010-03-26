@@ -19,7 +19,7 @@
      "id":"toolbar",
      "type":"MxBoxLayout",
      "style-class":"parasite",
-     "vertical":true,
+     "orientation":"vertical",
      "reactive":true,
      "width":300,
      "spacing":9,
@@ -90,10 +90,10 @@
                { "type":"MxViewport",
                  "children":
                   [
-                    { "type":"MxBoxLayout", "vertical":true,
+                    { "type":"MxBoxLayout", "orientation":"vertical",
                        "children":[
 
-                         {"type":"MxBoxLayout", "vertical":true, "id":"property-editors",
+                         {"type":"MxBoxLayout", "orientation":"vertical", "id":"property-editors",
                           "spacing":2},
 
                          {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
@@ -141,7 +141,7 @@
      "style-class":"parasite-paste",
      "reactive":true,
      "width":130,
-     "vertical":true,
+     "orientation":"vertical",
      "spacing":9,
      "x":0,
      "y":60,

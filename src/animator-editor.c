@@ -834,31 +834,31 @@ static void set_animation_mode (MxAction *action,
 static void key_context_menu (MxAction  *action,
                               KeyHandle *handle)
 {
-  MxPopup *popup = cs_popup_new ();
+  MxMenu *menu = cs_menu_new ();
   gint x, y;
   x = cs_last_x;
   y = cs_last_y;
 
   action = mx_action_new_full ("remove-key", "Remove Key", G_CALLBACK (key_remove), handle);
-  mx_popup_add_action (popup, action);
+  mx_menu_add_action (menu, action);
   
   if (clutter_animator_property_get_interpolation (handle->animator, handle->object, handle->property_name) == CLUTTER_INTERPOLATION_LINEAR)
     action = mx_action_new_full ("make-smooth", "set smooth", G_CALLBACK (make_cubic), handle);
   else
     action = mx_action_new_full ("make-linear", "unset smooth", G_CALLBACK (make_linear), handle);
-  mx_popup_add_action (popup, action);
+  mx_menu_add_action (menu, action);
 
   if (clutter_animator_property_get_ease_in (handle->animator, handle->object, handle->property_name))
     action = mx_action_new_full ("unset-ease-in", "unset ease-in", G_CALLBACK (toggle_ease_in), handle);
   else
     action = mx_action_new_full ("set-ease-in", "set ease-in", G_CALLBACK (toggle_ease_in), handle);
-  mx_popup_add_action (popup, action);
+  mx_menu_add_action (menu, action);
 
   action = mx_action_new_full ("-----------", "-----------", NULL, NULL);
-  mx_popup_add_action (popup, action);
+  mx_menu_add_action (menu, action);
 
   {
-    /* This popup will not even fit on stage if full... */
+    /* This menu will not even fit on stage if full... */
     gchar *easing_modes[] = {"linear",
                              "ease-out-bounce",
                              "ease-in-cubic",
@@ -873,14 +873,14 @@ static void key_context_menu (MxAction  *action,
       {
         action = mx_action_new_full (easing_modes[i], easing_modes[i],
                                      G_CALLBACK (set_animation_mode), handle);
-        mx_popup_add_action (popup, action);
+        mx_menu_add_action (menu, action);
       }
   }
 
   /* make sure we show up within the bounds of the screen */
-  clutter_group_add (cluttersmith->parasite_root, popup);
-  clutter_actor_set_position (CLUTTER_ACTOR (popup), x, y);
-  clutter_actor_show (CLUTTER_ACTOR (popup));
+  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (menu));
 }
 
 

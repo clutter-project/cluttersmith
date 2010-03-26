@@ -27,7 +27,7 @@
     "anchor-x":0.000,
     "anchor-y":0.000,
     "has-tooltip":false,
-    "vertical":true,
+    "orientation":"vertical",
     "pack-start":false,
     "spacing":0,
     "enable-animations":false,

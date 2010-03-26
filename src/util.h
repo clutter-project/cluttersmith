@@ -31,7 +31,7 @@ ClutterActor  *cs_find_by_id                       (ClutterActor *stage,
 ClutterActor  *cs_find_by_id_int                   (ClutterActor *stage,
                                                     const gchar  *id);
 
-GList         *cs_container_get_children_recursive (ClutterActor *actor);
+GList         *cs_container_get_children_recursive (ClutterContainer *container);
 GList         *cs_actor_get_siblings               (ClutterActor *actor);
 gint           cs_get_sibling_no                   (ClutterActor *actor);
 gint           cs_actor_ancestor_depth             (ClutterActor *actor);
