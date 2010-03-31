@@ -311,7 +311,6 @@ cs_overlay_paint (ClutterActor *stage,
         }
     }
 
-
     cogl_set_source_color4ub (255, 0, 0, 128);
     cs_selected_foreach (G_CALLBACK (draw_actor_outline), NULL);
 
@@ -1526,32 +1525,34 @@ void cs_manipulate_init (ClutterActor *actor)
                     G_CALLBACK (playback_context), NULL);
 }
 
+/* Used for resize and similar handles on the active
+ * actor
+ */
 gboolean cs_canvas_handler_enter (ClutterActor *actor)
 {
   clutter_actor_set_opacity (actor, 255);
   return TRUE;
 }
 
-
+/* Used for resize and similar handles on the active
+ * actor
+ */
 gboolean cs_canvas_handler_leave (ClutterActor *actor)
 {
   clutter_actor_set_opacity (actor, 100);
   return TRUE;
 }
 
-static ClutterActor *current_container = NULL;
-
-
 void cs_set_current_container (ClutterActor *actor)
 {
   if (actor && CLUTTER_IS_CONTAINER (actor))
-    current_container = actor;
+    cluttersmith->current_container = actor;
 }
 
 ClutterActor *cs_get_current_container (void)
 {
-  if (!current_container)
+  if (!cluttersmith->current_container)
     return cluttersmith->fake_stage;
-  return current_container;
+  return cluttersmith->current_container;
 }
 

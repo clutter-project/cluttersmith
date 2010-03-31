@@ -49,6 +49,8 @@ struct _CSContext
   const gchar   *current_state;  /* interned string */
   ClutterStates *current_state_machine;
 
+  ClutterActor  *current_container;
+
   ClutterAnimator *current_animator; /* (if any) */
   /* XXX: add currently edited state machine */
 
