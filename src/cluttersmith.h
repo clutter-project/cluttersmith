@@ -122,6 +122,12 @@ void cs_update_animator_editor (ClutterStates *states,
 void cs_session_history_add    (const gchar *dir);
 
 
+gboolean cs_move_start (ClutterActor  *actor,
+                        ClutterEvent  *event);
+gboolean cs_resize_start (ClutterActor  *actor,
+                          ClutterEvent  *event);
+
+#define SNAP_THRESHOLD  2
 
 extern gint cs_set_keys_freeze; /* XXX: global! */
 #endif
