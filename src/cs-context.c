@@ -3,7 +3,6 @@
 #include "cluttersmith.h"
 #include "cs-context.h"
 #include "clutter-states.h"
-#include "animator-editor.h"
 #include <gjs/gjs.h>
 #include <gio/gio.h>
 #include <string.h>
@@ -124,7 +123,6 @@ cs_context_new (void)
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
-#include "util.h"
 #include "cluttersmith.h"
 
 CSContext *cluttersmith = NULL;
@@ -132,7 +130,7 @@ CSContext *cluttersmith = NULL;
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
-static ClutterActor  *title, *name, *name2, *parents;
+static ClutterActor  *name, *name2, *parents;
 
 
 
@@ -565,9 +563,9 @@ cs_context_set_property (GObject      *object,
  */
 void cluttersmith_load_scene (const gchar *new_title)
 {
-  if (title)
+  if (cluttersmith->scene_title)
     {
-      g_object_set (title, "text", new_title, NULL);
+      g_object_set (cluttersmith->scene_title, "text", new_title, NULL);
     }
   else
     {
@@ -670,7 +668,6 @@ void cluttersmith_init (void)
   g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
   cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
   /* initializing globals */
-  title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
 
   g_signal_connect (stage, "captured-event", G_CALLBACK (runtime_capture), NULL);
 
@@ -747,7 +744,7 @@ gboolean idle_add_stage (gpointer stage)
     script = cs_get_script (actor);
 
      /* initializing globals */
-     title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
+     //title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
      name = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
      name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type2"));
      parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
@@ -788,6 +785,7 @@ gboolean idle_add_stage (gpointer stage)
    cluttersmith->dialog_selected = _A("cs-dialog-selected");
    cluttersmith->dialog_states = _A("cs-dialog-states");
    cluttersmith->project_title = _A("cs-project-title");
+   cluttersmith->scene_title = _A("title");
    cluttersmith->dialog_config = _A("cs-dialog-config");
    cluttersmith->dialog_tree = _A("cs-dialog-tree");
    cluttersmith->dialog_toolbar = _A("cs-dialog-toolbar");
@@ -811,7 +809,7 @@ gboolean idle_add_stage (gpointer stage)
    g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->animation_name)), "text-changed",
                      G_CALLBACK (animation_name_changed), NULL);
 
-   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (title)), "text-changed",
+   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->scene_title)), "text-changed",
                      G_CALLBACK (title_text_changed), NULL);
 
    g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->project_root_entry)), "text-changed",
@@ -2169,21 +2167,4 @@ void state_position_actors (gdouble progress)
       g_signal_emit_by_name (timeline, "new-frame", frame, NULL);
     }
   cs_set_keys_freeze --;
-}
-
-void cs_export_png (void)
-{
-  export_png (mx_entry_get_text (MX_ENTRY (title)),
-              mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
-                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
-                                 "cs-png-path"))));
-
-}
-
-void cs_export_pdf (void)
-
-{
-  export_pdf (mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
-                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
-        "cs-pdf-path"))));
 }

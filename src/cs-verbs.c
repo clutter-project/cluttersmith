@@ -1,8 +1,7 @@
+#include <string.h>
 #include <clutter/clutter.h>
 #include <mx/mx.h>
 #include "cluttersmith.h"
-#include "util.h"
-#include <string.h>
 
 /****/
 

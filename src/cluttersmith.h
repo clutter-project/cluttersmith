@@ -12,6 +12,8 @@ typedef enum RunMode {
 } RunMode;
 
 #include "cs-context.h"
+#include "cs-util.h"
+#include "cs-animator-editor.h"
 
 void
 props_populate (ClutterActor *container,
@@ -85,7 +87,6 @@ void object_menu    (ClutterActor *actor,
 void selection_menu (gint          x,
                      gint          y);
 
-void cs_link_follow (ClutterActor *actor);
 gboolean edit_text_start (ClutterActor *actor);
 void session_history_init_hack (ClutterActor  *actor);
 void templates_container_init_hack (ClutterActor  *actor);

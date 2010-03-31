@@ -464,7 +464,7 @@
     }
     ,
     {
-      "type":"CBTexture",
+      "type":"CSTexture",
       "name":"",
       "x":456,
       "y":45,

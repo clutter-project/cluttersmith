@@ -10,11 +10,11 @@ G_BEGIN_DECLS
 
 #define CB_TEXTURE(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  CB_TYPE_TEXTURE, CBTexture))
+  CB_TYPE_TEXTURE, CSTexture))
 
 #define CB_TEXTURE_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), \
-  CB_TYPE_TEXTURE, CBTextureClass))
+  CB_TYPE_TEXTURE, CSTextureClass))
 
 #define CB_IS_TEXTURE(obj) \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
@@ -26,19 +26,19 @@ G_BEGIN_DECLS
 
 #define CB_TEXTURE_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj), \
-  CB_TYPE_TEXTURE, CBTextureClass))
+  CB_TYPE_TEXTURE, CSTextureClass))
 
-typedef struct _CBTexture        CBTexture;
-typedef struct _CBTextureClass   CBTextureClass;
-typedef struct _CBTexturePrivate CBTexturePrivate;
+typedef struct _CSTexture        CSTexture;
+typedef struct _CSTextureClass   CSTextureClass;
+typedef struct _CSTexturePrivate CSTexturePrivate;
 
-struct _CBTexture
+struct _CSTexture
 {
   ClutterTexture              parent;
-  CBTexturePrivate *priv;
+  CSTexturePrivate *priv;
 }; 
 
-struct _CBTextureClass 
+struct _CSTextureClass 
 {
   ClutterTextureClass parent_class;
 }; 

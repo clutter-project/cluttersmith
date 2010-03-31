@@ -1,7 +1,7 @@
 #include <clutter/clutter.h>
 #include <clutter-gst/clutter-gst.h>
 #include <mx/mx.h>
-#include "cb-texture.h"
+#include "cs-texture.h"
 
 gpointer foo = NULL;
 

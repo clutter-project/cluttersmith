@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
-#include "util.h"
 
 #define INDENT  16
 #define FONTSIZE "10px"

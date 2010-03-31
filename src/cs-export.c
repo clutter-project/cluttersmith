@@ -67,3 +67,19 @@ void export_pdf (const gchar *pdf)
   g_print ("exporting scenes to %s\n", pdf);
 }
 
+void cs_export_png (void)
+{
+  export_png (mx_entry_get_text (MX_ENTRY (cluttersmith->scene_title)),
+              mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
+                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
+                                 "cs-png-path"))));
+
+}
+
+void cs_export_pdf (void)
+
+{
+  export_pdf (mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
+                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
+        "cs-pdf-path"))));
+}

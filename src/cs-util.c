@@ -1,7 +1,6 @@
-#include <clutter/clutter.h>
-#include "clutter-states.h"
-#include "util.h"
 #include <math.h>
+#include <clutter/clutter.h>
+#include "cs-util.h"
 
 static GHashTable *layouts = NULL;
 

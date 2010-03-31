@@ -1,7 +1,6 @@
 #include "cluttersmith.h"
 #include <mx/mx.h>
-#include <animator-editor.h>
-#include "util.h"
+#include <cs-animator-editor.h>
 
 #define ANIM_PROPERTY_ROW_HEIGHT 20
 

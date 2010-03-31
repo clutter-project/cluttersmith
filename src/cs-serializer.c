@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
-#include "util.h"
 #include "cluttersmith.h"
 
 /**** XXX: This serializer is a hack that will be replaced by

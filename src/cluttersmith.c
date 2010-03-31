@@ -15,7 +15,7 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
-#include "util.h"
+#include "cs-util.h"
 
 /* Global structure containing information parsed from commandline parameters
  */
@@ -161,7 +161,6 @@ main (gint    argc,
 }
 
 void* force_link_of_compilation_units_containting[]={
-  cs_link_follow,
   session_history_init_hack,
   templates_container_init_hack
 };

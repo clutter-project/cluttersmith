@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
-#include "util.h"
 
 #define SIZE 70
 

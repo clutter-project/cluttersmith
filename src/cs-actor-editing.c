@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cluttersmith.h"
-#include "util.h"
 
 ClutterActor      *lasso;
 static gint        lx, ly;

@@ -12,29 +12,29 @@ CLEANFILES    = $(cluttersmith_built_sources)
 
   
 libcluttersmith_la_SOURCES = \
-  cb-texture.c  \
-  cb-texture.h  \
-  export.c \
-  actor-editing.c  \
-  animator-editor.c \
-  animator-editor.h \
-  cs-context.c  \
-  cs-context.h  \
-  cluttersmith.h  \
-  hyperlink.c  \
-  init-types.c  \
-  json-serializer.c  \
-  previews.c  \
-  property-editors.c  \
-  scene-graph.c  \
-  selection.c  \
-  session-history.c  \
-  verbs.c \
-  stencils.c  \
-  util.c  \
-  util.h  \
-  clutter-states.c \
-  clutter-states.h
+cs-texture.c \
+cs-texture.h \
+cluttersmith.h \
+clutter-states.c \
+clutter-states.h \
+cs-actor-editing.c \
+cs-animator-editor.c \
+cs-animator-editor.h \
+cs-context.c \
+cs-context.h \
+cs-export.c \
+cs-previews.c \
+cs-selection.c \
+cs-serializer.c \
+cs-session-history.c \
+cs-stencils.c \
+cs-tree.c \
+cs-util.c \
+cs-util.h \
+cs-verbs.c \
+init-types.c \
+property-editors.c
+
 
 libcluttersmith_la_LIBADD = $(DEPS_LIBS)
 libcluttersmith_la_LDFLAGS = -rdynamic
@@ -43,7 +43,7 @@ cluttersmith_LDADD  = libcluttersmith.la $(DEPS_LIBS)
 cluttersmith_LDFLAGS = -rdynamic
 cluttersmith_SOURCES = 		\
   $(BUILT_SOURCES) \
-  main.c 
+  cluttersmith.c 
 
 CLEANFILES += libcluttersmith.la
 

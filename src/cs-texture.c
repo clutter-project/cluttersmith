@@ -1,9 +1,9 @@
-#include "cb-texture.h"
+#include "cs-texture.h"
 #include "cluttersmith.h"
 
 #include <glib.h>
 
-struct _CBTexturePrivate
+struct _CSTexturePrivate
 {
   gchar *image;
 };
@@ -19,15 +19,15 @@ enum {
 #define TICK_TIMEOUT 0.5
 
 
-G_DEFINE_TYPE (CBTexture,
+G_DEFINE_TYPE (CSTexture,
                cs_texture,
                CLUTTER_TYPE_TEXTURE);
 
 static void
-set_uri (CBTexture   *texture,
+set_uri (CSTexture   *texture,
          const gchar *name)
 {
-  CBTexturePrivate *priv = texture->priv;
+  CSTexturePrivate *priv = texture->priv;
   GObject *self = G_OBJECT (texture);
 
   g_free (priv->image);
@@ -52,8 +52,8 @@ set_uri (CBTexture   *texture,
 static void
 cs_texture_dispose (GObject *object)
 {
-  CBTexture        *self;
-  CBTexturePrivate *priv; 
+  CSTexture        *self;
+  CSTexturePrivate *priv; 
 
   self = CB_TEXTURE(object); 
   priv = self->priv;
@@ -64,8 +64,8 @@ cs_texture_dispose (GObject *object)
 static void
 cs_texture_finalize (GObject *object)
 {
-  CBTexture        *self;
-  CBTexturePrivate *priv; 
+  CSTexture        *self;
+  CSTexturePrivate *priv; 
 
   self = CB_TEXTURE (object);
   priv = self->priv;
@@ -82,7 +82,7 @@ cs_texture_set_property (GObject      *object,
 				        const GValue *value, 
 				        GParamSpec   *pspec)
 {
-  CBTexture *texture;
+  CSTexture *texture;
 
   texture = CB_TEXTURE (object);
 
@@ -105,8 +105,8 @@ cs_texture_get_property (GObject    *object,
 				        GValue     *value, 
 				        GParamSpec *pspec)
 {
-  CBTexture *texture;
-  CBTexturePrivate *priv;
+  CSTexture *texture;
+  CSTexturePrivate *priv;
 
   texture = CB_TEXTURE (object);
   priv = texture->priv;
@@ -123,11 +123,11 @@ cs_texture_get_property (GObject    *object,
 }
 
 static void
-cs_texture_class_init (CBTextureClass *klass)
+cs_texture_class_init (CSTextureClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  g_type_class_add_private (klass, sizeof (CBTexturePrivate));
+  g_type_class_add_private (klass, sizeof (CSTexturePrivate));
 
   object_class->dispose      = cs_texture_dispose;
   object_class->finalize     = cs_texture_finalize;
@@ -147,14 +147,14 @@ cs_texture_class_init (CBTextureClass *klass)
 }
 
 static void
-cs_texture_init (CBTexture *texture)
+cs_texture_init (CSTexture *texture)
 {
-  CBTexturePrivate *priv;
+  CSTexturePrivate *priv;
 
   texture->priv = priv =
     G_TYPE_INSTANCE_GET_PRIVATE (texture,
                                  CB_TYPE_TEXTURE,
-                                 CBTexturePrivate);
+                                 CSTexturePrivate);
 }
 
 /**

@@ -1,6 +1,6 @@
   {
   "id":"actor",
-    "type":"CBTexture",
+    "type":"CSTexture",
     "x": 0,
     "y": 0,
     "width":100,

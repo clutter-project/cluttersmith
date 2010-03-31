@@ -52,6 +52,8 @@ struct _CSContext
   ClutterActor *fake_stage;
   ClutterActor *project_root_entry;
   ClutterActor *project_title;
+  ClutterActor *scene_title;
+
   ClutterActor *scene_graph;
   ClutterActor *property_editors;
   ClutterActor *property_editors_core;
