@@ -130,13 +130,8 @@ CSContext *cluttersmith = NULL;
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
-static ClutterActor  *name, *parents;
-
-
-
 static ClutterActor *active_actor = NULL;
 void load_file (ClutterActor *actor, const gchar *title);
-
 
 gchar *blacklist_types[]={"ClutterStage",
                           "ClutterCairoTexture",
@@ -744,10 +739,9 @@ gboolean idle_add_stage (gpointer stage)
     script = cs_get_script (actor);
 
      /* initializing globals */
-     //title = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-scene-title"));
-     name = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
+     cluttersmith->type = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
+     cluttersmith->ancestors = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
 
-     parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
      cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
      cluttersmith->property_editors_core = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors-core"));
      cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
@@ -1158,16 +1152,16 @@ callbacks_populate (ClutterActor *actor)
 
 void cs_set_active (ClutterActor *item)
 {
-  if (!name)
+  if (!cluttersmith->type)
     return;
   if (item == NULL)
     item = clutter_stage_get_default ();
   if (item)
     {
-      clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
+      clutter_text_set_text (CLUTTER_TEXT (cluttersmith->type), G_OBJECT_TYPE_NAME (item));
     }
 
-  cs_container_remove_children (parents);
+  cs_container_remove_children (cluttersmith->ancestors);
   cs_container_remove_children (cluttersmith->property_editors);
   cs_container_remove_children (cluttersmith->property_editors_core);
   cs_container_remove_children (cluttersmith->scene_graph);
@@ -1188,7 +1182,7 @@ void cs_set_active (ClutterActor *item)
               ClutterActor *new;
               new = CLUTTER_ACTOR (mx_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
               g_signal_connect (new, "clicked", G_CALLBACK (cs_set_active_event), iter);
-              clutter_container_add_actor (CLUTTER_CONTAINER (parents), new);
+              clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->ancestors), new);
 
               if (iter == cluttersmith->fake_stage)
                 iter = NULL;

@@ -46,6 +46,17 @@ struct _CSContext
   GList        *state_machines;
   gchar        *project_root;
 
+  const gchar   *current_state;  /* interned string */
+  ClutterStates *current_state_machine;
+
+  ClutterAnimator *current_animator; /* (if any) */
+  /* XXX: add currently edited state machine */
+
+  /* The following are cached lookups for ids in cluttersmith.json, since
+   * various parts of the ClutterSmith UI might need to know values of
+   * or change values in various of these
+   */
+
   ClutterActor *parasite_root;
   ClutterActor *parasite_ui;
   ClutterActor *fake_stage_canvas;
@@ -57,6 +68,9 @@ struct _CSContext
   ClutterActor *scene_graph;
   ClutterActor *property_editors;
   ClutterActor *property_editors_core;
+
+  ClutterActor *ancestors;
+  ClutterActor *type;
 
   ClutterActor *active_container;
   ClutterActor *callbacks_container;
@@ -92,11 +106,6 @@ struct _CSContext
   ClutterActor *resize_handle;
   ClutterActor *move_handle;
 
-  const gchar   *current_state;  /* interned string */
-  ClutterStates *current_state_machine;
-
-  ClutterAnimator *current_animator; /* (if any) */
-  /* XXX: add currently edited state machine */
 };
 
 
@@ -109,7 +118,6 @@ GType cs_context_get_type (void);
 
 void cs_prop_tweaked (GObject     *object,
                       const gchar *property_name);
-
 
 gfloat cluttersmith_get_origin_x (void);
 gfloat cluttersmith_get_origin_y (void);
