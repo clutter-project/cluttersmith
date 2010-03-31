@@ -3,7 +3,6 @@
 #include <math.h>
 #include "cluttersmith.h"
 
-
 typedef struct UpdateClosure
 {
   GObject      *object;
@@ -36,174 +35,6 @@ static void update_closure_free (gpointer data, GClosure *closure)
 
 
 static void
-update_editor_double (GObject       *object,
-                      GParamSpec    *arg1,
-                      UpdateClosure *uc)
-{
-  gdouble value;
-  gchar *str;
-  if (!uc->object || !uc->editor)
-    return;
-  g_object_get (object, arg1->name, &value, NULL);
-  str = g_strdup_printf ("%2.1f", value);
-  if (uc->update_object_handler)
-    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY (uc->editor)),
-                            uc->update_object_handler);
-  mx_entry_set_text (MX_ENTRY (uc->editor), str);
-  if (uc->update_object_handler)
-    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  g_free (str);
-}
-
-static void
-update_editor_float (GObject       *object,
-                     GParamSpec    *arg1,
-                     UpdateClosure *uc)
-{
-  gfloat value;
-  gchar *str;
-  if (!uc->object || !uc->editor)
-    return;
-  g_object_get (object, arg1->name, &value, NULL);
-  str = g_strdup_printf ("%2.1f", value);
-  if (uc->update_object_handler)
-    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  mx_entry_set_text (MX_ENTRY (uc->editor), str);
-  if (uc->update_object_handler)
-    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  g_free (str);
-}
-
-static gboolean
-update_object_float (ClutterText *text,
-                     gpointer     data)
-{
-  UpdateClosure *uc = data;
-  const gchar *str = clutter_text_get_text (text);
-  gdouble value = g_strtod (str, NULL);
-  g_object_set (uc->object, uc->property_name, value, NULL);
-
-  /* hack to avoid animatiors animating the viewport properties */
-  if (!g_str_equal (uc->property_name, "origin-x") &&
-      !g_str_equal (uc->property_name, "origin-y") &&
-      !g_str_equal (uc->property_name, "zoom"))
-    {
-      cs_dirtied ();
-      cs_prop_tweaked (uc->object, uc->property_name);
-    }
-  return TRUE;
-}
-
-static void
-update_editor_uchar (GObject       *object,
-                     GParamSpec    *arg1,
-                     UpdateClosure *uc)
-{
-  guchar value;
-  gchar *str;
-  if (!uc->object)
-    return;
-  g_object_get (object, arg1->name, &value, NULL);
-  str = g_strdup_printf ("%i", (gint)value);
-  if (uc->update_object_handler)
-    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  mx_entry_set_text (MX_ENTRY (uc->editor), str);
-  if (uc->update_object_handler)
-    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  g_free (str);
-}
-
-static void
-update_editor_int (GObject       *object,
-                   GParamSpec    *arg1,
-                   UpdateClosure *uc)
-{
-  gint value;
-  gchar *str;
-  if (!uc->object)
-    return;
-  g_object_get (object, arg1->name, &value, NULL);
-  str = g_strdup_printf ("%i", value);
-  if (uc->update_object_handler)
-    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  mx_entry_set_text (MX_ENTRY (uc->editor), str);
-  if (uc->update_object_handler)
-    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  g_free (str);
-}
-
-static gboolean
-update_object_int (ClutterText *text,
-                   gpointer     data)
-{
-  UpdateClosure *uc = data;
-  if (!uc->object)
-    return TRUE;
-  g_object_set (uc->object, uc->property_name, atoi (clutter_text_get_text (text)), NULL);
-  cs_dirtied ();
-  cs_prop_tweaked (uc->object, uc->property_name);
-  return TRUE;
-}
-
-static void
-update_editor_uint (GObject       *object,
-                    GParamSpec    *arg1,
-                    UpdateClosure *uc)
-{
-  guint value;
-  gchar *str;
-  if (!uc->object)
-    return;
-  g_object_get (object, arg1->name, &value, NULL);
-  str = g_strdup_printf ("%u", value);
-  if (uc->update_object_handler)
-    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  mx_entry_set_text (MX_ENTRY (uc->editor), str);
-  if (uc->update_object_handler)
-    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  g_free (str);
-}
-
-static gboolean
-update_object_uint (ClutterText *text,
-                    gpointer     data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->object, uc->property_name, atoi (clutter_text_get_text (text)), NULL);
-  cs_prop_tweaked (uc->object, uc->property_name);
-  return TRUE;
-}
-
-static void
-update_editor_string (GObject       *object,
-                      GParamSpec    *arg1,
-                      UpdateClosure *uc)
-{
-  gchar *value;
-  if (!uc->object)
-    return;
-  g_object_get (object, arg1->name, &value, NULL);
-  if (uc->update_object_handler)
-    g_signal_handler_block (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  mx_entry_set_text (MX_ENTRY (uc->editor), value);
-  if (uc->update_object_handler)
-    g_signal_handler_unblock (mx_entry_get_clutter_text (MX_ENTRY(uc->editor)), uc->update_object_handler);
-  g_free (value);
-}
-
-static gboolean
-update_object_string (ClutterText *text,
-                      gpointer     data)
-{
-  UpdateClosure *uc = data;
-  g_object_set (uc->object, uc->property_name, clutter_text_get_text (text), NULL);
-  cs_dirtied ();
-  cs_prop_tweaked (uc->object, uc->property_name);
-  return TRUE;
-}
-
-
-static void
 update_editor_boolean (GObject       *object,
                        GParamSpec    *arg1,
                        UpdateClosure *uc)
@@ -220,8 +51,6 @@ update_editor_boolean (GObject       *object,
     g_signal_handler_unblock (uc->editor, uc->update_object_handler);
 }
 
-
-
 static gboolean
 update_object_boolean (MxButton *button,
                        gpointer    data)
@@ -237,32 +66,6 @@ update_object_boolean (MxButton *button,
 }
 
 
-static gboolean
-update_object_generic (ClutterText *text,
-                       gpointer     data)
-{
-  GParamSpec *pspec;
-  GValue value = {0,};
-  GValue str_value = {0,};
-  UpdateClosure *uc = data;
-
-  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (uc->object), uc->property_name);
-
-  g_value_init (&str_value, G_TYPE_STRING);
-  g_value_set_string (&str_value, clutter_text_get_text (text));
-
-  g_value_init (&value, pspec->value_type);
-
-  if (g_value_transform (&str_value, &value))
-    {
-      g_object_set_property (G_OBJECT (uc->object), uc->property_name, &value);
-    }
-  g_value_unset (&value);
-  g_value_unset (&str_value);
-  cs_dirtied ();
-  cs_prop_tweaked (uc->object, uc->property_name);
-  return TRUE;
-}
 
 
 ClutterActor *property_editor_new (GObject *object,
@@ -271,7 +74,6 @@ ClutterActor *property_editor_new (GObject *object,
   GParamSpec *pspec;
   ClutterActor *editor = NULL;
   gchar *detailed_signal;
-  UpdateClosure *uc;
 
   pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (object), property_name);
   if (!pspec)
@@ -282,105 +84,24 @@ ClutterActor *property_editor_new (GObject *object,
       return editor;
     }
  
-  uc = g_new0 (UpdateClosure, 1);
-  uc->property_name = g_strdup (pspec->name);
-  uc->object = object;
 
   detailed_signal = g_strdup_printf ("notify::%s", pspec->name);
-  g_object_weak_ref (object, object_vanished, uc);
 
-  if (pspec->value_type == G_TYPE_FLOAT)
+  /* Boolean values are special cased and get their own editor,
+   * for all other types we rely on binding an MxEntry to the
+   * respective value.
+   *
+   * (cs_bind increments the dirty count for the scene
+   *  when the values bound to are changed.)
+   */
+  if (pspec->value_type == G_TYPE_BOOLEAN)
     {
-      editor = CLUTTER_ACTOR (mx_entry_new ());
-      uc->editor = editor;
-        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
-                                    G_CALLBACK (update_editor_float), uc);
-      if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (mx_entry_get_clutter_text (
-                             MX_ENTRY (editor)), "text-changed",
-                             G_CALLBACK (update_object_float), uc,
-                             update_closure_free, 0);
+      UpdateClosure *uc;
 
+      uc = g_new0 (UpdateClosure, 1);
+      uc->property_name = g_strdup (pspec->name);
+      uc->object = object;
 
-      update_editor_float (object, pspec, uc);
-    }
-  else if (pspec->value_type == G_TYPE_DOUBLE)
-    {
-      editor = CLUTTER_ACTOR (mx_entry_new ());
-      uc->editor = editor;
-        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
-                                    G_CALLBACK (update_editor_double), uc);
-      if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (mx_entry_get_clutter_text (
-                             MX_ENTRY (editor)), "text-changed",
-                             G_CALLBACK (update_object_float), uc,
-                             update_closure_free, 0);
-
-      update_editor_double (object, pspec, uc);
-    }
-  else if (pspec->value_type == G_TYPE_UCHAR)
-    {
-      editor = CLUTTER_ACTOR (mx_entry_new ());
-      uc->editor = editor;
-        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
-                                    G_CALLBACK (update_editor_uchar), uc);
-      if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (mx_entry_get_clutter_text (
-                             MX_ENTRY (editor)), "text-changed",
-                             G_CALLBACK (update_object_int), uc,
-                             update_closure_free, 0);
-
-      update_editor_uchar (object, pspec, uc);
-    }
-  else if (pspec->value_type == G_TYPE_INT)
-    {
-      editor = CLUTTER_ACTOR (mx_entry_new ());
-      uc->editor = editor;
-        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
-                                    G_CALLBACK (update_editor_int), uc);
-      if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (mx_entry_get_clutter_text (
-                             MX_ENTRY (editor)), "text-changed",
-                             G_CALLBACK (update_object_int), uc,
-                             update_closure_free, 0);
-
-      update_editor_int (object, pspec, uc);
-    }
-  else if (pspec->value_type == G_TYPE_UINT)
-    {
-      editor = CLUTTER_ACTOR (mx_entry_new ());
-      uc->editor = editor;
-        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
-                                    G_CALLBACK (update_editor_uint), uc);
-      if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (mx_entry_get_clutter_text (
-                             MX_ENTRY (editor)), "text-changed",
-                             G_CALLBACK (update_object_uint), uc,
-                             update_closure_free, 0);
-
-      update_editor_uint (object, pspec, uc);
-    }
-  else if (pspec->value_type == G_TYPE_STRING)
-    {
-      editor = CLUTTER_ACTOR (mx_entry_new ());
-      uc->editor = editor;
-        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
-                                    G_CALLBACK (update_editor_string), uc);
-      if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (mx_entry_get_clutter_text (
-                             MX_ENTRY (editor)), "text-changed",
-                             G_CALLBACK (update_object_string), uc,
-                             update_closure_free, 0);
-      update_editor_string (object, pspec, uc);
-    }
-  else if (pspec->value_type == G_TYPE_BOOLEAN)
-    {
       editor = CLUTTER_ACTOR (mx_button_new_with_label ("-"));
       mx_button_set_is_toggle (MX_BUTTON (editor), TRUE);
       uc->editor = editor;
@@ -392,39 +113,28 @@ ClutterActor *property_editor_new (GObject *object,
                              G_CALLBACK (update_object_boolean), uc,
                              update_closure_free, 0);
       update_editor_boolean (object, pspec, uc);
+      
+      g_object_weak_ref (object, object_vanished, uc);
     }
   else
     {
       GValue value = {0,};
       GValue str_value = {0,};
-      gchar *initial;
       g_value_init (&value, pspec->value_type);
       g_value_init (&str_value, G_TYPE_STRING);
       g_object_get_property (object, pspec->name, &value);
       if (g_value_transform (&value, &str_value))
         {
-          initial = g_strdup_printf ("%s", g_value_get_string (&str_value));
           editor = CLUTTER_ACTOR (mx_entry_new ());
-          mx_entry_set_text (MX_ENTRY (editor), initial);
-          uc->editor = editor;
-          if ((pspec->flags & G_PARAM_WRITABLE))
-            g_signal_connect_data (mx_entry_get_clutter_text (MX_ENTRY (editor)), "text-changed",
-                                   G_CALLBACK (update_object_generic), uc, update_closure_free, 0);
+          cs_bind (G_OBJECT (editor), "text", object, property_name);
         }
       else
         {
-          initial = g_strdup_printf ("%s", g_type_name (pspec->value_type));
-
-
-          editor = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, initial);
-          uc->editor = editor;
-          update_closure_free (uc, NULL);
+          g_print ("skipping %s", pspec->name);
         }
       g_value_unset (&value);
       g_value_unset (&str_value);
-      g_free (initial);
     }
-
 
   g_free (detailed_signal);
   return editor;

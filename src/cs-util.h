@@ -74,12 +74,13 @@ void           cluttersmith_print                  (gchar *a);
 void           cs_actor_make_id_unique             (ClutterActor *actor,
                                                     const gchar  *stem);
 
-/* initially copies value from propertyB to propertyA,
- * it is possible to reassing a new property to propertyA
+/* initially copies value from propertyB to propertyA, afterwards it is
+ * possible to reassing a new property to either propertyA or propertyB and the
+ * other property will be updated.
  */
-void           cs_bridge_properties                (GObject     *objectA,
-                                                    const gchar *propertyA,
-                                                    GObject     *objectB,
-                                                    const gchar *propertyB);
+void           cs_bind (GObject     *objectA,
+                        const gchar *propertyA,
+                        GObject     *objectB,
+                        const gchar *propertyB);
 
 #endif

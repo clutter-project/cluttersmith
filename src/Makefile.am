@@ -12,14 +12,13 @@ CLEANFILES    = $(cluttersmith_built_sources)
 
   
 libcluttersmith_la_SOURCES = \
-cs-texture.c \
-cs-texture.h \
 cluttersmith.h \
 clutter-states.c \
 clutter-states.h \
 cs-actor-editing.c \
 cs-animator-editor.c \
 cs-animator-editor.h \
+cs-bind.c \
 cs-context.c \
 cs-context.h \
 cs-export.c \
@@ -28,6 +27,8 @@ cs-selection.c \
 cs-serializer.c \
 cs-session-history.c \
 cs-stencils.c \
+cs-texture.c \
+cs-texture.h \
 cs-tree.c \
 cs-util.c \
 cs-util.h \
