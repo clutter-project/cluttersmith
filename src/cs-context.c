@@ -19,7 +19,6 @@ gint cs_set_keys_freeze = 0; /* XXX: global! */
 enum
 {
   PROP_0,
-  PROP_UI_MODE,
   PROP_FULLSCREEN,
   PROP_ZOOM,
   PROP_ORIGIN_X,
@@ -77,10 +76,6 @@ cs_context_class_init (CSContextClass *klass)
   object_class->set_property = cs_context_set_property;
   object_class->dispose = cs_context_dispose;
   object_class->finalize = cs_context_finalize;
-
-  pspec = g_param_spec_int ("ui-mode", "UI mode", "The user interface mode 0 browse, 1=edit 2=chrome 3=edit chrome", 0, 3, 3, G_PARAM_READWRITE);
-  g_object_class_install_property (object_class, PROP_UI_MODE, pspec);
-
 
   pspec = g_param_spec_float ("zoom", "Zoom", "zoom level", 0, 3200, 100, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ZOOM, pspec);
@@ -474,9 +469,6 @@ cs_context_get_property (GObject    *object,
   CSContextPrivate *priv = context->priv;
   switch (property_id)
     {
-      case PROP_UI_MODE:
-        g_value_set_int (value, context->ui_mode);
-        break;
       case PROP_ZOOM:
         g_value_set_float (value, priv->zoom);
         break;
@@ -515,9 +507,6 @@ cs_context_set_property (GObject      *object,
   CSContextPrivate *priv = context->priv;
   switch (property_id)
     {
-      case PROP_UI_MODE:
-        cs_set_ui_mode (g_value_get_int (value));
-        break;
       case PROP_ZOOM:
         priv->zoom = g_value_get_float (value);
         cs_sync_chrome_idle (NULL);
