@@ -429,16 +429,13 @@ gboolean update_overlay_positions (gpointer data)
 
   if (cs_selected_count ()==0 && lasso == NULL)
     {
-      clutter_actor_hide (cluttersmith->active_panel);
       clutter_actor_hide (cluttersmith->move_handle);
       clutter_actor_hide (cluttersmith->resize_handle);
       return TRUE;
     }
-  clutter_actor_show (cluttersmith->active_panel);
   clutter_actor_show (cluttersmith->move_handle);
   clutter_actor_show (cluttersmith->resize_handle);
       
-  /*XXX: */ clutter_actor_hide (cluttersmith->active_panel);
   /*XXX: */ clutter_actor_hide (cluttersmith->move_handle);
 
   min_x = 65536;
@@ -452,7 +449,6 @@ gboolean update_overlay_positions (gpointer data)
    {
      clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
      clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
-     clutter_actor_set_position (cluttersmith->active_panel, min_x, max_y);
    }
 
 

@@ -58,7 +58,6 @@ struct _CSContext
   ClutterActor *property_editors;
   ClutterActor *property_editors_core;
 
-  ClutterActor *active_panel;
   ClutterActor *active_container;
   ClutterActor *callbacks_container;
   ClutterActor *states_container;

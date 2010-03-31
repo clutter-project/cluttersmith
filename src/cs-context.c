@@ -130,7 +130,7 @@ CSContext *cluttersmith = NULL;
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
 
-static ClutterActor  *name, *name2, *parents;
+static ClutterActor  *name, *parents;
 
 
 
@@ -746,7 +746,7 @@ gboolean idle_add_stage (gpointer stage)
      /* initializing globals */
      //title = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-scene-title"));
      name = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
-     name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type2"));
+
      parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
      cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
      cluttersmith->property_editors_core = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors-core"));
@@ -776,7 +776,6 @@ gboolean idle_add_stage (gpointer stage)
    cluttersmith->resize_handle = _A("resize-handle");
    cluttersmith->animation_name = _A("cs-animation-name");
    cluttersmith->move_handle = _A("move-handle");
-   cluttersmith->active_panel = _A("cs-active-panel");
    cluttersmith->active_container = _A("cs-active-container");
    cluttersmith->callbacks_container = _A("cs-callbacks-container");
    cluttersmith->dialog_callbacks = _A("cs-dialog-callbacks");
@@ -1159,14 +1158,13 @@ callbacks_populate (ClutterActor *actor)
 
 void cs_set_active (ClutterActor *item)
 {
-  if (!name || !name2)
+  if (!name)
     return;
   if (item == NULL)
     item = clutter_stage_get_default ();
   if (item)
     {
       clutter_text_set_text (CLUTTER_TEXT (name), G_OBJECT_TYPE_NAME (item));
-      clutter_text_set_text (CLUTTER_TEXT (name2), G_OBJECT_TYPE_NAME (item));
     }
 
   cs_container_remove_children (parents);
