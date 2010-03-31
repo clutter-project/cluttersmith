@@ -314,7 +314,7 @@
                                           "text":"Scene"
                                         },
                                         {
-                                          "id":"title",
+                                          "id":"cs-scene-title",
                                           "style-class":"ClutterSmithTitle",
                                           "type":"MxEntry",
                                           "text":"",

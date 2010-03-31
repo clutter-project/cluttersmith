@@ -744,7 +744,7 @@ gboolean idle_add_stage (gpointer stage)
     script = cs_get_script (actor);
 
      /* initializing globals */
-     //title = CLUTTER_ACTOR (clutter_script_get_object (script, "title"));
+     //title = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-scene-title"));
      name = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
      name2 = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type2"));
      parents = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
@@ -785,7 +785,7 @@ gboolean idle_add_stage (gpointer stage)
    cluttersmith->dialog_selected = _A("cs-dialog-selected");
    cluttersmith->dialog_states = _A("cs-dialog-states");
    cluttersmith->project_title = _A("cs-project-title");
-   cluttersmith->scene_title = _A("title");
+   cluttersmith->scene_title = _A("cs-scene-title");
    cluttersmith->dialog_config = _A("cs-dialog-config");
    cluttersmith->dialog_tree = _A("cs-dialog-tree");
    cluttersmith->dialog_toolbar = _A("cs-dialog-toolbar");

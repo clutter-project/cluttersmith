@@ -208,7 +208,7 @@ void cs_quit (ClutterActor *ignored)
 void cs_focus_title (ClutterActor *ignored)
 {
   ClutterActor *entry;
-  entry = mx_entry_get_clutter_text (MX_ENTRY (cs_find_by_id_int (cluttersmith->parasite_root, "title")));
+  entry = mx_entry_get_clutter_text (MX_ENTRY (cs_find_by_id_int (cluttersmith->parasite_root, "cs-scene-title")));
   g_assert (entry);
   if (entry)
     {
