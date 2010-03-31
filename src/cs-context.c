@@ -14,7 +14,7 @@ G_DEFINE_TYPE (CSContext, cs_context, G_TYPE_OBJECT)
 #define CONTEXT_PRIVATE(o) \
       (G_TYPE_INSTANCE_GET_PRIVATE ((o), CS_TYPE_CONTEXT, CSContextPrivate))
 
-static gint cs_set_keys_freeze = 0;
+gint cs_set_keys_freeze = 0; /* XXX: global! */
 
 enum
 {
@@ -356,7 +356,7 @@ static void page_run_start (void)
                              */
                             g_string_append_printf (new, "/*[CS] %s:%s */  $('%s').connect('%s', function(o,event) {\n", id, (gchar*)key, id, (gchar*)key);
                             g_string_append_printf (new, "%s});/*[CS]*/\n", (gchar*)cbs->data);
-                          }
+                        }
                       }
                   }
             }
@@ -367,62 +367,61 @@ static void page_run_start (void)
           g_file_set_contents (scriptfilename, new->str, len, NULL);
           g_string_free (new, TRUE);
         }
+  }
+
+  if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
+    {
+      GError      *error = NULL;
+      guchar *js;
+      gchar *code = JS_PREAMBLE; 
+      gsize len;
+
+      len = strlen (code);
+
+      g_assert (cluttersmith->priv->page_js_context == NULL);
+      cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
+      gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
+  "<code>", NULL, NULL);
+      if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
+        {
+           g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
+        }
+      else
+        {
+          gint code;
+          if (!gjs_context_eval(cluttersmith->priv->page_js_context, (void*)js, len,
+                   "<code>", &code, &error))
+            {
+              if (cluttersmith->dialog_editor_error)  
+               clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
+                                      error->message);
+              else
+                g_print (error->message);
+               g_idle_add (return_to_ui, NULL);
+            }
+          else
+            {
+              gchar *str = g_strdup_printf ("returned: %i\n", code);
+              if (cluttersmith->dialog_editor_error)  
+                clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
+                                     str);
+              g_free (str);
+            }
+          g_free (js);
+        }
+      g_free (scriptfilename);
+    }
+}
+
+static void page_run_end (void)
+{
+  if (cluttersmith->priv->page_js_context)
+    {
+      g_object_unref (cluttersmith->priv->page_js_context);
+      cluttersmith->priv->page_js_context = NULL;
     }
 
-    if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
-      {
-        GError      *error = NULL;
-        guchar *js;
-        gchar *code = JS_PREAMBLE; 
-        gsize len;
-
-        len = strlen (code);
-
-        g_assert (cluttersmith->priv->page_js_context == NULL);
-        cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
-        gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
-    "<code>", NULL, NULL);
-        if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
-          {
-             g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
-          }
-        else
-          {
-            gint code;
-            if (!gjs_context_eval(cluttersmith->priv->page_js_context, (void*)js, len,
-                     "<code>", &code, &error))
-              {
-                if (cluttersmith->dialog_editor_error)  
-                 clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
-                                        error->message);
-                else
-                  g_print (error->message);
-                 g_idle_add (return_to_ui, NULL);
-              }
-            else
-              {
-                gchar *str = g_strdup_printf ("returned: %i\n", code);
-                if (cluttersmith->dialog_editor_error)  
-                  clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
-                                       str);
-                g_free (str);
-              }
-            g_free (js);
-          }
-        g_free (scriptfilename);
-      }
-  }
-
-  static void page_run_end (void)
-  {
-    if (cluttersmith->priv->page_js_context)
-      {
-        g_object_unref (cluttersmith->priv->page_js_context);
-        cluttersmith->priv->page_js_context = NULL;
-      }
-
-  }
-
+}
 
 static void browse_start (void)
 {
@@ -1205,8 +1204,6 @@ void cs_set_active (ClutterActor *item)
 }
 
 
-void session_history_add (const gchar *dir);
-
 static gchar *filename = NULL;
 
 void cs_save (gboolean force)
@@ -1296,47 +1293,6 @@ static void parsed_callback (const gchar *id,
   g_hash_table_insert (ht, g_strdup (signal), callbacks);
 }
 
-static void
-update_animator_editor (ClutterStates *states,
-                 const gchar   *source_state,
-                 const gchar   *target_state)
-{
-  GList *k, *keys;
-  cs_container_remove_children (cluttersmith->animator_props);
-
-  if (!states)
-    return;
-
-  keys = clutter_states_get_keys (states,
-                                  source_state,
-                                  target_state,
-                                  NULL,
-                                  NULL);
-                                  
-  for (k = keys; k; k = k->next)
-    {
-      ClutterStateKey *key = k->data;
-      ClutterColor white = {0xff,0xff,0xff,0xff};
-      ClutterActor *text;
-      gchar *str;
-     
-      /* if we ask for NULL we get everything, but we really
-       * only want NULL
-       */
-      if (source_state == NULL &&
-          clutter_state_key_get_source_state_name (key))
-        continue;
-
-      str = g_strdup_printf ("%p %s %li", clutter_state_key_get_object (key), 
-                          clutter_state_key_get_property_name (key),
-                          clutter_state_key_get_mode (key)
-                          );
-      text = clutter_text_new_full ("Sans 10px", str, &white);
-      g_free (str);
-      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->animator_props),
-                                   text);
-    }
-}
 
 void cs_prop_tweaked (GObject     *object,
                       const gchar *property_name)
@@ -1370,28 +1326,9 @@ void cs_prop_tweaked (GObject     *object,
        cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), cluttersmith->current_animator);
 
        /* XXX: we should update with the real animator in this case */
-       update_animator_editor (cluttersmith->current_state_machine,
-                        NULL,
-                        cluttersmith->current_state);
-
-       {
-         GList *k, *keys;
-
-         keys = clutter_animator_get_keys (cluttersmith->current_animator,
-                                           NULL, NULL, -1);
-         for (k = keys; k; k = k->next)
-           {
-              ClutterAnimatorKey *key = k->data;
-
-              g_print ("%p.%s.%f \n", 
-                       clutter_animator_key_get_object (key),
-                       clutter_animator_key_get_property_name (key),
-                       clutter_animator_key_get_progress (key));
-           }
-         g_print ("\n");
-
-         g_list_free (keys);
-       }
+       cs_update_animator_editor (cluttersmith->current_state_machine,
+                                  NULL,
+                                  cluttersmith->current_state);
     }
   else if (cluttersmith->current_state_machine &&
       (cluttersmith->current_state != NULL &&
@@ -1424,24 +1361,11 @@ void cs_prop_tweaked (GObject     *object,
                                0.0);
        g_value_unset (&value);
 
-       update_animator_editor (cluttersmith->current_state_machine,
-                        source_state, cluttersmith->current_state);
+       cs_update_animator_editor (cluttersmith->current_state_machine,
+                                  source_state, cluttersmith->current_state);
     }
 }
 
-static void update_animator_editor2 (void)
-{
-  const gchar *source_state = NULL;
-
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    {
-      source_state = NULL;
-    }
-  update_animator_editor (cluttersmith->current_state_machine,
-                   source_state, cluttersmith->current_state);
-}
 
 static void remove_state_machines (void)
 {
@@ -1473,7 +1397,7 @@ static void cs_load (void)
     {
       gchar *scriptfilename;
       gchar *annotationfilename;
-      session_history_add (cs_get_project_root ());
+      cs_session_history_add (cs_get_project_root ());
       cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
 
       {
@@ -1637,29 +1561,10 @@ static void cs_load (void)
         }
       g_free (scriptfilename);
       g_free (annotationfilename);
-
-#if 0
-      /* create a fake set of state machines,. */
-      if (g_str_equal (cluttersmith->priv->title, "index"))
-        {
-          ClutterStates *states;
-          g_print ("loaded scene [%s]\n", cluttersmith->priv->title);
-          states = clutter_states_new ();
-          /* XXX: add actors and states */
-          cluttersmith->state_machines = g_list_append (cluttersmith->state_machines,
-                                                        states);
-          cluttersmith->current_state_machine = states;
-        }
-      else
-        {
-          cluttersmith->current_state_machine = NULL;
-        }
-#endif
     }
   else
     {
       cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", NULL);
-
     }
   cs_set_current_container (cluttersmith->fake_stage);
   CS_REVISION = CS_STORED_REVISION = 0;
@@ -1768,49 +1673,6 @@ cs_make_config_file (const char *filename)
   g_free (path);
 
   return full;
-}
-
-void session_history_add (const gchar *dir)
-{
-  gchar *config_path = cs_make_config_file ("session-history");
-  gchar *start, *end;
-  gchar *original = NULL;
-  GList *iter, *session_history = NULL;
-  
-  if (g_file_get_contents (config_path, &original, NULL, NULL))
-    {
-      start=end=original;
-      while (*start)
-        {
-          end = strchr (start, '\n');
-          if (*end)
-            {
-              *end = '\0';
-              if (!g_str_equal (start, dir))
-                session_history = g_list_append (session_history, start);
-              start = end+1;
-            }
-          else
-            {
-              start = end;
-            }
-        }
-    }
-  session_history = g_list_prepend (session_history, (void*)dir);
-  {
-    GString *str = g_string_new ("");
-    gint i=0;
-    for (iter = session_history; iter && i<10; iter=iter->next, i++)
-      {
-        g_string_append_printf (str, "%s\n", (gchar*)iter->data);
-      }
-    g_file_set_contents (config_path, str->str, -1, NULL);
-    g_string_free (str, TRUE);
-  }
-
-  if (original)
-    g_free (original);
-  g_list_free (session_history);
 }
 
 
@@ -1931,232 +1793,3 @@ void project_title_init_hack (ClutterActor  *actor)
                     G_CALLBACK (project_title_text_changed), NULL);
 }
 
-
-static void update_duration (void)
-{
-  gchar *str;
-  gint   duration;
-  const gchar *source_state = NULL;
-
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    {
-      source_state = NULL;
-    }
-
-  duration = clutter_states_get_duration (cluttersmith->current_state_machine,
-                                          source_state,
-                                          cluttersmith->current_state);
-  str = g_strdup_printf ("%i", duration);
-  g_object_set (cluttersmith->state_duration, "text", str, NULL);
-  g_free (str);
-}
-
-static void state_source_name_text_changed (ClutterActor *actor)
-{
-  update_duration ();
-  update_animator_editor2 ();
-}
-
-static void state_name_text_changed (ClutterActor *actor)
-{
-  const gchar *state = clutter_text_get_text (CLUTTER_TEXT (actor));
-  const gchar *default_state =  g_intern_static_string ("default");
-  
-  if (cluttersmith->current_state == NULL)
-    cluttersmith->current_state = default_state;
-
-  if (cluttersmith->current_state == default_state)
-    {
-      cs_properties_store_defaults ();
-    }
-  else if (g_intern_string (state) == default_state)
-    {
-      cs_properties_restore_defaults ();
-    }
-  else
-    {
-      /* for each cached key, that is different from current value,
-       * and not in blacklist, store the values in state machine
-       */
-
-      /* update storage of this state */
-      clutter_states_change (cluttersmith->current_state_machine, state);
-    }
-
-  cluttersmith->current_state = g_intern_string (state);
-
-  update_duration ();
-
-
-  update_animator_editor2 ();
-}
-
-void state_source_name_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_source_name_text_changed), NULL);
-}
-
-void state_name_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_name_text_changed), NULL);
-
-}
-
-
-static void state_duration_text_changed (ClutterActor *actor)
-{
-  const gchar *text = clutter_text_get_text (CLUTTER_TEXT (actor));
-#if 0
-  const gchar *source_state = NULL;
-
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    {
-      source_state = NULL;
-    }
-
-  clutter_states_set_duration (cluttersmith->current_state_machine,
-                               source_state,
-                               cluttersmith->current_state,
-                               atoi (text));
-#endif
-  if (cluttersmith->current_animator)
-    clutter_animator_set_duration (cluttersmith->current_animator, atoi (text));
-}
-
-void state_duration_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_duration_text_changed), NULL);
-}
-
-#if 0
-void state_elaborate_clicked (ClutterActor  *actor)
-{
-  ClutterAnimator *animator;
-  const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    source_state = NULL;
-
-  animator = cs_states_make_animator (cluttersmith->current_state_machine,
-                                      source_state,
-                                      cluttersmith->current_state);
-  clutter_states_set_animator (cluttersmith->current_state_machine,
-                               source_state,
-                               cluttersmith->current_state,
-                               animator);
-  cluttersmith->current_animator = animator;
-
-  g_print ("elaborate\n");
-}
-#endif
-
-void state_test_clicked (ClutterActor  *actor)
-{
-#if 0
-  const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    source_state = NULL;
-
-  /* Reset to the source of the animation */
-  if (!source_state)
-    {
-      /* if no source state specified, restore the source state */
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
-                                    "default");
-      cs_properties_restore_defaults ();
-    }
-  else
-    {
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
-                                    source_state);
-    }
-
-  clutter_states_change (cluttersmith->current_state_machine,
-                         cluttersmith->current_state);
-#endif
-  if (cluttersmith->current_animator)
-    {
-      cs_properties_restore_defaults ();
-      clutter_animator_start (cluttersmith->current_animator);
-    }
-}
-
-void state_position_actors (gdouble progress)
-{
-  
-  ClutterTimeline *timeline;
-#if 0
-  const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    source_state = NULL;
-
-  /* Reset to the source of the animation */
-  if (!source_state)
-    {
-      /* if no source state specified, restore the source state */
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
-                                    "default");
-      cs_properties_restore_defaults ();
-    }
-  else
-    {
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
-                                    source_state);
-    }
-
-  timeline = clutter_states_change (cluttersmith->current_state_machine,
-                                    cluttersmith->current_state);
-  clutter_timeline_pause (timeline);
-#endif
-
-  if (!cluttersmith->current_animator)
-    return;
-
-  timeline = clutter_animator_get_timeline (cluttersmith->current_animator);
-  clutter_timeline_start (timeline);
-  clutter_timeline_pause (timeline);
-
-  cs_set_keys_freeze ++;
-    {
-      gint frame = clutter_timeline_get_duration (timeline) * progress;
-      clutter_timeline_advance (timeline, frame);
-      g_signal_emit_by_name (timeline, "new-frame", frame, NULL);
-    }
-  cs_set_keys_freeze --;
-}

@@ -1,4 +1,5 @@
 #include "cluttersmith.h"
+#include <stdlib.h>
 #include <mx/mx.h>
 #include <cs-animator-editor.h>
 
@@ -1100,3 +1101,289 @@ void animator_editor_update_handles (void)
     }
 }
 
+/**************/
+
+void
+cs_update_animator_editor (ClutterStates *states,
+                           const gchar   *source_state,
+                           const gchar   *target_state)
+{
+  GList *k, *keys;
+  cs_container_remove_children (cluttersmith->animator_props);
+
+  if (!states)
+    return;
+
+  keys = clutter_states_get_keys (states,
+                                  source_state,
+                                  target_state,
+                                  NULL,
+                                  NULL);
+                                  
+  for (k = keys; k; k = k->next)
+    {
+      ClutterStateKey *key = k->data;
+      ClutterColor white = {0xff,0xff,0xff,0xff};
+      ClutterActor *text;
+      gchar *str;
+     
+      /* if we ask for NULL we get everything, but we really
+       * only want NULL
+       */
+      if (source_state == NULL &&
+          clutter_state_key_get_source_state_name (key))
+        continue;
+
+      str = g_strdup_printf ("%p %s %li", clutter_state_key_get_object (key), 
+                          clutter_state_key_get_property_name (key),
+                          clutter_state_key_get_mode (key)
+                          );
+      text = clutter_text_new_full ("Sans 10px", str, &white);
+      g_free (str);
+      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->animator_props),
+                                   text);
+    }
+}
+
+static void update_animator_editor2 (void)
+{
+  const gchar *source_state = NULL;
+
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    {
+      source_state = NULL;
+    }
+  cs_update_animator_editor (cluttersmith->current_state_machine,
+                             source_state, cluttersmith->current_state);
+}
+
+static void update_duration (void)
+{
+  gchar *str;
+  gint   duration;
+  const gchar *source_state = NULL;
+
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    {
+      source_state = NULL;
+    }
+
+  duration = clutter_states_get_duration (cluttersmith->current_state_machine,
+                                          source_state,
+                                          cluttersmith->current_state);
+  str = g_strdup_printf ("%i", duration);
+  g_object_set (cluttersmith->state_duration, "text", str, NULL);
+  g_free (str);
+}
+
+static void state_source_name_text_changed (ClutterActor *actor)
+{
+  update_duration ();
+  update_animator_editor2 ();
+}
+
+static void state_name_text_changed (ClutterActor *actor)
+{
+  const gchar *state = clutter_text_get_text (CLUTTER_TEXT (actor));
+  const gchar *default_state = g_intern_static_string ("default");
+  
+  if (cluttersmith->current_state == NULL)
+    cluttersmith->current_state = default_state;
+
+  if (cluttersmith->current_state == default_state)
+    {
+      cs_properties_store_defaults ();
+    }
+  else if (g_intern_string (state) == default_state)
+    {
+      cs_properties_restore_defaults ();
+    }
+  else
+    {
+      /* for each cached key, that is different from current value,
+       * and not in blacklist, store the values in state machine
+       */
+
+      /* update storage of this state */
+      clutter_states_change (cluttersmith->current_state_machine, state);
+    }
+
+  cluttersmith->current_state = g_intern_string (state);
+
+  update_duration ();
+
+
+  update_animator_editor2 ();
+}
+
+void state_source_name_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_source_name_text_changed), NULL);
+}
+
+void state_name_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_name_text_changed), NULL);
+
+}
+
+
+static void state_duration_text_changed (ClutterActor *actor)
+{
+  const gchar *text = clutter_text_get_text (CLUTTER_TEXT (actor));
+#if 0
+  const gchar *source_state = NULL;
+
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    {
+      source_state = NULL;
+    }
+
+  clutter_states_set_duration (cluttersmith->current_state_machine,
+                               source_state,
+                               cluttersmith->current_state,
+                               atoi (text));
+#endif
+  if (cluttersmith->current_animator)
+    clutter_animator_set_duration (cluttersmith->current_animator, atoi (text));
+}
+
+void state_duration_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to
+   * be available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_duration_text_changed), NULL);
+}
+
+#if 0
+void state_elaborate_clicked (ClutterActor  *actor)
+{
+  ClutterAnimator *animator;
+  const gchar *source_state;
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    source_state = NULL;
+
+  animator = cs_states_make_animator (cluttersmith->current_state_machine,
+                                      source_state,
+                                      cluttersmith->current_state);
+  clutter_states_set_animator (cluttersmith->current_state_machine,
+                               source_state,
+                               cluttersmith->current_state,
+                               animator);
+  cluttersmith->current_animator = animator;
+
+  g_print ("elaborate\n");
+}
+#endif
+
+void state_test_clicked (ClutterActor  *actor)
+{
+#if 0
+  const gchar *source_state;
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    source_state = NULL;
+
+  /* Reset to the source of the animation */
+  if (!source_state)
+    {
+      /* if no source state specified, restore the source state */
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    "default");
+      cs_properties_restore_defaults ();
+    }
+  else
+    {
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    source_state);
+    }
+
+  clutter_states_change (cluttersmith->current_state_machine,
+                         cluttersmith->current_state);
+#endif
+  if (cluttersmith->current_animator)
+    {
+      cs_properties_restore_defaults ();
+      clutter_animator_start (cluttersmith->current_animator);
+    }
+}
+
+void state_position_actors (gdouble progress)
+{
+  
+  ClutterTimeline *timeline;
+#if 0
+  const gchar *source_state;
+  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  if (g_str_equal (source_state, "*") ||
+      g_str_equal (source_state, ""))
+    source_state = NULL;
+
+  /* Reset to the source of the animation */
+  if (!source_state)
+    {
+      /* if no source state specified, restore the source state */
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    "default");
+      cs_properties_restore_defaults ();
+    }
+  else
+    {
+      clutter_states_change_noanim (cluttersmith->current_state_machine,
+                                    source_state);
+    }
+
+  timeline = clutter_states_change (cluttersmith->current_state_machine,
+                                    cluttersmith->current_state);
+  clutter_timeline_pause (timeline);
+#endif
+
+  if (!cluttersmith->current_animator)
+    return;
+
+  timeline = clutter_animator_get_timeline (cluttersmith->current_animator);
+  clutter_timeline_start (timeline);
+  clutter_timeline_pause (timeline);
+
+  cs_set_keys_freeze ++;
+    {
+      gint frame = clutter_timeline_get_duration (timeline) * progress;
+      clutter_timeline_advance (timeline, frame);
+      g_signal_emit_by_name (timeline, "new-frame", frame, NULL);
+    }
+  cs_set_keys_freeze --;
+}

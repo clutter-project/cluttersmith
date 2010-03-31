@@ -72,3 +72,47 @@ void session_history_init_hack (ClutterActor  *actor)
     }
   }
 }
+
+void cs_session_history_add (const gchar *dir)
+{
+  gchar *config_path = cs_make_config_file ("session-history");
+  gchar *start, *end;
+  gchar *original = NULL;
+  GList *iter, *session_history = NULL;
+  
+  if (g_file_get_contents (config_path, &original, NULL, NULL))
+    {
+      start=end=original;
+      while (*start)
+        {
+          end = strchr (start, '\n');
+          if (*end)
+            {
+              *end = '\0';
+              if (!g_str_equal (start, dir))
+                session_history = g_list_append (session_history, start);
+              start = end+1;
+            }
+          else
+            {
+              start = end;
+            }
+        }
+    }
+  session_history = g_list_prepend (session_history, (void*)dir);
+  {
+    GString *str = g_string_new ("");
+    gint i=0;
+    for (iter = session_history; iter && i<10; iter=iter->next, i++)
+      {
+        g_string_append_printf (str, "%s\n", (gchar*)iter->data);
+      }
+    g_file_set_contents (config_path, str->str, -1, NULL);
+    g_string_free (str, TRUE);
+  }
+
+  if (original)
+    g_free (original);
+  g_list_free (session_history);
+}
+

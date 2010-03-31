@@ -116,4 +116,12 @@ void export_png (const gchar *scene,
                  const gchar *png);
 void export_pdf (const gchar *pdf);
 
+void cs_update_animator_editor (ClutterStates *states,
+                                const gchar   *source_state,
+                                const gchar   *target_state);
+void cs_session_history_add    (const gchar *dir);
+
+
+
+extern gint cs_set_keys_freeze; /* XXX: global! */
 #endif
