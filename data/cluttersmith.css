@@ -191,27 +191,27 @@ MxBoxLayout.ParasiteTreeB2 {
   color: white;
 }
 
-MxPopup {
+MxMenu {
   padding: 3;
   border-image: url("button-bg.png") 8;
 }
 
-MxPopup > MxBoxLayout {
+MxMenu > MxBoxLayout {
   padding: 3;
   border-image: none;
 }
 
-MxPopup > MxBoxLayout:hover,
-MxPopup > MxBoxLayout:active {
+MxMenu > MxBoxLayout:hover,
+MxMenu > MxBoxLayout:active {
   border-image: url('button-bg-hover.png') 2;
 }
 
-MxPopup > MxBoxLayout > MxLabel {
+MxMenu > MxBoxLayout > MxLabel {
   color: white;
 }
 
-MxPopup > MxBoxLayout:hover > MxLabel,
-MxPopup > MxBoxLayout:active > MxLabel {
+MxMenu > MxBoxLayout:hover > MxLabel,
+MxMenu > MxBoxLayout:active > MxLabel {
   color: white;
 }
 
@@ -307,18 +307,18 @@ MxPopup > MxBoxLayout:active > MxLabel {
 
 /* these CSS rules are currently bust.
  
-.parasite-root   MxPopup {
+.parasite-root   MxMenu {
   padding: 5;
   border-image: url("button-bg-hover.png") 8;
 }
 
-.parasite-root   MxPopup > MxButton {
+.parasite-root   MxMenu > MxButton {
   padding: 3;
   border-image: none;
 }
 
-.parasite-root   MxPopup > MxButton:hover,
-.parasite-root   MxPopup > MxButton:active {
+.parasite-root   MxMenu > MxButton:hover,
+.parasite-root   MxMenu > MxButton:active {
   color: white;
   border-image: url('menu-item.png') 2;
 }
