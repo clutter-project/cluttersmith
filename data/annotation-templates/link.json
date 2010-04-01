@@ -14,15 +14,14 @@
   "anchor-x":0.000,
   "anchor-y":0.000,
   "style-class":"ClutterSmithLink",
-  "has-tooltip":false,
+  
   "x-fill":false,
   "y-fill":false,
-  "toggle-mode":false,
-  "checked":false,
+  
+  
   "children":[
   {
     "type":"ClutterText",
-    "name":"json-extra:\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
     "x":10,
     "y":10,
     "width":110,
@@ -51,8 +50,7 @@
     "activatable":false,
     "password-char":0,
     "max-length":0,
-    "single-line-mode":false,
-    "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
+    "single-line-mode":false
   }
   ]
 }

@@ -13,11 +13,11 @@
   "anchor-x":0.000,
   "anchor-y":0.000,
   "style-class":"ClutterSmithCallout",
-  "has-tooltip":false,
+  
   "x-fill":false,
   "y-fill":false,
-  "toggle-mode":false,
-  "checked":false,
+  
+  
   "children":[
   {
     "type":"ClutterText",

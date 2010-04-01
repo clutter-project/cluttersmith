@@ -14,11 +14,11 @@
   "anchor-x":0.000,
   "anchor-y":0.000,
   "style-class":"ClutterSmithLink",
-  "has-tooltip":false,
+  
   "x-fill":false,
   "y-fill":false,
-  "toggle-mode":false,
-  "checked":false,
+  
+  
   "transition-duration":120,
   "children":[
   {

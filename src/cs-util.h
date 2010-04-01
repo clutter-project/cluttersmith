@@ -75,8 +75,8 @@ void           cs_actor_make_id_unique             (ClutterActor *actor,
                                                     const gchar  *stem);
 
 /* initially copies value from propertyB to propertyA, afterwards it is
- * possible to reassing a new property to either propertyA or propertyB and the
- * other property will be updated.
+ * possible to reassigning a new property to either propertyA or propertyB and
+ * the other property will be updated.
  */
 void           cs_bind (GObject     *objectA,
                         const gchar *propertyA,

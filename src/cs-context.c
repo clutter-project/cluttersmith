@@ -455,8 +455,6 @@ void cs_set_ui_mode (guint ui_mode)
   cluttersmith->ui_mode = ui_mode;
   cs_selected_clear ();
   cs_sync_chrome ();
-
-  g_object_notify (G_OBJECT (cluttersmith), "ui-mode");
 }
 
 static void
@@ -1731,12 +1729,6 @@ static void project_root_text_changed (ClutterActor *actor)
     {
       mx_entry_set_text (MX_ENTRY (cluttersmith->project_title),
                                    "-");
-    }
-  
-  if (g_file_test (cluttersmith->project_root, G_FILE_TEST_IS_DIR))
-    {
-      previews_reload (cs_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
-      cluttersmith_load_scene ("index");
     }
   title_frozen = FALSE;
 }

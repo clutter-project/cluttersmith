@@ -27,7 +27,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "x-fill":false,
       "y-fill":true,
       "expanded":true,
@@ -49,7 +49,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "homogenous-rows":false,
       "homogenous-columns":false,
       "row-spacing":0.000,
@@ -291,7 +291,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "vertical":true,
       "pack-start":false,
       "spacing":0,
@@ -346,7 +346,7 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "has-tooltip":false,
+          
           "progress":0.000,
           "child::expand":false,
           "child::x-fill":true,
@@ -366,11 +366,11 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "has-tooltip":false,
+          
           "x-fill":false,
           "y-fill":false,
-          "toggle-mode":false,
-          "checked":false,
+          
+          
           "child::expand":false,
           "child::x-fill":true,
           "child::y-fill":true,
@@ -391,11 +391,11 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "has-tooltip":false,
+          
           "x-fill":false,
           "y-fill":false,
-          "toggle-mode":false,
-          "checked":false,
+          
+          
           "child::expand":false,
           "child::x-fill":true,
           "child::y-fill":true,
@@ -455,7 +455,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "x-fill":false,
       "y-fill":false,
       "vertical":true,
@@ -500,16 +500,15 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "x-fill":false,
       "y-fill":false,
       "label":"index",
-      "toggle-mode":false,
-      "checked":false,
+      
+      
       "children":[
         {
           "type":"ClutterText",
-          "name":"json-extra:,\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
           "x":10,
           "y":10,
           "width":110,
@@ -538,7 +537,7 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false          ,"signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
+          "single-line-mode":false    
 
         }
       ]
@@ -557,12 +556,12 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "x-fill":false,
       "y-fill":false,
       "label":"New Button",
-      "toggle-mode":false,
-      "checked":false,
+      
+      
       "children":[
         {
           "type":"ClutterText",
@@ -613,7 +612,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "active":false
     }
     ,
@@ -631,7 +630,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "progress":0.000
     }
     ,
@@ -649,7 +648,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "progress":0.500
     }
   ]

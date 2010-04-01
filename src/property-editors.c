@@ -130,7 +130,8 @@ ClutterActor *property_editor_new (GObject *object,
         }
       else
         {
-          g_print ("skipping %s", pspec->name);
+          editor = mx_label_new ();
+          mx_label_set_text (MX_LABEL (editor), g_type_name (pspec->value_type));
         }
       g_value_unset (&value);
       g_value_unset (&str_value);

@@ -26,7 +26,7 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "has-tooltip":false,
+    
     "orientation":"vertical",
     "pack-start":false,
     "spacing":0,
@@ -74,7 +74,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "vertical":false,
       "pack-start":false,
       "spacing":0,
@@ -97,12 +97,12 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "x-fill":false,
         "y-fill":false,
         "label":"play",
-        "toggle-mode":false,
-        "checked":false,
+        
+        
         "child::expand":false,
         "child::x-fill":true,
         "child::y-fill":true,
@@ -156,12 +156,12 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "x-fill":false,
         "y-fill":false,
         "label":"pause",
-        "toggle-mode":false,
-        "checked":false,
+        
+        
         "child::expand":false,
         "child::x-fill":true,
         "child::y-fill":true,
@@ -215,12 +215,12 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "x-fill":false,
         "y-fill":false,
         "label":"rewind",
-        "toggle-mode":false,
-        "checked":false,
+        
+        
         "child::expand":false,
         "child::x-fill":true,
         "child::y-fill":true,
@@ -274,12 +274,12 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "x-fill":false,
         "y-fill":false,
         "label":"rew",
-        "toggle-mode":false,
-        "checked":false,
+        
+        
         "child::expand":false,
         "child::x-fill":true,
         "child::y-fill":true,
@@ -333,12 +333,12 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "x-fill":false,
         "y-fill":false,
         "label":"ffw",
-        "toggle-mode":false,
-        "checked":false,
+        
+        
         "child::expand":false,
         "child::x-fill":true,
         "child::y-fill":true,
@@ -393,7 +393,7 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      "has-tooltip":false,
+      
       "vertical":false,
       "pack-start":false,
       "spacing":0,
@@ -416,7 +416,7 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "text":"file:///home/pippin/zim.avi",
         "hint-text":"file:///home/pippin/zim.avi",
         "password-char":0,
@@ -439,12 +439,12 @@
         "rotation-angle-z":0.000,
         "anchor-x":0.000,
         "anchor-y":0.000,
-        "has-tooltip":false,
+        
         "x-fill":false,
         "y-fill":false,
         "label":"load",
-        "toggle-mode":false,
-        "checked":false,
+        
+        
         "child::expand":false,
         "child::x-fill":true,
         "child::y-fill":true,
@@ -503,16 +503,15 @@
     "rotation-angle-z":0.000,
     "anchor-x":0.000,
     "anchor-y":0.000,
-    "has-tooltip":false,
+    
     "x-fill":false,
     "y-fill":false,
     "label":"index",
-    "toggle-mode":false,
-    "checked":false,
+    
+    
     "children":[
     {
       "type":"ClutterText",
-      "name":"json-extra:,\"signals\": [ {\"name\":\"text-changed\", \"handler\":\"cs_link_text_changed\"} ]",
       "x":10,
       "y":10,
       "width":78,
@@ -542,7 +541,6 @@
       "password-char":0,
       "max-length":0,
       "single-line-mode":false,
-      "signals": [ {"name":"text-changed", "handler":"cs_link_text_changed"} ]
     }
     ]
   }

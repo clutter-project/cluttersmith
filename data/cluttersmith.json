@@ -829,7 +829,7 @@
           "signals":[
             {
               "name":"button-press-event",
-              "handler":"manipulate_resize_start"
+              "handler":"cs_resize_start"
             },
             {
               "name":"enter-event",
@@ -856,7 +856,7 @@
           "signals":[
             {
               "name":"button-press-event",
-              "handler":"manipulate_move_start"
+              "handler":"cs_move_start"
             },
             {
               "name":"enter-event",
