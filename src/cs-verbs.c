@@ -3,8 +3,6 @@
 #include <mx/mx.h>
 #include "cluttersmith.h"
 
-/****/
-
 /**[ copy and paste ]*******************************************************/
 
 static GList *clipboard = NULL;
@@ -56,6 +54,7 @@ void cs_edit (ClutterActor *ignored)
 void cs_remove (ClutterActor *ignored)
 {
   ClutterActor *active = cs_get_active ();
+
   if (active)
     {
       ClutterActor *parent = clutter_actor_get_parent (active);
@@ -465,24 +464,28 @@ void
 cs_keynav_left (ClutterActor *ignored)
 {
   select_nearest (FALSE, TRUE);
+  cs_history_do ("left", "go left", "go right");
 }
 
 void
 cs_keynav_right (ClutterActor *ignored)
 {
   select_nearest (FALSE, FALSE);
+  cs_history_do ("right", "go right", "go left");
 }
 
 void
 cs_keynav_up (ClutterActor *ignored)
 {
   select_nearest (TRUE, TRUE);
+  cs_history_do ("up", "go up", "go down");
 }
 
 void
 cs_keynav_down (ClutterActor *ignored)
 {
   select_nearest (TRUE, FALSE);
+  cs_history_do ("down", "go down", "go up");
 }
 
 
@@ -734,6 +737,11 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cs_duplicate},
   {CLUTTER_CONTROL_MASK, CLUTTER_l,         cs_focus_title},
 
+  /* check for the more specific modifier state before the more generic ones */
+  {CLUTTER_CONTROL_MASK|
+   CLUTTER_SHIFT_MASK,   CLUTTER_z,         cs_redo},
+  {CLUTTER_CONTROL_MASK, CLUTTER_y,         cs_redo},
+  {CLUTTER_CONTROL_MASK, CLUTTER_z,         cs_undo},
 
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|

@@ -22,6 +22,8 @@ cs-bind.c \
 cs-context.c \
 cs-context.h \
 cs-export.c \
+cs-history.c \
+cs-history.h \
 cs-selection.c \
 cs-serializer.c \
 cs-session-history.c \

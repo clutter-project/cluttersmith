@@ -14,6 +14,7 @@ typedef enum RunMode {
 #include "cs-context.h"
 #include "cs-util.h"
 #include "cs-animator-editor.h"
+#include "cs-history.h"
 
 void
 props_populate (ClutterActor *container,
