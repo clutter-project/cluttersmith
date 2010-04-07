@@ -433,7 +433,6 @@ cs_help (ClutterActor *ignored)
   cluttersmith_set_project_root (PKGDATADIR "docs");
 }
 
-
 static void select_nearest (gboolean vertical,
                             gboolean reverse)
 {
@@ -460,10 +459,15 @@ static void select_nearest (gboolean vertical,
     }
 }
 
+static void select_left (void)
+{
+  select_nearest (FALSE, TRUE);
+}
+
 void
 cs_keynav_left (ClutterActor *ignored)
 {
-  select_nearest (FALSE, TRUE);
+  select_left ();
   cs_history_do ("left", "go left", "go right");
 }
 
@@ -739,9 +743,9 @@ static KeyBinding keybindings[]={
 
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|
-   CLUTTER_SHIFT_MASK,   CLUTTER_z,         cs_redo},
-  {CLUTTER_CONTROL_MASK, CLUTTER_y,         cs_redo},
-  {CLUTTER_CONTROL_MASK, CLUTTER_z,         cs_undo},
+   CLUTTER_SHIFT_MASK,   CLUTTER_z,         cs_history_redo},
+  {CLUTTER_CONTROL_MASK, CLUTTER_y,         cs_history_redo},
+  {CLUTTER_CONTROL_MASK, CLUTTER_z,         cs_history_undo},
 
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|

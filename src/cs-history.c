@@ -1,6 +1,7 @@
 #include <clutter/clutter.h>
 #include <gjs/gjs.h>
 #include <string.h>
+#include "cluttersmith.h"
 
 typedef struct HistoryItem {
   const gchar    *name;
@@ -10,30 +11,6 @@ typedef struct HistoryItem {
 
 static GList *undo_commands = NULL;
 static GList *redo_commands = NULL;
-
-static void print_undo (void)
-{
-  GList *i;
-  g_print ("undos:\n");
-  for (i = g_list_last (undo_commands);
-       i;
-       i = i->prev)
-    {
-      HistoryItem *hitem = i->data;
-      g_print ("  %s '%s' '%s'\n", hitem->name, hitem->javascript_do,
-                                                hitem->javascript_undo);
-    }
-
-  g_print ("redos:\n");
-  for (i = redo_commands;
-       i;
-       i = i->next)
-    {
-      HistoryItem *hitem = i->data;
-      g_print ("  %s '%s' '%s'\n", hitem->name, hitem->javascript_do,
-                                                hitem->javascript_undo);
-    }
-}
 
 static inline void
 item_free (HistoryItem *item)
@@ -65,6 +42,8 @@ cs_history_do (const gchar *name,
 
     g_print ("running: %s\n", hitem->javascript_do);
     js_context = gjs_context_new_with_search_path (NULL);
+    gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
+
     if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
                            "<code>", &code, &error))
       {
@@ -72,14 +51,9 @@ cs_history_do (const gchar *name,
       }
     g_object_unref (js_context);
   }
-
-  /* XXX: if no undo command was provided, a soft, application controlled git snapshot could be desirable
-   */
-
-  print_undo ();
 }
 
-void cs_undo (ClutterActor *ignored)
+void cs_history_undo (ClutterActor *ignored)
 {
   HistoryItem *hitem;
   g_print ("CS: Undo\n");
@@ -97,6 +71,7 @@ void cs_undo (ClutterActor *ignored)
 
     g_print ("running: %s\n", hitem->javascript_undo);
     js_context = gjs_context_new_with_search_path (NULL);
+    gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
     if (!gjs_context_eval (js_context, hitem->javascript_undo, strlen (hitem->javascript_undo),
                            "<code>", &code, &error))
       {
@@ -107,11 +82,9 @@ void cs_undo (ClutterActor *ignored)
 
   redo_commands = g_list_prepend (redo_commands, undo_commands->data);
   undo_commands = g_list_remove (undo_commands, redo_commands->data);
-
-  print_undo ();
 }
 
-void cs_redo (ClutterActor *ignored)
+void cs_history_redo (ClutterActor *ignored)
 {
   HistoryItem *hitem;
   g_print ("CS: Redo\n");
@@ -129,6 +102,7 @@ void cs_redo (ClutterActor *ignored)
 
     g_print ("running: %s\n", hitem->javascript_do);
     js_context = gjs_context_new_with_search_path (NULL);
+    gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
     if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
                            "<code>", &code, &error))
       {
@@ -138,6 +112,4 @@ void cs_redo (ClutterActor *ignored)
   }
   undo_commands = g_list_prepend (undo_commands, redo_commands->data);
   redo_commands = g_list_remove (redo_commands, undo_commands->data);
-
-  print_undo ();
 }
