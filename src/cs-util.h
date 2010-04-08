@@ -79,10 +79,31 @@ const gchar  * cs_get_id                           (ClutterActor *actor);
 /* initially copies value from propertyB to propertyA, afterwards it is
  * possible to reassigning a new property to either propertyA or propertyB and
  * the other property will be updated.
+ *
+ * In cluttersmith use, objectA is the editor object and objectB is the
+ * real scene graph object.
  */
 void           cs_bind (GObject     *objectA,
                         const gchar *propertyA,
                         GObject     *objectB,
                         const gchar *propertyB);
+
+void
+cs_bind_full (GObject     *objectA,
+              const gchar *propertyA,
+              GObject     *objectB,
+              const gchar *propertyB,
+              gboolean    (*a_pre_changed_callback)(GObject     *objectA,
+                                                    const gchar *propertyA,
+                                                    GObject     *objectB,
+                                                    const gchar *propertyB,
+                                                    gpointer     userdata),
+              gpointer     a_pre_changed_userdata,
+              void        (*a_post_changed_callback)(GObject    *objectA,
+                                                    const gchar *propertyA,
+                                                    GObject     *objectB,
+                                                    const gchar *propertyB,
+                                                    gpointer     userdata),
+              gpointer     a_post_changed_userdata);
 
 #endif

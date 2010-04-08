@@ -33,6 +33,16 @@ static void update_closure_free (gpointer data, GClosure *closure)
   g_free (uc);
 }
 
+static gchar *make_js_value (GValue *value)
+{
+  GValue valueS = {0,};
+  gchar *ret;
+  g_value_init (&valueS, G_TYPE_STRING);
+  g_value_transform (value, &valueS);
+  ret = g_strdup (g_value_get_string (&valueS));
+  g_value_unset (&valueS);
+  return ret;
+}
 
 static void
 update_editor_boolean (GObject       *object,
@@ -65,7 +75,71 @@ update_object_boolean (MxButton *button,
   return TRUE;
 }
 
+static gboolean
+a_pre_changed_callback (GObject     *objectA,
+                        const gchar *propertyA,
+                        GObject     *objectB,
+                        const gchar *propertyB,
+                        gpointer     userdata)
+{
+  gchar        *undo,   *redo,  *descr;
+  gchar        *js_value;
 
+  GParamSpec   *pspecA, *pspecB;
+  GObjectClass *klassA, *klassB;
+  GValue        valueA = {0, };
+  GValue        valueB = {0, };
+  GValue        valueS = {0, };
+
+  klassA = G_OBJECT_GET_CLASS (objectA);
+  pspecA = g_object_class_find_property (klassA, propertyA);
+  klassB = G_OBJECT_GET_CLASS (objectB);
+  pspecB = g_object_class_find_property (klassB, propertyB);
+
+  g_value_init (&valueB, pspecB->value_type);
+  g_value_init (&valueA, pspecA->value_type);
+  g_value_init (&valueS, G_TYPE_STRING);
+
+  g_object_get_property (objectA, propertyA, &valueA);
+  g_object_get_property (objectB, propertyB, &valueB);
+
+  js_value = make_js_value (&valueB);
+  undo = g_strdup_printf ("$('%s').%s=%s;\n", cs_get_id(CLUTTER_ACTOR (objectB)),
+                                              propertyB,
+                                              js_value);
+  g_free (js_value);
+  js_value = make_js_value (&valueA);
+  redo = g_strdup_printf ("$('%s').%s=%s;\n", cs_get_id(CLUTTER_ACTOR (objectB)),
+                                              propertyB,
+                                              js_value);
+
+  descr = g_strdup_printf ("%s.%s = %s", cs_get_id(CLUTTER_ACTOR (objectB)),
+                                         propertyB,
+                                         js_value);
+  cs_history_add (descr, redo, undo);
+
+  g_free (js_value);
+  g_free (descr);
+  g_free (redo);
+  g_free (undo);
+
+  g_value_unset (&valueS);
+  g_value_unset (&valueA);
+  g_value_unset (&valueB);
+
+  return FALSE;
+}
+
+static void
+a_post_changed_callback (GObject     *objectA,
+                         const gchar *propertyA,
+                         GObject     *objectB,
+                         const gchar *propertyB,
+                         gpointer     userdata)
+{
+  cs_dirtied ();
+  cs_prop_tweaked (objectB, propertyB);
+}
 
 
 ClutterActor *property_editor_new (GObject *object,
@@ -83,7 +157,6 @@ ClutterActor *property_editor_new (GObject *object,
       clutter_rectangle_set_color (CLUTTER_RECTANGLE (editor), &red);
       return editor;
     }
- 
 
   detailed_signal = g_strdup_printf ("notify::%s", pspec->name);
 
@@ -126,7 +199,9 @@ ClutterActor *property_editor_new (GObject *object,
       if (g_value_transform (&value, &str_value))
         {
           editor = CLUTTER_ACTOR (mx_entry_new ());
-          cs_bind (G_OBJECT (editor), "text", object, property_name);
+          cs_bind_full (G_OBJECT (editor), "text", object, property_name,
+                        a_pre_changed_callback, NULL,
+                        a_post_changed_callback, NULL);
         }
       else
         {

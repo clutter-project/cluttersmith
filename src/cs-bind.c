@@ -3,13 +3,26 @@
 
 typedef struct Binding
 {
-  gint         refs;  
-  GObject     *objectA;
-  GObject     *objectB;
-  const gchar *propertyA;
-  const gchar *propertyB;
-  gulong       A_changed_handler;
-  gulong       B_changed_handler;
+  gint          refs;  
+  GObject      *objectA;
+  GObject      *objectB;
+  const gchar  *propertyA;
+  const gchar  *propertyB;
+  gulong        A_changed_handler;
+  gulong        B_changed_handler;
+
+  gpointer      a_pre_changed_userdata;
+  gboolean    (*a_pre_changed_callback)(GObject     *objectA,
+                                        const gchar *propertyA,
+                                        GObject     *objectB,
+                                        const gchar *propertyB,
+                                        gpointer     userdata);
+  gpointer      a_post_changed_userdata;
+  void        (*a_post_changed_callback)(GObject     *objectA,
+                                         const gchar *propertyA,
+                                         GObject     *objectB,
+                                         const gchar *propertyB,
+                                         gpointer     userdata);
 } Binding;
 
 static void register_transforms (void);
@@ -46,10 +59,17 @@ cs_binding_A_changed (GObject    *objectA,
   klassB = G_OBJECT_GET_CLASS (binding->objectB);
   pspecB = g_object_class_find_property (klassB, binding->propertyB);
 
-  g_value_init (&valueB, pspecB->value_type);
+  if (binding->a_pre_changed_callback &&
+      binding->a_pre_changed_callback (binding->objectA, binding->propertyA,
+                                       binding->objectB, binding->propertyB,
+                                       binding->a_pre_changed_userdata))
+      return;
+
   g_value_init (&valueA, pspecA->value_type);
+  g_value_init (&valueB, pspecB->value_type);
 
   g_object_get_property (objectA, binding->propertyA, &valueA);
+
   if (!g_value_transform (&valueA, &valueB))
      g_warning ("failed to transform value from %s to %s",
                  g_type_name (pspecA->value_type),
@@ -64,8 +84,10 @@ cs_binding_A_changed (GObject    *objectA,
   g_value_unset (&valueA);
   g_value_unset (&valueB);
 
-  cs_dirtied ();
-  cs_prop_tweaked (binding->objectB, binding->propertyB);
+  if (binding->a_post_changed_callback)
+    binding->a_post_changed_callback (binding->objectA, binding->propertyA,
+                                      binding->objectB, binding->propertyB,
+                                      binding->a_post_changed_userdata);
 }
 
 static void
@@ -104,11 +126,11 @@ cs_binding_B_changed (GObject    *objectB,
   g_value_unset (&valueB);
 }
 
-void
-cs_bind (GObject     *objectA,
-         const gchar *propertyA,
-         GObject     *objectB,
-         const gchar *propertyB)
+static Binding *
+cs_make_binding (GObject     *objectA,
+                 const gchar *propertyA,
+                 GObject     *objectB,
+                 const gchar *propertyB)
 {
   Binding      *binding;
   gchar        *detailed_signalA;
@@ -139,6 +161,60 @@ cs_bind (GObject     *objectA,
 
   g_object_weak_ref (objectA, object_vanished, binding);
   g_object_weak_ref (objectB, object_vanished, binding);
+  return binding;
+}
+
+/* This API is far to simple, but allows 1:1 binding of
+ * gobject properties to each other.
+ *
+ * Flags:
+ *   initialize_a_from_b
+ *   propagate_a_to_b
+ *   propagate_b_to_a
+ *   propagate_both
+ *
+ * could optionally take an expression and (at least internally) take
+ * an array of object/property pairs to depend on. And re-evaluate this
+ * expression on change.
+ *
+ * Also need a way to replace/unregister such bindings, perhaps
+ * return the binding struct/object?
+ */
+
+void
+cs_bind (GObject     *objectA,
+         const gchar *propertyA,
+         GObject     *objectB,
+         const gchar *propertyB)
+{
+  Binding *binding;
+  binding = cs_make_binding (objectA, propertyA, objectB, propertyB);
+}
+
+void
+cs_bind_full (GObject     *objectA,
+              const gchar *propertyA,
+              GObject     *objectB,
+              const gchar *propertyB,
+              gboolean    (*a_pre_changed_callback)(GObject     *objectA,
+                                                    const gchar *propertyA,
+                                                    GObject     *objectB,
+                                                    const gchar *propertyB,
+                                                    gpointer     userdata),
+              gpointer     a_pre_changed_userdata,
+              void        (*a_post_changed_callback)(GObject    *objectA,
+                                                    const gchar *propertyA,
+                                                    GObject     *objectB,
+                                                    const gchar *propertyB,
+                                                    gpointer     userdata),
+              gpointer     a_post_changed_userdata)
+{
+  Binding      *binding;
+  binding = cs_make_binding (objectA, propertyA, objectB, propertyB);
+  binding->a_pre_changed_userdata = a_pre_changed_userdata;
+  binding->a_pre_changed_callback = (void*)a_pre_changed_callback;
+  binding->a_post_changed_userdata = a_post_changed_userdata;
+  binding->a_post_changed_callback = (void*)a_post_changed_callback;
 }
 
 static void cs_string_to_double (const GValue *src_value,
@@ -191,6 +267,11 @@ register_transforms (void)
   static gboolean done = FALSE;
   if (done)
     return;
+
+  /* These transforms are used in a last come dictates serving order
+   * by glib.
+   */
+
   done = TRUE;
 
   g_value_register_transform_func (G_TYPE_FLOAT, G_TYPE_STRING,
