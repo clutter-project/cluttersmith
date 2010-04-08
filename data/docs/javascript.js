@@ -31,8 +31,7 @@ $("rectangle").opacity = 100;
 $("rectangle").rotation_angle_y = 40;
 
                        
-
-let stage = ClutterSmith.get_stage ();
+let stage = CS.get_stage ();
 
 for (var y=0; y < stage.height/50; y++)
   for (var x=0; x < stage.width/50; x++)

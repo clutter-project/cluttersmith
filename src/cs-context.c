@@ -639,7 +639,7 @@ void cluttersmith_init (void)
   g_print ("initializing\n");
 
   cluttersmith = cs_context_new ();
-  clutter_script_load_from_data (script, "{'id':'actor','type':'ClutterGroup','children':[{'id':'fake-stage','type':'ClutterGroup'},{'id':'parasite-root','type':'ClutterGroup'},{'id':'title','opacity':1,'type':'MxEntry','signals': [ {'name':'paint', 'handler':'search_entry_init_hack'} ]},{'id':'project-root','type':'MxEntry','opacity':1,'y':50,'signals': [ {'name':'paint', 'handler':'project_root_init_hack'} ]}]}", -1, NULL);
+  clutter_script_load_from_data (script, "{'id':'actor','type':'ClutterGroup','children':[{'id':'fake-stage','type':'ClutterGroup'},{'id':'parasite-root','type':'ClutterGroup'},{'id':'cs-project-title','opacity':1,'type':'MxEntry','signals': [ {'name':'paint', 'handler':'project_title_init_hack'} ]},{'id':'project-root','type':'MxEntry','opacity':1,'y':50 }]}", -1, NULL);
 
   stage = clutter_stage_get_default();
   actor = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
@@ -650,6 +650,7 @@ void cluttersmith_init (void)
   cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
   /* initializing globals */
 
+  /* this is the main initialization */
   g_signal_connect (stage, "captured-event", G_CALLBACK (runtime_capture), NULL);
 
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
