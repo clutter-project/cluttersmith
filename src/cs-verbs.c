@@ -204,23 +204,6 @@ void cs_quit (ClutterActor *ignored)
   clutter_main_quit ();
 }
 
-void cs_focus_title (ClutterActor *ignored)
-{
-  ClutterActor *entry;
-  entry = mx_entry_get_clutter_text (MX_ENTRY (cs_find_by_id_int (cluttersmith->parasite_root, "cs-scene-title")));
-  g_assert (entry);
-  if (entry)
-    {
-      clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (entry)), entry);
-
-      clutter_actor_show(cluttersmith->dialog_toolbar);
-      clutter_actor_queue_relayout (cluttersmith->dialog_toolbar);
-      clutter_actor_queue_relayout (clutter_actor_get_parent (cluttersmith->dialog_toolbar));
-      cs_sync_chrome ();
-      clutter_actor_queue_redraw (cluttersmith->dialog_toolbar);
-    }
-}
-
 void cs_select_none (ClutterActor *ignored)
 {
   cs_selected_clear ();
@@ -739,7 +722,6 @@ static KeyBinding keybindings[]={
   {CLUTTER_CONTROL_MASK, CLUTTER_c,         cs_copy},
   {CLUTTER_CONTROL_MASK, CLUTTER_v,         cs_paste},
   {CLUTTER_CONTROL_MASK, CLUTTER_d,         cs_duplicate},
-  {CLUTTER_CONTROL_MASK, CLUTTER_l,         cs_focus_title},
 
   /* check for the more specific modifier state before the more generic ones */
   {CLUTTER_CONTROL_MASK|
