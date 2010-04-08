@@ -20,10 +20,11 @@ item_free (HistoryItem *item)
   g_free (item);
 }
 
+
 void
-cs_history_do (const gchar *name,
-               const gchar *javascript_do,
-               const gchar *javascript_undo)
+cs_history_add (const gchar *name,
+                const gchar *javascript_do,
+                const gchar *javascript_undo)
 {
   HistoryItem *hitem = g_new0 (HistoryItem, 1);
   hitem->name = g_intern_string (name);
@@ -34,6 +35,16 @@ cs_history_do (const gchar *name,
   /* empty redo list */
   for (;redo_commands;redo_commands = g_list_remove (redo_commands, redo_commands->data))
     item_free (redo_commands->data);
+}
+
+void
+cs_history_do (const gchar *name,
+               const gchar *javascript_do,
+               const gchar *javascript_undo)
+{
+  HistoryItem *hitem;
+  cs_history_add (name, javascript_do, javascript_undo);
+  hitem = undo_commands->data;
 
   {
     GjsContext *js_context;
