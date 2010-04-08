@@ -1,9 +1,9 @@
 #include "cluttersmith.h"
 #include <glib/gprintf.h>
 
-
 typedef struct Binding
 {
+  gint         refs;  
   GObject     *objectA;
   GObject     *objectB;
   const gchar *propertyA;
@@ -14,39 +14,18 @@ typedef struct Binding
 
 static void register_transforms (void);
 
-static void objectBvanished (gpointer data,
-                             GObject *where_the_object_was);
-
-static void objectAvanished (gpointer data,
+static void object_vanished (gpointer data,
                              GObject *where_the_object_was)
 {
   Binding *binding = data;
-  binding->objectA = NULL;
-  if (binding->objectB)
-    {
-      if (binding->B_changed_handler)
-        g_signal_handler_disconnect (binding->objectB, binding->B_changed_handler);
-      g_object_weak_unref (binding->objectB, objectBvanished, binding);
-      binding->B_changed_handler = 0;
-      binding->objectB = NULL;
-    }
-  g_free (binding);
-}
+  binding->refs --;
+  if (binding->refs == 0)
+    g_free (binding);
 
-static void objectBvanished (gpointer data,
-                             GObject *where_the_object_was)
-{
-  Binding *binding = data;
-  binding->objectB = NULL;
-  if (binding->objectA)
-    {
-      if (binding->A_changed_handler)
-        g_signal_handler_disconnect (binding->objectA, binding->A_changed_handler);
-      g_object_weak_unref (binding->objectA, objectBvanished, binding);
-      binding->A_changed_handler = 0;
-      binding->objectA = NULL;
-    }
-  g_free (binding);
+  /* With this memory management, we will leak inert bindings
+   * for all generated properties when the selection changes
+   * in cluttersmith, these leaks are cleared on scene changes
+   */
 }
 
 static void
@@ -59,7 +38,7 @@ cs_binding_A_changed (GObject    *objectA,
   GValue        valueA = {0, };
   GValue        valueB = {0, };
 
-  if (!binding->objectA || !binding->objectB)
+  if (binding->refs != 2)
     return;
 
   klassA = G_OBJECT_GET_CLASS (binding->objectA);
@@ -77,16 +56,9 @@ cs_binding_A_changed (GObject    *objectA,
                  g_type_name (pspecB->value_type));
   else
     {
-      if (binding->B_changed_handler)
-        {
-          g_signal_handler_block (binding->objectB, binding->B_changed_handler);
-          g_object_set_property (binding->objectB, binding->propertyB, &valueB);
-          g_signal_handler_unblock (binding->objectB, binding->B_changed_handler);
-        }
-       else
-        {
-          g_object_set_property (binding->objectB, binding->propertyB, &valueB);
-        }
+      g_signal_handler_block (binding->objectB, binding->B_changed_handler);
+      g_object_set_property (binding->objectB, binding->propertyB, &valueB);
+      g_signal_handler_unblock (binding->objectB, binding->B_changed_handler);
     }
 
   g_value_unset (&valueA);
@@ -95,7 +67,6 @@ cs_binding_A_changed (GObject    *objectA,
   cs_dirtied ();
   cs_prop_tweaked (binding->objectB, binding->propertyB);
 }
-
 
 static void
 cs_binding_B_changed (GObject    *objectB,
@@ -107,7 +78,7 @@ cs_binding_B_changed (GObject    *objectB,
   GValue        valueA = {0, };
   GValue        valueB = {0, };
 
-  if (!binding->objectA || !binding->objectB)
+  if (binding->refs!=2)
     return;
 
   klassA = G_OBJECT_GET_CLASS (binding->objectA);
@@ -125,16 +96,9 @@ cs_binding_B_changed (GObject    *objectB,
                  g_type_name (pspecA->value_type));
   else
     {
-      if (binding->A_changed_handler)
-        {
-          g_signal_handler_block (binding->objectA, binding->A_changed_handler);
-          g_object_set_property (binding->objectA, binding->propertyA, &valueA);
-          g_signal_handler_unblock (binding->objectA, binding->A_changed_handler);
-        }
-       else
-        {
-          g_object_set_property (binding->objectA, binding->propertyA, &valueA);
-        }
+      g_signal_handler_block (binding->objectA, binding->A_changed_handler);
+      g_object_set_property (binding->objectA, binding->propertyA, &valueA);
+      g_signal_handler_unblock (binding->objectA, binding->A_changed_handler);
     }
   g_value_unset (&valueA);
   g_value_unset (&valueB);
@@ -153,6 +117,7 @@ cs_bind (GObject     *objectA,
   register_transforms ();
 
   binding = g_new0 (Binding, 1);
+  binding->refs = 2;
   binding->objectA = objectA;
   binding->objectB = objectB;
   binding->propertyA = g_intern_string (propertyA);
@@ -162,33 +127,32 @@ cs_bind (GObject     *objectA,
   detailed_signalB = g_strdup_printf ("notify::%s", propertyB);
 
   binding->A_changed_handler = g_signal_connect (objectA, detailed_signalA,
-                                                 G_CALLBACK (cs_binding_A_changed), binding);
+                                             G_CALLBACK (cs_binding_A_changed),
+                                             binding);
   binding->B_changed_handler = g_signal_connect (objectB, detailed_signalB,
-                                                 G_CALLBACK (cs_binding_B_changed),
-                                                 binding);
-  /* the binding is currently freed when the B object is destroyed, it is made inert if the
-   * A object disappears
-   */
-
+                                             G_CALLBACK (cs_binding_B_changed),
+                                             binding);
   g_free (detailed_signalA);
   g_free (detailed_signalB);
 
   cs_binding_B_changed (objectB, NULL, binding);
 
-  g_object_weak_ref (objectA, objectAvanished, binding);
-  g_object_weak_ref (objectB, objectBvanished, binding);
+  g_object_weak_ref (objectA, object_vanished, binding);
+  g_object_weak_ref (objectB, object_vanished, binding);
 }
 
 static void cs_string_to_double (const GValue *src_value,
                                  GValue       *dest_value)
 {
-  g_value_set_double (dest_value, g_strtod (g_value_get_string (src_value), NULL));
+  g_value_set_double (dest_value,
+                      g_strtod (g_value_get_string (src_value), NULL));
 }
 
 static void cs_string_to_float (const GValue *src_value,
                                 GValue       *dest_value)
 {
-  g_value_set_float (dest_value, g_strtod (g_value_get_string (src_value), NULL));
+  g_value_set_float (dest_value,
+                     g_strtod (g_value_get_string (src_value), NULL));
 }
 
 static void cs_float_to_string (const GValue *src_value,
@@ -210,13 +174,15 @@ static void cs_double_to_string (const GValue *src_value,
 static void cs_string_to_int (const GValue *src_value,
                               GValue       *dest_value)
 {
-  g_value_set_int (dest_value, g_strtod (g_value_get_string (src_value), NULL));
+  g_value_set_int (dest_value,
+                   g_strtod (g_value_get_string (src_value), NULL));
 }
 
 static void cs_string_to_uint (const GValue *src_value,
                                GValue       *dest_value)
 {
-  g_value_set_uint (dest_value, g_strtod (g_value_get_string (src_value), NULL));
+  g_value_set_uint (dest_value,
+                    g_strtod (g_value_get_string (src_value), NULL));
 }
 
 static void
@@ -227,10 +193,16 @@ register_transforms (void)
     return;
   done = TRUE;
 
-  g_value_register_transform_func (G_TYPE_FLOAT, G_TYPE_STRING, cs_float_to_string);
-  g_value_register_transform_func (G_TYPE_DOUBLE, G_TYPE_STRING, cs_double_to_string);
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_FLOAT, cs_string_to_float);
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_DOUBLE, cs_string_to_double);
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_INT, cs_string_to_int);
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_UINT, cs_string_to_uint);
+  g_value_register_transform_func (G_TYPE_FLOAT, G_TYPE_STRING,
+                                   cs_float_to_string);
+  g_value_register_transform_func (G_TYPE_DOUBLE, G_TYPE_STRING,
+                                   cs_double_to_string);
+  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_FLOAT,
+                                   cs_string_to_float);
+  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_DOUBLE,
+                                   cs_string_to_double);
+  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_INT,
+                                   cs_string_to_int);
+  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_UINT,
+                                   cs_string_to_uint);
 }
