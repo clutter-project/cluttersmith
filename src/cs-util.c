@@ -1281,3 +1281,15 @@ again:
   g_string_free (str, TRUE);
 }
 
+const gchar *
+cs_get_id (ClutterActor *actor)
+{
+  const gchar *id;
+  id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
+  if (!id || g_str_has_prefix (id, "script-"))
+    {
+      cs_actor_make_id_unique (actor, G_OBJECT_TYPE_NAME (actor));
+      id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (actor));
+    }
+  return id;
+}

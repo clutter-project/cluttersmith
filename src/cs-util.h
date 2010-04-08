@@ -74,6 +74,8 @@ void           cluttersmith_print                  (gchar *a);
 void           cs_actor_make_id_unique             (ClutterActor *actor,
                                                     const gchar  *stem);
 
+const gchar  * cs_get_id                           (ClutterActor *actor);
+
 /* initially copies value from propertyB to propertyA, afterwards it is
  * possible to reassigning a new property to either propertyA or propertyB and
  * the other property will be updated.

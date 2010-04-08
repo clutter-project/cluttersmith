@@ -7,7 +7,6 @@
 
 static GList *clipboard = NULL;
 
-
 static void each_duplicate (ClutterActor *actor,
                             GList        **new)
 {
@@ -442,40 +441,29 @@ static void select_nearest (gboolean vertical,
     }
 }
 
-static void select_left (void)
-{
-  select_nearest (FALSE, TRUE);
-}
-
 void
 cs_keynav_left (ClutterActor *ignored)
 {
-  select_left ();
-  cs_history_do ("left", "go left", "go right");
+  select_nearest (FALSE, TRUE);
 }
 
 void
 cs_keynav_right (ClutterActor *ignored)
 {
   select_nearest (FALSE, FALSE);
-  cs_history_do ("right", "go right", "go left");
 }
 
 void
 cs_keynav_up (ClutterActor *ignored)
 {
   select_nearest (TRUE, TRUE);
-  cs_history_do ("up", "go up", "go down");
 }
 
 void
 cs_keynav_down (ClutterActor *ignored)
 {
   select_nearest (TRUE, FALSE);
-  cs_history_do ("down", "go down", "go up");
 }
-
-
 
 
 void

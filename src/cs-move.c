@@ -14,6 +14,8 @@ static gint hor_pos = 0; /* 1 = start 2 = mid 3 = end */
 static gfloat manipulate_x;
 static gfloat manipulate_y;
 
+static GString *undo = NULL;
+static GString *redo = NULL;
 
 /* snap the provided position of an object according
  * to its siblings.
@@ -192,6 +194,25 @@ static void each_move (ClutterActor *actor,
   clutter_actor_set_position (actor, x, y);
 }
 
+
+static void
+selection_to_position_commands (GString *string)
+{
+  GList *s, *selected;
+
+  selected = cs_selected_get_list ();
+  for (s = selected; s; s = s->next)
+    {
+      ClutterActor *actor = s->data;
+      gfloat x, y;
+      clutter_actor_get_position (actor, &x, &y);
+      g_string_append_printf (string, "$('%s').x = %f; $('%s').y = %f;\n",
+                              cs_get_id (actor), x,
+                              cs_get_id (actor), y);
+    }
+  g_list_free (selected);
+}
+
 static gboolean
 manipulate_move_capture (ClutterActor *stage,
                          ClutterEvent *event,
@@ -227,9 +248,6 @@ manipulate_move_capture (ClutterActor *stage,
                 cs_selected_foreach (G_CALLBACK (each_move), &delta[0]);
               }
           }
-          cs_dirtied ();
-
-
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
@@ -240,6 +258,14 @@ manipulate_move_capture (ClutterActor *stage,
         g_signal_handlers_disconnect_by_func (stage, manipulate_move_capture, data);
         hor_pos = 0;
         ver_pos = 0;
+
+        selection_to_position_commands (redo);
+        cs_history_add ("move actors", redo->str, undo->str);
+        g_string_free (undo, TRUE);
+        g_string_free (redo, TRUE);
+        undo = redo = NULL;
+           
+        cs_dirtied ();
 
         clutter_actor_queue_redraw (stage);
       default:
@@ -253,6 +279,11 @@ gboolean cs_move_start (ClutterActor  *actor,
 {
   manipulate_x = event->button.x;
   manipulate_y = event->button.y;
+
+  undo = g_string_new ("");
+  redo = g_string_new ("");
+
+  selection_to_position_commands (undo);
 
   g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                     G_CALLBACK (manipulate_move_capture), actor);
