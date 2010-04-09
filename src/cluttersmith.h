@@ -31,7 +31,6 @@ void cs_actor_editing_init (gpointer stage);
 void   cluttersmith_set_project_root (const gchar *new_root);
 gchar *cs_get_project_root (void);
 
-void cluttersmith_load_scene (const gchar *new_title);
 void cs_set_active (ClutterActor *item);
 ClutterActor *cs_get_active (void);
 
@@ -68,7 +67,7 @@ ClutterActor *cs_selected_get_any (void);
 
 void previews_reload (ClutterActor *actor);
 char * cs_make_config_file (const char *filename);
-
+void cluttersmith_load_scene (const gchar *new_title);
 
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);
@@ -131,4 +130,5 @@ gboolean cs_resize_start (ClutterActor  *actor,
 #define SNAP_THRESHOLD  2
 
 extern gint cs_set_keys_freeze; /* XXX: global! */
+gchar *cs_json_escape_string (const gchar *in);
 #endif

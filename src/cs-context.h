@@ -128,6 +128,9 @@ CSContext *cs_context_new (void);
 void cs_set_current_animator (ClutterAnimator *animator);
 ClutterTimeline *cluttersmith_animator_start (const gchar *animator);
 
+void cs_context_set_scene (CSContext   *cs_context,
+                           const gchar *scene);
+
 G_END_DECLS
 
 #endif /* _CS_CONTEXT_H */

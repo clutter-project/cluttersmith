@@ -14,7 +14,7 @@ static gboolean cs_filter_properties = TRUE;
 
 #define INDENT {gint j;for (j=0;j<*indentation;j++) g_string_append_c (str, ' ');}
 
-static gchar *escape_string (const gchar *in)
+gchar *cs_json_escape_string (const gchar *in)
 {
   GString *str = g_string_new ("");
   const gchar *p;
@@ -26,13 +26,14 @@ static gchar *escape_string (const gchar *in)
         g_string_append (str, "\\\"");
       else
         g_string_append_c (str, *p);
-
     }
 
   ret = str->str;
   g_string_free (str, FALSE);
   return ret;
 }
+
+
 
 static void
 properties_to_string (GString      *str,
@@ -158,7 +159,7 @@ properties_to_string (GString      *str,
             g_object_get (actor, properties[i]->name, &value, NULL);
             if (value)
               {
-                gchar *escaped = escape_string (value);
+                gchar *escaped = cs_json_escape_string (value);
                 g_string_append_printf (str, ",\n");
                 INDENT;g_string_append_printf (str,"\"%s\":\"%s\"",
                                                properties[i]->name, escaped);
@@ -329,7 +330,7 @@ properties_to_string (GString      *str,
             g_object_get (child_meta, child_properties[i]->name, &value, NULL);
             if (value)
               {
-                gchar *escaped = escape_string (value);
+                gchar *escaped = cs_json_escape_string (value);
                 g_string_append_printf (str, ",\n");
                 INDENT;g_string_append_printf (str,"\"child::%s\":\"%s\"",
                                                child_properties[i]->name, escaped);

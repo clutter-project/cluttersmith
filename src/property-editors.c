@@ -33,7 +33,8 @@ static void update_closure_free (gpointer data, GClosure *closure)
   g_free (uc);
 }
 
-static gchar *make_js_value (GValue *value)
+static gchar *make_js_value (GValue *value,
+                             GType   real_type)
 {
   GValue valueS = {0,};
   gchar *ret;
@@ -103,12 +104,12 @@ a_pre_changed_callback (GObject     *objectA,
   g_object_get_property (objectA, propertyA, &valueA);
   g_object_get_property (objectB, propertyB, &valueB);
 
-  js_value = make_js_value (&valueB);
+  js_value = make_js_value (&valueB, pspecB->value_type);
   undo = g_strdup_printf ("$('%s').%s=%s;\n", cs_get_id(CLUTTER_ACTOR (objectB)),
                                               propertyB,
                                               js_value);
   g_free (js_value);
-  js_value = make_js_value (&valueA);
+  js_value = make_js_value (&valueA, pspecB->value_type);
   redo = g_strdup_printf ("$('%s').%s=%s;\n", cs_get_id(CLUTTER_ACTOR (objectB)),
                                               propertyB,
                                               js_value);

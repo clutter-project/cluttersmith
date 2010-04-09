@@ -25,6 +25,7 @@ enum
   PROP_ORIGIN_Y,
   PROP_CANVAS_WIDTH,
   PROP_CANVAS_HEIGHT,
+  PROP_SCENE,
 };
 
 struct _CSContextPrivate
@@ -49,7 +50,6 @@ static void cs_context_set_property (GObject      *object,
                                      GParamSpec   *pspec);
 
 static void project_root_text_changed (ClutterActor *actor);
-static void title_text_changed (ClutterActor *actor);
 static void animation_name_changed (ClutterActor *actor);
 
 static void
@@ -538,21 +538,63 @@ cs_context_set_property (GObject      *object,
     }
 }
 
-/**
- * cluttersmith_load_scene:
- * @new_title: new scene
- */
-void cluttersmith_load_scene (const gchar *new_title)
+/* XXX: evil global */
+static gchar *filename = NULL;
+
+const gchar *cs_context_get_scene (CSContext *context)
 {
-  if (cluttersmith->scene_title)
+  return context->priv->title;
+}
+
+void cs_context_set_scene (CSContext   *context,
+                           const gchar *new_title)
+{
+  g_print ("set_scene %s\n", new_title);
+
+  if (context->scene_title)
     {
-      g_object_set (cluttersmith->scene_title, "text", new_title, NULL);
+      g_object_set (context->scene_title, "text", new_title, NULL);
     }
   else
     {
     }
+
+  cs_save (FALSE);
+  if (context->priv->title)
+    g_free (context->priv->title);
+
+  context->priv->title = g_strdup (new_title);
+  filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
+                              new_title);
+
+  if (!(context->ui_mode & CS_UI_MODE_EDIT))
+    page_run_end ();
+
+  cs_load ();
+  cs_sync_chrome_idle (NULL);
+  cs_selected_clear ();
+
+  if (!(context->ui_mode & CS_UI_MODE_EDIT))
+    page_run_start ();
 }
 
+
+/**
+ * cluttersmith_set_scene:
+ * @new_title: new scene
+ */
+void cluttersmith_load_scene (const gchar *new_title)
+{
+  cs_context_set_scene (cluttersmith, new_title);
+}
+
+/**
+ * cluttersmith_get_scene:
+ */
+const gchar *cluttersmith_current_scene (void)
+{
+  return cs_context_get_scene (cluttersmith);
+}
 
 /**
  * cluttersmith_animator_start:
@@ -788,9 +830,6 @@ gboolean idle_add_stage (gpointer stage)
 
    g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->animation_name)), "text-changed",
                      G_CALLBACK (animation_name_changed), NULL);
-
-   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->scene_title)), "text-changed",
-                     G_CALLBACK (title_text_changed), NULL);
 
    g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->project_root_entry)), "text-changed",
                      G_CALLBACK (project_root_text_changed), NULL);
@@ -1192,7 +1231,6 @@ void cs_set_active (ClutterActor *item)
 }
 
 
-static gchar *filename = NULL;
 
 void cs_save (gboolean force)
 {
@@ -1614,29 +1652,6 @@ static void animation_name_changed (ClutterActor *actor)
   cs_set_current_animator (animator);
 }
 
-static void title_text_changed (ClutterActor *actor)
-{
-  const gchar *title = clutter_text_get_text (CLUTTER_TEXT (actor));
-  
-  cs_save (FALSE);
-  if (cluttersmith->priv->title)
-    g_free (cluttersmith->priv->title);
-  cluttersmith->priv->title = g_strdup (title);
-
-
-  filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
-                              title);
-
-  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
-    page_run_end ();
-
-  cs_load ();
-  cs_sync_chrome_idle (NULL);
-  cs_selected_clear ();
-
-  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
-    page_run_start ();
-}
 
 char *
 cs_make_config_file (const char *filename)
