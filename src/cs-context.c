@@ -1413,9 +1413,9 @@ static void remove_state_machines (void)
 
 static void cs_load (void)
 {
-  cs_container_remove_children (cluttersmith->fake_stage);
   cs_container_remove_children (cluttersmith->property_editors);
   cs_container_remove_children (cluttersmith->scene_graph);
+  cs_container_remove_children (cluttersmith->fake_stage);
   remove_state_machines ();
 
 
