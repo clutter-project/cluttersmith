@@ -92,6 +92,9 @@ cs_context_class_init (CSContextClass *klass)
   pspec = g_param_spec_float ("origin-y", "origin Y", "origin Y coordinate", -20000, 20000, 0, G_PARAM_READWRITE|G_PARAM_CONSTRUCT);
   g_object_class_install_property (object_class, PROP_ORIGIN_Y, pspec);
 
+  pspec = g_param_spec_string ("scene", "Scene", "current scene", "", G_PARAM_READWRITE);
+  g_object_class_install_property (object_class, PROP_SCENE, pspec);
+
   pspec = g_param_spec_boolean ("fullscreen", "Fullscreen", "fullscreen", FALSE, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_FULLSCREEN, pspec);
 
@@ -467,6 +470,9 @@ cs_context_get_property (GObject    *object,
   CSContextPrivate *priv = context->priv;
   switch (property_id)
     {
+      case PROP_SCENE:
+        g_value_set_string (value, context->priv->title);
+        break;
       case PROP_ZOOM:
         g_value_set_float (value, priv->zoom);
         break;
@@ -505,6 +511,9 @@ cs_context_set_property (GObject      *object,
   CSContextPrivate *priv = context->priv;
   switch (property_id)
     {
+      case PROP_SCENE:
+        cs_context_set_scene (context, g_value_get_string (value));
+        break;
       case PROP_ZOOM:
         priv->zoom = g_value_get_float (value);
         cs_sync_chrome_idle (NULL);
@@ -576,8 +585,9 @@ void cs_context_set_scene (CSContext   *context,
 
   if (!(context->ui_mode & CS_UI_MODE_EDIT))
     page_run_start ();
-}
 
+  g_object_notify (G_OBJECT (context), "scene");
+}
 
 /**
  * cluttersmith_set_scene:
@@ -1417,7 +1427,6 @@ static void cs_load (void)
   cs_container_remove_children (cluttersmith->scene_graph);
   cs_container_remove_children (cluttersmith->fake_stage);
   remove_state_machines ();
-
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
