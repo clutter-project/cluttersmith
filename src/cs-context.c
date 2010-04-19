@@ -558,7 +558,6 @@ const gchar *cs_context_get_scene (CSContext *context)
 void cs_context_set_scene (CSContext   *context,
                            const gchar *new_title)
 {
-  g_print ("set_scene %s\n", new_title);
 
   if (context->scene_title)
     {
@@ -595,7 +594,21 @@ void cs_context_set_scene (CSContext   *context,
  */
 void cluttersmith_load_scene (const gchar *new_title)
 {
-  cs_context_set_scene (cluttersmith, new_title);
+  gchar *undo, *redo;
+  redo = g_strdup_printf ("CS.context().scene='%s'", new_title);
+  undo = g_strdup_printf ("CS.context().scene='%s'", cluttersmith->priv->title);
+  cs_history_do ("change scene", redo, undo);
+  g_free (undo);
+  g_free (redo);
+}
+
+/**
+ * cluttersmith_context:
+ * Return value: (transfer none): the clurresmith context.
+ */
+CSContext *cluttersmith_context (void)
+{
+  return cluttersmith;
 }
 
 /**
@@ -798,11 +811,6 @@ gboolean idle_add_stage (gpointer stage)
    }
 
 #define _A(actorname)  CLUTTER_ACTOR (clutter_script_get_object (script, actorname))
-
-   /* Should perhaps replace all occurances of this with the macro, it
-    * makes the code a bit smaller and more maintainable since the mappings
-    * from names to struct items wouldn't have to be maintained anymore
-    */
 
    cluttersmith->fake_stage_canvas = _A("fake-stage-canvas");
    cluttersmith->project_root_entry = _A("project-root");

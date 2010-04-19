@@ -13,6 +13,8 @@ static gint hor_pos = 0; /* 1 = start 2 = mid 3 = end */
  */
 static gfloat manipulate_x;
 static gfloat manipulate_y;
+static gfloat start_x;
+static gfloat start_y;
 
 static GString *undo = NULL;
 static GString *redo = NULL;
@@ -260,7 +262,9 @@ manipulate_move_capture (ClutterActor *stage,
         ver_pos = 0;
 
         selection_to_position_commands (redo);
-        cs_history_add ("move actors", redo->str, undo->str);
+        if (start_x != manipulate_x
+            || start_y != manipulate_y)
+          cs_history_add ("move actors", redo->str, undo->str);
         g_string_free (undo, TRUE);
         g_string_free (redo, TRUE);
         undo = redo = NULL;
@@ -277,8 +281,8 @@ manipulate_move_capture (ClutterActor *stage,
 gboolean cs_move_start (ClutterActor  *actor,
                         ClutterEvent  *event)
 {
-  manipulate_x = event->button.x;
-  manipulate_y = event->button.y;
+  start_x = manipulate_x = event->button.x;
+  start_y = manipulate_y = event->button.y;
 
   undo = g_string_new ("");
   redo = g_string_new ("");
