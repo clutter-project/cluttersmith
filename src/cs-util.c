@@ -1293,3 +1293,25 @@ cs_get_id (ClutterActor *actor)
     }
   return id;
 }
+
+
+void cs_draw_actor_outline (ClutterActor *actor,
+                            gpointer      data)
+{
+  ClutterVertex verts[4];
+  clutter_actor_get_abs_allocation_vertices (actor,
+                                             verts);
+
+  {
+    {
+      gfloat coords[]={ verts[0].x, verts[0].y, 
+         verts[1].x, verts[1].y, 
+         verts[3].x, verts[3].y, 
+         verts[2].x, verts[2].y, 
+         verts[0].x, verts[0].y };
+
+      cogl_path_polyline (coords, 5);
+      cogl_path_stroke ();
+    }
+  }
+}

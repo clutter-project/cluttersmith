@@ -203,21 +203,41 @@ void cs_quit (ClutterActor *ignored)
   clutter_main_quit ();
 }
 
+/* This is the side effect tiny one, the other should have 
+ * a more detailed name about its side effect
+ */
+static void each_add_to_list (ClutterActor *actor,
+                               gpointer      string)
+{
+  g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
+}
+
 void cs_select_none (ClutterActor *ignored)
 {
-  cs_selected_clear ();
+  GString *undo = g_string_new ("");
+  GString *redo = g_string_new ("CS.cs_selected_clear();\n");
+  g_string_append_printf (undo, "var list=[");
+
+  cs_selected_foreach (G_CALLBACK (each_add_to_list), undo);
+  g_string_append_printf (undo, "];\n"
+                          "for (x in list) CS.cs_selected_add (list[x]);\n");
+
+  cs_history_do ("select none", redo->str, undo->str);
+  g_string_free (undo, TRUE);
+  g_string_free (redo, TRUE);
 }
+
 
 void cs_select_all (ClutterActor *ignored)
 {
   GList *l, *list;
+SELECT_ACTION_PRE();
   cs_selected_clear ();
   list = clutter_container_get_children (CLUTTER_CONTAINER (cs_get_current_container()));
   for (l=list; l;l=l->next)
-    {
-      cs_selected_add (l->data);
-    }
+    cs_selected_add (l->data);
   g_list_free (list);
+SELECT_ACTION_POST("select-all");
 }
 
 void cs_view_reset (ClutterActor *ignored)
@@ -246,8 +266,8 @@ static void each_group (ClutterActor *actor,
 }
 
 
-static void each_add_to_list (ClutterActor *actor,
-                              gpointer      string)
+static void each_add_to_list_check_bound (ClutterActor *actor,
+                                          gpointer      string)
 {
   gfloat x, y;
   g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
@@ -266,6 +286,11 @@ static void each_group_move (ClutterActor *actor,
   clutter_actor_set_position (actor, x-delta[0], y-delta[1]);
 }
 
+
+/* If the selection is also governed by undo/redo it sould be
+ * possible to rely on only the javascript implementation of
+ * group/ungroup and get rid of the C one.
+ */
 ClutterActor *cs_group (ClutterActor *ignored)
 {
   ClutterActor *parent;
@@ -276,10 +301,6 @@ ClutterActor *cs_group (ClutterActor *ignored)
 
   parent = cs_get_current_container ();
 
-  /* we cannot entirely rely on side effects of the javascript alone
-   * since the selection is unaffected by undo (this is perhaps wrong, and only
-   * the clipboard itself should be unaffected?)
-   */
   min_x = 2000000.0;
   min_y = 2000000.0;
 
@@ -287,7 +308,7 @@ ClutterActor *cs_group (ClutterActor *ignored)
                               "var group = new Clutter.Group ();\n"
                               "parent.add_actor (group);\n"
                               "var list = [", cs_get_id (parent));
-  cs_selected_foreach (G_CALLBACK (each_add_to_list), redo);
+  cs_selected_foreach (G_CALLBACK (each_add_to_list_check_bound), redo);
   g_string_append_printf (redo, "];\n"
                               "for (x in list) {\n"
                               "  let item = list[x];\n"
@@ -303,9 +324,6 @@ ClutterActor *cs_group (ClutterActor *ignored)
 
   group = clutter_group_new ();
   cs_get_id (group); /* force creation of a unique name */
-  /* find upper left item,. and place group there,.. reposition children to
-   * fit this
-   */
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), group);
   /* get add_parent */
   /* create group */

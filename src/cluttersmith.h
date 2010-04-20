@@ -63,6 +63,11 @@ gpointer cs_selected_match     (GCallback     match_fun,
                                           gpointer      data);
 ClutterActor *cs_selected_get_any (void);
 
+gboolean cs_selected_lasso_start (ClutterActor  *actor,
+                                 ClutterEvent  *event);
+
+void cs_selected_paint (void);
+extern ClutterActor      *lasso; /* XXX: global */
 /*****/
 
 void previews_reload (ClutterActor *actor);
@@ -131,4 +136,29 @@ gboolean cs_resize_start (ClutterActor  *actor,
 
 extern gint cs_set_keys_freeze; /* XXX: global! */
 gchar *cs_json_escape_string (const gchar *in);
+
+
+/* these are defined here to allow sharing among .c
+ * files
+ */
+#define SELECT_ACTION_PRE() \
+  GString *undo = g_string_new ("");\
+  GString *redo = g_string_new ("CS.cs_selected_clear();\n");\
+  g_string_append_printf (undo, "var list=[");\
+  cs_selected_foreach (G_CALLBACK (each_add_to_list), undo);\
+  g_string_append_printf (undo, "];\n"\
+                          "CS.cs_selected_clear();\n"\
+                          "for (x in list) CS.cs_selected_add (list[x]);\n");
+
+#define SELECT_ACTION_POST(action_name) \
+  g_string_append_printf (redo, "var list=[");\
+  cs_selected_foreach (G_CALLBACK (each_add_to_list), redo);\
+  g_string_append_printf (redo, "];\n"\
+                          "CS.cs_selected_clear();\n"\
+                          "for (x in list) CS.cs_selected_add (list[x]);\n");\
+  cs_history_add (action_name, redo->str, undo->str);\
+  g_string_free (undo, TRUE);\
+  g_string_free (redo, TRUE);\
+
+
 #endif

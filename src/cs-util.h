@@ -48,6 +48,8 @@ ClutterActor  *cs_duplicator                       (ClutterActor *actor,
                                                     ClutterActor *parent);
 
 
+void cs_draw_actor_outline (ClutterActor *actor,
+                            gpointer      data);
 
 ClutterActor  *cs_show                             (const gchar  *name);
 ClutterActor  *cs_load_json                        (const gchar  *name);
