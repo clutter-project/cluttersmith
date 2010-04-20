@@ -32,6 +32,8 @@ cs_history_add (const gchar *name,
   hitem->javascript_undo = g_strdup (javascript_undo);
   undo_commands = g_list_prepend (undo_commands, hitem);
 
+  g_print ("%s: %s\n", name, javascript_do);
+
   /* empty redo list */
   for (;redo_commands;redo_commands = g_list_remove (redo_commands, redo_commands->data))
     item_free (redo_commands->data);

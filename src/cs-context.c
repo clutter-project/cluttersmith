@@ -589,7 +589,7 @@ void cs_context_set_scene (CSContext   *context,
 }
 
 /**
- * cluttersmith_set_scene:
+ * cluttersmith_load_scene:
  * @new_title: new scene
  */
 void cluttersmith_load_scene (const gchar *new_title)

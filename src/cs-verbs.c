@@ -245,6 +245,19 @@ static void each_group (ClutterActor *actor,
   g_object_unref (actor);
 }
 
+
+static void each_add_to_list (ClutterActor *actor,
+                              gpointer      string)
+{
+  gfloat x, y;
+  g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
+  clutter_actor_get_position (actor, &x, &y);
+  if (x < min_x)
+    min_x = x;
+  if (y < min_y)
+    min_y = y;
+}
+
 static void each_group_move (ClutterActor *actor,
                              gfloat       *delta)
 {
@@ -255,11 +268,41 @@ static void each_group_move (ClutterActor *actor,
 
 ClutterActor *cs_group (ClutterActor *ignored)
 {
-  gfloat delta[2];
   ClutterActor *parent;
+  gfloat delta[2];
   ClutterActor *group;
+  GString *undo = g_string_new ("");
+  GString *redo = g_string_new ("");
+
   parent = cs_get_current_container ();
+
+  /* we cannot entirely rely on side effects of the javascript alone
+   * since the selection is unaffected by undo (this is perhaps wrong, and only
+   * the clipboard itself should be unaffected?)
+   */
+  min_x = 2000000.0;
+  min_y = 2000000.0;
+
+  g_string_append_printf (redo, "var parent=$('%s');\n"
+                              "var group = new Clutter.Group ();\n"
+                              "parent.add_actor (group);\n"
+                              "var list = [", cs_get_id (parent));
+  cs_selected_foreach (G_CALLBACK (each_add_to_list), redo);
+  g_string_append_printf (redo, "];\n"
+                              "for (x in list) {\n"
+                              "  let item = list[x];\n"
+                              "  item.get_parent().remove_actor (item);\n"
+                              "  group.add_actor (item);\n"
+                              "  item.x -= %f;\n"
+                              "  item.y -= %f;\n"
+                              "}\n"
+                              "group.x = %f;\n"
+                              "group.y = %f;\n"
+                              "CS.cs_get_id (group);\n"
+  ,min_x, min_y, min_x, min_y);
+
   group = clutter_group_new ();
+  cs_get_id (group); /* force creation of a unique name */
   /* find upper left item,. and place group there,.. reposition children to
    * fit this
    */
@@ -278,19 +321,75 @@ ClutterActor *cs_group (ClutterActor *ignored)
   cs_selected_clear ();
   cs_selected_add (group);
   cs_dirtied ();
+
+  g_string_append_printf (undo,
+   "var group=$('%s');\n"
+   "var parent=group.get_parent();\n"
+   "var list = group.get_children();\n"
+   "for (i in list) {\n"
+   "  let item = list[i];\n"
+   "  item.x += group.x;\n"
+   "  item.y += group.y;\n"
+   "  group.remove_actor(item);\n"
+   "  parent.add_actor(item);\n"
+   "}\n"
+   "group.destroy();\n"
+   "CS.cs_selected_clear();\n" /* XXX: selection should probably be under undo/redo
+                                  control as well */
+   "\n",
+   cs_get_id (group));
+
+  cs_history_add ("group", redo->str, undo->str);
+  g_string_free (undo, TRUE);
+  g_string_free (redo, TRUE);
+
   return group;
 }
 
+/** undo steps will be split up among the many other operations
+ */
 static void each_ungroup (ClutterActor *actor,
                           GList       **created_list)
 {
-  ClutterActor *parent;
-  parent = clutter_actor_get_parent (actor);
   if (CLUTTER_IS_CONTAINER (actor))
     {
+      ClutterActor *parent;
+      GString *undo = g_string_new ("");
+      GString *redo = g_string_new ("");
       GList *c, *children;
       gfloat cx, cy;
+
+      parent = clutter_actor_get_parent (actor);
+
+      g_string_append_printf (redo,
+       "var group=$('%s');\n"
+       "var parent=group.get_parent();\n"
+       "var list = group.get_children();\n"
+       "for (i in list) {\n"
+       "  let item = list[i];\n"
+       "  item.x += group.x;\n"
+       "  item.y += group.y;\n"
+       "  group.remove_actor(item);\n"
+       "  parent.add_actor(item);\n"
+       "}\n"
+       "group.destroy();\n"
+       "CS.cs_selected_clear();\n" /* XXX: selection should probably be under undo/redo
+                                      control as well */
+       , cs_get_id (actor));
+
+
       children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+
+      /* Warning:
+       *   The name of the group might get out of sync
+       */
+      g_string_append_printf (undo, "var parent=$('%s');\n"
+                                    "var group = new Clutter.Group ();\n"
+                                    "CS.cs_get_id (group);\n"
+                                    "parent.add_actor (group);\n"
+                                    "var list = [", cs_get_id (parent));
+
+
       clutter_actor_get_position (actor, &cx, &cy);
       for (c = children; c; c = c->next)
         {
@@ -304,8 +403,26 @@ static void each_ungroup (ClutterActor *actor,
           g_object_unref (child);
           *created_list = g_list_append (*created_list, child);
         }
+
+      g_list_foreach(children, (void*)each_add_to_list, undo);
       g_list_free (children);
       clutter_actor_destroy (actor);
+      g_string_append_printf (undo, "];\n"
+                                    "for (x in list) {\n"
+                                    "  let item = list[x];\n"
+                                    "  item.get_parent().remove_actor (item);\n"
+                                    "  group.add_actor (item);\n"
+                                    "  item.x -= %f;\n"
+                                    "  item.y -= %f;\n"
+                                    "}\n"
+                                    "group.x = %f;\n"
+                                    "group.y = %f;\n"
+       ,cx, cy, cx, cy);
+
+
+      cs_history_add ("ungroup", redo->str, undo->str);
+      g_string_free (undo, TRUE);
+      g_string_free (redo, TRUE);
     }
 }
 
