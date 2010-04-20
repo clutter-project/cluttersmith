@@ -596,7 +596,10 @@ void cluttersmith_load_scene (const gchar *new_title)
 {
   gchar *undo, *redo;
   redo = g_strdup_printf ("CS.context().scene='%s'", new_title);
-  undo = g_strdup_printf ("CS.context().scene='%s'", cluttersmith->priv->title);
+  if (cluttersmith->priv->title != NULL)
+    undo = g_strdup_printf ("CS.context().scene='%s'", cluttersmith->priv->title);
+  else
+    undo = g_strdup (redo);
   cs_history_do ("change scene", redo, undo);
   g_free (undo);
   g_free (redo);

@@ -13,6 +13,11 @@ static gint hor_pos = 0; /* 1 = start 2 = mid 3 = end */
  */
 static gfloat manipulate_x;
 static gfloat manipulate_y;
+static gfloat start_x;
+static gfloat start_y;
+
+static GString *undo = NULL;
+static GString *redo = NULL;
 
 /* snap size, as affected by resizing lower right corner,
  * will need extension if other corners are to be supported,
@@ -124,6 +129,25 @@ in_x    in_mid_x    in_end_x
     }
 }
 
+static void
+selection_to_size_commands (GString *string)
+{
+  GList *s, *selected;
+
+  selected = cs_selected_get_list ();
+  for (s = selected; s; s = s->next)
+    {
+      ClutterActor *actor = s->data;
+      gfloat width, height;
+      clutter_actor_get_size (actor, &width, &height);
+      g_string_append_printf (string, "$('%s').width = %f; $('%s').height = %f;\n",
+                              cs_get_id (actor), width,
+                              cs_get_id (actor), height);
+    }
+  g_list_free (selected);
+}
+
+
 static gboolean
 manipulate_resize_capture (ClutterActor *stage,
                            ClutterEvent *event,
@@ -149,7 +173,6 @@ manipulate_resize_capture (ClutterActor *stage,
           clutter_actor_set_size (actor, w, h);
           cs_prop_tweaked (G_OBJECT (actor), "width");
           cs_prop_tweaked (G_OBJECT (actor), "height");
-          cs_dirtied ();
 
           manipulate_x=ex;
           manipulate_y=ey;
@@ -158,6 +181,16 @@ manipulate_resize_capture (ClutterActor *stage,
       case CLUTTER_BUTTON_RELEASE:
         hor_pos = 0;
         ver_pos = 0;
+
+        selection_to_size_commands (redo);
+        if (start_x != manipulate_x
+            || start_y != manipulate_y)
+          cs_history_add ("resize actors", redo->str, undo->str);
+        g_string_free (undo, TRUE);
+        g_string_free (redo, TRUE);
+        undo = redo = NULL;
+
+        cs_dirtied ();
         clutter_actor_queue_redraw (stage);
         g_signal_handlers_disconnect_by_func (stage, manipulate_resize_capture, data);
       default:
@@ -170,10 +203,14 @@ gboolean cs_resize_start (ClutterActor  *actor,
                           ClutterEvent  *event)
 {
   ClutterActor *first_actor = cs_selected_get_any();
-  manipulate_x = event->button.x;
-  manipulate_y = event->button.y;
+  start_x = manipulate_x = event->button.x;
+  start_y = manipulate_y = event->button.y;
 
   clutter_actor_transform_stage_point (first_actor, event->button.x, event->button.y, &manipulate_x, &manipulate_y);
+
+  undo = g_string_new ("");
+  redo = g_string_new ("");
+  selection_to_size_commands (undo);
 
   g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                     G_CALLBACK (manipulate_resize_capture), actor);
