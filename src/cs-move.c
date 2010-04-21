@@ -294,3 +294,95 @@ gboolean cs_move_start (ClutterActor  *actor,
   clutter_actor_queue_redraw (actor);
   return TRUE;
 }
+
+
+void cs_move_snap_paint (void)
+{
+  ClutterVertex verts[4];
+
+    if(0){
+      ClutterActor *parent = cs_get_current_container ();
+      if (parent)
+        {
+          cogl_set_source_color4ub (255, 0, 255, 128);
+          cs_draw_actor_outline (parent, NULL);
+        }
+    }
+
+  if (cs_selected_count ()==0 && lasso == NULL)
+    return;
+
+  if (cs_selected_count ()==1)
+    {
+      ClutterActor *actor;
+      {
+        GList *l = cs_selected_get_list ();
+        actor = l->data;
+        g_list_free (l);
+      }
+
+      clutter_actor_get_abs_allocation_vertices (actor,
+                                                 verts);
+  
+      {
+        /* potentially draw lines auto snapping has matched */
+        cogl_set_source_color4ub (128, 128, 255, 255);
+        switch (hor_pos)
+          {
+            case 1:
+             {
+                gfloat coords[]={ verts[2].x, -2000,
+                                  verts[2].x, 2000 };
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 2:
+             {
+                gfloat coords[]={ (verts[2].x+verts[1].x)/2, -2000,
+                                  (verts[2].x+verts[1].x)/2, 2000 };
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 3:
+             {
+                gfloat coords[]={ verts[1].x, -2000,
+                                  verts[1].x, 2000 };
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+          }
+        switch (ver_pos)
+          {
+            case 1:
+             {
+                gfloat coords[]={ -2000, verts[1].y,
+                                   2000, verts[1].y};
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 2:
+             {
+                gfloat coords[]={ -2000, (verts[2].y+verts[1].y)/2,
+                                   2000, (verts[2].y+verts[1].y)/2};
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+             break;
+            case 3:
+             {
+                gfloat coords[]={ -2000, verts[2].y,
+                                   2000, verts[2].y};
+                cogl_path_polyline (coords, 2);
+                cogl_path_stroke ();
+             }
+          }
+      }
+    }
+
+  cs_selected_paint ();
+  cs_animator_editor_stage_paint ();
+
+}

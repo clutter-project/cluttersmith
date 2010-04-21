@@ -50,6 +50,7 @@ void cs_animator_editor_set_animator (CsAnimatorEditor *animator_editor,
 void cs_animator_editor_set_progress (CsAnimatorEditor *animator_editor,
                                       gdouble           progress); 
 gdouble cs_animator_editor_get_progress (CsAnimatorEditor *animator_editor);
+void cs_animator_editor_stage_paint (void);
 
 G_END_DECLS
 

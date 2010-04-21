@@ -67,8 +67,13 @@ gboolean cs_selected_lasso_start (ClutterActor  *actor,
                                  ClutterEvent  *event);
 
 void cs_selected_paint (void);
+void cs_move_snap_paint (void);
 extern ClutterActor      *lasso; /* XXX: global */
 /*****/
+void cs_actor_editors_add (GType type,
+                           void (*editing_start) (ClutterActor *edited_actor),
+                           void (*editing_end) (ClutterActor *edited_actor));
+void cs_edit_text_init (void);
 
 void previews_reload (ClutterActor *actor);
 char * cs_make_config_file (const char *filename);
@@ -92,7 +97,6 @@ void object_menu    (ClutterActor *actor,
 void selection_menu (gint          x,
                      gint          y);
 
-gboolean edit_text_start (ClutterActor *actor);
 void session_history_init_hack (ClutterActor  *actor);
 void templates_container_init_hack (ClutterActor  *actor);
 

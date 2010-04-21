@@ -4,7 +4,6 @@
 #include <string.h>
 #include "cluttersmith.h"
 
-
 /*
  * Shared state used by all the separate states the event handling can
  * the substates are exclusive (can be extended to have a couple of stages
@@ -13,7 +12,6 @@
  */
 static gfloat manipulate_x;
 static gfloat manipulate_y;
-
 
 static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
 {
@@ -124,11 +122,6 @@ ClutterActor *cs_siblings_pick_next (ClutterActor *sibling, gfloat x, gfloat y)
 
 gchar *json_serialize_subtree (ClutterActor *root);
 
-
-/* snap positions, in relation to actor */
-static gint ver_pos = 0; /* 1 = start 2 = mid 3 = end */
-static gint hor_pos = 0; /* 1 = start 2 = mid 3 = end */
-
 static gint max_x = 0;
 static gint max_y = 0;
 static gint min_x = 0;
@@ -157,192 +150,13 @@ static void find_extent (ClutterActor *actor,
   }
 }
 
-
-
 static void
 cs_overlay_paint (ClutterActor *stage,
                   gpointer      user_data)
 {
-  ClutterVertex verts[4];
-
-    {
-      ClutterActor *parent = cs_get_current_container ();
-      if (parent)
-        {
-          cogl_set_source_color4ub (255, 0, 255, 128);
-          cs_draw_actor_outline (parent, NULL);
-        }
-    }
-
-  if (cs_selected_count ()==0 && lasso == NULL)
-    return;
-
-  if (cs_selected_count ()==1)
-    {
-      ClutterActor *actor;
-      {
-        GList *l = cs_selected_get_list ();
-        actor = l->data;
-        g_list_free (l);
-      }
-
-      clutter_actor_get_abs_allocation_vertices (actor,
-                                                 verts);
-  
-
-      cogl_set_source_color4ub (0, 25, 0, 50);
-
-
-      {
-#if 0
-        CoglTextureVertex tverts[] = 
-           {
-             {verts[0].x, verts[0].y, },
-             {verts[2].x, verts[2].y, },
-             {verts[3].x, verts[3].y, },
-             {verts[1].x, verts[1].y, },
-           };
-        /* fill the item, if it is the only item in the selection */
-        cogl_polygon (tverts, 4, FALSE);
-#endif
-
-        /* potentially draw lines auto snapping has matched */
-        cogl_set_source_color4ub (128, 128, 255, 255);
-        switch (hor_pos)
-          {
-            case 1:
-             {
-                gfloat coords[]={ verts[2].x, -2000,
-                                  verts[2].x, 2000 };
-                cogl_path_polyline (coords, 2);
-                cogl_path_stroke ();
-             }
-             break;
-            case 2:
-             {
-                gfloat coords[]={ (verts[2].x+verts[1].x)/2, -2000,
-                                  (verts[2].x+verts[1].x)/2, 2000 };
-                cogl_path_polyline (coords, 2);
-                cogl_path_stroke ();
-             }
-             break;
-            case 3:
-             {
-                gfloat coords[]={ verts[1].x, -2000,
-                                  verts[1].x, 2000 };
-                cogl_path_polyline (coords, 2);
-                cogl_path_stroke ();
-             }
-          }
-        switch (ver_pos)
-          {
-            case 1:
-             {
-                gfloat coords[]={ -2000, verts[1].y,
-                                   2000, verts[1].y};
-                cogl_path_polyline (coords, 2);
-                cogl_path_stroke ();
-             }
-             break;
-            case 2:
-             {
-                gfloat coords[]={ -2000, (verts[2].y+verts[1].y)/2,
-                                   2000, (verts[2].y+verts[1].y)/2};
-                cogl_path_polyline (coords, 2);
-                cogl_path_stroke ();
-             }
-             break;
-            case 3:
-             {
-                gfloat coords[]={ -2000, verts[2].y,
-                                   2000, verts[2].y};
-                cogl_path_polyline (coords, 2);
-                cogl_path_stroke ();
-             }
-          }
-      }
-    }
-
+  cs_move_snap_paint ();
   cs_selected_paint ();
-
-  /* Draw path of currently animated actor */
-  if (cluttersmith->current_animator)
-    {
-      ClutterActor *actor = cs_selected_get_any ();
-      if (actor)
-        {
-          gfloat progress;
-          GValue xv = {0, };
-          GValue yv = {0, };
-          GValue value = {0, };
-
-          g_value_init (&xv, G_TYPE_FLOAT);
-          g_value_init (&yv, G_TYPE_FLOAT);
-          g_value_init (&value, G_TYPE_FLOAT);
-
-          for (progress = 0.0; progress < 1.0; progress += 0.004)
-            {
-              ClutterVertex vertex = {0, };
-              gfloat x, y;
-              clutter_animator_compute_value (cluttersmith->current_animator,
-                                           G_OBJECT (actor), "x", progress, &xv);
-              clutter_animator_compute_value (cluttersmith->current_animator,
-                                           G_OBJECT (actor), "y", progress, &yv);
-              x = g_value_get_float (&xv);
-              y = g_value_get_float (&yv);
-              vertex.x = x;
-              vertex.y = y;
-
-              clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
-                                                      &vertex, &vertex);
-
-              cogl_path_line_to (vertex.x, vertex.y);
-            }
-          cogl_path_stroke ();
-        }
-
-#define DIFF         0.01
-
-      if (actor)
-        {
-          gfloat progress;
-          GValue xv = {0, };
-          GValue yv = {0, };
-          GValue value = {0, };
-
-          g_value_init (&xv, G_TYPE_FLOAT);
-          g_value_init (&yv, G_TYPE_FLOAT);
-          g_value_init (&value, G_TYPE_FLOAT);
-
-          for (progress = 0.0; progress < 1.0; progress += DIFF)
-            {
-              ClutterVertex vertex = {0, };
-              gfloat x, y;
-              clutter_animator_compute_value (cluttersmith->current_animator,
-                                           G_OBJECT (actor), "x", progress, &xv);
-              clutter_animator_compute_value (cluttersmith->current_animator,
-                                           G_OBJECT (actor), "y", progress, &yv);
-              x = g_value_get_float (&xv);
-              y = g_value_get_float (&yv);
-
-              clutter_animator_compute_value (cluttersmith->current_animator,
-                                           G_OBJECT (actor), "x", progress + DIFF, &xv);
-              clutter_animator_compute_value (cluttersmith->current_animator,
-                                           G_OBJECT (actor), "y", progress + DIFF, &yv);
-
-              vertex.x = x;
-              vertex.y = y;
-              clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
-                                                      &vertex, &vertex);
-              x = vertex.x;
-              y = vertex.y;
-
-              cogl_set_source_color4ub (255, 0, 0, 32);
-              cogl_path_ellipse (x, y, 5, 5);
-              cogl_path_fill ();
-            }
-        }
-    }
+  cs_animator_editor_stage_paint ();
 }
 
 void animator_editor_update_handles (void);
@@ -368,17 +182,12 @@ gboolean update_overlay_positions (gpointer data)
   min_y = 65536;
   max_x = 0;
   max_y = 0;
-  {
-    cs_selected_foreach (G_CALLBACK (find_extent), data);
-  }
+  cs_selected_foreach (G_CALLBACK (find_extent), data);
 
-   {
-     clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
-     clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
-   }
+  clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
+  clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
 
-
- return TRUE;
+  return TRUE;
 }
 
 void init_multi_select (void);
@@ -386,7 +195,6 @@ void init_multi_select (void);
 void cs_actor_editing_init (gpointer stage)
 {
   clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
   g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
   init_multi_select ();
 }
@@ -408,7 +216,8 @@ static void do_zoom (gboolean in,
   gfloat offset_x;
   gfloat offset_y;
 
-  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &offset_x, &offset_y);
+  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"),
+                                          &offset_x, &offset_y);
 
   clutter_actor_transform_stage_point (cluttersmith->fake_stage,
                                        x, y, &target_x, &target_y);
@@ -429,8 +238,6 @@ static void do_zoom (gboolean in,
   origin_x = target_x * (zoom/100) - x + offset_x;
   origin_y = target_y * (zoom/100) - y + offset_y;
   
-  g_print ("%f %f %f %f\n", x, target_x, origin_x, zoom);
-
   g_object_set (cluttersmith,
                 "zoom", zoom,
                 "origin-x", origin_x,
@@ -447,7 +254,6 @@ manipulate_pan_capture (ClutterActor *stage,
     {
       case CLUTTER_MOTION:
         {
-          /* resize is semi bust for more than one actor */
           gfloat ex = event->motion.x, ey = event->motion.y;
           gfloat originx, originy;
 
@@ -493,96 +299,17 @@ gboolean manipulate_pan_start (ClutterEvent  *event)
 
 
 
-#if 0
-
-/* independently for the axes for axis aligned boxes */
-
-static gboolean
-intersects (gint min, gint max, gint minb, gint maxb)
-{
-  if (minb <= max && minb >= min)
-    return TRUE;
-  if (min <= maxb && min >= minb)
-    return TRUE;
-  return FALSE;
-}
-#endif
-
-
-
-static ClutterActor *edited_actor = NULL;
-static gboolean text_was_editable = FALSE;
-static gboolean text_was_reactive = FALSE;
-
-gboolean edit_text_start (ClutterActor *actor)
-{
-  if (MX_IS_LABEL (actor))
-    actor = mx_label_get_clutter_text (MX_LABEL (actor));
-  edited_actor = actor;
-
-  g_object_get (edited_actor, "editable", &text_was_editable,
-                             "reactive", &text_was_reactive, NULL);
-  g_object_set (edited_actor, "editable", TRUE,
-                             "reactive", TRUE, NULL);
-  clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (actor)), actor);
-  return TRUE;
-}
-
-static gboolean edit_text_end (void)
-{
-  g_object_set (edited_actor, "editable", text_was_editable,
-                              "reactive", text_was_reactive, NULL);
-  edited_actor = NULL;
-  cs_dirtied ();
-  return TRUE;
-}
-
-gboolean cs_edit_actor_start (ClutterActor *actor)
-{
-  const gchar *name;
-  if (!actor)
-    return FALSE;
-  if (CLUTTER_IS_TEXT (actor) ||
-      MX_IS_LABEL (actor))
-    return edit_text_start (actor);
-
-  name = clutter_actor_get_name (actor);
-  if (name && g_str_has_prefix (name, "link="))
-    {
-      cluttersmith_load_scene (name+5);
-      cs_selected_clear ();
-      return TRUE;
-    }
-  if (CLUTTER_IS_CONTAINER (actor))
-     {
-       cs_selected_clear ();
-       cs_set_current_container (actor);
-       return TRUE;
-     }
-  g_print ("unahndled enter edit for %s\n", G_OBJECT_TYPE_NAME (actor));
-
-  return FALSE;
-}
-
-gboolean cs_edit_actor_end (void)
-{
-  if (!edited_actor)
-    return FALSE;
-  if (CLUTTER_IS_TEXT (edited_actor) ||
-      MX_IS_LABEL (edited_actor))
-    return edit_text_end ();
-  return FALSE;
-}
 
 gint cs_last_x = 0;
 gint cs_last_y = 0;
+
+static ClutterActor *edited_actor = NULL;
 
 static gboolean
 manipulate_capture (ClutterActor *actor,
                     ClutterEvent *event,
                     gpointer      data /* unused */)
 {
-
 
   /* pass events through to text being edited */
   if (edited_actor)
@@ -879,6 +606,7 @@ void cs_manipulate_init (ClutterActor *actor)
                           G_CALLBACK (manipulate_capture), NULL);
   g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
                     G_CALLBACK (playback_context), NULL);
+  cs_edit_text_init ();
 }
 
 /* Used for resize and similar handles on the active
@@ -912,3 +640,85 @@ ClutterActor *cs_get_current_container (void)
   return cluttersmith->current_container;
 }
 
+
+
+
+#if 0
+
+/* independently for the axes for axis aligned boxes */
+
+static gboolean
+intersects (gint min, gint max, gint minb, gint maxb)
+{
+  if (minb <= max && minb >= min)
+    return TRUE;
+  if (min <= maxb && min >= minb)
+    return TRUE;
+  return FALSE;
+}
+#endif
+
+static GHashTable *actor_editors_start = NULL;
+static GHashTable *actor_editors_end = NULL;
+
+void cs_actor_editors_add (GType type,
+                           void (*editing_start) (ClutterActor *edited_actor),
+                           void (*editing_end) (ClutterActor *edited_actor))
+{
+  if (!actor_editors_start)
+    {
+      actor_editors_start = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+      actor_editors_end = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+    }
+  g_hash_table_insert (actor_editors_start, GUINT_TO_POINTER (type), editing_start);
+  g_hash_table_insert (actor_editors_end, GUINT_TO_POINTER (type), editing_end);
+}
+
+static void (*editing_ended) (ClutterActor *edited_actor) = NULL;
+
+gboolean cs_edit_actor_start (ClutterActor *actor)
+{
+  const gchar *name;
+  if (!actor)
+    return FALSE;
+
+  if ((editing_ended = g_hash_table_lookup (actor_editors_end, GUINT_TO_POINTER (G_OBJECT_TYPE (actor)))))
+    {
+      void (*editing_start) (ClutterActor *edited_actor) = NULL;
+      editing_start = g_hash_table_lookup (actor_editors_start, GUINT_TO_POINTER (G_OBJECT_TYPE (actor)));
+      edited_actor = actor;
+      editing_start (actor);
+      return TRUE;
+    }
+
+  name = clutter_actor_get_name (actor);
+  if (name && g_str_has_prefix (name, "link="))
+    {
+      cluttersmith_load_scene (name+5);
+      cs_selected_clear ();
+      return TRUE;
+    }
+  if (CLUTTER_IS_CONTAINER (actor))
+     {
+       cs_selected_clear ();
+       cs_set_current_container (actor);
+       return TRUE;
+     }
+  g_print ("unhandled enter edit for %s\n", G_OBJECT_TYPE_NAME (actor));
+
+  return FALSE;
+}
+
+gboolean cs_edit_actor_end (void)
+{
+  if (!edited_actor)
+    return FALSE;
+
+  if (editing_ended)
+    {
+      editing_ended (edited_actor);
+      editing_ended = NULL;
+      edited_actor = NULL;
+    }
+  return FALSE;
+}

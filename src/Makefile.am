@@ -30,6 +30,7 @@ cs-session-history.c \
 cs-stencils.c \
 cs-resize.c \
 cs-move.c \
+cs-edit-text.c \
 cs-texture.c \
 cs-texture.h \
 cs-tree.c \

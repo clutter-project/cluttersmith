@@ -1090,7 +1090,7 @@ void new_scene (MxAction *action,
     return;
   text = cs_container_get_child_no (CLUTTER_CONTAINER(actor), 0);
   /* the name:link=link in the edited hyperlink is updated automatically */
-  edit_text_start (text);
+  cs_edit_actor_start (text);
 }
 
 void link_edit_link (MxAction *action,
