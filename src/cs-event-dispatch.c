@@ -448,6 +448,10 @@ void cs_set_current_container (ClutterActor *actor)
     cluttersmith->current_container = actor;
 }
 
+/**
+ * cs_get_current_container:
+ * Return value: (transfer none): the current "working dir".
+ */
 ClutterActor *cs_get_current_container (void)
 {
   if (!cluttersmith->current_container)

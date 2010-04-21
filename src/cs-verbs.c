@@ -245,19 +245,6 @@ void cs_view_reset (ClutterActor *ignored)
   g_object_set (cluttersmith, "zoom", 100.0, "origin-x", 0.0, "origin-y", 0.0, NULL);
 }
 
-static gfloat min_x=0;
-static gfloat min_y=0;
-
-static void each_check_bound (ClutterActor *actor,
-                              gpointer       data)
-{
-  gfloat x, y;
-  clutter_actor_get_position (actor, &x, &y);
-  if (x < min_x)
-    min_x = x;
-  if (y < min_y)
-    min_y = y;
-}
 
 /* If the selection is also governed by undo/redo it sould be
  * possible to rely on only the javascript implementation of
@@ -265,54 +252,46 @@ static void each_check_bound (ClutterActor *actor,
  */
 void cs_group (ClutterActor *ignored)
 {
-  GString *undo = g_string_new ("");
-  GString *redo = g_string_new ("");
-
-  min_x = 2000000.0;
-  min_y = 2000000.0;
-
-  cs_selected_foreach (G_CALLBACK (each_check_bound), NULL); /* XXX: it would be even nicer
-                                                              *      if this was all computed
-                                                              *      in the javascript
-                                                              */
-
-  g_string_append_printf (redo, "var parent=CS.cs_get_current_container();\n"
-                                "var group = new Clutter.Group ();\n"
-                                "parent.add_actor (group);\n"
-                                "var list = CS.cs_selected_get_list();\n"
-                                "for (x in list) {\n"
-                                "  var item = list[x];\n"
-                                "  item.get_parent().remove_actor (item);\n"
-                                "  group.add_actor (item);\n"
-                                "  item.x -= %f;\n"
-                                "  item.y -= %f;\n"
-                                "}\n"
-                                "group.x = %f;\n"
-                                "group.y = %f;\n"
-                                "CS.cs_get_id (group);\n"
-                                "CS.cs_selected_clear();\n" 
-                                "CS.cs_selected_add(group);\n" 
-                                ,min_x, min_y, min_x, min_y);
-
-  g_string_append_printf (undo,
-   "var group=CS.cs_selected_get_any ();\n"
-   "var parent=group.get_parent();\n"
-   "var list = group.get_children();\n"
-   "CS.cs_selected_clear();\n" 
-   "for (i in list) {\n"
-   "  let item = list[i];\n"
-   "  item.x += group.x;\n"
-   "  item.y += group.y;\n"
-   "  group.remove_actor(item);\n"
-   "  parent.add_actor(item);\n"
-   "  CS.cs_selected_add(item);\n" 
-   "}\n"
-   "group.destroy();\n"
-   "\n");
-
-  cs_history_do ("group", redo->str, undo->str);
-  g_string_free (undo, TRUE);
-  g_string_free (redo, TRUE);
+  cs_history_do ("group", 
+    "var parent=CS.cs_get_current_container();\n"
+    "var list = CS.cs_selected_get_list();\n"
+    "CS.cs_selected_clear();\n" 
+    "var min_x = 2000000; var min_y = 2000000;\n"
+    "for (x in list) {\n"
+    "  let item = list[x];\n"
+    "  if (item.x < min_x) min_x = item.x;\n"
+    "  if (item.y < min_y) min_y = item.y;\n"
+    "}\n"
+    "var group = new Clutter.Group ();\n"
+    "CS.cs_get_id (group);\n"
+    "parent.add_actor (group);\n"
+    "group.x = min_x;\n"
+    "group.y = min_y;\n"
+    "for (x in list) {\n"
+    "  let item = list[x];\n"
+    "  item.get_parent().remove_actor (item);\n"
+    "  group.add_actor (item);\n"
+    "  item.x -= min_x;\n"
+    "  item.y -= min_y;\n"
+    "}\n"
+    "CS.cs_selected_clear();\n" 
+    "CS.cs_selected_add(group);\n"
+    "CS.print('hoi'+ min_x +' ' + min_y + ' ' + parent +  '\\n');\n"
+    , 
+    "var group=CS.cs_selected_get_any ();\n"
+    "var parent=group.get_parent();\n"
+    "var list = group.get_children();\n"
+    "CS.cs_selected_clear();\n" 
+    "for (i in list) {\n"
+    "  let item = list[i];\n"
+    "  item.x += group.x;\n"
+    "  item.y += group.y;\n"
+    "  group.remove_actor(item);\n"
+    "  parent.add_actor(item);\n"
+    "  CS.cs_selected_add(item);\n" 
+    "}\n"
+    "group.destroy();\n"
+   );
   cs_dirtied ();
 }
 
@@ -397,6 +376,8 @@ static void each_ungroup (ClutterActor *actor,
     }
 }
 
+/* XXX: rewrite this to be fully javascript based
+ */
 void cs_ungroup (ClutterActor *ignored)
 {
   GList *i, *created_list = NULL;
