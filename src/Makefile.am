@@ -15,7 +15,7 @@ libcluttersmith_la_SOURCES = \
 cluttersmith.h \
 clutter-states.c \
 clutter-states.h \
-cs-actor-editing.c \
+cs-event-dispatch.c \
 cs-animator-editor.c \
 cs-animator-editor.h \
 cs-bind.c \
