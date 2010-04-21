@@ -90,7 +90,7 @@ void cs_history_undo (ClutterActor *ignored)
       {
         g_print ("%s", error->message);
       }
-    if(0)g_object_unref (js_context);
+    g_object_unref (js_context);
   }
 
   redo_commands = g_list_prepend (redo_commands, undo_commands->data);

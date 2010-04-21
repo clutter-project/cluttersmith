@@ -117,6 +117,13 @@ gboolean cs_selected_has_actor (ClutterActor *actor)
   return FALSE;
 }
 
+
+/**
+ * cs_selected_get_any:
+ *
+ * Return value: (transfer none): any single of the selected actors if any or NULL
+ */
+
 ClutterActor *cs_selected_get_any (void)
 {
   if (selected)

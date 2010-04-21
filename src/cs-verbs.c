@@ -248,24 +248,6 @@ void cs_view_reset (ClutterActor *ignored)
 static gfloat min_x=0;
 static gfloat min_y=0;
 
-static void each_group (ClutterActor *actor,
-                        gpointer      new_parent)
-{
-  ClutterActor *parent;
-  gfloat x, y;
-  parent = clutter_actor_get_parent (actor);
-  clutter_actor_get_position (actor, &x, &y);
-  g_object_ref (actor);
-  if (x < min_x)
-    min_x = x;
-  if (y < min_y)
-    min_y = y;
-  clutter_container_remove_actor (CLUTTER_CONTAINER (parent), actor);
-  clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), actor);
-  g_object_unref (actor);
-}
-
-
 static void each_add_to_list_check_bound (ClutterActor *actor,
                                           gpointer      string)
 {
@@ -278,23 +260,13 @@ static void each_add_to_list_check_bound (ClutterActor *actor,
     min_y = y;
 }
 
-static void each_group_move (ClutterActor *actor,
-                             gfloat       *delta)
-{
-  gfloat x, y;
-  clutter_actor_get_position (actor, &x, &y);
-  clutter_actor_set_position (actor, x-delta[0], y-delta[1]);
-}
-
-
 /* If the selection is also governed by undo/redo it sould be
  * possible to rely on only the javascript implementation of
  * group/ungroup and get rid of the C one.
  */
-ClutterActor *cs_group (ClutterActor *ignored)
+void cs_group (ClutterActor *ignored)
 {
   ClutterActor *parent;
-  gfloat delta[2];
   ClutterActor *group;
   GString *undo = g_string_new ("");
   GString *redo = g_string_new ("");
@@ -325,26 +297,6 @@ ClutterActor *cs_group (ClutterActor *ignored)
 
   ,min_x, min_y, min_x, min_y);
 
-#if 0
-  group = clutter_group_new ();
-  cs_get_id (group); /* force creation of a unique name */
-  clutter_container_add_actor (CLUTTER_CONTAINER (parent), group);
-  /* get add_parent */
-  /* create group */
-
-  min_x = 2000000.0;
-  min_y = 2000000.0;
-
-  cs_selected_foreach (G_CALLBACK (each_group), group);
-  delta[0]=min_x;
-  delta[1]=min_y;
-  cs_selected_foreach (G_CALLBACK (each_group_move), delta);
-  clutter_actor_set_position (group, min_x, min_y);
-  cs_selected_clear ();
-  cs_selected_add (group);
-  cs_get_id (group));
-#endif
-
   g_string_append_printf (undo,
    "var group=CS.cs_selected_get_any ();\n"
    "var parent=group.get_parent();\n"
@@ -365,8 +317,6 @@ ClutterActor *cs_group (ClutterActor *ignored)
   g_string_free (undo, TRUE);
   g_string_free (redo, TRUE);
   cs_dirtied ();
-
-  return group;
 }
 
 /** undo steps will be split up among the many other operations
