@@ -72,7 +72,6 @@ ClutterAnimator * cs_states_make_animator (ClutterStates *states,
                                            const gchar   *target_state);
 
 void           cluttersmith_init                   (void);
-void           cluttersmith_print                  (gchar *a);
 
 void           cs_actor_make_id_unique             (ClutterActor *actor,
                                                     const gchar  *stem);
@@ -109,4 +108,5 @@ cs_bind_full (GObject     *objectA,
                                                     gpointer     userdata),
               gpointer     a_post_changed_userdata);
 
+void cluttersmith_print (const gchar *string);
 #endif

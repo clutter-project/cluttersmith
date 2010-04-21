@@ -36,6 +36,11 @@ void cs_selected_init (void)
   /*selected = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);*/
 }
 
+/**
+ * cs_selected_get_list:
+ *
+ * Return value: (element-type ClutterActor) (transfer container):
+ */
 GList *cs_selected_get_list (void)
 {
   return g_list_copy (selected);

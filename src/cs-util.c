@@ -869,7 +869,10 @@ ClutterActor  *cluttersmith_get_actor (const gchar  *id)
 }
 
 
-
+void cluttersmith_print (const gchar *string)
+{
+  g_print ("%s\n", string);
+}
 
 gint cs_actor_ancestor_depth (ClutterActor *actor)
 {
@@ -924,11 +927,6 @@ ClutterActor  *cluttersmith_get_stage (void)
   return ret;
 }
 
-
-void cluttersmith_print (gchar *a)
-{
-  g_print (a);
-}
 
 ClutterActor *
 cs_find_nearest (ClutterActor *actor,

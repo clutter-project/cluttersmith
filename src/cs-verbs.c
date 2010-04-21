@@ -248,11 +248,10 @@ void cs_view_reset (ClutterActor *ignored)
 static gfloat min_x=0;
 static gfloat min_y=0;
 
-static void each_add_to_list_check_bound (ClutterActor *actor,
-                                          gpointer      string)
+static void each_check_bound (ClutterActor *actor,
+                              gpointer       data)
 {
   gfloat x, y;
-  g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
   clutter_actor_get_position (actor, &x, &y);
   if (x < min_x)
     min_x = x;
@@ -266,36 +265,34 @@ static void each_add_to_list_check_bound (ClutterActor *actor,
  */
 void cs_group (ClutterActor *ignored)
 {
-  ClutterActor *parent;
-  ClutterActor *group;
   GString *undo = g_string_new ("");
   GString *redo = g_string_new ("");
-
-  parent = cs_get_current_container ();
 
   min_x = 2000000.0;
   min_y = 2000000.0;
 
-  g_string_append_printf (redo, "var parent=$('%s');\n"
-                              "var group = new Clutter.Group ();\n"
-                              "parent.add_actor (group);\n"
-                              "var list = [", cs_get_id (parent));
-  cs_selected_foreach (G_CALLBACK (each_add_to_list_check_bound), redo);
-  g_string_append_printf (redo, "];\n"
-                              "for (x in list) {\n"
-                              "  let item = list[x];\n"
-                              "  item.get_parent().remove_actor (item);\n"
-                              "  group.add_actor (item);\n"
-                              "  item.x -= %f;\n"
-                              "  item.y -= %f;\n"
-                              "}\n"
-                              "group.x = %f;\n"
-                              "group.y = %f;\n"
-                              "CS.cs_get_id (group);\n"
-                              "CS.cs_selected_clear();\n" 
-                              "CS.cs_selected_add(group);\n" 
+  cs_selected_foreach (G_CALLBACK (each_check_bound), NULL); /* XXX: it would be even nicer
+                                                              *      if this was all computed
+                                                              *      in the javascript
+                                                              */
 
-  ,min_x, min_y, min_x, min_y);
+  g_string_append_printf (redo, "var parent=CS.cs_get_current_container();\n"
+                                "var group = new Clutter.Group ();\n"
+                                "parent.add_actor (group);\n"
+                                "var list = CS.cs_selected_get_list();\n"
+                                "for (x in list) {\n"
+                                "  var item = list[x];\n"
+                                "  item.get_parent().remove_actor (item);\n"
+                                "  group.add_actor (item);\n"
+                                "  item.x -= %f;\n"
+                                "  item.y -= %f;\n"
+                                "}\n"
+                                "group.x = %f;\n"
+                                "group.y = %f;\n"
+                                "CS.cs_get_id (group);\n"
+                                "CS.cs_selected_clear();\n" 
+                                "CS.cs_selected_add(group);\n" 
+                                ,min_x, min_y, min_x, min_y);
 
   g_string_append_printf (undo,
    "var group=CS.cs_selected_get_any ();\n"
@@ -349,7 +346,6 @@ static void each_ungroup (ClutterActor *actor,
        "}\n"
        "group.destroy();\n"
        , cs_get_id (actor));
-
 
       children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
 
