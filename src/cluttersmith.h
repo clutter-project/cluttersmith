@@ -76,8 +76,8 @@ void cs_actor_editors_add (GType type,
 void cs_edit_text_init (void);
 
 void previews_reload (ClutterActor *actor);
-char * cs_make_config_file (const char *filename);
 void cluttersmith_load_scene (const gchar *new_title);
+void cs_animation_edit_init (void);
 
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);

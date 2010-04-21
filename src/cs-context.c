@@ -50,7 +50,6 @@ static void cs_context_set_property (GObject      *object,
                                      GParamSpec   *pspec);
 
 static void project_root_text_changed (ClutterActor *actor);
-static void animation_name_changed (ClutterActor *actor);
 
 static void
 cs_context_dispose (GObject *object)
@@ -950,9 +949,8 @@ gboolean idle_add_stage (gpointer stage)
    cluttersmith->dialog_property_inspector = _A("cs-dialog-property-inspector");
    cluttersmith->animator_editor = _A("cs-animator-editor");
 
-   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->animation_name)), "text-changed",
-                     G_CALLBACK (animation_name_changed), NULL);
 
+   cs_animation_edit_init ();
    g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->project_root_entry)), "text-changed",
                      G_CALLBACK (project_root_text_changed), NULL);
 
@@ -1719,95 +1717,7 @@ static void cs_load (void)
      -cluttersmith->priv->origin_y);
 }
 
-void cs_set_current_animator (ClutterAnimator *animator)
-{
-  if (cluttersmith->current_animator)
-    {
-      GList *keys = clutter_animator_get_keys (cluttersmith->current_animator, NULL, NULL, -1);
-      if (!keys)
-        {
-          g_object_unref (cluttersmith->current_animator);
-          cluttersmith->animators = g_list_remove (cluttersmith->animators,
-                                            cluttersmith->current_animator);
-        }
-      g_list_free (keys);
-    }
-  cluttersmith->current_animator = animator;
-  cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), animator);
-}
 
-static void animation_name_changed (ClutterActor *actor)
-{
-  const gchar     *name = clutter_text_get_text (CLUTTER_TEXT (actor));
-  ClutterAnimator *animator;
-  GList *a;
-  
-  cs_properties_restore_defaults ();
-
-  if (!name || name[0]=='\0')
-    {
-      /* if it is the empty string we drop any animator */
-      if (cluttersmith->current_animator)
-        {
-          cs_properties_restore_defaults ();
-        }
-      return;
-    }
-
-  for (a=cluttersmith->animators; a; a=a->next)
-    {
-      const gchar *id = clutter_scriptable_get_id (a->data);
-
-      if (id && g_str_equal (id, name))
-        {
-          cs_set_current_animator (a->data);
-          return;
-        }
-    }
-  animator = clutter_animator_new ();
-  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (animator), name);
-  cluttersmith->animators = g_list_append (cluttersmith->animators, animator);
-
-  cs_set_current_animator (animator);
-}
-
-
-char *
-cs_make_config_file (const char *filename)
-{
-  const char *base;
-  char *path, *full;
-
-  base = g_getenv ("XDG_CONFIG_HOME");
-  if (base) {
-    path = g_strdup_printf ("%s/cluttersmith", base);
-    full = g_strdup_printf ("%s/cluttersmith/%s", base, filename);
-  } else {
-    path = g_strdup_printf ("%s/.config/cluttersmith", g_get_home_dir ());
-    full = g_strdup_printf ("%s/.config/cluttersmith/%s", g_get_home_dir (),
-                            filename);
-  }
-
-  /* Make sure the directory exists */
-  if (g_file_test (path, G_FILE_TEST_EXISTS) == FALSE) {
-    g_mkdir_with_parents (path, 0700);
-  }
-  g_free (path);
-
-  return full;
-}
-
-
-/**
- * cluttersmith_foobar:
- * @stringA: new root
- * @stringB: new root
- */
-void cluttersmith_foobar (const gchar *stringA,
-                          const gchar *stringB)
-{
-  g_print ("::::::::::::%s %s\n", stringA, stringB);
-}
 
 static gboolean title_frozen = FALSE;
 

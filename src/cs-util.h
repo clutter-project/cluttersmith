@@ -62,6 +62,7 @@ ClutterActor  *cs_replace_content2                 (ClutterActor *actor,
 ClutterActor * cs_find_nearest                     (ClutterActor *actor,
                                                     gboolean      vertical,
                                                     gboolean      reverse);
+char         * cs_make_config_file                 (const char   *filename);
 
 void           cs_properties_store_defaults        (void);
 void           cs_properties_restore_defaults      (void);

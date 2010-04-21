@@ -1315,3 +1315,29 @@ void cs_draw_actor_outline (ClutterActor *actor,
     }
   }
 }
+
+
+char *
+cs_make_config_file (const char *filename)
+{
+  const char *base;
+  char *path, *full;
+
+  base = g_getenv ("XDG_CONFIG_HOME");
+  if (base) {
+    path = g_strdup_printf ("%s/cluttersmith", base);
+    full = g_strdup_printf ("%s/cluttersmith/%s", base, filename);
+  } else {
+    path = g_strdup_printf ("%s/.config/cluttersmith", g_get_home_dir ());
+    full = g_strdup_printf ("%s/.config/cluttersmith/%s", g_get_home_dir (),
+                            filename);
+  }
+
+  /* Make sure the directory exists */
+  if (g_file_test (path, G_FILE_TEST_EXISTS) == FALSE) {
+    g_mkdir_with_parents (path, 0700);
+  }
+  g_free (path);
+
+  return full;
+}

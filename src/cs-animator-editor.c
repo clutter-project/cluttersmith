@@ -1470,3 +1470,64 @@ void cs_animator_editor_stage_paint (void)
         }
     }
 }
+
+
+static void animation_name_changed (ClutterActor *actor)
+{
+  const gchar     *name = clutter_text_get_text (CLUTTER_TEXT (actor));
+  ClutterAnimator *animator;
+  GList *a;
+  
+  cs_properties_restore_defaults ();
+
+  if (!name || name[0]=='\0')
+    {
+      /* if it is the empty string we drop any animator */
+      if (cluttersmith->current_animator)
+        {
+          cs_properties_restore_defaults ();
+        }
+      return;
+    }
+
+  for (a=cluttersmith->animators; a; a=a->next)
+    {
+      const gchar *id = clutter_scriptable_get_id (a->data);
+
+      if (id && g_str_equal (id, name))
+        {
+          cs_set_current_animator (a->data);
+          return;
+        }
+    }
+  animator = clutter_animator_new ();
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (animator), name);
+  cluttersmith->animators = g_list_append (cluttersmith->animators, animator);
+
+  cs_set_current_animator (animator);
+}
+
+void
+cs_animation_edit_init (void)
+{
+   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->animation_name)), "text-changed",
+                     G_CALLBACK (animation_name_changed), NULL);
+}
+
+
+void cs_set_current_animator (ClutterAnimator *animator)
+{
+  if (cluttersmith->current_animator)
+    {
+      GList *keys = clutter_animator_get_keys (cluttersmith->current_animator, NULL, NULL, -1);
+      if (!keys)
+        {
+          g_object_unref (cluttersmith->current_animator);
+          cluttersmith->animators = g_list_remove (cluttersmith->animators,
+                                            cluttersmith->current_animator);
+        }
+      g_list_free (keys);
+    }
+  cluttersmith->current_animator = animator;
+  cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), animator);
+}
