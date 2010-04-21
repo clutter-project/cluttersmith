@@ -147,6 +147,7 @@ gboolean cs_resize_start (ClutterActor  *actor,
 extern gint cs_set_keys_freeze; /* XXX: global! */
 gchar *cs_json_escape_string (const gchar *in);
 
+void cs_callbacks_populate (ClutterActor *actor);
 
 /* these are defined here to allow sharing the boilerplate 
  * among different .c files

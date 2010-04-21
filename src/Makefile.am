@@ -19,6 +19,7 @@ cs-event-dispatch.c \
 cs-animator-editor.c \
 cs-animator-editor.h \
 cs-bind.c \
+cs-callbacks.c \
 cs-context.c \
 cs-context.h \
 cs-export.c \

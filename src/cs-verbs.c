@@ -320,8 +320,12 @@ ClutterActor *cs_group (ClutterActor *ignored)
                               "group.x = %f;\n"
                               "group.y = %f;\n"
                               "CS.cs_get_id (group);\n"
+                              "CS.cs_selected_clear();\n" 
+                              "CS.cs_selected_add(group);\n" 
+
   ,min_x, min_y, min_x, min_y);
 
+#if 0
   group = clutter_group_new ();
   cs_get_id (group); /* force creation of a unique name */
   clutter_container_add_actor (CLUTTER_CONTAINER (parent), group);
@@ -338,28 +342,29 @@ ClutterActor *cs_group (ClutterActor *ignored)
   clutter_actor_set_position (group, min_x, min_y);
   cs_selected_clear ();
   cs_selected_add (group);
-  cs_dirtied ();
+  cs_get_id (group));
+#endif
 
   g_string_append_printf (undo,
-   "var group=$('%s');\n"
+   "var group=CS.cs_selected_get_any ();\n"
    "var parent=group.get_parent();\n"
    "var list = group.get_children();\n"
+   "CS.cs_selected_clear();\n" 
    "for (i in list) {\n"
    "  let item = list[i];\n"
    "  item.x += group.x;\n"
    "  item.y += group.y;\n"
    "  group.remove_actor(item);\n"
    "  parent.add_actor(item);\n"
+   "  CS.cs_selected_add(item);\n" 
    "}\n"
    "group.destroy();\n"
-   "CS.cs_selected_clear();\n" /* XXX: selection should probably be under undo/redo
-                                  control as well */
-   "\n",
-   cs_get_id (group));
+   "\n");
 
-  cs_history_add ("group", redo->str, undo->str);
+  cs_history_do ("group", redo->str, undo->str);
   g_string_free (undo, TRUE);
   g_string_free (redo, TRUE);
+  cs_dirtied ();
 
   return group;
 }
@@ -383,16 +388,16 @@ static void each_ungroup (ClutterActor *actor,
        "var group=$('%s');\n"
        "var parent=group.get_parent();\n"
        "var list = group.get_children();\n"
+       "CS.cs_selected_clear();\n"
        "for (i in list) {\n"
        "  let item = list[i];\n"
        "  item.x += group.x;\n"
        "  item.y += group.y;\n"
        "  group.remove_actor(item);\n"
        "  parent.add_actor(item);\n"
+       "  CS.cs_selected_add(item);\n"
        "}\n"
        "group.destroy();\n"
-       "CS.cs_selected_clear();\n" /* XXX: selection should probably be under undo/redo
-                                      control as well */
        , cs_get_id (actor));
 
 
@@ -435,6 +440,8 @@ static void each_ungroup (ClutterActor *actor,
                                     "}\n"
                                     "group.x = %f;\n"
                                     "group.y = %f;\n"
+                                    "CS.cs_selected_clear();\n"
+                                    "CS.cs_selected_add(group);\n"
        ,cx, cy, cx, cy);
 
 
