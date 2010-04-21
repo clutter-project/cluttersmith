@@ -559,8 +559,10 @@ static void select_nearest (gboolean vertical,
       ClutterActor *new = cs_find_nearest (actor, vertical, reverse);
       if (new)
         {
+          SELECT_ACTION_PRE();
           cs_selected_clear ();
           cs_selected_add (new);
+          SELECT_ACTION_POST("cursor select");
         }
     }
   else
@@ -569,9 +571,11 @@ static void select_nearest (gboolean vertical,
                             CLUTTER_CONTAINER (cs_get_current_container ()));
       if (children)
         {
+          SELECT_ACTION_PRE();
           cs_selected_clear ();
           cs_selected_add (children->data);
           g_list_free (children);
+          SELECT_ACTION_POST("cursor select");
         }
     }
 }

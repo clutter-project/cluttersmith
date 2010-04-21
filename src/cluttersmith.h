@@ -82,7 +82,14 @@ void cluttersmith_load_scene (const gchar *new_title);
 gboolean manipulator_key_pressed (ClutterActor *stage, ClutterModifierType modifier, guint key);
 gboolean manipulator_key_pressed_global (ClutterActor *stage, ClutterModifierType modifier, guint key);
 
+void cs_zoom (gboolean in,
+              gfloat   x,
+              gfloat   y);
 void cs_sync_chrome (void);
+
+gboolean cs_stage_capture (ClutterActor *actor,
+                           ClutterEvent *event,
+                           gpointer      data /* unused */);
 
 extern gint cs_last_x;
 extern gint cs_last_y;
@@ -109,7 +116,6 @@ void cs_save (gboolean force);
 #define CS_PROPEDITOR_EDITOR_WIDTH  80
 #define EDITOR_LINE_HEIGHT          23
 #define CS_EDITOR_LABEL_FONT "Liberation 11px"
-
 
 #define JS_PREAMBLE \
      "const CS = imports.gi.ClutterSmith;\n"\
@@ -142,27 +148,29 @@ extern gint cs_set_keys_freeze; /* XXX: global! */
 gchar *cs_json_escape_string (const gchar *in);
 
 
-/* these are defined here to allow sharing among .c
- * files
+/* these are defined here to allow sharing the boilerplate 
+ * among different .c files
  */
-#define SELECT_ACTION_PRE() \
-  GString *undo = g_string_new ("");\
-  GString *redo = g_string_new ("CS.cs_selected_clear();\n");\
+#define SELECT_ACTION_PRE2() \
   g_string_append_printf (undo, "var list=[");\
   cs_selected_foreach (G_CALLBACK (each_add_to_list), undo);\
   g_string_append_printf (undo, "];\n"\
                           "CS.cs_selected_clear();\n"\
                           "for (x in list) CS.cs_selected_add (list[x]);\n");
-
+#define SELECT_ACTION_PRE() \
+  GString *undo = g_string_new ("");\
+  GString *redo = g_string_new ("");\
+  SELECT_ACTION_PRE2();
 #define SELECT_ACTION_POST(action_name) \
   g_string_append_printf (redo, "var list=[");\
   cs_selected_foreach (G_CALLBACK (each_add_to_list), redo);\
   g_string_append_printf (redo, "];\n"\
                           "CS.cs_selected_clear();\n"\
                           "for (x in list) CS.cs_selected_add (list[x]);\n");\
-  cs_history_add (action_name, redo->str, undo->str);\
+  if (!g_str_equal (redo->str, undo->str))\
+    cs_history_add (action_name, redo->str, undo->str);\
   g_string_free (undo, TRUE);\
   g_string_free (redo, TRUE);\
-
+  undo = redo = NULL;
 
 #endif

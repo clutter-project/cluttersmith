@@ -36,6 +36,7 @@ cs-texture.h \
 cs-tree.c \
 cs-util.c \
 cs-util.h \
+cs-pan.c \
 cs-verbs.c \
 init-types.c \
 property-editors.c

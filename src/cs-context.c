@@ -148,7 +148,6 @@ void cs_dirtied (void)
   CS_REVISION++;
 }
 
-void cs_manipulate_init (ClutterActor *actor);
 
 
 void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bin)
@@ -770,6 +769,99 @@ void mode_switch (MxComboBox *combo_box,
     }
 }
 
+void animator_editor_update_handles (void);
+
+static gint max_x = 0;
+static gint max_y = 0;
+static gint min_x = 0;
+static gint min_y = 0;
+
+static void find_extent (ClutterActor *actor,
+                         gpointer      data)
+{
+  ClutterVertex verts[4];
+  clutter_actor_get_abs_allocation_vertices (actor,
+                                             verts);
+
+  {
+    gint i;
+    for (i=0;i<4;i++)
+      {
+        if (verts[i].x > max_x)
+          max_x = verts[i].x;
+        if (verts[i].x < min_x)
+          min_x = verts[i].x;
+        if (verts[i].y > max_y)
+          max_y = verts[i].y;
+        if (verts[i].y < min_y)
+          min_y = verts[i].y;
+      }
+  }
+}
+
+
+gboolean update_overlay_positions (gpointer data)
+{
+
+  if (cluttersmith->current_animator)
+    animator_editor_update_handles ();
+
+  if (cs_selected_count ()==0 && lasso == NULL)
+    {
+      clutter_actor_hide (cluttersmith->move_handle);
+      clutter_actor_hide (cluttersmith->resize_handle);
+      return TRUE;
+    }
+  clutter_actor_show (cluttersmith->move_handle);
+  clutter_actor_show (cluttersmith->resize_handle);
+      
+  /*XXX: */ clutter_actor_hide (cluttersmith->move_handle);
+
+  min_x = 65536;
+  min_y = 65536;
+  max_x = 0;
+  max_y = 0;
+  cs_selected_foreach (G_CALLBACK (find_extent), data);
+
+  clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
+  clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
+
+  return TRUE;
+}
+
+
+static void
+cs_overlay_paint (ClutterActor *stage,
+                  gpointer      user_data)
+{
+  cs_move_snap_paint ();
+  cs_selected_paint ();
+  cs_animator_editor_stage_paint ();
+}
+
+void init_multi_select (void);
+
+/* The handler that might trigger the playback mode context menu */
+static gboolean playback_context (ClutterActor *actor,
+                                  ClutterEvent *event)
+{
+  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
+      clutter_event_get_button (event)==3)
+    {
+      playback_menu (event->button.x, event->button.y);
+      return TRUE;
+    }
+  return FALSE;
+}
+
+
+/* This function is the entry point that initializes
+ * ClutterSmith event handlers for a stage.
+ *
+ * Cluttersmith is designed to sit around an ClutterStage's
+ * scene graph without impacting the exisitng behavior of
+ * the actors in the graph.
+ */
 gboolean idle_add_stage (gpointer stage)
 {
   ClutterActor *actor;
@@ -789,7 +881,16 @@ gboolean idle_add_stage (gpointer stage)
    //g_print ("%s", json_serialize_subtree (actor));
    //exit (1);
 
-   cs_actor_editing_init (stage);
+   g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
+   clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
+   g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
+                           G_CALLBACK (cs_stage_capture), NULL);
+   g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
+                     G_CALLBACK (playback_context), NULL);
+   init_multi_select ();
+   cs_edit_text_init ();
+
+
    mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
     script = cs_get_script (actor);
 
@@ -856,11 +957,9 @@ gboolean idle_add_stage (gpointer stage)
                      G_CALLBACK (project_root_text_changed), NULL);
 
 
-   cs_manipulate_init (cluttersmith->parasite_root);
    cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
 
    props_populate (_A("config-editors"), G_OBJECT (cluttersmith), FALSE);
-
 
 #ifdef COMPILEMODULE
    clutter_actor_hide (cluttersmith->fake_stage_canvas);
@@ -1783,17 +1882,6 @@ static void project_title_text_changed (ClutterActor *actor)
                           new_title);
   cluttersmith_set_project_root (path);
   g_free (path);
-  /*
-  if (cluttersmith->project_root)
-    g_free (cluttersmith->project_root);
-  cluttersmith->project_root = g_strdup (new_text);
-
-  if (g_file_test (cluttersmith->project_root, G_FILE_TEST_IS_DIR))
-    {
-      previews_reload (cs_find_by_id_int (clutter_actor_get_stage(actor), "previews-container"));
-      cluttersmith_load_scene ("index");
-    }
-    */
 }
 
 void project_title_init_hack (ClutterActor  *actor)

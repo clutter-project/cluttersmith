@@ -10,308 +10,35 @@
  * that allow falling through to each other, but a fixed event pipeline
  * is an simpler initial base).
  */
-static gfloat manipulate_x;
-static gfloat manipulate_y;
-
-static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
-{
-  ClutterVertex verts[4];
-
-  clutter_actor_get_abs_allocation_vertices (actor,
-                                             verts);
-  /* XXX: use cairo to check with the outline of the verts? */
-  if (x>verts[2].x && x<verts[1].x &&
-      y>verts[1].y && y<verts[2].y)
-    {
-      return TRUE;
-    }
-  return FALSE;
-}
-
-static gpointer is_in_actor (ClutterActor *actor, gfloat *args)
-{
-  gfloat x=args[0]; /* convert pointed to argument list into variables */
-  gfloat y=args[1];
-
-  if (actor == clutter_actor_get_stage (actor))
-    return NULL;
-
-  if (is_point_in_actor (actor, x, y))
-    {
-      return actor;
-    }
-  return NULL;
-}
-
-static ClutterActor *
-cs_selection_pick (gfloat x, gfloat y)
-{
-  gfloat data[2]={x,y}; 
-  return cs_selected_match (G_CALLBACK (is_in_actor), data);
-}
-
-ClutterActor *cs_pick (gfloat x, gfloat y)
-{
-  GList *actors = cs_container_get_children_recursive (
-      CLUTTER_CONTAINER (clutter_actor_get_stage(cluttersmith->parasite_root)));
-  ClutterActor *ret;
-  gfloat data[2]={x,y}; 
-  ret = cs_list_match (actors, G_CALLBACK (is_in_actor), data);
-  g_list_free (actors);
-  return ret;
-}
-
-ClutterActor *cs_siblings_pick (ClutterActor *actor, gfloat x, gfloat y)
-{
-  GList *siblings = cs_actor_get_siblings (actor);
-  ClutterActor *ret;
-  gfloat data[2]={x,y}; 
-  ret = cs_list_match (siblings, G_CALLBACK (is_in_actor), data);
-  g_list_free (siblings);
-  return ret;
-}
-
-ClutterActor *cs_children_pick (ClutterActor *actor, gfloat x, gfloat y)
-{
-  GList *children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
-  ClutterActor *ret;
-  gfloat data[2]={x,y}; 
-  ret = cs_list_match (children, G_CALLBACK (is_in_actor), data);
-  g_list_free (children);
-  return ret;
-}
-
-
-typedef struct SiblingPickNextData {
-  gfloat x;
-  gfloat y;
-  ClutterActor *sibling;
-  gboolean found;
-  ClutterActor *first;
-} SiblingPickNextData;
-
-
-static gpointer is_in_actor_sibling_next (ClutterActor *actor, SiblingPickNextData *data)
-{
-  if (actor == clutter_actor_get_stage (actor))
-    return NULL;
-
-  if (is_point_in_actor (actor, data->x, data->y))
-    {
-      if (!data->first)
-        data->first = actor;
-      if (data->found)
-        return actor;
-      if (data->sibling == actor)
-        data->found = TRUE;
-    }
-  return NULL;
-}
-
-ClutterActor *cs_siblings_pick_next (ClutterActor *sibling, gfloat x, gfloat y)
-{
-  GList *actors = clutter_container_get_children (CLUTTER_CONTAINER (clutter_actor_get_parent (sibling)));
-  ClutterActor *ret;
-  SiblingPickNextData data = {x, y, sibling, FALSE, NULL};
-  ret = cs_list_match (actors, G_CALLBACK (is_in_actor_sibling_next), &data);
-  if (!ret)
-    ret = data.first;
-  g_list_free (actors);
-  return ret;
-}
-
-gchar *json_serialize_subtree (ClutterActor *root);
-
-static gint max_x = 0;
-static gint max_y = 0;
-static gint min_x = 0;
-static gint min_y = 0;
-
-static void find_extent (ClutterActor *actor,
-                         gpointer      data)
-{
-  ClutterVertex verts[4];
-  clutter_actor_get_abs_allocation_vertices (actor,
-                                             verts);
-
-  {
-    gint i;
-    for (i=0;i<4;i++)
-      {
-        if (verts[i].x > max_x)
-          max_x = verts[i].x;
-        if (verts[i].x < min_x)
-          min_x = verts[i].x;
-        if (verts[i].y > max_y)
-          max_y = verts[i].y;
-        if (verts[i].y < min_y)
-          min_y = verts[i].y;
-      }
-  }
-}
-
-static void
-cs_overlay_paint (ClutterActor *stage,
-                  gpointer      user_data)
-{
-  cs_move_snap_paint ();
-  cs_selected_paint ();
-  cs_animator_editor_stage_paint ();
-}
-
-void animator_editor_update_handles (void);
-
-gboolean update_overlay_positions (gpointer data)
-{
-
-  if (cluttersmith->current_animator)
-    animator_editor_update_handles ();
-
-  if (cs_selected_count ()==0 && lasso == NULL)
-    {
-      clutter_actor_hide (cluttersmith->move_handle);
-      clutter_actor_hide (cluttersmith->resize_handle);
-      return TRUE;
-    }
-  clutter_actor_show (cluttersmith->move_handle);
-  clutter_actor_show (cluttersmith->resize_handle);
-      
-  /*XXX: */ clutter_actor_hide (cluttersmith->move_handle);
-
-  min_x = 65536;
-  min_y = 65536;
-  max_x = 0;
-  max_y = 0;
-  cs_selected_foreach (G_CALLBACK (find_extent), data);
-
-  clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
-  clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
-
-  return TRUE;
-}
-
-void init_multi_select (void);
-
-void cs_actor_editing_init (gpointer stage)
-{
-  clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
-  g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
-  init_multi_select ();
-}
-
-
-static gfloat manipulate_pan_start_x = 0;
-static gfloat manipulate_pan_start_y = 0;
-
-static void do_zoom (gboolean in,
-                     gfloat   x,
-                     gfloat   y)
-{
-  gfloat zoom;
-  gfloat origin_x;
-  gfloat origin_y;
-  gfloat target_x;
-  gfloat target_y;
-
-  gfloat offset_x;
-  gfloat offset_y;
-
-  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"),
-                                          &offset_x, &offset_y);
-
-  clutter_actor_transform_stage_point (cluttersmith->fake_stage,
-                                       x, y, &target_x, &target_y);
-
-  g_object_get (cluttersmith,
-                "zoom", &zoom,
-                NULL);
-
-  if (in)
-    {
-      zoom *= 1.412135;
-    }
-  else
-    {
-      zoom /= 1.412135;
-    }
-
-  origin_x = target_x * (zoom/100) - x + offset_x;
-  origin_y = target_y * (zoom/100) - y + offset_y;
-  
-  g_object_set (cluttersmith,
-                "zoom", zoom,
-                "origin-x", origin_x,
-                "origin-y", origin_y,
-                NULL);
-}
-
-static gboolean
-manipulate_pan_capture (ClutterActor *stage,
-                        ClutterEvent *event,
-                        gpointer      data)
-{
-  switch (event->any.type)
-    {
-      case CLUTTER_MOTION:
-        {
-          gfloat ex = event->motion.x, ey = event->motion.y;
-          gfloat originx, originy;
-
-          g_object_get (cluttersmith, "origin-x", &originx,
-                                      "origin-y", &originy,
-                                      NULL);
-          originx += manipulate_x-ex;
-          originy += manipulate_y-ey;
-          g_object_set (cluttersmith, "origin-x", originx,
-                                      "origin-y", originy,
-                                      NULL);
-
-          manipulate_x=ex;
-          manipulate_y=ey;
-        }
-        break;
-      case CLUTTER_BUTTON_RELEASE:
-        clutter_actor_queue_redraw (stage);
-        g_signal_handlers_disconnect_by_func (stage, manipulate_pan_capture, data);
-        if (manipulate_x == manipulate_pan_start_x &&
-            manipulate_y == manipulate_pan_start_y)
-          {
-            do_zoom (!(event->button.modifier_state & CLUTTER_SHIFT_MASK), manipulate_x, manipulate_y);
-          }
-      default:
-        break;
-    }
-  return TRUE;
-}
-
-gboolean manipulate_pan_start (ClutterEvent  *event)
-{
-  manipulate_x = event->button.x;
-  manipulate_y = event->button.y;
-
-  manipulate_pan_start_x = manipulate_x;
-  manipulate_pan_start_y = manipulate_y;
-
-  g_signal_connect (clutter_actor_get_stage (event->any.source), "captured-event",
-                    G_CALLBACK (manipulate_pan_capture), NULL);
-  return TRUE;
-}
-
-
-
-
 gint cs_last_x = 0;
 gint cs_last_y = 0;
-
 static ClutterActor *edited_actor = NULL;
 
-static gboolean
-manipulate_capture (ClutterActor *actor,
-                    ClutterEvent *event,
-                    gpointer      data /* unused */)
-{
+gboolean manipulate_pan_start (ClutterEvent  *event);
+ClutterActor        *cs_siblings_pick_next (ClutterActor *sibling,
+                                            gfloat        x,
+                                            gfloat        y);
+static ClutterActor * cs_selection_pick    (gfloat        x,
+                                            gfloat        y);
+ClutterActor        *cs_children_pick      (ClutterActor *actor,
+                                            gfloat        x,
+                                            gfloat        y);
 
-  /* pass events through to text being edited */
+static void each_add_to_list (ClutterActor *actor,
+                               gpointer      string)
+{
+  g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
+}
+
+gboolean
+cs_stage_capture (ClutterActor *actor,
+                  ClutterEvent *event,
+                  gpointer      data /* unused */)
+{
+  /* pass events through to actor being edited, this
+   * is perhaps not what is desired in the general
+   * case, and the text editing should be reimplemented
+   * to use an additional proxy. */
   if (edited_actor)
     { 
       if (event->any.type == CLUTTER_KEY_PRESS &&
@@ -347,11 +74,11 @@ manipulate_capture (ClutterActor *actor,
         }
     }
 
-    if (event->any.type == CLUTTER_KEY_PRESS)
-      {
-          if(manipulator_key_pressed_global (actor, clutter_event_get_state(event), event->key.keyval))
-            return TRUE;
-      }
+   if (event->any.type == CLUTTER_KEY_PRESS
+       && manipulator_key_pressed_global (actor,
+                                           clutter_event_get_state(event),
+                                           event->key.keyval))
+     return TRUE;
 
    if (event->any.type == CLUTTER_KEY_PRESS &&
        !cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root)) /* If the source is in the parasite ui,
@@ -361,8 +88,6 @@ manipulate_capture (ClutterActor *actor,
             manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
           return TRUE;
      }
-
-
 
   if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
     {
@@ -422,7 +147,7 @@ manipulate_capture (ClutterActor *actor,
   switch (event->any.type)
     {
       case CLUTTER_SCROLL:
-          do_zoom (event->scroll.direction == CLUTTER_SCROLL_UP,
+          cs_zoom (event->scroll.direction == CLUTTER_SCROLL_UP,
                    event->scroll.x, event->scroll.y);
         return TRUE;
         break;
@@ -485,7 +210,9 @@ manipulate_capture (ClutterActor *actor,
                      {
                        if (cs_selected_has_actor (hit))
                          {
+                           SELECT_ACTION_PRE();
                            cs_selected_remove (hit);
+                           SELECT_ACTION_POST("select-remove");
                          }
                      }
                    if (event->button.modifier_state & CLUTTER_MOD1_MASK)
@@ -493,8 +220,10 @@ manipulate_capture (ClutterActor *actor,
                        if (cs_selected_has_actor (hit))
                          {
                            ClutterActor *next = cs_siblings_pick_next (hit, x, y);
+                           SELECT_ACTION_PRE();
                            cs_selected_remove (hit);
                            cs_selected_add (next);
+                           SELECT_ACTION_POST ("select foo");
                          }
                      }
                    cs_move_start (cluttersmith->parasite_root, event);
@@ -529,6 +258,7 @@ manipulate_capture (ClutterActor *actor,
 
               if (hit)
                 {
+                  SELECT_ACTION_PRE();
                   if (!((clutter_event_get_state (event) & CLUTTER_CONTROL_MASK) ||
                         (clutter_event_get_state (event) & CLUTTER_SHIFT_MASK)))
                     {
@@ -570,6 +300,7 @@ manipulate_capture (ClutterActor *actor,
                       cs_selected_add (hit);
                     }
                   cs_move_start (cluttersmith->parasite_root, event);
+                  SELECT_ACTION_POST("select");
                 }
               else
                 {
@@ -588,26 +319,110 @@ manipulate_capture (ClutterActor *actor,
   return TRUE;
 }
 
-static gboolean playback_context (ClutterActor *actor,
-                                  ClutterEvent *event)
+
+
+
+static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
 {
-  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
-      clutter_event_get_button (event)==3)
+  ClutterVertex verts[4];
+
+  clutter_actor_get_abs_allocation_vertices (actor,
+                                             verts);
+  /* XXX: use cairo to check with the outline of the verts? */
+  if (x>verts[2].x && x<verts[1].x &&
+      y>verts[1].y && y<verts[2].y)
     {
-      playback_menu (event->button.x, event->button.y);
       return TRUE;
     }
   return FALSE;
 }
 
-void cs_manipulate_init (ClutterActor *actor)
+static gpointer
+is_in_actor (ClutterActor *actor,
+             gfloat       *args)
 {
-  g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
-                          G_CALLBACK (manipulate_capture), NULL);
-  g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
-                    G_CALLBACK (playback_context), NULL);
-  cs_edit_text_init ();
+  gfloat x=args[0]; /* convert pointed to argument list into variables */
+  gfloat y=args[1];
+
+  if (actor == clutter_actor_get_stage (actor))
+    return NULL;
+
+  if (is_point_in_actor (actor, x, y))
+    {
+      return actor;
+    }
+  return NULL;
 }
+
+static ClutterActor *
+cs_selection_pick (gfloat x,
+                   gfloat y)
+{
+  gfloat data[2]={x,y}; 
+  return cs_selected_match (G_CALLBACK (is_in_actor), data);
+}
+
+ClutterActor *cs_siblings_pick (ClutterActor *actor, gfloat x, gfloat y)
+{
+  GList *siblings = cs_actor_get_siblings (actor);
+  ClutterActor *ret;
+  gfloat data[2]={x,y}; 
+  ret = cs_list_match (siblings, G_CALLBACK (is_in_actor), data);
+  g_list_free (siblings);
+  return ret;
+}
+
+ClutterActor *cs_children_pick (ClutterActor *actor,
+                                gfloat        x,
+                                gfloat        y)
+{
+  GList *children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+  ClutterActor *ret;
+  gfloat data[2]={x,y}; 
+  ret = cs_list_match (children, G_CALLBACK (is_in_actor), data);
+  g_list_free (children);
+  return ret;
+}
+
+
+typedef struct SiblingPickNextData {
+  gfloat x;
+  gfloat y;
+  ClutterActor *sibling;
+  gboolean found;
+  ClutterActor *first;
+} SiblingPickNextData;
+
+
+static gpointer is_in_actor_sibling_next (ClutterActor *actor, SiblingPickNextData *data)
+{
+  if (actor == clutter_actor_get_stage (actor))
+    return NULL;
+
+  if (is_point_in_actor (actor, data->x, data->y))
+    {
+      if (!data->first)
+        data->first = actor;
+      if (data->found)
+        return actor;
+      if (data->sibling == actor)
+        data->found = TRUE;
+    }
+  return NULL;
+}
+
+ClutterActor *cs_siblings_pick_next (ClutterActor *sibling, gfloat x, gfloat y)
+{
+  GList *actors = clutter_container_get_children (CLUTTER_CONTAINER (clutter_actor_get_parent (sibling)));
+  ClutterActor *ret;
+  SiblingPickNextData data = {x, y, sibling, FALSE, NULL};
+  ret = cs_list_match (actors, G_CALLBACK (is_in_actor_sibling_next), &data);
+  if (!ret)
+    ret = data.first;
+  g_list_free (actors);
+  return ret;
+}
+
 
 /* Used for resize and similar handles on the active
  * actor
@@ -709,6 +524,7 @@ gboolean cs_edit_actor_start (ClutterActor *actor)
   return FALSE;
 }
 
+
 gboolean cs_edit_actor_end (void)
 {
   if (!edited_actor)
@@ -721,4 +537,47 @@ gboolean cs_edit_actor_end (void)
       edited_actor = NULL;
     }
   return FALSE;
+}
+
+
+void cs_zoom (gboolean in,
+              gfloat   x,
+              gfloat   y)
+{
+  gfloat zoom;
+  gfloat origin_x;
+  gfloat origin_y;
+  gfloat target_x;
+  gfloat target_y;
+
+  gfloat offset_x;
+  gfloat offset_y;
+
+  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"),
+                                          &offset_x, &offset_y);
+
+  clutter_actor_transform_stage_point (cluttersmith->fake_stage,
+                                       x, y, &target_x, &target_y);
+
+  g_object_get (cluttersmith,
+                "zoom", &zoom,
+                NULL);
+
+  if (in)
+    {
+      zoom *= 1.412135;
+    }
+  else
+    {
+      zoom /= 1.412135;
+    }
+
+  origin_x = target_x * (zoom/100) - x + offset_x;
+  origin_y = target_y * (zoom/100) - y + offset_y;
+  
+  g_object_set (cluttersmith,
+                "zoom", zoom,
+                "origin-x", origin_x,
+                "origin-y", origin_y,
+                NULL);
 }

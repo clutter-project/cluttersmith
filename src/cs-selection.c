@@ -69,6 +69,12 @@ void cs_selected_remove (ClutterActor *actor)
   update_active_actor ();
 }
 
+static void each_add_to_list (ClutterActor *actor,
+                               gpointer      string)
+{
+  g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
+}
+
 void cs_selected_foreach (GCallback cb, gpointer data)
 {
   void (*each)(ClutterActor *actor, gpointer data)=(void*)cb;
@@ -122,6 +128,8 @@ ClutterActor *cs_selected_get_any (void)
 
 #define LASSO_BORDER 1
 
+static GString *undo = NULL;
+static GString *redo = NULL;
 
 static gboolean
 manipulate_lasso_capture (ClutterActor *stage,
@@ -226,6 +234,7 @@ manipulate_lasso_capture (ClutterActor *stage,
         g_signal_handlers_disconnect_by_func (stage, manipulate_lasso_capture, data);
         clutter_actor_destroy (lasso);
         lasso = NULL;
+        SELECT_ACTION_POST("select lasso");
       default:
         break;
     }
@@ -265,6 +274,9 @@ cs_selected_lasso_start (ClutterActor  *actor,
 
   g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
                     G_CALLBACK (manipulate_lasso_capture), actor);
+  undo = g_string_new ("");
+  redo = g_string_new ("");
+  SELECT_ACTION_PRE2();
 
   return TRUE;
 }
