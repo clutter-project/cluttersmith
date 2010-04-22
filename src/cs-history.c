@@ -34,6 +34,10 @@ cs_history_add (const gchar *name,
 
   g_print ("%s: %s\n", name, javascript_do);
 
+  /* XXX: Todo if the previous modification was a modification of the same
+   * property, collapse the edits.
+   */ 
+
   /* empty redo list */
   for (;redo_commands;redo_commands = g_list_remove (redo_commands, redo_commands->data))
     item_free (redo_commands->data);
@@ -66,40 +70,61 @@ cs_history_do (const gchar *name,
   }
 }
 
+
 void cs_history_undo (ClutterActor *ignored)
 {
   HistoryItem *hitem;
+  gint group_level = 0;
+   
   g_print ("CS: Undo\n");
 
   if (!undo_commands)
     {
-      g_print ("attemptd undo with no undos\n");
+      g_print ("attempted undo with no undos\n");
       return;
     }
-  hitem = undo_commands->data;
-  {
-    GjsContext *js_context;
-    GError     *error = NULL;
-    gint        code;
 
-    g_print ("running: %s\n", hitem->javascript_undo);
-    js_context = gjs_context_new_with_search_path (NULL);
-    gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
-    if (!gjs_context_eval (js_context, hitem->javascript_undo, strlen (hitem->javascript_undo),
-                           "<code>", &code, &error))
-      {
-        g_print ("%s", error->message);
-      }
-    g_object_unref (js_context);
-  }
+  do 
+    {
+      hitem = undo_commands->data;
+      
+      if (strcmp (hitem->name, "("))
+        {
+          if (group_level == 0)
+            g_print ("%s unexpected undogroup start", G_STRLOC);
+          group_level --;
+        }
+      else if (strcmp (hitem->name, ")"))
+        {
+          group_level++;
+        }
+      else
+        {
+          GjsContext *js_context;
+          GError     *error = NULL;
+          gint        code;
 
-  redo_commands = g_list_prepend (redo_commands, undo_commands->data);
-  undo_commands = g_list_remove (undo_commands, redo_commands->data);
+          g_print ("running: %s\n", hitem->javascript_undo);
+          js_context = gjs_context_new_with_search_path (NULL);
+          gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
+          if (!gjs_context_eval (js_context, hitem->javascript_undo, strlen (hitem->javascript_undo),
+                                 "<code>", &code, &error))
+            {
+              g_print ("%s", error->message);
+            }
+          g_object_unref (js_context);
+        }
+
+      redo_commands = g_list_prepend (redo_commands, undo_commands->data);
+      undo_commands = g_list_remove (undo_commands, redo_commands->data);
+    }
+  while (group_level > 0);
 }
 
 void cs_history_redo (ClutterActor *ignored)
 {
   HistoryItem *hitem;
+  gint group_level = 0;
   g_print ("CS: Redo\n");
 
   if (!redo_commands)
@@ -107,22 +132,52 @@ void cs_history_redo (ClutterActor *ignored)
       g_print ("attemptd redo with no redos\n");
       return;
     }
-  hitem = redo_commands->data;
-  {
-    GjsContext *js_context;
-    GError     *error = NULL;
-    gint        code;
 
-    g_print ("running: %s\n", hitem->javascript_do);
-    js_context = gjs_context_new_with_search_path (NULL);
-    gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
-    if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
-                           "<code>", &code, &error))
-      {
-        g_print ("%s", error->message);
-      }
-    g_object_unref (js_context);
-  }
-  undo_commands = g_list_prepend (undo_commands, redo_commands->data);
-  redo_commands = g_list_remove (redo_commands, undo_commands->data);
+  do 
+    {
+      hitem = redo_commands->data;
+
+      if (strcmp (hitem->name, "("))
+        {
+          group_level ++;
+        }
+      else if (strcmp (hitem->name, ")"))
+        {
+          if (group_level == 0)
+            g_print ("%s unexpected undogroup end", G_STRLOC);
+          group_level--;
+        }
+      else
+        {
+          GjsContext *js_context;
+          GError     *error = NULL;
+          gint        code;
+
+          g_print ("running:%s\n--------\n", hitem->javascript_do);
+          js_context = gjs_context_new_with_search_path (NULL);
+          gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
+          if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
+                                 "<code>", &code, &error))
+            {
+              g_print ("%s", error->message);
+            }
+          g_object_unref (js_context);
+        }
+      undo_commands = g_list_prepend (undo_commands, redo_commands->data);
+      redo_commands = g_list_remove (redo_commands, undo_commands->data);
+    }
+  while (group_level > 0);
+}
+
+/*
+ * can be used to create a group of commands that
+ * belong together.
+ */
+void cs_history_start_group (const gchar *group_name)
+{
+  cs_history_add ("(", NULL, NULL);
+}
+void cs_history_end_group   (const gchar *group_name)
+{
+  cs_history_add (")", NULL, NULL);
 }
