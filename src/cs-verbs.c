@@ -215,12 +215,12 @@ static void each_add_to_list (ClutterActor *actor,
 void cs_select_none (ClutterActor *ignored)
 {
   GString *undo = g_string_new ("");
-  GString *redo = g_string_new ("CS.cs_selected_clear();\n");
+  GString *redo = g_string_new ("CS.selected_clear();\n");
   g_string_append_printf (undo, "var list=[");
 
   cs_selected_foreach (G_CALLBACK (each_add_to_list), undo);
   g_string_append_printf (undo, "];\n"
-                          "for (x in list) CS.cs_selected_add (list[x]);\n");
+                          "for (x in list) CS.selected_add (list[x]);\n");
 
   cs_history_do ("select none", redo->str, undo->str);
   g_string_free (undo, TRUE);
@@ -253,9 +253,9 @@ void cs_view_reset (ClutterActor *ignored)
 void cs_group (ClutterActor *ignored)
 {
   cs_history_do ("group", 
-    "var parent=CS.cs_get_current_container();\n"
-    "var list = CS.cs_selected_get_list();\n"
-    "CS.cs_selected_clear();\n" 
+    "var parent=CS.get_current_container();\n"
+    "var list = CS.selected_get_list();\n"
+    "CS.selected_clear();\n" 
     "var min_x = 2000000; var min_y = 2000000;\n"
     "for (x in list) {\n"
     "  let item = list[x];\n"
@@ -263,7 +263,7 @@ void cs_group (ClutterActor *ignored)
     "  if (item.y < min_y) min_y = item.y;\n"
     "}\n"
     "var group = new Clutter.Group ();\n"
-    "CS.cs_get_id (group);\n"
+    "CS.get_id (group);\n"
     "parent.add_actor (group);\n"
     "group.x = min_x;\n"
     "group.y = min_y;\n"
@@ -274,21 +274,21 @@ void cs_group (ClutterActor *ignored)
     "  item.x -= min_x;\n"
     "  item.y -= min_y;\n"
     "}\n"
-    "CS.cs_selected_clear();\n" 
-    "CS.cs_selected_add(group);\n"
+    "CS.selected_clear();\n" 
+    "CS.selected_add(group);\n"
     "CS.print('hoi'+ min_x +' ' + min_y + ' ' + parent +  '\\n');\n"
     , 
-    "var group=CS.cs_selected_get_any ();\n"
+    "var group=CS.selected_get_any ();\n"
     "var parent=group.get_parent();\n"
     "var list = group.get_children();\n"
-    "CS.cs_selected_clear();\n" 
+    "CS.selected_clear();\n" 
     "for (i in list) {\n"
     "  let item = list[i];\n"
     "  item.x += group.x;\n"
     "  item.y += group.y;\n"
     "  group.remove_actor(item);\n"
     "  parent.add_actor(item);\n"
-    "  CS.cs_selected_add(item);\n" 
+    "  CS.selected_add(item);\n" 
     "}\n"
     "group.destroy();\n"
    );
@@ -314,14 +314,14 @@ static void each_ungroup (ClutterActor *actor,
        "var group=$('%s');\n"
        "var parent=group.get_parent();\n"
        "var list = group.get_children();\n"
-       "CS.cs_selected_clear();\n"
+       "CS.selected_clear();\n"
        "for (i in list) {\n"
        "  let item = list[i];\n"
        "  item.x += group.x;\n"
        "  item.y += group.y;\n"
        "  group.remove_actor(item);\n"
        "  parent.add_actor(item);\n"
-       "  CS.cs_selected_add(item);\n"
+       "  CS.selected_add(item);\n"
        "}\n"
        "group.destroy();\n"
        , cs_get_id (actor));
@@ -333,7 +333,7 @@ static void each_ungroup (ClutterActor *actor,
        */
       g_string_append_printf (undo, "var parent=$('%s');\n"
                                     "var group = new Clutter.Group ();\n"
-                                    "CS.cs_get_id (group);\n"
+                                    "CS.get_id (group);\n"
                                     "parent.add_actor (group);\n"
                                     "var list = [", cs_get_id (parent));
 
@@ -365,8 +365,8 @@ static void each_ungroup (ClutterActor *actor,
                                     "}\n"
                                     "group.x = %f;\n"
                                     "group.y = %f;\n"
-                                    "CS.cs_selected_clear();\n"
-                                    "CS.cs_selected_add(group);\n"
+                                    "CS.selected_clear();\n"
+                                    "CS.selected_add(group);\n"
        ,cx, cy, cx, cy);
 
 

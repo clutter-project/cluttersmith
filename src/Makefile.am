@@ -57,7 +57,12 @@ CLEANFILES += libcluttersmith.la
 girdir = $(datadir)/gir-1.0
 gir_DATA = ClutterSmith-0.0.gir
 
-ClutterSmith-0.0.gir: $(INTROSPECTION_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
+# strip the cs_ prefix, since this should be indicates that
+# the function is part of the ClutterSmith namespace.
+ClutterSmith-0.0.gir: tmp.gir 
+	cat $< | sed 's/function name="cs_/function name="/' > $@
+
+tmp.gir: $(INTROSPECTION_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
 	$(AM_V_GEN) $(INTROSPECTION_SCANNER)			 \
 		--namespace=ClutterSmith		 \
 		--nsversion=0.1				 \
@@ -81,7 +86,7 @@ ClutterSmith-0.0.typelib: ClutterSmith-0.0.gir libcluttersmith.la
 	$(AM_V_GEN) $(INTROSPECTION_COMPILER)		\
 		--includedir=.				\
 		ClutterSmith-0.0.gir -o $@
-CLEANFILES += ClutterSmith-0.0.typelib
+CLEANFILES += ClutterSmith-0.0.typelib tmp.gir
 
 
 
