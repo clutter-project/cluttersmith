@@ -156,8 +156,8 @@ void cs_callbacks_populate (ClutterActor *actor);
   g_string_append_printf (undo, "var list=[");\
   cs_selected_foreach (G_CALLBACK (each_add_to_list), undo);\
   g_string_append_printf (undo, "];\n"\
-                          "CS.cs_selected_clear();\n"\
-                          "for (x in list) CS.cs_selected_add (list[x]);\n");
+                          "CS.selected_clear();\n"\
+                          "for (x in list) CS.selected_add (list[x]);\n");
 #define SELECT_ACTION_PRE() \
   GString *undo = g_string_new ("");\
   GString *redo = g_string_new ("");\
@@ -166,8 +166,8 @@ void cs_callbacks_populate (ClutterActor *actor);
   g_string_append_printf (redo, "var list=[");\
   cs_selected_foreach (G_CALLBACK (each_add_to_list), redo);\
   g_string_append_printf (redo, "];\n"\
-                          "CS.cs_selected_clear();\n"\
-                          "for (x in list) CS.cs_selected_add (list[x]);\n");\
+                          "CS.selected_clear();\n"\
+                          "for (x in list) CS.selected_add (list[x]);\n");\
   if (!g_str_equal (redo->str, undo->str))\
     cs_history_add (action_name, redo->str, undo->str);\
   g_string_free (undo, TRUE);\

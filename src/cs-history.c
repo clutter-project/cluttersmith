@@ -32,7 +32,7 @@ cs_history_add (const gchar *name,
   hitem->javascript_undo = g_strdup (javascript_undo);
   undo_commands = g_list_prepend (undo_commands, hitem);
 
-  g_print ("%s: %s\n", name, javascript_do);
+  g_print ("%s: %s~~%s\n", name, javascript_do, javascript_undo);
 
   /* XXX: Todo if the previous modification was a modification of the same
    * property, collapse the edits.
@@ -80,7 +80,7 @@ void cs_history_undo (ClutterActor *ignored)
 
   if (!undo_commands)
     {
-      g_print ("attempted undo with no undos\n");
+      g_print ("Undo attempted with no undos in history\n");
       return;
     }
 
@@ -88,13 +88,13 @@ void cs_history_undo (ClutterActor *ignored)
     {
       hitem = undo_commands->data;
       
-      if (strcmp (hitem->name, "("))
+      if (!strcmp (hitem->name, "("))
         {
           if (group_level == 0)
-            g_print ("%s unexpected undogroup start", G_STRLOC);
+            g_print ("%s unexpected undogroup start\n", G_STRLOC);
           group_level --;
         }
-      else if (strcmp (hitem->name, ")"))
+      else if (!strcmp (hitem->name, ")"))
         {
           group_level++;
         }
@@ -129,7 +129,7 @@ void cs_history_redo (ClutterActor *ignored)
 
   if (!redo_commands)
     {
-      g_print ("attemptd redo with no redos\n");
+      g_print ("Redo attempted with no redos in history\n");
       return;
     }
 
@@ -137,11 +137,11 @@ void cs_history_redo (ClutterActor *ignored)
     {
       hitem = redo_commands->data;
 
-      if (strcmp (hitem->name, "("))
+      if (!strcmp (hitem->name, "("))
         {
           group_level ++;
         }
-      else if (strcmp (hitem->name, ")"))
+      else if (!strcmp (hitem->name, ")"))
         {
           if (group_level == 0)
             g_print ("%s unexpected undogroup end", G_STRLOC);

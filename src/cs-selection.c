@@ -166,40 +166,11 @@ manipulate_lasso_capture (ClutterActor *stage,
           manipulate_x=ex;
           manipulate_y=ey;
 
-
           {
             gint no;
             GList *j, *list;
-#if 0
-            ClutterActor *sibling = cs_selected_get_any ();
-
-            if (!sibling)
-              {
-                GHashTableIter      iter;
-                gpointer            key = NULL, value;
-
-                g_hash_table_iter_init (&iter, selection);
-                g_hash_table_iter_next (&iter, &key, &value);
-                if (key)
-                  {
-                    sibling = key;
-                  }
-              }
-            
-            g_hash_table_remove_all (selection);
-
-            if (sibling)
-              {
-                list = get_siblings (sibling);
-              }
-            else
-              {
-                list = cs_container_get_children_recursive (stage);
-              }
-#else
             g_hash_table_remove_all (selection);
             list = clutter_container_get_children (CLUTTER_CONTAINER (cs_get_current_container ()));
-#endif
 
             for (no = 0, j=list; j;no++,j=j->next)
               {
@@ -259,11 +230,6 @@ cs_selected_lasso_start (ClutterActor  *actor,
 {
   ClutterModifierType state = event->button.modifier_state;
 
-  if (!((state & CLUTTER_SHIFT_MASK) ||
-        (state & CLUTTER_CONTROL_MASK)))
-    {
-      cs_selected_clear ();
-    }
 
   g_assert (lasso == NULL);
 
@@ -289,6 +255,12 @@ cs_selected_lasso_start (ClutterActor  *actor,
   undo = g_string_new ("");
   redo = g_string_new ("");
   SELECT_ACTION_PRE2();
+
+  if (!((state & CLUTTER_SHIFT_MASK) ||
+        (state & CLUTTER_CONTROL_MASK)))
+    {
+      cs_selected_clear ();
+    }
 
   return TRUE;
 }
