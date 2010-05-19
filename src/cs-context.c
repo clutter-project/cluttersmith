@@ -2,7 +2,6 @@
 
 #include "cluttersmith.h"
 #include "cs-context.h"
-#include "clutter-states.h"
 #include <gjs/gjs.h>
 #include <gio/gio.h>
 #include <string.h>
@@ -1308,15 +1307,15 @@ void cs_prop_tweaked (GObject     *object,
          }
 
        if (cs_set_keys_freeze == 0)
-       clutter_states_set_key (cluttersmith->current_state_machine,
-                               source_state,
-                               cluttersmith->current_state,
-                               object,
-                               property_name,
-                               CLUTTER_LINEAR,
-                               &value,
-                               0.0,
-                               0.0);
+       clutter_state_set_key (cluttersmith->current_state_machine,
+                              source_state,
+                              cluttersmith->current_state,
+                              object,
+                              property_name,
+                              CLUTTER_LINEAR,
+                              &value,
+                              0.0,
+                              0.0);
        g_value_unset (&value);
 
        cs_update_animator_editor (cluttersmith->current_state_machine,

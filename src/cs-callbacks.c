@@ -1,6 +1,5 @@
 #include "cluttersmith.h"
 #include "cs-context.h"
-#include "clutter-states.h"
 #include <gjs/gjs.h>
 #include <gio/gio.h>
 #include <string.h>

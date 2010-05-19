@@ -1104,21 +1104,21 @@ void animator_editor_update_handles (void)
 /**************/
 
 void
-cs_update_animator_editor (ClutterStates *states,
-                           const gchar   *source_state,
-                           const gchar   *target_state)
+cs_update_animator_editor (ClutterState *state,
+                           const gchar  *source_state,
+                           const gchar  *target_state)
 {
   GList *k, *keys;
   cs_container_remove_children (cluttersmith->animator_props);
 
-  if (!states)
+  if (!state)
     return;
 
-  keys = clutter_states_get_keys (states,
-                                  source_state,
-                                  target_state,
-                                  NULL,
-                                  NULL);
+  keys = clutter_state_get_keys (state,
+                                 source_state,
+                                 target_state,
+                                 NULL,
+                                 NULL);
                                   
   for (k = keys; k; k = k->next)
     {
@@ -1172,9 +1172,9 @@ static void update_duration (void)
       source_state = NULL;
     }
 
-  duration = clutter_states_get_duration (cluttersmith->current_state_machine,
-                                          source_state,
-                                          cluttersmith->current_state);
+  duration = clutter_state_get_duration (cluttersmith->current_state_machine,
+                                         source_state,
+                                         cluttersmith->current_state);
   str = g_strdup_printf ("%i", duration);
   g_object_set (cluttersmith->state_duration, "text", str, NULL);
   g_free (str);
@@ -1209,7 +1209,7 @@ static void state_name_text_changed (ClutterActor *actor)
        */
 
       /* update storage of this state */
-      clutter_states_change (cluttersmith->current_state_machine, state);
+      clutter_state_change (cluttersmith->current_state_machine, state);
     }
 
   cluttersmith->current_state = g_intern_string (state);

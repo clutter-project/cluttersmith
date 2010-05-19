@@ -1,8 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "clutter-states.h"
-
 /* like foreach, but returns the first non NULL return value (and
  * stops iterating)
  */
@@ -67,9 +65,9 @@ char         * cs_make_config_file                 (const char   *filename);
 void           cs_properties_store_defaults        (void);
 void           cs_properties_restore_defaults      (void);
 
-ClutterAnimator * cs_states_make_animator (ClutterStates *states,
-                                           const gchar   *source_state,
-                                           const gchar   *target_state);
+ClutterAnimator * cs_state_make_animator (ClutterState *states,
+                                          const gchar  *source_state,
+                                          const gchar  *target_state);
 
 void           cluttersmith_init                   (void);
 

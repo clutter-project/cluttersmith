@@ -1176,14 +1176,14 @@ void cs_properties_restore_defaults (void)
 
 
 ClutterAnimator *
-cs_states_make_animator (ClutterStates *states,
-                         const gchar   *source_state,
-                         const gchar   *target_state)
+cs_state_make_animator (ClutterState *state,
+                        const gchar  *source_state,
+                        const gchar  *target_state)
 {
   ClutterAnimator *animator;
   GList *k, *keys;
   animator = clutter_animator_new ();
-  keys = clutter_states_get_keys (states, source_state, target_state, NULL, NULL);
+  keys = clutter_state_get_keys (state, source_state, target_state, NULL, NULL);
 
   for (k = keys; k; k = k->next)
     {
@@ -1225,7 +1225,7 @@ cs_states_make_animator (ClutterStates *states,
         {
            GList *keys2;
            
-           keys2 = clutter_states_get_keys (states, NULL, source_state, object, property_name);
+           keys2 = clutter_state_get_keys (state, NULL, source_state, object, property_name);
            /* XXX: should prefer NULL over specifics.. */
            if (keys2)
              {

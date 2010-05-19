@@ -6,7 +6,6 @@
 #include <clutter/clutter.h>
 #include <mx/mx.h>
 #include <glib-object.h>
-#include "clutter-states.h"
 
 G_BEGIN_DECLS
 
@@ -47,7 +46,7 @@ struct _CSContext
   gchar        *project_root;
 
   const gchar   *current_state;  /* interned string */
-  ClutterStates *current_state_machine;
+  ClutterState  *current_state_machine;
 
   ClutterActor  *current_container;
 
