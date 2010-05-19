@@ -32,8 +32,6 @@ cs_history_add (const gchar *name,
   hitem->javascript_undo = g_strdup (javascript_undo);
   undo_commands = g_list_prepend (undo_commands, hitem);
 
-  g_print ("%s: %s~~%s\n", name, javascript_do, javascript_undo);
-
   /* XXX: Todo if the previous modification was a modification of the same
    * property, collapse the edits.
    */ 
@@ -57,14 +55,13 @@ cs_history_do (const gchar *name,
     GError     *error = NULL;
     gint code;
 
-    g_print ("running: %s\n", hitem->javascript_do);
     js_context = gjs_context_new_with_search_path (NULL);
     gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
 
     if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
                            "<code>", &code, &error))
       {
-        g_print ("%s", error->message);
+        g_warning ("%s", error->message);
       }
     g_object_unref (js_context);
   }
@@ -76,11 +73,10 @@ void cs_history_undo (ClutterActor *ignored)
   HistoryItem *hitem;
   gint group_level = 0;
    
-  g_print ("CS: Undo\n");
 
   if (!undo_commands)
     {
-      g_print ("Undo attempted with no undos in history\n");
+      g_warning ("Undo attempted with no undos in history\n");
       return;
     }
 
@@ -91,7 +87,7 @@ void cs_history_undo (ClutterActor *ignored)
       if (!strcmp (hitem->name, "("))
         {
           if (group_level == 0)
-            g_print ("%s unexpected undogroup start\n", G_STRLOC);
+            g_warning ("%s unexpected undogroup start\n", G_STRLOC);
           group_level --;
         }
       else if (!strcmp (hitem->name, ")"))
@@ -104,13 +100,12 @@ void cs_history_undo (ClutterActor *ignored)
           GError     *error = NULL;
           gint        code;
 
-          g_print ("running: %s\n", hitem->javascript_undo);
           js_context = gjs_context_new_with_search_path (NULL);
           gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
           if (!gjs_context_eval (js_context, hitem->javascript_undo, strlen (hitem->javascript_undo),
                                  "<code>", &code, &error))
             {
-              g_print ("%s", error->message);
+              g_warning ("%s", error->message);
             }
           g_object_unref (js_context);
         }
@@ -125,11 +120,10 @@ void cs_history_redo (ClutterActor *ignored)
 {
   HistoryItem *hitem;
   gint group_level = 0;
-  g_print ("CS: Redo\n");
 
   if (!redo_commands)
     {
-      g_print ("Redo attempted with no redos in history\n");
+      g_warning ("Redo attempted with no redos in history\n");
       return;
     }
 
@@ -144,7 +138,7 @@ void cs_history_redo (ClutterActor *ignored)
       else if (!strcmp (hitem->name, ")"))
         {
           if (group_level == 0)
-            g_print ("%s unexpected undogroup end", G_STRLOC);
+            g_warning ("%s unexpected undogroup end", G_STRLOC);
           group_level--;
         }
       else
@@ -153,13 +147,12 @@ void cs_history_redo (ClutterActor *ignored)
           GError     *error = NULL;
           gint        code;
 
-          g_print ("running:%s\n--------\n", hitem->javascript_do);
           js_context = gjs_context_new_with_search_path (NULL);
           gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
           if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
                                  "<code>", &code, &error))
             {
-              g_print ("%s", error->message);
+              g_warning ("%s", error->message);
             }
           g_object_unref (js_context);
         }
