@@ -1348,6 +1348,7 @@ static void remove_state_machines (void)
 
 }
 
+/* filename has already been set when cs_load is called */
 static void cs_load (void)
 {
   cs_container_remove_children (cs->property_editors);

@@ -198,7 +198,23 @@ ClutterActor *cs_replace_content2 (ClutterActor  *actor,
 
   cs_container_remove_children (content);
   if (new_script)
-    clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (new_script));
+    {
+      clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (new_script));
+
+      /* force all actors that are loaded in this manner to have unique
+       * id's, this is needed to make undo/redo work
+       */
+      if (ret)
+        {
+          GList *a, *added;
+          added = cs_container_get_children_recursive (CLUTTER_CONTAINER (ret));
+          for (a = added; a; a = a->next)
+            {
+              cs_actor_make_id_unique (a->data, NULL);
+            }
+          g_list_free (added);
+        }
+    }
   else
     clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
   return ret;
