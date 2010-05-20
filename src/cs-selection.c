@@ -6,8 +6,10 @@
 static GList      *selected = NULL;
 static gint        lx, ly;
 ClutterActor      *lasso;
+
 static GHashTable *selection = NULL; /* what would be added/removed by
-                                        current lasso*/
+                                        current lasso, not yet paret of the selected
+                                      */
 static gfloat manipulate_x;
 static gfloat manipulate_y;
 
@@ -213,9 +215,9 @@ manipulate_lasso_capture (ClutterActor *stage,
         }
         g_hash_table_remove_all (selection);
 
-        clutter_actor_queue_redraw (stage);
         g_signal_handlers_disconnect_by_func (stage, manipulate_lasso_capture, data);
         clutter_actor_destroy (lasso);
+        clutter_actor_queue_redraw (stage);
         lasso = NULL;
         SELECT_ACTION_POST("select lasso");
       default:

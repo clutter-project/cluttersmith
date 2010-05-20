@@ -1110,17 +1110,23 @@ void cs_set_active (ClutterActor *item)
 {
   if (!cluttersmith->type)
     return;
-  if (item == NULL)
-    item = clutter_stage_get_default ();
-  if (item)
-    {
-      clutter_text_set_text (CLUTTER_TEXT (cluttersmith->type), G_OBJECT_TYPE_NAME (item));
-    }
-
   cs_container_remove_children (cluttersmith->ancestors);
   cs_container_remove_children (cluttersmith->property_editors);
   cs_container_remove_children (cluttersmith->property_editors_core);
   cs_container_remove_children (cluttersmith->scene_graph);
+
+  if (!item)
+    {
+      clutter_text_set_text (CLUTTER_TEXT (cluttersmith->type), "");
+      /* XXX: could use the property inspector for editing properties of 
+       * the current scene when no (or many) things are selected.
+       */
+      return;
+    }
+
+  if (item)
+      clutter_text_set_text (CLUTTER_TEXT (cluttersmith->type), G_OBJECT_TYPE_NAME (item));
+
 
     {
       if (active_actor)
