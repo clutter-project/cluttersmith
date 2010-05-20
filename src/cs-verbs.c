@@ -58,7 +58,7 @@ void cs_remove (ClutterActor *ignored)
     {
       ClutterActor *parent = clutter_actor_get_parent (active);
 
-      if (active == cluttersmith->fake_stage)
+      if (active == cs->fake_stage)
         return;
 
       cs_set_active (NULL);
@@ -242,7 +242,7 @@ SELECT_ACTION_POST("select-all");
 
 void cs_view_reset (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith, "zoom", 100.0, "origin-x", 0.0, "origin-y", 0.0, NULL);
+  g_object_set (cs, "zoom", 100.0, "origin-x", 0.0, "origin-y", 0.0, NULL);
 }
 
 
@@ -455,7 +455,7 @@ void cs_select_parent (ClutterActor *ignored)
         {
           ClutterActor *gparent;
           gparent = clutter_actor_get_parent (parent);
-          if (parent != cluttersmith->fake_stage)
+          if (parent != cs->fake_stage)
             {
               cs_selected_clear ();
               cs_selected_add (parent);
@@ -464,10 +464,10 @@ void cs_select_parent (ClutterActor *ignored)
             }
         }
     }
-  else if (cs_get_current_container () != cluttersmith->fake_stage)
+  else if (cs_get_current_container () != cs->fake_stage)
     {
       ClutterActor *parent = cs_get_current_container ();
-      if (parent && parent != cluttersmith->fake_stage )
+      if (parent && parent != cs->fake_stage )
         {
           cs_selected_clear ();
           cs_selected_add (parent);
@@ -561,7 +561,7 @@ cs_ui_mode (ClutterActor *ignored)
 static void update_annotation_opacity (gint link_opacity, gint callout_opacity)
 {
   GList *c, *children;
-  children = cs_container_get_children_recursive (CLUTTER_CONTAINER (cluttersmith->fake_stage));
+  children = cs_container_get_children_recursive (CLUTTER_CONTAINER (cs->fake_stage));
   for (c = children; c; c = c->next)
     {
       if (MX_IS_STYLABLE (c->data))
@@ -596,17 +596,17 @@ void mode_browse (ClutterActor *ignored)
 
 void mode_annotate (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", FALSE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -615,17 +615,17 @@ void mode_annotate (ClutterActor *ignored)
 
 void mode_sketch (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", FALSE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -635,17 +635,17 @@ void mode_sketch (ClutterActor *ignored)
 void mode_edit (ClutterActor *ignored)
 {
 
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", TRUE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -654,17 +654,17 @@ void mode_edit (ClutterActor *ignored)
 
 void mode_animate (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_states, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", TRUE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -673,17 +673,17 @@ void mode_animate (ClutterActor *ignored)
 
 void mode_callbacks (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", TRUE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -692,18 +692,18 @@ void mode_callbacks (ClutterActor *ignored)
 
 void mode_code (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", FALSE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -713,17 +713,17 @@ void mode_code (ClutterActor *ignored)
 
 void mode_export (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_project, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", FALSE, NULL);
 
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
@@ -732,42 +732,42 @@ void mode_export (ClutterActor *ignored)
 
 void mode_config (ClutterActor *ignored)
 {
-  g_object_set (cluttersmith->dialog_templates, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_tree, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_property_inspector, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_states, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_annotate, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_callbacks, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_config, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_editor, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_export, "expanded", FALSE, NULL);
-  g_object_set (cluttersmith->dialog_project, "expanded", TRUE, NULL);
-  g_object_set (cluttersmith->dialog_selected, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_templates, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_tree, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_property_inspector, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_states, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_annotate, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_callbacks, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_config, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_editor, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_export, "expanded", FALSE, NULL);
+  g_object_set (cs->dialog_project, "expanded", TRUE, NULL);
+  g_object_set (cs->dialog_selected, "expanded", FALSE, NULL);
 
-  clutter_actor_show (cluttersmith->dialog_config);
+  clutter_actor_show (cs->dialog_config);
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   cs_sync_chrome ();
   update_annotation_opacity (0x0, 0x0);
 }
 
 void mode_browse2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 0); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 0); }
 void mode_annotate2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 1); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 1); }
 void mode_sketch2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 2); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 2); }
 void mode_edit2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 3); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 3); }
 void mode_animate2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 4); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 4); }
 void mode_callbacks2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 5); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 5); }
 void mode_code2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 6); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 6); }
 void mode_export2(ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 7); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 7); }
 void mode_config2 (ClutterActor *ignored)
-{ mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 8); }
+{ mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 8); }
 
 /******************************************************************************/
 
@@ -910,7 +910,7 @@ void playback_menu (gint x,
   mx_menu_add_action (menu, action);
   action = mx_action_new_full ("Quit (ctrl q)", "Quit (ctrl q)", G_CALLBACK (cs_quit),  NULL);
   mx_menu_add_action (menu, action);
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -933,11 +933,11 @@ void root_menu (gint x,
   mx_menu_add_action (menu, mx_action_new_full ("Select All (ctrl a)", "Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
   mx_menu_add_action (menu, action);
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 
-  if (cs_get_current_container () != cluttersmith->fake_stage)
+  if (cs_get_current_container () != cs->fake_stage)
     mx_menu_add_action (menu, mx_action_new_full ("Move up in tree (Escape)", "Move up in tree (Escape)", G_CALLBACK (cs_select_parent), NULL));
 }
 
@@ -964,7 +964,7 @@ static void add_common (MxMenu *menu)
   mx_menu_add_action (menu, mx_action_new_full ("Select All (ctrl a)", "Select All (ctrl a)", G_CALLBACK (cs_select_all), NULL));
   mx_menu_add_action (menu, mx_action_new_full ("Select None (shift ctrl a)", "Select None (shift ctrl a)", G_CALLBACK (cs_select_none), NULL));
 
-  if (cs_get_current_container () != cluttersmith->fake_stage)
+  if (cs_get_current_container () != cs->fake_stage)
     mx_menu_add_action (menu, mx_action_new_full ("Move up in tree (ctrl p)", "Move up in tree (ctrl p)", G_CALLBACK (cs_select_parent), NULL));
 }
 
@@ -1065,7 +1065,7 @@ void link_edit_link (MxAction *action,
     }
   g_dir_close (dir);
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1124,7 +1124,7 @@ void projects_dropdown (MxAction *action,
     }
   }
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1162,7 +1162,7 @@ void scenes_dropdown (MxAction *action,
     }
   g_dir_close (dir);
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1170,7 +1170,7 @@ void scenes_dropdown (MxAction *action,
 static void change_animation2 (MxAction *action,
                               gpointer    data)
 {
-  mx_entry_set_text (MX_ENTRY (cluttersmith->animation_name), mx_action_get_name (action));
+  mx_entry_set_text (MX_ENTRY (cs->animation_name), mx_action_get_name (action));
 }
 
 static MxAction *change_animation (const gchar *name)
@@ -1192,13 +1192,13 @@ void animations_dropdown (MxAction *action,
   x = cs_last_x;
   y = cs_last_y;
 
-  for (i = cluttersmith->animators; i; i=i->next)
+  for (i = cs->animators; i; i=i->next)
     {
        action = change_animation (clutter_scriptable_get_id (i->data));
        mx_menu_add_action (menu, action);
     }
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1230,7 +1230,7 @@ static void change_type2 (ClutterActor *button,
                           const gchar  *name)
 {
   ClutterActor *actor = cs_selected_get_any ();
-  cs_container_remove_children (cluttersmith->property_editors);
+  cs_container_remove_children (cs->property_editors);
   if (!actor)
     {
       return;
@@ -1269,7 +1269,7 @@ void cs_change_type (MxAction *action,
     }
   g_list_free (actor_types);
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, 50 /* y */);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1312,7 +1312,7 @@ void object_menu (ClutterActor *actor,
   
   add_common (menu);
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1325,7 +1325,7 @@ void selection_menu (gint x,
   mx_menu_add_action (menu, mx_action_new_full ("Make box (ctrl b)", "Make box (ctrl b)", G_CALLBACK (cs_make_box), NULL));
   add_common (menu);
 
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1333,7 +1333,7 @@ void selection_menu (gint x,
 void cs_states_expand_complete (MxExpander *expander)
 {
   if (mx_expander_get_expanded (expander))
-    clutter_actor_show (cluttersmith->dialog_animator);
+    clutter_actor_show (cs->dialog_animator);
   else
-    clutter_actor_hide (cluttersmith->dialog_animator);
+    clutter_actor_hide (cs->dialog_animator);
 }

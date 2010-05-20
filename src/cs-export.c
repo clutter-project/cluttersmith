@@ -27,17 +27,17 @@ void export_png (const gchar *scene,
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
 
   cluttersmith_load_scene (scene);
-  clutter_actor_get_position (cluttersmith->fake_stage, &x, &y);
+  clutter_actor_get_position (cs->fake_stage, &x, &y);
 
-  g_object_get (cluttersmith, "canvas-width", &width,
-                              "canvas-height", &height,
-                              NULL);
+  g_object_get (cs, "canvas-width", &width,
+                    "canvas-height", &height,
+                    NULL);
 
   g_print ("exporting scene %s to %s  %f,%f %dx%d\n", scene, png,
            x, y, width, height);
 
   pixels = clutter_stage_read_pixels (
-             (ClutterStage *)clutter_actor_get_stage (cluttersmith->fake_stage),
+             (ClutterStage *)clutter_actor_get_stage (cs->fake_stage),
              x, y, width, height);
   pixbuf = gdk_pixbuf_new_from_data (pixels,
                                      GDK_COLORSPACE_RGB,
@@ -69,9 +69,9 @@ void export_pdf (const gchar *pdf)
 
 void cs_export_png (void)
 {
-  export_png (mx_entry_get_text (MX_ENTRY (cluttersmith->scene_title)),
+  export_png (mx_entry_get_text (MX_ENTRY (cs->scene_title)),
               mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
-                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
+                                 clutter_actor_get_stage (cs->fake_stage), 
                                  "cs-png-path"))));
 
 }
@@ -80,6 +80,6 @@ void cs_export_pdf (void)
 
 {
   export_pdf (mx_entry_get_text (MX_ENTRY (cs_find_by_id_int (
-                                 clutter_actor_get_stage (cluttersmith->fake_stage), 
+                                 clutter_actor_get_stage (cs->fake_stage), 
         "cs-pdf-path"))));
 }

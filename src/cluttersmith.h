@@ -21,7 +21,7 @@ props_populate (ClutterActor *container,
                 GObject      *object,
                 gboolean      easing_buttons);
 
-extern CSContext *cluttersmith;
+extern CSContext *cs;
 
 /* Things that need to go in headers / get proper API: */
 

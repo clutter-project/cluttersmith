@@ -81,15 +81,15 @@ cs_stage_capture (ClutterActor *actor,
      return TRUE;
 
    if (event->any.type == CLUTTER_KEY_PRESS &&
-       !cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root)) /* If the source is in the parasite ui,
+       !cs_actor_has_ancestor (event->any.source, cs->parasite_root)) /* If the source is in the parasite ui,
                                                                  pass in on as normal*/
      {
-        if ((cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
+        if ((cs->ui_mode & CS_UI_MODE_EDIT) &&
             manipulator_key_pressed (actor, clutter_event_get_state(event), event->key.keyval))
           return TRUE;
      }
 
-  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+  if (!(cs->ui_mode & CS_UI_MODE_EDIT))
     {
       /* check if it is child of a link, if it is then we override anyways...
        *
@@ -135,7 +135,7 @@ cs_stage_capture (ClutterActor *actor,
     }
   
   if ((clutter_get_motion_events_enabled()==FALSE) ||
-      cs_actor_has_ancestor (event->any.source, cluttersmith->parasite_root))
+      cs_actor_has_ancestor (event->any.source, cs->parasite_root))
     {
       if (event->any.type == CLUTTER_MOTION)
         {
@@ -226,7 +226,7 @@ cs_stage_capture (ClutterActor *actor,
                            SELECT_ACTION_POST ("select foo");
                          }
                      }
-                   cs_move_start (cluttersmith->parasite_root, event);
+                   cs_move_start (cs->parasite_root, event);
                 }
             }
           else 
@@ -248,7 +248,7 @@ cs_stage_capture (ClutterActor *actor,
 
               if (!hit)
                 {
-                  hit = cs_children_pick (cluttersmith->fake_stage, x, y);
+                  hit = cs_children_pick (cs->fake_stage, x, y);
                   if (hit == cs_get_current_container ())
                     hit = NULL;
                   stage_child = TRUE;
@@ -273,7 +273,7 @@ cs_stage_capture (ClutterActor *actor,
                       cs_selected_clear ();
                       if (stage_child)
                         {
-                          cs_set_current_container (cluttersmith->fake_stage);
+                          cs_set_current_container (cs->fake_stage);
                         }
                     }
                   else
@@ -299,12 +299,12 @@ cs_stage_capture (ClutterActor *actor,
                     {
                       cs_selected_add (hit);
                     }
-                  cs_move_start (cluttersmith->parasite_root, event);
+                  cs_move_start (cs->parasite_root, event);
                   SELECT_ACTION_POST("select");
                 }
               else
                 {
-                  cs_selected_lasso_start (cluttersmith->parasite_root, event);
+                  cs_selected_lasso_start (cs->parasite_root, event);
                 }
             }
         }
@@ -445,7 +445,7 @@ gboolean cs_canvas_handler_leave (ClutterActor *actor)
 void cs_set_current_container (ClutterActor *actor)
 {
   if (actor && CLUTTER_IS_CONTAINER (actor))
-    cluttersmith->current_container = actor;
+    cs->current_container = actor;
 }
 
 /**
@@ -454,9 +454,9 @@ void cs_set_current_container (ClutterActor *actor)
  */
 ClutterActor *cs_get_current_container (void)
 {
-  if (!cluttersmith->current_container)
-    return cluttersmith->fake_stage;
-  return cluttersmith->current_container;
+  if (!cs->current_container)
+    return cs->fake_stage;
+  return cs->current_container;
 }
 
 
@@ -557,13 +557,13 @@ void cs_zoom (gboolean in,
   gfloat offset_x;
   gfloat offset_y;
 
-  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"),
+  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "fake-stage-rect"),
                                           &offset_x, &offset_y);
 
-  clutter_actor_transform_stage_point (cluttersmith->fake_stage,
+  clutter_actor_transform_stage_point (cs->fake_stage,
                                        x, y, &target_x, &target_y);
 
-  g_object_get (cluttersmith,
+  g_object_get (cs,
                 "zoom", &zoom,
                 NULL);
 
@@ -579,7 +579,7 @@ void cs_zoom (gboolean in,
   origin_x = target_x * (zoom/100) - x + offset_x;
   origin_y = target_y * (zoom/100) - y + offset_y;
   
-  g_object_set (cluttersmith,
+  g_object_set (cs,
                 "zoom", zoom,
                 "origin-x", origin_x,
                 "origin-y", origin_y,

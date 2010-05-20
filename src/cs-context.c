@@ -121,7 +121,7 @@ cs_context_new (void)
 #include <dlfcn.h>
 #include "cluttersmith.h"
 
-CSContext *cluttersmith = NULL;
+CSContext *cs = NULL;
 
 static guint  CS_REVISION;
 static guint  CS_STORED_REVISION;
@@ -160,107 +160,107 @@ static gboolean has_chrome = TRUE;
 static void cluttsmith_show_chrome (void)
 {
   gfloat x, y;
-  if (!cluttersmith->parasite_ui)
+  if (!cs->parasite_ui)
     return;
-  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
+  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "fake-stage-rect"), &x, &y);
 
   /* move fake_stage and canvas into a single group that is transformed? */
 #if 1
-    clutter_actor_set_position (cluttersmith->fake_stage, 
-      x-cluttersmith->priv->origin_x,
-      y-cluttersmith->priv->origin_y);
-    clutter_actor_set_position (cluttersmith->fake_stage_canvas, 
-      x-cluttersmith->priv->origin_x,
-      y-cluttersmith->priv->origin_y);
+    clutter_actor_set_position (cs->fake_stage, 
+      x-cs->priv->origin_x,
+      y-cs->priv->origin_y);
+    clutter_actor_set_position (cs->fake_stage_canvas, 
+      x-cs->priv->origin_x,
+      y-cs->priv->origin_y);
 #else
-    clutter_actor_animate (cluttersmith->fake_stage_canvas, CLUTTER_LINEAR, 100,
-      "x", x-cluttersmith->priv->origin_x, "y", y-cluttersmith->priv->origin_y, NULL);
-    clutter_actor_animate (cluttersmith->fake_stage, CLUTTER_LINEAR, 100,
-      "x", x-cluttersmith->priv->origin_x, "y", y-cluttersmith->priv->origin_y, NULL);
+    clutter_actor_animate (cs->fake_stage_canvas, CLUTTER_LINEAR, 100,
+      "x", x-cs->priv->origin_x, "y", y-cs->priv->origin_y, NULL);
+    clutter_actor_animate (cs->fake_stage, CLUTTER_LINEAR, 100,
+      "x", x-cs->priv->origin_x, "y", y-cs->priv->origin_y, NULL);
 #endif
 
 
-    clutter_actor_show (cluttersmith->parasite_ui);
+    clutter_actor_show (cs->parasite_ui);
 
     /* Workaround for ClutterScript / json not obeying the x-fill
      * specified in cluttersmith.json
      */
       {
         gboolean x_fill;
-        g_object_get (cluttersmith->parasite_ui, "x-fill", &x_fill, NULL);
+        g_object_get (cs->parasite_ui, "x-fill", &x_fill, NULL);
         if (!x_fill)
           {
             g_print ("Warning: Forcing x-fill property of #parasite-ui\n");
-            g_object_set (cluttersmith->parasite_ui, "x-fill", TRUE, NULL);
+            g_object_set (cs->parasite_ui, "x-fill", TRUE, NULL);
           }
       }
-    clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
-                                                       cluttersmith->priv->zoom/100.0);
+    clutter_actor_set_scale (cs->fake_stage, cs->priv->zoom/100.0,
+                                                       cs->priv->zoom/100.0);
 
-    clutter_actor_set_scale (cluttersmith->fake_stage_canvas, cluttersmith->priv->zoom/100.0,
-                                                       cluttersmith->priv->zoom/100.0);
+    clutter_actor_set_scale (cs->fake_stage_canvas, cs->priv->zoom/100.0,
+                                                       cs->priv->zoom/100.0);
 
     has_chrome = TRUE;
   }
 
   gfloat cluttersmith_get_origin_x (void)
   {
-    return cluttersmith->priv->origin_x;
+    return cs->priv->origin_x;
   }
 
   gfloat cluttersmith_get_origin_y (void)
   {
-    return cluttersmith->priv->origin_y;
+    return cs->priv->origin_y;
   }
 
   static void cluttsmith_hide_chrome (void)
   {
     gfloat x, y;
-    if (!cluttersmith->parasite_ui)
+    if (!cs->parasite_ui)
       return;
-    clutter_actor_hide (cluttersmith->parasite_ui);
-    clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "fake-stage-rect"), &x, &y);
+    clutter_actor_hide (cs->parasite_ui);
+    clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "fake-stage-rect"), &x, &y);
 
 #if 1
-  clutter_actor_set_position (cluttersmith->fake_stage, 
-    -cluttersmith->priv->origin_x,
-    -cluttersmith->priv->origin_y);
-  clutter_actor_set_position (cluttersmith->fake_stage_canvas, 
-    -cluttersmith->priv->origin_x,
-    -cluttersmith->priv->origin_y);
+  clutter_actor_set_position (cs->fake_stage, 
+    -cs->priv->origin_x,
+    -cs->priv->origin_y);
+  clutter_actor_set_position (cs->fake_stage_canvas, 
+    -cs->priv->origin_x,
+    -cs->priv->origin_y);
 #else
-  clutter_actor_animate (cluttersmith->fake_stage, CLUTTER_LINEAR, 100,
-    "x", -cluttersmith->priv->origin_x,
-    "y", -cluttersmith->priv->origin_y, NULL);
-  clutter_actor_animate (cluttersmith->fake_stage_canvas, CLUTTER_LINEAR, 100,
-    "x", -cluttersmith->priv->origin_x,
-    "y", -cluttersmith->priv->origin_y, NULL);
+  clutter_actor_animate (cs->fake_stage, CLUTTER_LINEAR, 100,
+    "x", -cs->priv->origin_x,
+    "y", -cs->priv->origin_y, NULL);
+  clutter_actor_animate (cs->fake_stage_canvas, CLUTTER_LINEAR, 100,
+    "x", -cs->priv->origin_x,
+    "y", -cs->priv->origin_y, NULL);
 #endif
 
-  clutter_actor_set_scale (cluttersmith->fake_stage, cluttersmith->priv->zoom/100.0,
-                                                     cluttersmith->priv->zoom/100.0);
+  clutter_actor_set_scale (cs->fake_stage, cs->priv->zoom/100.0,
+                                                     cs->priv->zoom/100.0);
 
-  clutter_actor_set_scale (cluttersmith->fake_stage_canvas, cluttersmith->priv->zoom/100.0,
-                                                     cluttersmith->priv->zoom/100.0);
+  clutter_actor_set_scale (cs->fake_stage_canvas, cs->priv->zoom/100.0,
+                                                     cs->priv->zoom/100.0);
 
   has_chrome = FALSE;
 }
 
 guint cs_get_ui_mode (void)
 {
-  return cluttersmith->ui_mode;
+  return cs->ui_mode;
 }
 
 static gboolean cs_sync_chrome_idle (gpointer data)
 {
-  if (!cluttersmith) /*the singleton might not be made yet */
+  if (!cs) /*the singleton might not be made yet */
     return FALSE;
-  if (!cluttersmith->fake_stage_canvas)
+  if (!cs->fake_stage_canvas)
     return FALSE;
-  clutter_actor_set_size (cluttersmith->fake_stage_canvas,
-                          cluttersmith->priv->canvas_width,
-                          cluttersmith->priv->canvas_height);
-  if (cluttersmith->ui_mode & CS_UI_MODE_UI)
+  clutter_actor_set_size (cs->fake_stage_canvas,
+                          cs->priv->canvas_width,
+                          cs->priv->canvas_height);
+  if (cs->ui_mode & CS_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
     }
@@ -274,7 +274,7 @@ static gboolean cs_sync_chrome_idle (gpointer data)
 void cs_sync_chrome (void)
 {
   g_idle_add (cs_sync_chrome_idle, NULL);
-  if (cluttersmith->ui_mode & CS_UI_MODE_UI)
+  if (cs->ui_mode & CS_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
     }
@@ -292,11 +292,11 @@ static gboolean return_to_ui (gpointer ignored)
 
 static void save_annotation (void)
 {
-  const gchar *annotation= clutter_text_get_text (CLUTTER_TEXT (cluttersmith->dialog_editor_annotation));
+  const gchar *annotation= clutter_text_get_text (CLUTTER_TEXT (cs->dialog_editor_annotation));
   gchar *annotationfilename;
   gint len;
   annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
-                              cluttersmith->priv->title);
+                              cs->priv->title);
   len = strlen (annotation);
   if (len >= 6)
     {
@@ -312,17 +312,17 @@ static void page_run_start (void)
   gchar *annotationfilename;
   g_print ("entering browse mode\n");
   scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
-                              cluttersmith->priv->title);
+                              cs->priv->title);
   annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
-                              cluttersmith->priv->title);
+                              cs->priv->title);
 
 
 
   save_annotation ();
 
-  if (cluttersmith->dialog_editor_text)
+  if (cs->dialog_editor_text)
   {
-    const gchar *text = clutter_text_get_text (CLUTTER_TEXT (cluttersmith->dialog_editor_text));
+    const gchar *text = clutter_text_get_text (CLUTTER_TEXT (cs->dialog_editor_text));
     GString *new = g_string_new ("");
 
     gint len = strlen (text);
@@ -373,9 +373,9 @@ static void page_run_start (void)
 
       len = strlen (code);
 
-      g_assert (cluttersmith->priv->page_js_context == NULL);
-      cluttersmith->priv->page_js_context = gjs_context_new_with_search_path(NULL);
-      gjs_context_eval(cluttersmith->priv->page_js_context, (void*)code, len,
+      g_assert (cs->priv->page_js_context == NULL);
+      cs->priv->page_js_context = gjs_context_new_with_search_path(NULL);
+      gjs_context_eval(cs->priv->page_js_context, (void*)code, len,
   "<code>", NULL, NULL);
       if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
         {
@@ -384,11 +384,11 @@ static void page_run_start (void)
       else
         {
           gint code;
-          if (!gjs_context_eval(cluttersmith->priv->page_js_context, (void*)js, len,
+          if (!gjs_context_eval(cs->priv->page_js_context, (void*)js, len,
                    "<code>", &code, &error))
             {
-              if (cluttersmith->dialog_editor_error)  
-               clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
+              if (cs->dialog_editor_error)  
+               clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_error),
                                       error->message);
               else
                 g_print (error->message);
@@ -397,8 +397,8 @@ static void page_run_start (void)
           else
             {
               gchar *str = g_strdup_printf ("returned: %i\n", code);
-              if (cluttersmith->dialog_editor_error)  
-                clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_error),
+              if (cs->dialog_editor_error)  
+                clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_error),
                                      str);
               g_free (str);
             }
@@ -410,10 +410,10 @@ static void page_run_start (void)
 
 static void page_run_end (void)
 {
-  if (cluttersmith->priv->page_js_context)
+  if (cs->priv->page_js_context)
     {
-      g_object_unref (cluttersmith->priv->page_js_context);
-      cluttersmith->priv->page_js_context = NULL;
+      g_object_unref (cs->priv->page_js_context);
+      cs->priv->page_js_context = NULL;
     }
 
 }
@@ -422,7 +422,7 @@ static void browse_start (void)
 {
   page_run_end ();
   cs_save (TRUE);
-  clutter_actor_hide (cluttersmith->fake_stage_canvas);
+  clutter_actor_hide (cs->fake_stage_canvas);
 
   /* XXX: apply signal handlers */
   page_run_start ();
@@ -434,7 +434,7 @@ static void browse_end (void)
 {
   page_run_end ();
   g_print ("leaving browse mode\n");
-  clutter_actor_show (cluttersmith->fake_stage_canvas);
+  clutter_actor_show (cs->fake_stage_canvas);
   cs_load (); /* reverting back to saved state */
 }
 
@@ -442,17 +442,17 @@ void cs_set_ui_mode (guint ui_mode)
 {
 
   if (!(ui_mode & CS_UI_MODE_EDIT) &&
-      (cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+      (cs->ui_mode & CS_UI_MODE_EDIT))
     {
       browse_start ();
     }
   else if ((ui_mode & CS_UI_MODE_EDIT) &&
-           !(cluttersmith->ui_mode & CS_UI_MODE_EDIT))
+           !(cs->ui_mode & CS_UI_MODE_EDIT))
     {
       browse_end ();
     }
 
-  cluttersmith->ui_mode = ui_mode;
+  cs->ui_mode = ui_mode;
   cs_selected_clear ();
   cs_sync_chrome ();
 }
@@ -593,8 +593,8 @@ void cluttersmith_load_scene (const gchar *new_title)
 {
   gchar *undo, *redo;
   redo = g_strdup_printf ("CS.context().scene='%s'", new_title);
-  if (cluttersmith->priv->title != NULL)
-    undo = g_strdup_printf ("CS.context().scene='%s'", cluttersmith->priv->title);
+  if (cs->priv->title != NULL)
+    undo = g_strdup_printf ("CS.context().scene='%s'", cs->priv->title);
   else
     undo = g_strdup (redo);
   cs_history_do ("change scene", redo, undo);
@@ -608,7 +608,7 @@ void cluttersmith_load_scene (const gchar *new_title)
  */
 CSContext *cluttersmith_context (void)
 {
-  return cluttersmith;
+  return cs;
 }
 
 /**
@@ -616,7 +616,7 @@ CSContext *cluttersmith_context (void)
  */
 const gchar *cluttersmith_current_scene (void)
 {
-  return cs_context_get_scene (cluttersmith);
+  return cs_context_get_scene (cs);
 }
 
 /**
@@ -629,7 +629,7 @@ ClutterTimeline *cluttersmith_animator_start (const gchar *animator)
 {
   GList *a;
   g_print ("trying to start %s\n", animator);
-  for (a = cluttersmith->animators; a; a = a->next)
+  for (a = cs->animators; a; a = a->next)
     {
       const gchar *name = clutter_scriptable_get_id (a->data);
       if (name && g_str_equal (name, animator))
@@ -703,7 +703,7 @@ void cluttersmith_init (void)
   ClutterActor *stage;
   g_print ("initializing\n");
 
-  cluttersmith = cs_context_new ();
+  cs = cs_context_new ();
   clutter_script_load_from_data (script, "{'id':'actor','type':'ClutterGroup','children':[{'id':'fake-stage','type':'ClutterGroup'},{'id':'parasite-root','type':'ClutterGroup'},{'id':'cs-project-title','opacity':1,'type':'MxEntry','signals': [ {'name':'paint', 'handler':'project_title_init_hack'} ]},{'id':'project-root','type':'MxEntry','opacity':1,'y':50 }]}", -1, NULL);
 
   stage = clutter_stage_get_default();
@@ -712,7 +712,7 @@ void cluttersmith_init (void)
 
   clutter_script_connect_signals (script, script);
   g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
-  cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
+  cs->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
   /* initializing globals */
 
   /* this is the main initialization */
@@ -801,19 +801,19 @@ static void find_extent (ClutterActor *actor,
 gboolean update_overlay_positions (gpointer data)
 {
 
-  if (cluttersmith->current_animator)
+  if (cs->current_animator)
     animator_editor_update_handles ();
 
   if (cs_selected_count ()==0 && lasso == NULL)
     {
-      clutter_actor_hide (cluttersmith->move_handle);
-      clutter_actor_hide (cluttersmith->resize_handle);
+      clutter_actor_hide (cs->move_handle);
+      clutter_actor_hide (cs->resize_handle);
       return TRUE;
     }
-  clutter_actor_show (cluttersmith->move_handle);
-  clutter_actor_show (cluttersmith->resize_handle);
+  clutter_actor_show (cs->move_handle);
+  clutter_actor_show (cs->resize_handle);
       
-  /*XXX: */ clutter_actor_hide (cluttersmith->move_handle);
+  /*XXX: */ clutter_actor_hide (cs->move_handle);
 
   min_x = 65536;
   min_y = 65536;
@@ -821,8 +821,8 @@ gboolean update_overlay_positions (gpointer data)
   max_y = 0;
   cs_selected_foreach (G_CALLBACK (find_extent), data);
 
-  clutter_actor_set_position (cluttersmith->resize_handle, max_x, max_y);
-  clutter_actor_set_position (cluttersmith->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
+  clutter_actor_set_position (cs->resize_handle, max_x, max_y);
+  clutter_actor_set_position (cs->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
 
   return TRUE;
 }
@@ -843,7 +843,7 @@ void init_multi_select (void);
 static gboolean playback_context (ClutterActor *actor,
                                   ClutterEvent *event)
 {
-  if (!(cluttersmith->ui_mode & CS_UI_MODE_EDIT) &&
+  if (!(cs->ui_mode & CS_UI_MODE_EDIT) &&
       clutter_event_get_button (event)==3)
     {
       playback_menu (event->button.x, event->button.y);
@@ -865,122 +865,122 @@ gboolean idle_add_stage (gpointer stage)
   ClutterActor *actor;
   ClutterScript *script;
 
-  cluttersmith = cs_context_new ();
+  cs = cs_context_new ();
 
 /*#ifdef COMPILEMODULE
   actor = cs_load_json (PKGDATADIR "cluttersmith-assistant.json");
 #else*/
-   actor = cs_load_json (PKGDATADIR "cluttersmith.json");
+  actor = cs_load_json (PKGDATADIR "cluttersmith.json");
  /*#endif*/
 
-   g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
-   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
+  g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
 
    //g_print ("%s", json_serialize_subtree (actor));
    //exit (1);
 
-   g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
-   clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
-   g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
-                           G_CALLBACK (cs_stage_capture), NULL);
-   g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
-                     G_CALLBACK (playback_context), NULL);
-   init_multi_select ();
-   cs_edit_text_init ();
+  g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
+  clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
+  g_signal_connect_after (clutter_actor_get_stage (actor), "captured-event",
+                          G_CALLBACK (cs_stage_capture), NULL);
+  g_signal_connect (clutter_actor_get_stage (actor), "button-press-event",
+                    G_CALLBACK (playback_context), NULL);
+  init_multi_select ();
+  cs_edit_text_init ();
 
 
-   mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
-    script = cs_get_script (actor);
+  mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
+  script = cs_get_script (actor);
 
-     /* initializing globals */
-     cluttersmith->type = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
-     cluttersmith->ancestors = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
+  /* initializing globals */
+  cs->type = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-type"));
+  cs->ancestors = CLUTTER_ACTOR (clutter_script_get_object (script, "parents"));
 
-     cluttersmith->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
-     cluttersmith->property_editors_core = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors-core"));
-     cluttersmith->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
-     cluttersmith->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
-     cluttersmith->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
+  cs->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
+  cs->property_editors_core = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors-core"));
+  cs->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
+  cs->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
+  cs->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
-   {
-     if (cluttersmith->parasite_ui)
-       {
-         g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), cluttersmith->parasite_ui);
-         g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), cluttersmith->parasite_ui);
-         /* do an initial sync of the ui-size */
-         stage_size_changed (stage, NULL, cluttersmith->parasite_ui);
-       }
-   }
+  {
+    if (cs->parasite_ui)
+      {
+        g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), cs->parasite_ui);
+        g_signal_connect (stage, "notify::height", G_CALLBACK (stage_size_changed), cs->parasite_ui);
+        /* do an initial sync of the ui-size */
+        stage_size_changed (stage, NULL, cs->parasite_ui);
+      }
+  }
 
 #define _A(actorname)  CLUTTER_ACTOR (clutter_script_get_object (script, actorname))
 
-   cluttersmith->fake_stage_canvas = _A("fake-stage-canvas");
-   cluttersmith->project_root_entry = _A("project-root");
-   cluttersmith->resize_handle = _A("resize-handle");
-   cluttersmith->animation_name = _A("cs-animation-name");
-   cluttersmith->move_handle = _A("move-handle");
-   cluttersmith->active_container = _A("cs-active-container");
-   cluttersmith->callbacks_container = _A("cs-callbacks-container");
-   cluttersmith->dialog_callbacks = _A("cs-dialog-callbacks");
-   cluttersmith->states_container = _A("cs-states-container");
-   cluttersmith->dialog_project = _A("cs-dialog-project");
-   cluttersmith->dialog_selected = _A("cs-dialog-selected");
-   cluttersmith->dialog_states = _A("cs-dialog-states");
-   cluttersmith->project_title = _A("cs-project-title");
-   cluttersmith->scene_title = _A("cs-scene-title");
-   cluttersmith->dialog_config = _A("cs-dialog-config");
-   cluttersmith->dialog_tree = _A("cs-dialog-tree");
-   cluttersmith->dialog_toolbar = _A("cs-dialog-toolbar");
-   cluttersmith->dialog_scenes = _A("cs-dialog-scenes");
-   cluttersmith->dialog_export = _A("cs-dialog-export");
-   cluttersmith->dialog_templates = _A("cs-dialog-templates");
-   cluttersmith->dialog_animator = _A("cs-dialog-animator");
-   cluttersmith->animator_props = _A("cs-animator-props");
-   cluttersmith->state_duration = _A("cs-state-duration");
-   cluttersmith->dialog_editor = _A("cs-dialog-editor");
-   cluttersmith->dialog_type = _A("cs-dialog-type");
-   cluttersmith->dialog_annotate = _A("cs-dialog-annotate");
-   cluttersmith->dialog_editor_annotation = _A("cs-dialog-editor-annotation");
-   cluttersmith->source_state = _A("cs-source-state");
-   cluttersmith->dialog_editor_text = _A("cs-dialog-editor-text");
-   cluttersmith->dialog_editor_error = _A("cs-dialog-editor-error");
+  cs->fake_stage_canvas = _A("fake-stage-canvas");
+  cs->project_root_entry = _A("project-root");
+  cs->resize_handle = _A("resize-handle");
+  cs->animation_name = _A("cs-animation-name");
+  cs->move_handle = _A("move-handle");
+  cs->active_container = _A("cs-active-container");
+  cs->callbacks_container = _A("cs-callbacks-container");
+  cs->dialog_callbacks = _A("cs-dialog-callbacks");
+  cs->states_container = _A("cs-states-container");
+  cs->dialog_project = _A("cs-dialog-project");
+  cs->dialog_selected = _A("cs-dialog-selected");
+  cs->dialog_states = _A("cs-dialog-states");
+  cs->project_title = _A("cs-project-title");
+  cs->scene_title = _A("cs-scene-title");
+  cs->dialog_config = _A("cs-dialog-config");
+  cs->dialog_tree = _A("cs-dialog-tree");
+  cs->dialog_toolbar = _A("cs-dialog-toolbar");
+  cs->dialog_scenes = _A("cs-dialog-scenes");
+  cs->dialog_export = _A("cs-dialog-export");
+  cs->dialog_templates = _A("cs-dialog-templates");
+  cs->dialog_animator = _A("cs-dialog-animator");
+  cs->animator_props = _A("cs-animator-props");
+  cs->state_duration = _A("cs-state-duration");
+  cs->dialog_editor = _A("cs-dialog-editor");
+  cs->dialog_type = _A("cs-dialog-type");
+  cs->dialog_annotate = _A("cs-dialog-annotate");
+  cs->dialog_editor_annotation = _A("cs-dialog-editor-annotation");
+  cs->source_state = _A("cs-source-state");
+  cs->dialog_editor_text = _A("cs-dialog-editor-text");
+  cs->dialog_editor_error = _A("cs-dialog-editor-error");
 
-   cluttersmith->dialog_property_inspector = _A("cs-dialog-property-inspector");
-   cluttersmith->animator_editor = _A("cs-animator-editor");
-
-
-   cs_animation_edit_init ();
-   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->project_root_entry)), "text-changed",
-                     G_CALLBACK (project_root_text_changed), NULL);
+  cs->dialog_property_inspector = _A("cs-dialog-property-inspector");
+  cs->animator_editor = _A("cs-animator-editor");
 
 
-   cs_set_active (clutter_actor_get_stage(cluttersmith->parasite_root));
+  cs_animation_edit_init ();
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)), "text-changed",
+                    G_CALLBACK (project_root_text_changed), NULL);
 
-   props_populate (_A("config-editors"), G_OBJECT (cluttersmith), FALSE);
+
+  cs_set_active (clutter_actor_get_stage(cs->parasite_root));
+
+  props_populate (_A("config-editors"), G_OBJECT (cs), FALSE);
 
 #ifdef COMPILEMODULE
-   clutter_actor_hide (cluttersmith->fake_stage_canvas);
+  clutter_actor_hide (cs->fake_stage_canvas);
 #endif
 
-   /* XXX: all of this should be in the json */
-   cluttersmith->cs_mode = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-mode"));
+  /* XXX: all of this should be in the json */
+  cs->cs_mode = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-mode"));
 
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Browse (F1)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Annotate (F2)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Sketch (F3)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Edit (F4)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Animate (F5)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Callbacks (F6)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Code (F7)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Export (F8)");
-   mx_combo_box_append_text (MX_COMBO_BOX (cluttersmith->cs_mode), "Config (F9)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Browse (F1)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Annotate (F2)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Sketch (F3)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Edit (F4)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Animate (F5)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Callbacks (F6)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Code (F7)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Export (F8)");
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Config (F9)");
 
-   mx_combo_box_set_index (MX_COMBO_BOX (cluttersmith->cs_mode), 0);
+  mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 0);
 
-   g_signal_connect (cluttersmith->cs_mode, "notify::index", G_CALLBACK (mode_switch), NULL);
+  g_signal_connect (cs->cs_mode, "notify::index", G_CALLBACK (mode_switch), NULL);
 
-   init_types ();
-   return FALSE;
+  init_types ();
+  return FALSE;
 }
 
 #ifdef COMPILEMODULE
@@ -1108,16 +1108,16 @@ void actor_defaults_populate (ClutterActor *container,
 
 void cs_set_active (ClutterActor *item)
 {
-  if (!cluttersmith->type)
+  if (!cs->type)
     return;
-  cs_container_remove_children (cluttersmith->ancestors);
-  cs_container_remove_children (cluttersmith->property_editors);
-  cs_container_remove_children (cluttersmith->property_editors_core);
-  cs_container_remove_children (cluttersmith->scene_graph);
+  cs_container_remove_children (cs->ancestors);
+  cs_container_remove_children (cs->property_editors);
+  cs_container_remove_children (cs->property_editors_core);
+  cs_container_remove_children (cs->scene_graph);
 
   if (!item)
     {
-      clutter_text_set_text (CLUTTER_TEXT (cluttersmith->type), "");
+      clutter_text_set_text (CLUTTER_TEXT (cs->type), "");
       /* XXX: could use the property inspector for editing properties of 
        * the current scene when no (or many) things are selected.
        */
@@ -1125,7 +1125,7 @@ void cs_set_active (ClutterActor *item)
     }
 
   if (item)
-      clutter_text_set_text (CLUTTER_TEXT (cluttersmith->type), G_OBJECT_TYPE_NAME (item));
+      clutter_text_set_text (CLUTTER_TEXT (cs->type), G_OBJECT_TYPE_NAME (item));
 
 
     {
@@ -1144,9 +1144,9 @@ void cs_set_active (ClutterActor *item)
               ClutterActor *new;
               new = CLUTTER_ACTOR (mx_button_new_with_label (G_OBJECT_TYPE_NAME (iter)));
               g_signal_connect (new, "clicked", G_CALLBACK (cs_set_active_event), iter);
-              clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->ancestors), new);
+              clutter_container_add_actor (CLUTTER_CONTAINER (cs->ancestors), new);
 
-              if (iter == cluttersmith->fake_stage)
+              if (iter == cs->fake_stage)
                 iter = NULL;
               else
                 iter = clutter_actor_get_parent (iter);
@@ -1154,11 +1154,11 @@ void cs_set_active (ClutterActor *item)
 
           g_object_weak_ref (G_OBJECT (item), selected_vanished, NULL);
 
-          actor_defaults_populate (cluttersmith->property_editors_core, active_actor);
-          props_populate (cluttersmith->property_editors, G_OBJECT (active_actor), FALSE);
-          cs_tree_populate (cluttersmith->scene_graph, active_actor);
+          actor_defaults_populate (cs->property_editors_core, active_actor);
+          props_populate (cs->property_editors, G_OBJECT (active_actor), FALSE);
+          cs_tree_populate (cs->scene_graph, active_actor);
 
-          if(0)props_populate (cluttersmith->active_container, G_OBJECT (active_actor), FALSE);
+          if(0)props_populate (cs->active_container, G_OBJECT (active_actor), FALSE);
 
           cs_callbacks_populate (active_actor);
         }
@@ -1190,18 +1190,18 @@ void cs_save (gboolean force)
 
       g_print ("saving\n");
 
-      clutter_actor_get_position (cluttersmith->fake_stage, &x, &y);
-      clutter_actor_set_position (cluttersmith->fake_stage, 0.0, 0.0);
+      clutter_actor_get_position (cs->fake_stage, &x, &y);
+      clutter_actor_set_position (cs->fake_stage, 0.0, 0.0);
 
-      tmp = json_serialize_subtree (cluttersmith->fake_stage);
+      tmp = json_serialize_subtree (cs->fake_stage);
       g_string_append (str, tmp);
       g_free (tmp);
 
-      if (cluttersmith->animators)
+      if (cs->animators)
       {
         GList *a;
         g_string_append (str, "\n");
-        for (a = cluttersmith->animators; a; a=a->next)
+        for (a = cs->animators; a; a=a->next)
           {
             tmp = json_serialize_animator (a->data);
             g_string_append (str, ",");
@@ -1211,7 +1211,7 @@ void cs_save (gboolean force)
       }
       g_string_append (str, "]");
 
-      clutter_actor_set_position (cluttersmith->fake_stage, x, y);
+      clutter_actor_set_position (cs->fake_stage, x, y);
       if (filename)
         {
           g_file_set_contents (filename, str->str, -1, NULL);
@@ -1223,7 +1223,7 @@ void cs_save (gboolean force)
 
 gboolean cs_save_timeout (gpointer data)
 {
-  if (cluttersmith->ui_mode & CS_UI_MODE_EDIT)
+  if (cs->ui_mode & CS_UI_MODE_EDIT)
     cs_save (FALSE);
   return TRUE;
 }
@@ -1265,7 +1265,7 @@ void cs_prop_tweaked (GObject     *object,
    * property
    */
 
-  if (cluttersmith->current_animator)
+  if (cs->current_animator)
     {
        gdouble progress = 0.0;
        GValue value = {0, };
@@ -1275,10 +1275,10 @@ void cs_prop_tweaked (GObject     *object,
        g_value_init (&value, pspec->value_type);
        g_object_get_property (object, property_name, &value);
        
-       progress = cs_animator_editor_get_progress (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor));
+       progress = cs_animator_editor_get_progress (CS_ANIMATOR_EDITOR (cs->animator_editor));
 
        if (cs_set_keys_freeze == 0)
-         clutter_animator_set_key (cluttersmith->current_animator,
+         clutter_animator_set_key (cs->current_animator,
                                    object,
                                    property_name,
                                    CLUTTER_LINEAR,
@@ -1286,16 +1286,16 @@ void cs_prop_tweaked (GObject     *object,
                                    &value);
        g_value_unset (&value);
 
-       cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), cluttersmith->current_animator);
+       cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cs->animator_editor), cs->current_animator);
 
        /* XXX: we should update with the real animator in this case */
-       cs_update_animator_editor (cluttersmith->current_state_machine,
+       cs_update_animator_editor (cs->current_state_machine,
                                   NULL,
-                                  cluttersmith->current_state);
+                                  cs->current_state);
     }
-  else if (cluttersmith->current_state_machine &&
-      (cluttersmith->current_state != NULL &&
-       cluttersmith->current_state != g_intern_static_string ("default")))
+  else if (cs->current_state_machine &&
+      (cs->current_state != NULL &&
+       cs->current_state != g_intern_static_string ("default")))
     {
        const gchar *source_state = NULL;
        GValue value = {0, };
@@ -1305,7 +1305,7 @@ void cs_prop_tweaked (GObject     *object,
        g_value_init (&value, pspec->value_type);
        g_object_get_property (object, property_name, &value);
 
-       source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+       source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
        if (g_str_equal (source_state, "*") ||
            g_str_equal (source_state, ""))
          {
@@ -1313,9 +1313,9 @@ void cs_prop_tweaked (GObject     *object,
          }
 
        if (cs_set_keys_freeze == 0)
-       clutter_state_set_key (cluttersmith->current_state_machine,
+       clutter_state_set_key (cs->current_state_machine,
                               source_state,
-                              cluttersmith->current_state,
+                              cs->current_state,
                               object,
                               property_name,
                               CLUTTER_LINEAR,
@@ -1324,8 +1324,8 @@ void cs_prop_tweaked (GObject     *object,
                               0.0);
        g_value_unset (&value);
 
-       cs_update_animator_editor (cluttersmith->current_state_machine,
-                                  source_state, cluttersmith->current_state);
+       cs_update_animator_editor (cs->current_state_machine,
+                                  source_state, cs->current_state);
     }
 }
 
@@ -1333,26 +1333,26 @@ void cs_prop_tweaked (GObject     *object,
 static void remove_state_machines (void)
 {
   GList *i;
-  for (i = cluttersmith->state_machines; i; i = i->next)
+  for (i = cs->state_machines; i; i = i->next)
     {
       g_object_unref (i->data);
     }
-  g_list_free (cluttersmith->state_machines);
-  cluttersmith->state_machines = NULL;
-  for (i = cluttersmith->animators; i; i = i->next)
+  g_list_free (cs->state_machines);
+  cs->state_machines = NULL;
+  for (i = cs->animators; i; i = i->next)
     {
       g_object_unref (i->data);
     }
-  g_list_free (cluttersmith->animators);
-  cluttersmith->animators = NULL;
+  g_list_free (cs->animators);
+  cs->animators = NULL;
 
 }
 
 static void cs_load (void)
 {
-  cs_container_remove_children (cluttersmith->property_editors);
-  cs_container_remove_children (cluttersmith->scene_graph);
-  cs_container_remove_children (cluttersmith->fake_stage);
+  cs_container_remove_children (cs->property_editors);
+  cs_container_remove_children (cs->scene_graph);
+  cs_container_remove_children (cs->fake_stage);
   remove_state_machines ();
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
@@ -1360,10 +1360,10 @@ static void cs_load (void)
       gchar *scriptfilename;
       gchar *annotationfilename;
       cs_session_history_add (cs_get_project_root ());
-      cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", filename);
+      cs->fake_stage = cs_replace_content2 (cs->parasite_root, "fake-stage", filename);
 
       {
-        ClutterScript *script = cs_get_script (cluttersmith->fake_stage);
+        ClutterScript *script = cs_get_script (cs->fake_stage);
         GList *o, *objects;
         g_assert (script);
         objects = clutter_script_list_objects (script);
@@ -1373,7 +1373,7 @@ static void cs_load (void)
             if (CLUTTER_IS_ANIMATOR (o->data))
              {
                 ClutterAnimator *animator = o->data;
-                cluttersmith->animators = g_list_append (cluttersmith->animators, animator);
+                cs->animators = g_list_append (cs->animators, animator);
                 g_print ("added an animator\n");
              }
           }
@@ -1382,9 +1382,9 @@ static void cs_load (void)
       }
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
-                                  cluttersmith->priv->title);
+                                  cs->priv->title);
       annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
-                                  cluttersmith->priv->title);
+                                  cs->priv->title);
       if (g_file_test (annotationfilename, G_FILE_TEST_IS_REGULAR))
         {
           GError      *error = NULL;
@@ -1398,18 +1398,18 @@ static void cs_load (void)
             }
           else
             {
-              if (cluttersmith->dialog_editor_annotation)
+              if (cs->dialog_editor_annotation)
                 {
                   g_print ("LOADING %s\n", txt);
-                  clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_annotation), txt);
+                  clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_annotation), txt);
                 }
               g_free (txt);
             }
         }
       else
         {
-          if (cluttersmith->dialog_editor_text)
-            clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_annotation), "...");
+          if (cs->dialog_editor_text)
+            clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_annotation), "...");
         }
 
 
@@ -1511,29 +1511,29 @@ static void cs_load (void)
 
               g_print ("end:{%s}\n", end);
               
-              if (cluttersmith->dialog_editor_text)
-                clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), (gchar*)end);
+              if (cs->dialog_editor_text)
+                clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_text), (gchar*)end);
               g_free (js);
             }
         }
       else
         {
-          if (cluttersmith->dialog_editor_text)
-            clutter_text_set_text (CLUTTER_TEXT(cluttersmith->dialog_editor_text), "/* */");
+          if (cs->dialog_editor_text)
+            clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_text), "/* */");
         }
       g_free (scriptfilename);
       g_free (annotationfilename);
     }
   else
     {
-      cluttersmith->fake_stage = cs_replace_content2 (cluttersmith->parasite_root, "fake-stage", NULL);
+      cs->fake_stage = cs_replace_content2 (cs->parasite_root, "fake-stage", NULL);
     }
-  cs_set_current_container (cluttersmith->fake_stage);
+  cs_set_current_container (cs->fake_stage);
   CS_REVISION = CS_STORED_REVISION = 0;
 
-  clutter_actor_set_position (cluttersmith->fake_stage, 
-     -cluttersmith->priv->origin_x,
-     -cluttersmith->priv->origin_y);
+  clutter_actor_set_position (cs->fake_stage, 
+     -cs->priv->origin_x,
+     -cs->priv->origin_y);
 }
 
 
@@ -1547,14 +1547,14 @@ static gboolean title_frozen = FALSE;
 void cluttersmith_set_project_root (const gchar *new_root)
 {
   ClutterActor *project_root;
-  if (cluttersmith->project_root &&
-      g_str_equal (cluttersmith->project_root, new_root))
+  if (cs->project_root &&
+      g_str_equal (cs->project_root, new_root))
     {
       return;
     }
 
 
-  project_root = cs_find_by_id_int (clutter_actor_get_stage (cluttersmith->parasite_root), "project-root");
+  project_root = cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "project-root");
   if (project_root)
     {
       g_object_set (G_OBJECT (project_root), "text", new_root, NULL);
@@ -1567,7 +1567,7 @@ void cluttersmith_set_project_root (const gchar *new_root)
 
 gchar *cs_get_project_root (void)
 {
-  return cluttersmith->project_root;
+  return cs->project_root;
 }
 
 
@@ -1576,9 +1576,9 @@ static void project_root_text_changed (ClutterActor *actor)
   const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
   const gchar *project_title;
   title_frozen = TRUE;
-  if (cluttersmith->project_root)
-    g_free (cluttersmith->project_root);
-  cluttersmith->project_root = g_strdup (new_text);
+  if (cs->project_root)
+    g_free (cs->project_root);
+  cs->project_root = g_strdup (new_text);
 
   if (!new_text)
     return;
@@ -1586,12 +1586,12 @@ static void project_root_text_changed (ClutterActor *actor)
   project_title = strrchr (new_text, '/');
   if (project_title)
     {
-      mx_entry_set_text (MX_ENTRY (cluttersmith->project_title),
+      mx_entry_set_text (MX_ENTRY (cs->project_title),
                                    project_title + 1);
     }
   else
     {
-      mx_entry_set_text (MX_ENTRY (cluttersmith->project_title),
+      mx_entry_set_text (MX_ENTRY (cs->project_title),
                                    "-");
     }
   title_frozen = FALSE;

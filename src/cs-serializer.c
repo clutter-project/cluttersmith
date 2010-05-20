@@ -400,7 +400,7 @@ actor_to_string (GString      *str,
 {
 
   if (iter == NULL ||
-      cs_actor_has_ancestor (iter, cluttersmith->parasite_root))
+      cs_actor_has_ancestor (iter, cs->parasite_root))
     {
       return;
     }

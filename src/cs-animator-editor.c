@@ -151,10 +151,10 @@ animator_editor_event (ClutterActor *actor,
 
           if (clutter_event_get_click_count (event)>1)
             {
-              if (cluttersmith->current_animator)
+              if (cs->current_animator)
                 {
                   cs_properties_restore_defaults ();
-                  clutter_animator_start (cluttersmith->current_animator);
+                  clutter_animator_start (cs->current_animator);
                 }
               return TRUE;
             }
@@ -235,7 +235,7 @@ temporal_capture (ClutterActor *stage,
         {
           gfloat delta;
 
-          delta = (manipulate_x-event->motion.x * 1.0) / clutter_actor_get_width (cluttersmith->animator_editor);
+          delta = (manipulate_x-event->motion.x * 1.0) / clutter_actor_get_width (cs->animator_editor);
           cs_dirtied ();
 
           {
@@ -674,7 +674,7 @@ void cs_animator_editor_set_animator (CsAnimatorEditor *animator_editor,
 static void key_callback (MxAction *action,
                           gpointer    data)
 {
-  mx_entry_set_text (MX_ENTRY (cluttersmith->animation_name), mx_action_get_name (action));
+  mx_entry_set_text (MX_ENTRY (cs->animation_name), mx_action_get_name (action));
 }
 
 static MxAction *change_animation (const gchar *name)
@@ -878,7 +878,7 @@ static void key_context_menu (MxAction  *action,
   }
 
   /* make sure we show up within the bounds of the screen */
-  clutter_group_add (cluttersmith->parasite_root, menu);
+  clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
@@ -1031,7 +1031,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
       clutter_actor_set_opacity (handle->actor, 0xff);
       clutter_actor_set_anchor_point_from_gravity (handle->actor, CLUTTER_GRAVITY_CENTER);
       clutter_actor_set_size (handle->actor, 20, 20);
-      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->parasite_root),
+      clutter_container_add_actor (CLUTTER_CONTAINER (cs->parasite_root),
                                    handle->actor);
       spatial_handles = g_list_append (spatial_handles, handle);
       clutter_actor_set_reactive (handle->actor, TRUE);
@@ -1041,7 +1041,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
   handle->animator = animator;
   handle->progress = progress;
   handle->property_name = property_name;
-  handle->editor = CS_ANIMATOR_EDITOR (cluttersmith->animator_editor);
+  handle->editor = CS_ANIMATOR_EDITOR (cs->animator_editor);
   clutter_actor_set_position (handle->actor, x, y);
 }
 
@@ -1049,7 +1049,7 @@ static void ensure_animator_handle (ClutterAnimator *animator,
 void animator_editor_update_handles (void)
 {
   /* Update positions of drag handles */
-  if (cluttersmith->current_animator)
+  if (cs->current_animator)
     {
       ClutterActor *actor = cs_selected_get_any ();
       gint i = 0;
@@ -1064,16 +1064,16 @@ void animator_editor_update_handles (void)
           {
             GList *k, *keys;
 
-            keys = clutter_animator_get_keys (cluttersmith->current_animator,
+            keys = clutter_animator_get_keys (cs->current_animator,
                                               G_OBJECT (actor), "x", -1.0);
             for (k = keys, i = 0; k; k = k->next, i++)
               {
                 gdouble progress = clutter_animator_key_get_progress (k->data);
                 ClutterVertex vertex = {0, };
                 gfloat x, y;
-                clutter_animator_compute_value (cluttersmith->current_animator,
+                clutter_animator_compute_value (cs->current_animator,
                                              G_OBJECT (actor), "x", progress, &xv);
-                clutter_animator_compute_value (cluttersmith->current_animator,
+                clutter_animator_compute_value (cs->current_animator,
                                              G_OBJECT (actor), "y", progress, &yv);
                 x = g_value_get_float (&xv);
                 y = g_value_get_float (&yv);
@@ -1083,7 +1083,7 @@ void animator_editor_update_handles (void)
                 clutter_actor_apply_transform_to_point (clutter_actor_get_parent (actor),
                                                         &vertex, &vertex);
 
-                ensure_animator_handle (cluttersmith->current_animator,
+                ensure_animator_handle (cs->current_animator,
                                         G_OBJECT (actor), 
                                         "x", 
                                         vertex.x, vertex.y, i,
@@ -1109,7 +1109,7 @@ cs_update_animator_editor (ClutterState *state,
                            const gchar  *target_state)
 {
   GList *k, *keys;
-  cs_container_remove_children (cluttersmith->animator_props);
+  cs_container_remove_children (cs->animator_props);
 
   if (!state)
     return;
@@ -1140,7 +1140,7 @@ cs_update_animator_editor (ClutterState *state,
                           );
       text = clutter_text_new_full ("Sans 10px", str, &white);
       g_free (str);
-      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->animator_props),
+      clutter_container_add_actor (CLUTTER_CONTAINER (cs->animator_props),
                                    text);
     }
 }
@@ -1149,14 +1149,14 @@ static void update_animator_editor2 (void)
 {
   const gchar *source_state = NULL;
 
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     {
       source_state = NULL;
     }
-  cs_update_animator_editor (cluttersmith->current_state_machine,
-                             source_state, cluttersmith->current_state);
+  cs_update_animator_editor (cs->current_state_machine,
+                             source_state, cs->current_state);
 }
 
 static void update_duration (void)
@@ -1165,18 +1165,18 @@ static void update_duration (void)
   gint   duration;
   const gchar *source_state = NULL;
 
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     {
       source_state = NULL;
     }
 
-  duration = clutter_state_get_duration (cluttersmith->current_state_machine,
+  duration = clutter_state_get_duration (cs->current_state_machine,
                                          source_state,
-                                         cluttersmith->current_state);
+                                         cs->current_state);
   str = g_strdup_printf ("%i", duration);
-  g_object_set (cluttersmith->state_duration, "text", str, NULL);
+  g_object_set (cs->state_duration, "text", str, NULL);
   g_free (str);
 }
 
@@ -1191,10 +1191,10 @@ static void state_name_text_changed (ClutterActor *actor)
   const gchar *state = clutter_text_get_text (CLUTTER_TEXT (actor));
   const gchar *default_state = g_intern_static_string ("default");
   
-  if (cluttersmith->current_state == NULL)
-    cluttersmith->current_state = default_state;
+  if (cs->current_state == NULL)
+    cs->current_state = default_state;
 
-  if (cluttersmith->current_state == default_state)
+  if (cs->current_state == default_state)
     {
       cs_properties_store_defaults ();
     }
@@ -1209,10 +1209,10 @@ static void state_name_text_changed (ClutterActor *actor)
        */
 
       /* update storage of this state */
-      clutter_state_change (cluttersmith->current_state_machine, state);
+      clutter_state_change (cs->current_state_machine, state);
     }
 
-  cluttersmith->current_state = g_intern_string (state);
+  cs->current_state = g_intern_string (state);
 
   update_duration ();
 
@@ -1256,20 +1256,20 @@ static void state_duration_text_changed (ClutterActor *actor)
 #if 0
   const gchar *source_state = NULL;
 
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     {
       source_state = NULL;
     }
 
-  clutter_states_set_duration (cluttersmith->current_state_machine,
+  clutter_states_set_duration (cs->current_state_machine,
                                source_state,
-                               cluttersmith->current_state,
+                               cs->current_state,
                                atoi (text));
 #endif
-  if (cluttersmith->current_animator)
-    clutter_animator_set_duration (cluttersmith->current_animator, atoi (text));
+  if (cs->current_animator)
+    clutter_animator_set_duration (cs->current_animator, atoi (text));
 }
 
 void state_duration_init_hack (ClutterActor  *actor)
@@ -1291,19 +1291,19 @@ void state_elaborate_clicked (ClutterActor  *actor)
 {
   ClutterAnimator *animator;
   const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     source_state = NULL;
 
-  animator = cs_states_make_animator (cluttersmith->current_state_machine,
+  animator = cs_states_make_animator (cs->current_state_machine,
                                       source_state,
-                                      cluttersmith->current_state);
-  clutter_states_set_animator (cluttersmith->current_state_machine,
+                                      cs->current_state);
+  clutter_states_set_animator (cs->current_state_machine,
                                source_state,
-                               cluttersmith->current_state,
+                               cs->current_state,
                                animator);
-  cluttersmith->current_animator = animator;
+  cs->current_animator = animator;
 
   g_print ("elaborate\n");
 }
@@ -1313,7 +1313,7 @@ void state_test_clicked (ClutterActor  *actor)
 {
 #if 0
   const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     source_state = NULL;
@@ -1322,23 +1322,23 @@ void state_test_clicked (ClutterActor  *actor)
   if (!source_state)
     {
       /* if no source state specified, restore the source state */
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
+      clutter_states_change_noanim (cs->current_state_machine,
                                     "default");
       cs_properties_restore_defaults ();
     }
   else
     {
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
+      clutter_states_change_noanim (cs->current_state_machine,
                                     source_state);
     }
 
-  clutter_states_change (cluttersmith->current_state_machine,
-                         cluttersmith->current_state);
+  clutter_states_change (cs->current_state_machine,
+                         cs->current_state);
 #endif
-  if (cluttersmith->current_animator)
+  if (cs->current_animator)
     {
       cs_properties_restore_defaults ();
-      clutter_animator_start (cluttersmith->current_animator);
+      clutter_animator_start (cs->current_animator);
     }
 }
 
@@ -1348,7 +1348,7 @@ void state_position_actors (gdouble progress)
   ClutterTimeline *timeline;
 #if 0
   const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cluttersmith->source_state));
+  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     source_state = NULL;
@@ -1357,25 +1357,25 @@ void state_position_actors (gdouble progress)
   if (!source_state)
     {
       /* if no source state specified, restore the source state */
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
+      clutter_states_change_noanim (cs->current_state_machine,
                                     "default");
       cs_properties_restore_defaults ();
     }
   else
     {
-      clutter_states_change_noanim (cluttersmith->current_state_machine,
+      clutter_states_change_noanim (cs->current_state_machine,
                                     source_state);
     }
 
-  timeline = clutter_states_change (cluttersmith->current_state_machine,
-                                    cluttersmith->current_state);
+  timeline = clutter_states_change (cs->current_state_machine,
+                                    cs->current_state);
   clutter_timeline_pause (timeline);
 #endif
 
-  if (!cluttersmith->current_animator)
+  if (!cs->current_animator)
     return;
 
-  timeline = clutter_animator_get_timeline (cluttersmith->current_animator);
+  timeline = clutter_animator_get_timeline (cs->current_animator);
   clutter_timeline_start (timeline);
   clutter_timeline_pause (timeline);
 
@@ -1392,7 +1392,7 @@ void state_position_actors (gdouble progress)
   /* Draw path of currently animated actor */
 void cs_animator_editor_stage_paint (void)
 {
-  if (cluttersmith->current_animator)
+  if (cs->current_animator)
     {
       ClutterActor *actor = cs_selected_get_any ();
       if (actor)
@@ -1410,9 +1410,9 @@ void cs_animator_editor_stage_paint (void)
             {
               ClutterVertex vertex = {0, };
               gfloat x, y;
-              clutter_animator_compute_value (cluttersmith->current_animator,
+              clutter_animator_compute_value (cs->current_animator,
                                            G_OBJECT (actor), "x", progress, &xv);
-              clutter_animator_compute_value (cluttersmith->current_animator,
+              clutter_animator_compute_value (cs->current_animator,
                                            G_OBJECT (actor), "y", progress, &yv);
               x = g_value_get_float (&xv);
               y = g_value_get_float (&yv);
@@ -1444,16 +1444,16 @@ void cs_animator_editor_stage_paint (void)
             {
               ClutterVertex vertex = {0, };
               gfloat x, y;
-              clutter_animator_compute_value (cluttersmith->current_animator,
+              clutter_animator_compute_value (cs->current_animator,
                                            G_OBJECT (actor), "x", progress, &xv);
-              clutter_animator_compute_value (cluttersmith->current_animator,
+              clutter_animator_compute_value (cs->current_animator,
                                            G_OBJECT (actor), "y", progress, &yv);
               x = g_value_get_float (&xv);
               y = g_value_get_float (&yv);
 
-              clutter_animator_compute_value (cluttersmith->current_animator,
+              clutter_animator_compute_value (cs->current_animator,
                                            G_OBJECT (actor), "x", progress + DIFF, &xv);
-              clutter_animator_compute_value (cluttersmith->current_animator,
+              clutter_animator_compute_value (cs->current_animator,
                                            G_OBJECT (actor), "y", progress + DIFF, &yv);
 
               vertex.x = x;
@@ -1483,14 +1483,14 @@ static void animation_name_changed (ClutterActor *actor)
   if (!name || name[0]=='\0')
     {
       /* if it is the empty string we drop any animator */
-      if (cluttersmith->current_animator)
+      if (cs->current_animator)
         {
           cs_properties_restore_defaults ();
         }
       return;
     }
 
-  for (a=cluttersmith->animators; a; a=a->next)
+  for (a=cs->animators; a; a=a->next)
     {
       const gchar *id = clutter_scriptable_get_id (a->data);
 
@@ -1502,7 +1502,7 @@ static void animation_name_changed (ClutterActor *actor)
     }
   animator = clutter_animator_new ();
   clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (animator), name);
-  cluttersmith->animators = g_list_append (cluttersmith->animators, animator);
+  cs->animators = g_list_append (cs->animators, animator);
 
   cs_set_current_animator (animator);
 }
@@ -1510,24 +1510,24 @@ static void animation_name_changed (ClutterActor *actor)
 void
 cs_animation_edit_init (void)
 {
-   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cluttersmith->animation_name)), "text-changed",
+   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->animation_name)), "text-changed",
                      G_CALLBACK (animation_name_changed), NULL);
 }
 
 
 void cs_set_current_animator (ClutterAnimator *animator)
 {
-  if (cluttersmith->current_animator)
+  if (cs->current_animator)
     {
-      GList *keys = clutter_animator_get_keys (cluttersmith->current_animator, NULL, NULL, -1);
+      GList *keys = clutter_animator_get_keys (cs->current_animator, NULL, NULL, -1);
       if (!keys)
         {
-          g_object_unref (cluttersmith->current_animator);
-          cluttersmith->animators = g_list_remove (cluttersmith->animators,
-                                            cluttersmith->current_animator);
+          g_object_unref (cs->current_animator);
+          cs->animators = g_list_remove (cs->animators,
+                                            cs->current_animator);
         }
       g_list_free (keys);
     }
-  cluttersmith->current_animator = animator;
-  cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cluttersmith->animator_editor), animator);
+  cs->current_animator = animator;
+  cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cs->animator_editor), animator);
 }

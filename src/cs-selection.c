@@ -59,7 +59,7 @@ static void update_active_actor (void)
       cs_set_active (NULL);
     }
   if (g_list_length (selected)>0)
-    clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (cluttersmith->parasite_root)), NULL);
+    clutter_stage_set_key_focus (CLUTTER_STAGE (clutter_actor_get_stage (cs->parasite_root)), NULL);
 }
 
 void cs_selected_add (ClutterActor *actor)
@@ -241,7 +241,7 @@ cs_selected_lasso_start (ClutterActor  *actor,
       lasso = clutter_rectangle_new_with_color (&lassocolor);
       clutter_rectangle_set_border_color (CLUTTER_RECTANGLE (lasso), &lassobordercolor);
       clutter_rectangle_set_border_width (CLUTTER_RECTANGLE (lasso), LASSO_BORDER);
-      clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->parasite_root), lasso);
+      clutter_container_add_actor (CLUTTER_CONTAINER (cs->parasite_root), lasso);
     }
   lx = event->button.x;
   ly = event->button.y;
@@ -277,10 +277,10 @@ void cs_selected_paint (void)
 
     {
         {
-          if (cluttersmith->fake_stage)
+          if (cs->fake_stage)
             {
               cogl_set_source_color4ub (0, 255, 0, 255);
-              cs_draw_actor_outline (cluttersmith->fake_stage, NULL);
+              cs_draw_actor_outline (cs->fake_stage, NULL);
             }
         }
     }

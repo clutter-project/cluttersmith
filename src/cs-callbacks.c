@@ -109,7 +109,7 @@ callbacks_add_cb (ClutterActor *actor,
   ClutterActor *remove = mx_button_new_with_label ("-");
   clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (remove),
                                                                    CLUTTER_ACTOR (cb), NULL);
-  clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
+  clutter_container_add_actor (CLUTTER_CONTAINER (cs->callbacks_container), hbox);
   g_object_set (G_OBJECT (cb), "editable", TRUE, "selectable", TRUE, "reactive", TRUE, NULL);
   g_object_set_data (G_OBJECT (cb), "no", GINT_TO_POINTER (no));
   g_object_set_data_full (G_OBJECT (cb), "signal", g_strdup (signal), g_free);
@@ -118,7 +118,7 @@ callbacks_add_cb (ClutterActor *actor,
 
   g_signal_connect (remove, "clicked", G_CALLBACK (callback_removed), actor);
 
-  clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
+  clutter_container_add_actor (CLUTTER_CONTAINER (cs->callbacks_container), hbox);
 }
 
 void
@@ -126,7 +126,7 @@ cs_callbacks_populate (ClutterActor *actor)
 {
   GType type = G_OBJECT_TYPE (actor);
 
-  cs_container_remove_children (cluttersmith->callbacks_container);
+  cs_container_remove_children (cs->callbacks_container);
 
   while (type)
   {
@@ -169,8 +169,8 @@ cs_callbacks_populate (ClutterActor *actor)
 
             clutter_container_add (CLUTTER_CONTAINER (hbox), CLUTTER_ACTOR (add),
                                                              CLUTTER_ACTOR (title), NULL);
-            clutter_container_add_actor (CLUTTER_CONTAINER (cluttersmith->callbacks_container), hbox);
-            clutter_container_child_set (CLUTTER_CONTAINER (cluttersmith->callbacks_container),
+            clutter_container_add_actor (CLUTTER_CONTAINER (cs->callbacks_container), hbox);
+            clutter_container_child_set (CLUTTER_CONTAINER (cs->callbacks_container),
                                          CLUTTER_ACTOR (title),
                                          "expand", TRUE,
                                          NULL);

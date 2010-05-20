@@ -64,8 +64,8 @@ add_stencil_capture (ClutterActor *stage,
                                      stencil_capture_handler);
         stencil_capture_handler = 0;
 
-        manipulate_x -= clutter_actor_get_x (cluttersmith->fake_stage);
-        manipulate_y -= clutter_actor_get_y (cluttersmith->fake_stage);
+        manipulate_x -= clutter_actor_get_x (cs->fake_stage);
+        manipulate_y -= clutter_actor_get_y (cs->fake_stage);
         add_stencil_real (manipulate_x, manipulate_y, g_object_get_data (data, "path"));
         clutter_actor_destroy (data);
 

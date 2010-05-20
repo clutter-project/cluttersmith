@@ -69,6 +69,7 @@ ClutterActor *cs_load_json (const gchar *name)
     }
   clutter_script_connect_signals (script, script);
   g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
+
   return actor;
 }
 
@@ -890,7 +891,7 @@ static void get_all_actors_int (GList         **list,
                                 gboolean        skip_own)
 {
   const gchar *id;
-  if (skip_own && cs_actor_has_ancestor (actor, cluttersmith->parasite_root))
+  if (skip_own && cs_actor_has_ancestor (actor, cs->parasite_root))
     return;
 
   if (!actor)
@@ -923,7 +924,7 @@ static void get_all_actors_int (GList         **list,
 ClutterActor  *cluttersmith_get_stage (void)
 {
   ClutterActor *ret;
-  ret = cluttersmith->fake_stage;
+  ret = cs->fake_stage;
   return ret;
 }
 
@@ -1156,7 +1157,7 @@ void cs_properties_store_defaults (void)
 {
   cs_properties_init ();
   g_hash_table_remove_all (default_values_ht);
-  cs_actor_store_defaults (cluttersmith->fake_stage);
+  cs_actor_store_defaults (cs->fake_stage);
 }
 
 void cs_properties_restore_defaults (void)
@@ -1256,7 +1257,7 @@ cs_actor_make_id_unique (ClutterActor *actor,
   if (!stem)
    stem = G_OBJECT_TYPE_NAME (actor);
   str = g_string_new (stem);
-  actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cluttersmith->fake_stage));
+  actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cs->fake_stage));
 
 again:
   for (a = actors; a; a = a->next)

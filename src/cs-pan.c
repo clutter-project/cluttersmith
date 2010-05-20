@@ -23,14 +23,14 @@ manipulate_pan_capture (ClutterActor *stage,
           gfloat ex = event->motion.x, ey = event->motion.y;
           gfloat originx, originy;
 
-          g_object_get (cluttersmith, "origin-x", &originx,
-                                      "origin-y", &originy,
-                                      NULL);
+          g_object_get (cs, "origin-x", &originx,
+                            "origin-y", &originy,
+                            NULL);
           originx += manipulate_x-ex;
           originy += manipulate_y-ey;
-          g_object_set (cluttersmith, "origin-x", originx,
-                                      "origin-y", originy,
-                                      NULL);
+          g_object_set (cs, "origin-x", originx,
+                            "origin-y", originy,
+                            NULL);
 
           manipulate_x=ex;
           manipulate_y=ey;
