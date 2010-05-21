@@ -1209,7 +1209,7 @@ static void state_name_text_changed (ClutterActor *actor)
        */
 
       /* update storage of this state */
-      clutter_state_change (cs->current_state_machine, state);
+      clutter_state_change (cs->current_state_machine, state, TRUE);
     }
 
   cs->current_state = g_intern_string (state);
