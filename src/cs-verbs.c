@@ -368,8 +368,6 @@ static void each_ungroup (ClutterActor *actor,
                                     "CS.selected_clear();\n"
                                     "CS.selected_add(group);\n"
        ,cx, cy, cx, cy);
-
-
       cs_history_add ("ungroup", redo->str, undo->str);
       g_string_free (undo, TRUE);
       g_string_free (redo, TRUE);
@@ -381,6 +379,7 @@ static void each_ungroup (ClutterActor *actor,
 void cs_ungroup (ClutterActor *ignored)
 {
   GList *i, *created_list = NULL;
+  cs_history_start_group ("ungroup");
   cs_set_active (NULL);
   cs_selected_foreach (G_CALLBACK (each_ungroup), &created_list);
   cs_selected_clear (); 
@@ -389,6 +388,7 @@ void cs_ungroup (ClutterActor *ignored)
       cs_selected_add (i->data);
     }
   g_list_free (created_list);
+  cs_history_end_group ("ungroup");
   cs_dirtied ();
 }
 
