@@ -911,6 +911,30 @@
           ]
         },
         {
+          "id":"anchor-handle",
+          "type":"ClutterText",
+          "color":"red",
+          "opacity":100,
+          "reactive":true,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"cs_anchor_start"
+            },
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
+          ],
+          "anchor-gravity":"center",
+          "font-name":"Sans 40px",
+          "text":"+"
+        },
+        {
           "id":"resize-handle",
           "type":"ClutterText",
           "color":"red",
@@ -957,7 +981,82 @@
               "handler":"cs_canvas_handler_leave"
             }
           ]
+        },
+
+        {
+          "id":"rotate-z-handle",
+          "anchor-gravity":"center",
+          "type":"ClutterText",
+          "color":"red",
+          "font-name":"Sans 40px",
+          "text":"⟳",
+          "reactive":true,
+          "opacity":100,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"cs_rotate_z_start"
+            },
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
+          ]
+        },
+
+        {
+          "id":"rotate-x-handle",
+          "anchor-gravity":"center",
+          "type":"ClutterText",
+          "color":"red",
+          "font-name":"Sans 40px",
+          "text":"⤸",
+          "reactive":true,
+          "opacity":100,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"cs_rotate_x_start"
+            },
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
+          ]
+        },
+        {
+          "id":"rotate-y-handle",
+          "anchor-gravity":"center",
+          "type":"ClutterText",
+          "color":"red",
+          "font-name":"Sans 40px",
+          "text":"⤻",
+          "reactive":true,
+          "opacity":100,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"cs_rotate_y_start"
+            },
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
+          ]
         }
+
       ],
       "signals":[
         {

@@ -107,8 +107,11 @@ struct _CSContext
   ClutterActor *state_duration;
 
   ClutterActor *resize_handle;
+  ClutterActor *anchor_handle;
   ClutterActor *move_handle;
-
+  ClutterActor *rotate_x_handle;
+  ClutterActor *rotate_y_handle;
+  ClutterActor *rotate_z_handle;
 };
 
 

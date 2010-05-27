@@ -808,12 +808,18 @@ gboolean update_overlay_positions (gpointer data)
     {
       clutter_actor_hide (cs->move_handle);
       clutter_actor_hide (cs->resize_handle);
+      clutter_actor_hide (cs->anchor_handle);
+      clutter_actor_hide (cs->rotate_x_handle);
+      clutter_actor_hide (cs->rotate_y_handle);
+      clutter_actor_hide (cs->rotate_z_handle);
       return TRUE;
     }
-  clutter_actor_show (cs->move_handle);
+  //clutter_actor_show (cs->move_handle);
   clutter_actor_show (cs->resize_handle);
-      
-  /*XXX: */ clutter_actor_hide (cs->move_handle);
+  clutter_actor_show (cs->anchor_handle);
+  clutter_actor_show (cs->rotate_x_handle);
+  clutter_actor_show (cs->rotate_y_handle);
+  clutter_actor_show (cs->rotate_z_handle);
 
   min_x = 65536;
   min_y = 65536;
@@ -821,7 +827,51 @@ gboolean update_overlay_positions (gpointer data)
   max_y = 0;
   cs_selected_foreach (G_CALLBACK (find_extent), data);
 
-  clutter_actor_set_position (cs->resize_handle, max_x, max_y);
+  {
+    ClutterActor *actor;
+    ClutterVertex pos = {0,0,0};
+
+    actor = cs_selected_get_any ();
+    clutter_actor_get_anchor_point (actor, &pos.x, &pos.y);
+    clutter_actor_apply_transform_to_point (actor, &pos, &pos);
+  
+    clutter_actor_set_position (cs->anchor_handle, pos.x, pos.y);
+  }
+
+  {
+    ClutterActor *actor;
+    ClutterVertex pos = {0,0,0};
+
+    actor = cs_selected_get_any ();
+    clutter_actor_get_size (actor, &pos.x, &pos.y);
+    clutter_actor_apply_transform_to_point (actor, &pos, &pos);
+  
+    clutter_actor_set_position (cs->resize_handle, pos.x, pos.y);
+  }
+
+  {
+    ClutterActor *actor;
+    ClutterVertex pos = {0,0,0};
+
+    actor = cs_selected_get_any ();
+    clutter_actor_get_size (actor, &pos.x, &pos.y);
+    pos.y = 0.0;
+    clutter_actor_apply_transform_to_point (actor, &pos, &pos);
+    clutter_actor_set_position (cs->rotate_z_handle, pos.x, pos.y);
+  }
+
+  {
+    ClutterActor *actor;
+    ClutterVertex pos = {0,0,0};
+
+    actor = cs_selected_get_any ();
+    clutter_actor_get_position (cs->rotate_z_handle, &pos.x, &pos.y);
+    clutter_actor_set_position (cs->rotate_y_handle, pos.x + clutter_actor_get_width (cs->rotate_z_handle), pos.y);
+    clutter_actor_get_position (cs->rotate_z_handle, &pos.x, &pos.y);
+    clutter_actor_set_position (cs->rotate_x_handle, pos.x, pos.y - clutter_actor_get_height (cs->rotate_y_handle));
+  }
+
+
   clutter_actor_set_position (cs->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
 
   return TRUE;
@@ -917,6 +967,10 @@ gboolean idle_add_stage (gpointer stage)
   cs->fake_stage_canvas = _A("fake-stage-canvas");
   cs->project_root_entry = _A("project-root");
   cs->resize_handle = _A("resize-handle");
+  cs->anchor_handle = _A("anchor-handle");
+  cs->rotate_x_handle = _A("rotate-x-handle");
+  cs->rotate_y_handle = _A("rotate-y-handle");
+  cs->rotate_z_handle = _A("rotate-z-handle");
   cs->animation_name = _A("cs-animation-name");
   cs->move_handle = _A("move-handle");
   cs->active_container = _A("cs-active-container");
@@ -1056,8 +1110,7 @@ void actor_defaults_populate (ClutterActor *container,
   ClutterActor *label;
   ClutterActor *editor; 
 
-  /* special casing of x,y,z,w,h to make it take up less space and always be first */
-
+  /* position */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
   label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x, y, z");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
@@ -1079,6 +1132,7 @@ void actor_defaults_populate (ClutterActor *container,
 
   clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
+  /* dimensions */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
   label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "width, height");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
@@ -1096,8 +1150,63 @@ void actor_defaults_populate (ClutterActor *container,
 
   clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
+  /* rotation */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "rotation");
+  clutter_text_set_color (CLUTTER_TEXT (label), &white);
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+  clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+
+  editor = property_editor_new (G_OBJECT (actor), "rotation-angle-x");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  editor = property_editor_new (G_OBJECT (actor), "rotation-angle-y");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  editor = property_editor_new (G_OBJECT (actor), "rotation-angle-z");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+
+  /* scale */
+  hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "scale");
+  clutter_text_set_color (CLUTTER_TEXT (label), &white);
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+  clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+
+  editor = property_editor_new (G_OBJECT (actor), "scale-x");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  editor = property_editor_new (G_OBJECT (actor), "scale-y");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+
+  /* anchor */
+  hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "anchor/pivot");
+  clutter_text_set_color (CLUTTER_TEXT (label), &white);
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+  clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+
+  editor = property_editor_new (G_OBJECT (actor), "anchor-x");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  editor = property_editor_new (G_OBJECT (actor), "anchor-y");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+
   /* virtual 'id' property */
+  hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
   label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "id");
 
   editor = CLUTTER_ACTOR (mx_entry_new ());
