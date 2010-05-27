@@ -942,12 +942,12 @@ gboolean idle_add_stage (gpointer stage)
   cs->dialog_annotate = _A("cs-dialog-annotate");
   cs->dialog_editor_annotation = _A("cs-dialog-editor-annotation");
   cs->source_state = _A("cs-source-state");
+  cs->state_machine_name = _A("cs-state-machine-name");
+  cs->state_name = _A("cs-state-name");
   cs->dialog_editor_text = _A("cs-dialog-editor-text");
   cs->dialog_editor_error = _A("cs-dialog-editor-error");
-
   cs->dialog_property_inspector = _A("cs-dialog-property-inspector");
   cs->animator_editor = _A("cs-animator-editor");
-
 
   cs_animation_edit_init ();
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)), "text-changed",
@@ -1056,20 +1056,27 @@ void actor_defaults_populate (ClutterActor *container,
   ClutterActor *label;
   ClutterActor *editor; 
 
-  /* special casing of x,y,w,h to make it take up less space and always be first */
+  /* special casing of x,y,z,w,h to make it take up less space and always be first */
 
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x, y");
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x, y, z");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
   clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
 
   editor = property_editor_new (G_OBJECT (actor), "x");
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
   editor = property_editor_new (G_OBJECT (actor), "y");
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+  editor = property_editor_new (G_OBJECT (actor), "depth");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
+
   clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
@@ -1080,10 +1087,12 @@ void actor_defaults_populate (ClutterActor *container,
 
   editor = property_editor_new (G_OBJECT (actor), "width");
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
   editor = property_editor_new (G_OBJECT (actor), "height");
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
-  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor,
+                               "expand", TRUE, NULL);
 
   clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
 
@@ -1305,7 +1314,7 @@ void cs_prop_tweaked (GObject     *object,
        g_value_init (&value, pspec->value_type);
        g_object_get_property (object, property_name, &value);
 
-       source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
+       source_state = mx_label_get_text (MX_LABEL(cs->source_state));
        if (g_str_equal (source_state, "*") ||
            g_str_equal (source_state, ""))
          {
@@ -1313,22 +1322,21 @@ void cs_prop_tweaked (GObject     *object,
          }
 
        if (cs_set_keys_freeze == 0)
-       clutter_state_set_key (cs->current_state_machine,
-                              source_state,
-                              cs->current_state,
-                              object,
-                              property_name,
-                              CLUTTER_LINEAR,
-                              &value,
-                              0.0,
-                              0.0);
+         clutter_state_set_key (cs->current_state_machine,
+                                source_state,
+                                cs->current_state,
+                                object,
+                                property_name,
+                                CLUTTER_LINEAR,
+                                &value,
+                                0.0,
+                                0.0);
        g_value_unset (&value);
 
        cs_update_animator_editor (cs->current_state_machine,
                                   source_state, cs->current_state);
     }
 }
-
 
 static void remove_state_machines (void)
 {
@@ -1345,7 +1353,6 @@ static void remove_state_machines (void)
     }
   g_list_free (cs->animators);
   cs->animators = NULL;
-
 }
 
 /* filename has already been set when cs_load is called */
@@ -1355,6 +1362,7 @@ static void cs_load (void)
   cs_container_remove_children (cs->scene_graph);
   cs_container_remove_children (cs->fake_stage);
   remove_state_machines ();
+
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
@@ -1377,7 +1385,20 @@ static void cs_load (void)
                 cs->animators = g_list_append (cs->animators, animator);
                 g_print ("added an animator\n");
              }
+            else if (CLUTTER_IS_STATE (o->data))
+             {
+                ClutterState *state = o->data;
+                cs->state_machines = g_list_append (cs->state_machines, state);
+                g_print ("added a state!!!, should remove fake ones!\n");
+             }
           }
+        {
+          ClutterState *state = clutter_state_new ();
+          clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (state), "temp-hack");
+          cs->state_machines = g_list_append (cs->state_machines, state);
+        }
+        cs->current_state_machine = cs->state_machines->data;
+        /* Add a fake state machine at first, to bootstrap things.. */
 
         g_list_free (objects);
       }

@@ -76,6 +76,9 @@ void           cs_actor_make_id_unique             (ClutterActor *actor,
 
 const gchar  * cs_get_id                           (ClutterActor *actor);
 
+gboolean       cs_state_has_state                  (ClutterState *state,
+                                                    const gchar  *state_name);
+
 /* initially copies value from propertyB to propertyA, afterwards it is
  * possible to reassigning a new property to either propertyA or propertyB and
  * the other property will be updated.

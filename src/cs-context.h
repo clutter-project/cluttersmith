@@ -98,10 +98,12 @@ struct _CSContext
   ClutterActor *dialog_export;
   ClutterActor *dialog_states;
   ClutterActor *dialog_animator;
+  ClutterActor *state_machine_name;
+  ClutterActor *state_name;
+  ClutterActor *source_state;
   ClutterActor *animation_name;
   ClutterActor *animator_props;
   ClutterActor *animator_editor;
-  ClutterActor *source_state;
   ClutterActor *state_duration;
 
   ClutterActor *resize_handle;

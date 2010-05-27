@@ -1356,3 +1356,16 @@ cs_make_config_file (const char *filename)
 
   return full;
 }
+
+gboolean
+cs_state_has_state (ClutterState *state,
+                    const gchar  *state_name)
+{
+  GList *states;
+  gboolean found = FALSE;
+  states = clutter_state_get_states (state);
+  if (g_list_find (states, g_intern_string (state_name)))
+    found = TRUE;
+  g_list_free (states);
+  return found;
+}

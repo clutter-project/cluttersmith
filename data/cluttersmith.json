@@ -356,7 +356,7 @@
                                 {
                                   "type":"MxBoxLayout",
                                   "id":"cs-dialog-type",
-                                  "width":240,
+                                  "width":300,
                                   "style-class":"ClutterSmithPropertyPane",
                                   "orientation":"vertical",
                                   "children":[
@@ -453,6 +453,116 @@
                                   "x":0,
                                   "y":0,
                                   "children":[
+
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "spacing":2,
+                                      "children":[
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"SM-name"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"",
+                                          "child::expand":true,
+                                          "id":"cs-state-machine-name",
+                                          "signals":[
+                                               {
+                                                 "name":"paint",
+                                                 "handler":"state_machine_name_init_hack"
+                                               }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  V  ",
+                                          "tooltip-text":"State machines",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"state_machines_dropdown"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+
+                                    {
+                                      "type":"MxBoxLayout",
+                                      "spacing":2,
+                                      "children":[
+
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"",
+                                          "child::expand":true,
+                                          "id":"cs-source-state"
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  V  ",
+                                          "tooltip-text":"Work specify for a specify substate",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"source_states_dropdown"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"->"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"",
+                                          "child::expand":true,
+                                          "id":"cs-state-name",
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"state_name_init_hack"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type":"MxButton",
+                                          "label":"  V  ",
+                                          "tooltip-text":"States",
+                                          "signals":[
+                                            {
+                                              "name":"clicked",
+                                              "handler":"states_dropdown"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+
+                                    { "type":"MxBoxLayout",
+                                      "children":[
+                                        {
+                                          "type":"MxLabel",
+                                          "text":"Duration (ms)"
+                                        },
+                                        {
+                                          "type":"MxEntry",
+                                          "text":"1000",
+                                          "child::expand":true,
+                                          "id":"cs-state-duration",
+                                          "signals":[
+                                            {
+                                              "name":"paint",
+                                              "handler":"state_duration_init_hack"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+
+
+
                                     {
                                       "type":"MxBoxLayout",
                                       "spacing":2,
@@ -475,26 +585,6 @@
                                             {
                                               "name":"clicked",
                                               "handler":"animations_dropdown"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    { "type":"MxBoxLayout",
-                                      "children":[
-                                        {
-                                          "type":"MxLabel",
-                                          "text":"Duration (ms)"
-                                        },
-                                        {
-                                          "type":"MxEntry",
-                                          "text":"1000",
-                                          "child::expand":true,
-                                          "id":"cs-state-duration",
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"state_duration_init_hack"
                                             }
                                           ]
                                         }

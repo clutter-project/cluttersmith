@@ -1149,7 +1149,7 @@ static void update_animator_editor2 (void)
 {
   const gchar *source_state = NULL;
 
-  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
+  source_state = mx_label_get_text (MX_LABEL (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     {
@@ -1165,7 +1165,7 @@ static void update_duration (void)
   gint   duration;
   const gchar *source_state = NULL;
 
-  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
+  source_state = mx_label_get_text (MX_LABEL (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     {
@@ -1184,6 +1184,132 @@ static void state_source_name_text_changed (ClutterActor *actor)
 {
   update_duration ();
   update_animator_editor2 ();
+}
+
+static void change_state_machine2 (MxAction *action,
+                                   gpointer  data)
+{
+  mx_entry_set_text (MX_ENTRY (cs->state_machine_name), mx_action_get_name (action));
+}
+
+static MxAction *change_state_machine (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_state_machine2), NULL);
+  g_free (label);
+  return action;
+}
+
+void state_machines_dropdown (MxAction *action,
+                              gpointer  ignored)
+{
+  MxMenu *menu = cs_menu_new ();
+  GList *i;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+  for (i = cs->state_machines; i; i=i->next)
+    {
+      action = change_state_machine (clutter_scriptable_get_id (i->data));
+      mx_menu_add_action (menu, action);
+    }
+
+  clutter_group_add (cs->parasite_root, menu);
+  clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (menu));
+}
+
+
+
+static void change_source_state2 (MxAction *action,
+                                  gpointer    data)
+{
+  mx_label_set_text (MX_LABEL (cs->source_state), mx_action_get_name (action));
+}
+
+static MxAction *change_source_state (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_source_state2), NULL);
+  g_free (label);
+  return action;
+}
+
+void source_states_dropdown (MxAction *action,
+                             gpointer  ignored)
+{
+  MxMenu *menu;
+  GList *i, *states;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+  if (!cs->current_state_machine)
+    {
+      return;
+    }
+  menu = cs_menu_new ();
+
+  states = clutter_state_get_states (cs->current_state_machine);
+  for (i = states; i; i=i->next)
+    mx_menu_add_action (menu, change_source_state (i->data));
+  g_list_free (states);
+
+  clutter_group_add (cs->parasite_root, menu);
+  clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (menu));
+}
+
+
+static void change_state2 (MxAction *action,
+                           gpointer    data)
+{
+  mx_entry_set_text (MX_ENTRY (cs->state_name), mx_action_get_name (action));
+}
+
+static MxAction *change_state (const gchar *name)
+{
+  MxAction *action;
+  gchar *label;
+  label = g_strdup (name);
+  action = mx_action_new_full (label, label, G_CALLBACK (change_state2), NULL);
+  g_free (label);
+  return action;
+}
+
+void states_dropdown (MxAction *action,
+                      gpointer  ignored)
+{
+  MxMenu *menu;
+  GList *i, *states;
+  gint x, y;
+  x = cs_last_x;
+  y = cs_last_y;
+
+  if (!cs->current_state_machine)
+    {
+      return;
+    }
+  menu = cs_menu_new ();
+
+  states = clutter_state_get_states (cs->current_state_machine);
+  for (i = states; i; i=i->next)
+    mx_menu_add_action (menu, change_state (i->data));
+  g_list_free (states);
+
+  clutter_group_add (cs->parasite_root, menu);
+  clutter_actor_set_position (CLUTTER_ACTOR (menu), x, y);
+  clutter_actor_show (CLUTTER_ACTOR (menu));
+}
+
+static void state_machine_name_text_changed (ClutterActor *actor)
+{
+
 }
 
 static void state_name_text_changed (ClutterActor *actor)
@@ -1209,14 +1335,16 @@ static void state_name_text_changed (ClutterActor *actor)
        */
 
       /* update storage of this state */
-      clutter_state_change (cs->current_state_machine, state, TRUE);
+      if (cs_state_has_state (cs->current_state_machine, state))
+        clutter_state_change (cs->current_state_machine, state, TRUE);
+      else
+        g_print ("no state %s .. (yet)\n", state);
     }
 
   cs->current_state = g_intern_string (state);
 
+  mx_label_set_text (MX_LABEL (cs->source_state), "");
   update_duration ();
-
-
   update_animator_editor2 ();
 }
 
@@ -1230,11 +1358,27 @@ void state_source_name_init_hack (ClutterActor  *actor)
     return;
   done = TRUE;
 
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+  g_signal_connect (mx_label_get_clutter_text (MX_LABEL (actor)), "text-changed",
                     G_CALLBACK (state_source_name_text_changed), NULL);
 }
 
 void state_name_init_hack (ClutterActor  *actor)
+{
+  /* we hook this up to the first paint, since no other signal seems to be
+   * available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
+
+  g_print ("AAAAAA!\n");
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
+                    G_CALLBACK (state_name_text_changed), NULL);
+}
+
+void state_machine_name_init_hack (ClutterActor  *actor)
 {
   /* we hook this up to the first paint, since no other signal seems to
    * be available to hook up for some additional initialization
@@ -1244,8 +1388,10 @@ void state_name_init_hack (ClutterActor  *actor)
     return;
   done = TRUE;
 
+  g_print ("AAAAAA!\n");
+
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_name_text_changed), NULL);
+                    G_CALLBACK (state_machine_name_text_changed), NULL);
 
 }
 
@@ -1253,21 +1399,19 @@ void state_name_init_hack (ClutterActor  *actor)
 static void state_duration_text_changed (ClutterActor *actor)
 {
   const gchar *text = clutter_text_get_text (CLUTTER_TEXT (actor));
-#if 0
   const gchar *source_state = NULL;
 
-  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
+  source_state = mx_label_get_text (MX_LABEL (cs->source_state));
   if (g_str_equal (source_state, "*") ||
       g_str_equal (source_state, ""))
     {
       source_state = NULL;
     }
 
-  clutter_states_set_duration (cs->current_state_machine,
-                               source_state,
-                               cs->current_state,
-                               atoi (text));
-#endif
+  clutter_state_set_duration (cs->current_state_machine,
+                              source_state,
+                              cs->current_state,
+                              atoi (text));
   if (cs->current_animator)
     clutter_animator_set_duration (cs->current_animator, atoi (text));
 }
