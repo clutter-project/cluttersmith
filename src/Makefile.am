@@ -28,6 +28,7 @@ cs-serializer.c \
 cs-session-history.c \
 cs-stencils.c \
 cs-resize.c \
+cs-rotate.c \
 cs-move.c \
 cs-edit-text.c \
 cs-texture.c \
