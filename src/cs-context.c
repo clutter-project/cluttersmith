@@ -1363,6 +1363,14 @@ void cs_save (gboolean force)
             g_string_append (str, tmp);
             g_free (tmp);
           }
+        g_string_append (str, "\n");
+        for (a = cs->state_machines; a; a=a->next)
+          {
+            tmp = json_serialize_state (a->data);
+            g_string_append (str, ",");
+            g_string_append (str, tmp);
+            g_free (tmp);
+          }
       }
       g_string_append (str, "]");
 

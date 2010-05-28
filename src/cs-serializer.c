@@ -628,3 +628,131 @@ gchar *json_serialize_animator (ClutterAnimator *animator)
   g_string_free (str, FALSE);
   return ret;
 }
+
+static void
+state_to_string (GString      *str,
+                 ClutterState *state,
+                 gint         *indentation)
+{
+#if 0
+  GList *keys = clutter_animator_get_keys (animator, NULL, NULL, -1.0);
+  INDENT;
+  g_string_append_printf (str, "{\n");
+  *indentation+=2;
+  INDENT;
+  g_string_append_printf (str, "\"id\":\"%s\",\n", clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (animator)));
+  INDENT;
+  g_string_append_printf (str, "\"type\":\"ClutterAnimator\",\n");
+  INDENT;
+  g_string_append_printf (str, "\"duration\":%i,\n", clutter_animator_get_duration (animator));
+  INDENT;
+  g_string_append_printf (str, "\"properties\":[\n");
+  
+  *indentation+=2;
+  {
+    GList *iter;
+    const gchar *curprop = NULL;
+    GObject *curobject = NULL;
+    gboolean gotprop = FALSE;
+
+    for (iter = keys; iter; iter=iter->next)
+      {
+        ClutterAnimatorKey *key = iter->data;
+        const gchar *prop     = clutter_animator_key_get_property_name (key);
+        GObject     *object   = clutter_animator_key_get_object (key);
+        gdouble      progress = clutter_animator_key_get_progress (key);
+        guint        mode     = clutter_animator_key_get_mode (key);
+
+
+        if (object != curobject ||
+            prop != curprop)
+          {
+            if (curobject == NULL)
+              {
+                INDENT;
+                g_string_append_printf (str, "{\n");
+                *indentation+=2;
+              }
+            else
+              {
+                *indentation-=2;
+                INDENT;
+                g_string_append_printf (str, "]\n");
+                *indentation-=2;
+                INDENT;
+                g_string_append_printf (str, "},{\n");
+                *indentation+=2;
+              }
+            INDENT;
+            g_string_append_printf (str, "\"object\":\"%s\",\n", clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (object)));
+            INDENT;
+            g_string_append_printf (str, "\"name\":\"%s\",\n", prop);
+            INDENT;
+            g_string_append_printf (str, "\"ease-in\":%s,\n",
+              clutter_animator_property_get_ease_in (animator, object, prop)?"true":"false");
+            INDENT;
+            g_string_append_printf (str, "\"interpolation\":\"%s\",\n",
+              clutter_animator_property_get_interpolation (animator, object, prop) ==
+              CLUTTER_INTERPOLATION_LINEAR?"linear":"cubic");
+            INDENT;
+            g_string_append_printf (str, "\"keys\": [\n");
+            gotprop = FALSE;
+            *indentation+=2;
+          }
+        INDENT;
+
+        {
+          GValue value = {0,};
+          GEnumClass *enum_class;
+          GEnumValue *enum_value;
+
+          mode = clutter_animator_key_get_mode (key);
+          enum_class = g_type_class_peek (CLUTTER_TYPE_ANIMATION_MODE);
+          enum_value = g_enum_get_value (enum_class, mode);
+          g_value_init (&value, G_TYPE_STRING); /* XXX: this isnt very robust */
+          clutter_animator_key_get_value (key, &value);
+          g_string_append_printf (str, "%s[%f, \"%s\", %s]\n",
+                                  gotprop?",":" ", progress,
+                                  enum_value->value_nick,
+                                  g_value_get_string (&value));
+          g_value_unset (&value);
+        }
+        gotprop=TRUE;
+        
+        curobject = object;
+        curprop = prop;
+      }
+    if (curobject)
+      {
+        *indentation-=2;
+      }
+  }
+  INDENT;
+  g_string_append_printf (str, "]\n");
+  *indentation-=2;
+
+  INDENT;
+  g_string_append_printf (str, "}\n");
+  *indentation-=2;
+
+  INDENT;
+  g_string_append_printf (str, "]\n");
+
+  *indentation-=2;
+  INDENT;
+  g_string_append_printf (str, "}\n");
+
+  g_list_free (keys);
+#endif
+}
+
+gchar *json_serialize_state (ClutterState *state)
+{
+  GString *str = g_string_new ("");
+  gchar   *ret;
+  gint     indentation = 0;
+  state_to_string (str, state, &indentation);
+  ret = str->str;
+  g_string_free (str, FALSE);
+  return ret;
+}
