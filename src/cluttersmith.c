@@ -279,7 +279,10 @@ main (gint    argc,
   if (!parse_args (argv))
     return -1;
 
+
   stage = initialize_stage ();
+  test_states_script_main (0, NULL);
+  return 0;
   idle_add_stage (stage);
   load_project ();
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */

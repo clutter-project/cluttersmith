@@ -89,7 +89,7 @@ manipulate_rotate_z_capture (ClutterActor *stage,
           ex = event->motion.x;
           ey = event->motion.y;
 
-          rot += (manipulate_y-ey);
+          rot -= (manipulate_y-ey);
 
           clutter_actor_set_rotation (actor, CLUTTER_Z_AXIS, rot, 0,0,0);
           cs_prop_tweaked (G_OBJECT (actor), "rotation-angle-z");
