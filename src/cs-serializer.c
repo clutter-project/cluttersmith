@@ -662,7 +662,6 @@ state_to_string (GString      *str,
         GObject     *object       = clutter_state_key_get_object (key);
         const gchar *source_state = clutter_state_key_get_source_state_name (key);
         const gchar *target_state = clutter_state_key_get_target_state_name (key);
-        guint        duration     = clutter_state_get_duration (state, source_state, target_state);
         guint        mode         = clutter_state_key_get_mode (key);
         gdouble      pre_delay    = clutter_state_key_get_pre_delay (key);
         gdouble      post_delay   = clutter_state_key_get_post_delay (key);
@@ -670,6 +669,14 @@ state_to_string (GString      *str,
         if (curr_sstate != source_state ||
             curr_tstate != target_state)
           {
+            ClutterAnimator *animator;
+            guint            duration;
+
+            animator =
+               clutter_state_get_animator (state, source_state, target_state);
+            duration =
+               clutter_state_get_duration (state, source_state, target_state);
+
             curr_sstate = source_state;
             curr_tstate = target_state;
             if (had_prev)
@@ -689,6 +696,12 @@ state_to_string (GString      *str,
 
             INDENT;g_string_append_printf (str, "\"source\":\"%s\",\n", source_state);
             INDENT;g_string_append_printf (str, "\"target\":\"%s\",\n", target_state);
+            if (animator)
+              {
+                INDENT;
+                g_string_append_printf (str, "\"animator\":\"%s\",\n",
+                      clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (animator)));
+              }
             if (clutter_state_get_duration (state, NULL, NULL) != duration)
               {
                 INDENT;g_string_append_printf (str, "\"duration\":%d,\n", duration);

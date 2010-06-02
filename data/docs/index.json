@@ -15,6 +15,7 @@
   "children":[
     {
       "type":"MxButton",
+      "id":"MxButton",
       "style-class":"ClutterSmithLink",
       "name":"link=javascript",
       "x":299,
@@ -28,15 +29,16 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"javascript",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
+          "id":"ClutterText",
           "x":16,
           "y":12,
           "width":110,
@@ -50,7 +52,7 @@
           "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"javascript",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -65,13 +67,14 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false  
+          "single-line-mode":false
         }
       ]
     }
     ,
     {
       "type":"MxButton",
+      "id":"MxButton4",
       "style-class":"ClutterSmithLink",
       "name":"link=widgets",
       "x":299,
@@ -85,15 +88,16 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"widgets",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
+          "id":"ClutterText7",
           "x":16,
           "y":13,
           "width":110,
@@ -107,7 +111,7 @@
           "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"widgets",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -122,16 +126,16 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false 
-
+          "single-line-mode":false
         }
       ]
     }
     ,
     {
       "type":"ClutterGroup",
-      "x":66,
-      "y":53,
+      "id":"ClutterGroup1",
+      "x":77,
+      "y":55,
       "width":349,
       "height":67,
       "depth":0.000,
@@ -144,6 +148,7 @@
       "children":[
         {
           "type":"ClutterText",
+          "id":"ClutterText6",
           "x":1,
           "y":0,
           "width":424,
@@ -177,6 +182,7 @@
         ,
         {
           "type":"ClutterText",
+          "id":"ClutterText5",
           "x":6,
           "y":2,
           "width":424,
@@ -212,17 +218,18 @@
     ,
     {
       "type":"ClutterText",
-      "x":130,
-      "y":143,
+      "id":"ClutterText1",
+      "x":190,
+      "y":167,
       "width":285,
       "height":132,
       "depth":0.000,
       "opacity":255,
       "scale-x":1.000,
       "scale-y":1.000,
-      "rotation-angle-z":0.000,
-      "anchor-x":0.000,
-      "anchor-y":0.000,
+      "rotation-angle-z":30.000,
+      "anchor-x":51.988,
+      "anchor-y":43.013,
       "font-name":"Sans 9",
       "text":"A tool for visually creating and modifying Clutter scene graphs.
 
@@ -247,6 +254,7 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
     ,
     {
       "type":"MxButton",
+      "id":"MxButton3",
       "style-class":"ClutterSmithLink",
       "name":"link=todo",
       "x":77,
@@ -260,15 +268,16 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"todo",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
+          "id":"ClutterText4",
           "x":16,
           "y":12,
           "width":110,
@@ -282,7 +291,7 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
           "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"todo",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -304,10 +313,11 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
     ,
     {
       "type":"MxButton",
+      "id":"MxButton1",
       "style-class":"ClutterSmithLink",
       "name":"link=help",
       "x":77,
-      "y":345,
+      "y":347,
       "width":143,
       "height":36,
       "depth":0.000,
@@ -317,15 +327,16 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"help",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
+          "id":"ClutterText3",
           "x":16,
           "y":12,
           "width":110,
@@ -339,7 +350,7 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
           "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"help",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -355,13 +366,13 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
           "password-char":0,
           "max-length":0,
           "single-line-mode":false
-
         }
       ]
     }
     ,
     {
       "type":"MxButton",
+      "id":"MxButton2",
       "style-class":"ClutterSmithCallout",
       "x":678,
       "y":14,
@@ -374,18 +385,19 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
-          "x":10,
+          "id":"ClutterText2",
+          "x":13,
           "y":13,
-          "width":167,
+          "width":161,
           "height":148,
           "depth":0.000,
           "opacity":255,
@@ -396,7 +408,7 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
           "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,

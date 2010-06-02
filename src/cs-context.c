@@ -86,6 +86,8 @@ static void cs_context_set_property (GObject      *object,
                                      GParamSpec   *pspec);
 
 static void project_root_text_changed (ClutterActor *actor);
+static void state_machine_name_changed (ClutterActor *actor);
+static void project_title_text_changed (ClutterActor *actor);
 
 static void
 cs_context_dispose (GObject *object)
@@ -1043,7 +1045,10 @@ gboolean idle_add_stage (gpointer stage)
   cs_animation_edit_init ();
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)), "text-changed",
                     G_CALLBACK (project_root_text_changed), NULL);
-
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_machine_name)),
+   "text-changed", G_CALLBACK (state_machine_name_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_title)),
+   "text-changed", G_CALLBACK (project_title_text_changed), NULL);
 
   cs_set_active (clutter_actor_get_stage(cs->parasite_root));
 
@@ -1321,6 +1326,18 @@ void cs_set_active (ClutterActor *item)
 }
 
 
+static void
+ensure_unique_ids (ClutterActor *start)
+{
+  GList *children = cs_container_get_children_recursive (CLUTTER_CONTAINER (start));
+  GList *c;
+  for (c = children; c; c = c->next)
+    {
+      cs_actor_make_id_unique (c->data, NULL);
+    }
+
+  g_list_free (children);
+}
 
 void cs_save (gboolean force)
 {
@@ -1347,6 +1364,13 @@ void cs_save (gboolean force)
 
       clutter_actor_get_position (cs->fake_stage, &x, &y);
       clutter_actor_set_position (cs->fake_stage, 0.0, 0.0);
+
+      /* make sure all ids are unique, ideally this would
+       * already be the case, but we ensure it here as a
+       * last resort, needed to make the resulting files
+       * loadable
+       */
+      ensure_unique_ids (cs->fake_stage);
 
       tmp = json_serialize_subtree (cs->fake_stage);
       g_string_append (str, tmp);
@@ -1746,6 +1770,56 @@ gchar *cs_get_project_root (void)
   return cs->project_root;
 }
 
+void cs_set_current_state_machine (ClutterState *state_machine)
+{
+  if (cs->current_state_machine)
+    {
+      GList *keys = clutter_state_get_keys (cs->current_state_machine, NULL, NULL, NULL, NULL);
+      if (!keys) /* if no keys are set, just destroy the machine */
+        {
+          g_object_unref (cs->current_state_machine);
+                          cs->state_machines = g_list_remove (cs->state_machines, cs->current_state_machine);
+        }
+      g_list_free (keys);
+    }
+  cs->current_state_machine = state_machine;
+  //cs_state_machine_editor_set_state_machine (CS_ANIMATOR_EDITOR (cs->state_machine_editor), state_machine);
+}
+
+
+static void state_machine_name_changed (ClutterActor *actor)
+{
+  ClutterText *text = CLUTTER_TEXT (actor);
+  const gchar *name = clutter_text_get_text (text);
+  ClutterState *state;
+  GList *a;
+
+  cs_properties_restore_defaults ();
+  if (!name || name[0]=='\0')
+    {
+      /* if it is the empty string we drop any held state machine */
+      if (cs->current_state_machine)
+        {
+          cs_properties_restore_defaults ();
+        }
+      cs->current_state_machine = NULL;
+      return;
+    }
+
+  for (a=cs->state_machines; a; a=a->next)
+    {
+      const gchar *id = clutter_scriptable_get_id (a->data);
+      if (id && g_str_equal (id, name))
+        {
+          cs_set_current_state_machine (a->data);
+          return;
+        }
+    }
+  state = clutter_state_new ();
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (state), name);
+  cs->state_machines = g_list_append (cs->state_machines, state);
+  cs_set_current_state_machine (state);
+}
 
 static void project_root_text_changed (ClutterActor *actor)
 {
@@ -1788,18 +1862,3 @@ static void project_title_text_changed (ClutterActor *actor)
   cluttersmith_set_project_root (path);
   g_free (path);
 }
-
-void project_title_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (project_title_text_changed), NULL);
-}
-

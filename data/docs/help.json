@@ -15,6 +15,7 @@
   "children":[
     {
       "type":"ClutterText",
+      "id":"ClutterText2",
       "x":14,
       "y":28,
       "width":335,
@@ -72,6 +73,7 @@ Keybindings:
     ,
     {
       "type":"ClutterText",
+      "id":"ClutterText1",
       "x":377,
       "y":28,
       "width":325,
@@ -117,6 +119,7 @@ double click selected item to edit it (or follow hyper link when in editing mode
     ,
     {
       "type":"MxButton",
+      "id":"MxButton",
       "style-class":"ClutterSmithLink",
       "name":"link=index",
       "x":372,
@@ -130,18 +133,19 @@ double click selected item to edit it (or follow hyper link when in editing mode
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"index",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
-          "x":10,
+          "id":"ClutterText",
+          "x":13,
           "y":10,
-          "width":110,
+          "width":104,
           "height":12,
           "depth":0.000,
           "opacity":255,
@@ -152,7 +156,7 @@ double click selected item to edit it (or follow hyper link when in editing mode
           "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"index",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -167,8 +171,7 @@ double click selected item to edit it (or follow hyper link when in editing mode
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false  
-
+          "single-line-mode":false
         }
       ]
     }

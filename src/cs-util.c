@@ -1306,13 +1306,19 @@ void
 cs_actor_make_id_unique (ClutterActor *actor,
                          const gchar  *stem)
 {
+  ClutterScriptable *scriptable = CLUTTER_SCRIPTABLE (actor);
   GList *a, *actors;
   GString *str;
   gint     count = 0;
 
   if (!stem)
    stem = G_OBJECT_TYPE_NAME (actor);
-  str = g_string_new (stem);
+
+  if (clutter_scriptable_get_id (scriptable))
+    str = g_string_new (clutter_scriptable_get_id (scriptable));
+  else
+    str = g_string_new (stem);
+
   actors = cs_container_get_children_recursive (CLUTTER_CONTAINER (cs->fake_stage));
 
 again:
@@ -1330,7 +1336,7 @@ again:
             }
         }
     }
-  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (actor), str->str);
+  clutter_scriptable_set_id (scriptable, str->str);
 
   g_list_free (actors);
   g_string_free (str, TRUE);

@@ -223,13 +223,7 @@
                                           "id":"cs-project-title",
                                           "hint-text":"project",
                                           "child::expand":true,
-                                          "height":10,
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"project_title_init_hack"
-                                            }
-                                          ]
+                                          "height":10
                                         },
                                         {
                                           "type":"MxButton",
