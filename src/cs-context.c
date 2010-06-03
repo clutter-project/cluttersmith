@@ -839,6 +839,7 @@ static void find_extent (ClutterActor *actor,
 
 gboolean update_overlay_positions (gpointer data)
 {
+  ClutterActor *actor;
 
   if (cs->current_animator)
     animator_editor_update_handles ();
@@ -853,12 +854,15 @@ gboolean update_overlay_positions (gpointer data)
       clutter_actor_hide (cs->rotate_z_handle);
       return TRUE;
     }
-  //clutter_actor_show (cs->move_handle);
+
+  clutter_actor_show (cs->move_handle);
   clutter_actor_show (cs->resize_handle);
   clutter_actor_show (cs->anchor_handle);
   clutter_actor_show (cs->rotate_x_handle);
   clutter_actor_show (cs->rotate_y_handle);
   clutter_actor_show (cs->rotate_z_handle);
+
+  actor = cs_selected_get_any ();
 
   min_x = 65536;
   min_y = 65536;
@@ -866,50 +870,28 @@ gboolean update_overlay_positions (gpointer data)
   max_y = 0;
   cs_selected_foreach (G_CALLBACK (find_extent), data);
 
-  {
-    ClutterActor *actor;
-    ClutterVertex pos = {0,0,0};
+  if (actor)
+    {
+      ClutterVertex pos = {0,0,0};
+      clutter_actor_get_anchor_point (actor, &pos.x, &pos.y);
+      clutter_actor_apply_transform_to_point (actor, &pos, &pos);
+      
+      clutter_actor_set_position (cs->anchor_handle, pos.x, pos.y);
 
-    actor = cs_selected_get_any ();
-    clutter_actor_get_anchor_point (actor, &pos.x, &pos.y);
-    clutter_actor_apply_transform_to_point (actor, &pos, &pos);
-  
-    clutter_actor_set_position (cs->anchor_handle, pos.x, pos.y);
-  }
+      clutter_actor_get_size (actor, &pos.x, &pos.y);
+      clutter_actor_apply_transform_to_point (actor, &pos, &pos);
+      clutter_actor_set_position (cs->resize_handle, pos.x, pos.y);
 
-  {
-    ClutterActor *actor;
-    ClutterVertex pos = {0,0,0};
-
-    actor = cs_selected_get_any ();
-    clutter_actor_get_size (actor, &pos.x, &pos.y);
-    clutter_actor_apply_transform_to_point (actor, &pos, &pos);
-  
-    clutter_actor_set_position (cs->resize_handle, pos.x, pos.y);
-  }
-
-  {
-    ClutterActor *actor;
-    ClutterVertex pos = {0,0,0};
-
-    actor = cs_selected_get_any ();
-    clutter_actor_get_size (actor, &pos.x, &pos.y);
-    pos.y = 0.0;
-    clutter_actor_apply_transform_to_point (actor, &pos, &pos);
-    clutter_actor_set_position (cs->rotate_z_handle, pos.x, pos.y);
-  }
-
-  {
-    ClutterActor *actor;
-    ClutterVertex pos = {0,0,0};
-
-    actor = cs_selected_get_any ();
-    clutter_actor_get_position (cs->rotate_z_handle, &pos.x, &pos.y);
-    clutter_actor_set_position (cs->rotate_y_handle, pos.x + clutter_actor_get_width (cs->rotate_z_handle), pos.y);
-    clutter_actor_get_position (cs->rotate_z_handle, &pos.x, &pos.y);
-    clutter_actor_set_position (cs->rotate_x_handle, pos.x, pos.y - clutter_actor_get_height (cs->rotate_y_handle));
-  }
-
+      pos.x = pos.y = pos.z = 0;
+      clutter_actor_get_size (actor, &pos.x, &pos.y);
+      pos.x = 0.0;
+      clutter_actor_apply_transform_to_point (actor, &pos, &pos);
+      clutter_actor_set_position (cs->rotate_z_handle, pos.x, pos.y);
+      clutter_actor_get_position (cs->rotate_z_handle, &pos.x, &pos.y);
+      clutter_actor_set_position (cs->rotate_y_handle, pos.x - clutter_actor_get_width (cs->rotate_z_handle), pos.y);
+      clutter_actor_get_position (cs->rotate_z_handle, &pos.x, &pos.y);
+      clutter_actor_set_position (cs->rotate_x_handle, pos.x, pos.y + clutter_actor_get_height (cs->rotate_z_handle));
+    }
 
   clutter_actor_set_position (cs->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
 
@@ -1377,25 +1359,29 @@ void cs_save (gboolean force)
       g_free (tmp);
 
       if (cs->animators)
-      {
-        GList *a;
-        g_string_append (str, "\n");
-        for (a = cs->animators; a; a=a->next)
-          {
-            tmp = json_serialize_animator (a->data);
-            g_string_append (str, ",");
-            g_string_append (str, tmp);
-            g_free (tmp);
-          }
-        g_string_append (str, "\n");
-        for (a = cs->state_machines; a; a=a->next)
-          {
-            tmp = json_serialize_state (a->data);
-            g_string_append (str, ",");
-            g_string_append (str, tmp);
-            g_free (tmp);
-          }
-      }
+        {
+          GList *a;
+          g_string_append (str, "\n");
+          for (a = cs->animators; a; a=a->next)
+            {
+              tmp = json_serialize_animator (a->data);
+              g_string_append (str, ",");
+              g_string_append (str, tmp);
+              g_free (tmp);
+            }
+        }
+      if (cs->state_machines)
+        {
+          GList *a;
+          g_string_append (str, "\n");
+          for (a = cs->state_machines; a; a=a->next)
+            {
+              tmp = json_serialize_state (a->data);
+              g_string_append (str, ",");
+              g_string_append (str, tmp);
+              g_free (tmp);
+            }
+        }
       g_string_append (str, "]");
 
       clutter_actor_set_position (cs->fake_stage, x, y);
@@ -1561,21 +1547,13 @@ static void cs_load (void)
              {
                 ClutterAnimator *animator = o->data;
                 cs->animators = g_list_append (cs->animators, animator);
-                g_print ("added an animator\n");
              }
             else if (CLUTTER_IS_STATE (o->data))
              {
                 ClutterState *state = o->data;
                 cs->state_machines = g_list_append (cs->state_machines, state);
-                g_print ("added a state!!!, should remove fake ones!\n");
              }
           }
-        {
-          ClutterState *state = clutter_state_new ();
-          clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (state), "temp-hack");
-          cs->state_machines = g_list_append (cs->state_machines, state);
-        }
-        cs->current_state_machine = cs->state_machines->data;
         /* Add a fake state machine at first, to bootstrap things.. */
 
         g_list_free (objects);

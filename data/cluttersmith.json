@@ -478,17 +478,6 @@
                                               "handler":"state_machines_dropdown"
                                             }
                                           ]
-                                        },
-                                        {
-                                          "type":"MxButton",
-                                          "label":"  X  ",
-                                          "tooltip-text":"Delete machine",
-                                          "signals":[
-                                            {
-                                              "name":"clicked",
-                                              "handler":"state_machine_delete"
-                                            }
-                                          ]
                                         }
                                       ]
                                     },
@@ -539,17 +528,6 @@
                                             {
                                               "name":"clicked",
                                               "handler":"states_dropdown"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "type":"MxButton",
-                                          "label":"  X  ",
-                                          "tooltip-text":"Delete state",
-                                          "signals":[
-                                            {
-                                              "name":"clicked",
-                                              "handler":"state_delete"
                                             }
                                           ]
                                         }
