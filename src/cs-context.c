@@ -937,6 +937,7 @@ gboolean idle_add_stage (gpointer stage)
   ClutterScript *script;
 
   cs = cs_context_new ();
+  mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
 
 /*#ifdef COMPILEMODULE
   actor = cs_load_json (PKGDATADIR "cluttersmith-assistant.json");
@@ -960,7 +961,6 @@ gboolean idle_add_stage (gpointer stage)
   cs_edit_text_init ();
 
 
-  mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
   script = cs_get_script (actor);
 
   /* initializing globals */
@@ -1524,8 +1524,8 @@ static void cs_load (void)
 {
   cs_container_remove_children (cs->property_editors);
   cs_container_remove_children (cs->scene_graph);
-  cs_container_remove_children (cs->fake_stage);
   remove_state_machines ();
+  cs_container_remove_children (cs->fake_stage);
 
 
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
@@ -1731,16 +1731,8 @@ void cluttersmith_set_project_root (const gchar *new_root)
       return;
     }
 
-
-  project_root = cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "project-root");
-  if (project_root)
-    {
-      g_object_set (G_OBJECT (project_root), "text", new_root, NULL);
-    }
-  else
-    {
-      g_print ("set root %s\n", new_root);
-    }
+  if ((project_root = cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "project-root")))
+    g_object_set (G_OBJECT (project_root), "text", new_root, NULL);
 }
 
 gchar *cs_get_project_root (void)

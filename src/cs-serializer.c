@@ -629,6 +629,22 @@ gchar *json_serialize_animator (ClutterAnimator *animator)
   return ret;
 }
 
+static gint
+sort_transitions_func (gconstpointer a,
+                       gconstpointer b)
+{
+  const ClutterStateKey *ka = a;
+  const ClutterStateKey *kb = b;
+
+  if (clutter_state_key_get_target_state_name (ka) !=
+      clutter_state_key_get_target_state_name (kb))
+    return (clutter_state_key_get_target_state_name (ka) -
+                   clutter_state_key_get_target_state_name (kb));
+
+  return (clutter_state_key_get_source_state_name (ka) -
+          clutter_state_key_get_source_state_name (kb));
+}
+
 static void
 state_to_string (GString      *str,
                  ClutterState *state,
@@ -648,6 +664,9 @@ state_to_string (GString      *str,
   g_string_append_printf (str, "\"transitions\":[\n");
   *indentation+=2;
   *indentation+=2;
+
+  transitions = g_list_sort (transitions, sort_transitions_func);
+
   {
     GList *iter;
     const gchar *curr_sstate = NULL;
@@ -694,8 +713,26 @@ state_to_string (GString      *str,
               }
             *indentation+=2;
 
-            INDENT;g_string_append_printf (str, "\"source\":\"%s\",\n", source_state);
-            INDENT;g_string_append_printf (str, "\"target\":\"%s\",\n", target_state);
+            if (source_state)
+              {
+                INDENT;g_string_append_printf (str, "\"source\":\"%s\",\n",
+                                               source_state);
+              }
+            else
+              {
+                INDENT;g_string_append_printf (str, "\"source\":null,\n");
+              }
+
+            if (target_state)
+              {
+                INDENT;g_string_append_printf (str, "\"target\":\"%s\",\n",
+                                               target_state);
+              }
+            else
+              {
+                INDENT;g_string_append_printf (str, "\"target\":null,\n");
+              }
+
             if (animator)
               {
                 INDENT;

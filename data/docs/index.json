@@ -23,7 +23,7 @@
       "width":143,
       "height":37,
       "depth":0.000,
-      "opacity":204,
+      "opacity":102,
       "scale-x":1.000,
       "scale-y":1.000,
       "rotation-angle-z":0.000,
@@ -77,12 +77,12 @@
       "id":"MxButton4",
       "style-class":"ClutterSmithLink",
       "name":"link=widgets",
-      "x":299,
-      "y":345,
+      "x":156,
+      "y":291,
       "width":143,
       "height":38,
       "depth":0.000,
-      "opacity":204,
+      "opacity":102,
       "scale-x":1.000,
       "scale-y":1.000,
       "rotation-angle-z":0.000,
@@ -134,8 +134,8 @@
     {
       "type":"ClutterGroup",
       "id":"ClutterGroup1",
-      "x":77,
-      "y":55,
+      "x":297,
+      "y":117,
       "width":349,
       "height":67,
       "depth":0.000,
@@ -257,12 +257,12 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
       "id":"MxButton3",
       "style-class":"ClutterSmithLink",
       "name":"link=todo",
-      "x":77,
-      "y":389,
+      "x":432,
+      "y":174,
       "width":143,
       "height":37,
       "depth":0.000,
-      "opacity":204,
+      "opacity":102,
       "scale-x":1.000,
       "scale-y":1.000,
       "rotation-angle-z":0.000,
@@ -316,12 +316,12 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
       "id":"MxButton1",
       "style-class":"ClutterSmithLink",
       "name":"link=help",
-      "x":77,
-      "y":347,
+      "x":326,
+      "y":286,
       "width":143,
       "height":36,
       "depth":0.000,
-      "opacity":204,
+      "opacity":102,
       "scale-x":1.000,
       "scale-y":1.000,
       "rotation-angle-z":0.000,
@@ -379,7 +379,7 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
       "width":187,
       "height":175,
       "depth":0.000,
-      "opacity":255,
+      "opacity":85,
       "scale-x":1.000,
       "scale-y":1.000,
       "rotation-angle-z":0.000,
@@ -429,4 +429,41 @@ The project cluttersmith initially launches with is read-only, enter a new Proje
     }
   ]
 }
+
+,{
+  "type":"ClutterState",
+  "id":"foo",
+  "duration":1000,
+  "transitions":[
+      {
+        "source":null,
+        "target":"bar",
+        "keys": [
+        ["MxButton3", "x",  "linear", 540.000, 0.000000, 0.000000]
+        ,["MxButton3", "y",  "linear", 312.000, 0.000000, 0.000000]
+        ,["MxButton1", "x",  "linear", 346.000, 0.000000, 0.000000]
+        ,["MxButton1", "y",  "linear", 318.000, 0.000000, 0.000000]
+        ,["MxButton4", "x",  "linear", 92.000, 0.000000, 0.000000]
+        ,["MxButton4", "y",  "linear", 324.000, 0.000000, 0.000000]
+        ,["ClutterGroup1", "rotation-angle-y",  "linear", 66.000, 0.000000, 0.000000]
+        ,["ClutterGroup1", "x",  "linear", 350.000, 0.000000, 0.000000]
+        ,["ClutterGroup1", "y",  "linear", 174.000, 0.000000, 0.000000]
+        ]
+      },{
+        "source":null,
+        "target":"baz",
+        "keys": [
+        ["MxButton3", "x",  "linear", 432.000, 0.000000, 0.000000]
+        ,["MxButton3", "y",  "linear", 174.000, 0.000000, 0.000000]
+        ,["MxButton1", "x",  "linear", 326.000, 0.000000, 0.000000]
+        ,["MxButton1", "y",  "linear", 286.000, 0.000000, 0.000000]
+        ,["MxButton4", "x",  "linear", 156.000, 0.000000, 0.000000]
+        ,["MxButton4", "y",  "linear", 291.000, 0.000000, 0.000000]
+        ,["ClutterGroup1", "rotation-angle-y",  "linear", -7.000, 0.000000, 0.000000]
+        ,["ClutterGroup1", "x",  "linear", 297.000, 0.000000, 0.000000]
+        ,["ClutterGroup1", "y",  "linear", 117.000, 0.000000, 0.000000]
+        ]
+      }
+    ]
+  }
 ]
