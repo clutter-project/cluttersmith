@@ -608,6 +608,8 @@ void cs_context_set_scene (CSContext   *context,
     g_free (context->priv->title);
 
   context->priv->title = g_strdup (new_title);
+  if (filename)
+    g_free (filename);
   filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
                               new_title);
 
@@ -1327,7 +1329,7 @@ void cs_save (gboolean force)
   if (filename)
     {
       GFile *gf = g_file_new_for_path (filename);
-      GFile *gf_parent = g_file_new_for_path (filename);
+      GFile *gf_parent;
 
       gf_parent = g_file_get_parent (gf);
       g_file_make_directory_with_parents (gf_parent, NULL, NULL);
@@ -1523,8 +1525,8 @@ static void remove_state_machines (void)
 static void cs_load (void)
 {
   cs_container_remove_children (cs->property_editors);
-  cs_container_remove_children (cs->scene_graph);
   remove_state_machines ();
+  cs_container_remove_children (cs->scene_graph);
   cs_container_remove_children (cs->fake_stage);
 
 
@@ -1533,6 +1535,7 @@ static void cs_load (void)
       gchar *scriptfilename;
       gchar *annotationfilename;
       cs_session_history_add (cs_get_project_root ());
+      cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
       cs->fake_stage = cs_replace_content2 (cs->parasite_root, "fake-stage", filename);
 
       {
@@ -1552,6 +1555,7 @@ static void cs_load (void)
              {
                 ClutterState *state = o->data;
                 cs->state_machines = g_list_append (cs->state_machines, state);
+                g_object_ref (state);
              }
           }
         /* Add a fake state machine at first, to bootstrap things.. */
@@ -1704,6 +1708,7 @@ static void cs_load (void)
     }
   else
     {
+      cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
       cs->fake_stage = cs_replace_content2 (cs->parasite_root, "fake-stage", NULL);
     }
   cs_set_current_container (cs->fake_stage);
@@ -1733,6 +1738,11 @@ void cluttersmith_set_project_root (const gchar *new_root)
 
   if ((project_root = cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "project-root")))
     g_object_set (G_OBJECT (project_root), "text", new_root, NULL);
+
+  if (filename)
+    g_free (filename);
+  filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
+                              "index");
 }
 
 gchar *cs_get_project_root (void)
