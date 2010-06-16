@@ -62,6 +62,7 @@ typedef struct Binding
                                          GObject     *objectB,
                                          const gchar *propertyB,
                                          gpointer     userdata);
+  guint         a_changed_idle;
 } Binding;
 
 static void register_transforms (void);
@@ -71,6 +72,11 @@ static void object_vanished (gpointer data,
 {
   Binding *binding = data;
   binding->refs --;
+  if (binding->a_changed_idle)
+    {
+      g_source_remove (binding->a_changed_idle);
+      binding->a_changed_idle = 0;
+    }
   if (binding->refs == 0)
     g_free (binding);
 
@@ -129,6 +135,29 @@ cs_binding_A_changed (GObject    *objectA,
                                       binding->a_post_changed_userdata);
 }
 
+typedef struct DelayedUpdateAClosure {
+  Binding *binding;
+  GValue   valueA;
+} DelayedUpdateAClosure;
+
+static gboolean
+delayed_update_A (gpointer ptr)
+{
+  DelayedUpdateAClosure *uac = ptr;
+  Binding *binding = uac->binding;
+
+  g_assert (G_IS_OBJECT (binding->objectA));
+
+  g_signal_handler_block (binding->objectA, binding->A_changed_handler);
+  g_object_set_property (binding->objectA, binding->propertyA, &uac->valueA);
+  g_signal_handler_unblock (binding->objectA, binding->A_changed_handler);
+  binding->a_changed_idle = 0;
+
+  g_value_unset (&uac->valueA);
+  g_free (ptr);
+  return FALSE;
+}
+
 static void
 cs_binding_B_changed (GObject    *objectB,
                       GParamSpec *arg1,
@@ -136,8 +165,8 @@ cs_binding_B_changed (GObject    *objectB,
 {
   GParamSpec   *pspecA, *pspecB;
   GObjectClass *klassA, *klassB;
-  GValue        valueA = {0, };
   GValue        valueB = {0, };
+  DelayedUpdateAClosure *uac;
 
   if (binding->refs!=2)
     return;
@@ -148,20 +177,25 @@ cs_binding_B_changed (GObject    *objectB,
   pspecB = g_object_class_find_property (klassB, binding->propertyB);
 
   g_value_init (&valueB, pspecB->value_type);
-  g_value_init (&valueA, pspecA->value_type);
 
+  uac = g_new0 (DelayedUpdateAClosure, 1);
+  uac->binding = binding;
+  g_value_init (&uac->valueA, pspecA->value_type);
   g_object_get_property (objectB, binding->propertyB, &valueB);
-  if (!g_value_transform (&valueB, &valueA))
-     g_warning ("failed to transform value from %s to %s",
-                 g_type_name (pspecB->value_type),
-                 g_type_name (pspecA->value_type));
+  if (!g_value_transform (&valueB, &uac->valueA))
+    {
+      g_warning ("failed to transform value from %s to %s",
+                  g_type_name (pspecB->value_type),
+                  g_type_name (pspecA->value_type));
+      g_value_unset (&uac->valueA);
+      g_free (uac);
+    }
   else
     {
-      g_signal_handler_block (binding->objectA, binding->A_changed_handler);
-      g_object_set_property (binding->objectA, binding->propertyA, &valueA);
-      g_signal_handler_unblock (binding->objectA, binding->A_changed_handler);
+      if (binding->a_changed_idle)
+        g_source_remove (binding->a_changed_idle);
+      binding->a_changed_idle = g_timeout_add (0, delayed_update_A, uac);
     }
-  g_value_unset (&valueA);
   g_value_unset (&valueB);
 }
 
