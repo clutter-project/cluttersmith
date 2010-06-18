@@ -866,11 +866,6 @@ gboolean update_overlay_positions (gpointer data)
 
   actor = cs_selected_get_any ();
 
-  min_x = 65536;
-  min_y = 65536;
-  max_x = 0;
-  max_y = 0;
-  cs_selected_foreach (G_CALLBACK (find_extent), data);
 
   if (actor)
     {
@@ -880,6 +875,7 @@ gboolean update_overlay_positions (gpointer data)
       
       clutter_actor_set_position (cs->anchor_handle, pos.x, pos.y);
 
+      pos.x = pos.y = pos.z = 0;
       clutter_actor_get_size (actor, &pos.x, &pos.y);
       clutter_actor_apply_transform_to_point (actor, &pos, &pos);
       clutter_actor_set_position (cs->resize_handle, pos.x, pos.y);
@@ -895,6 +891,11 @@ gboolean update_overlay_positions (gpointer data)
       clutter_actor_set_position (cs->rotate_x_handle, pos.x, pos.y + clutter_actor_get_height (cs->rotate_z_handle));
     }
 
+  min_x = 65536;
+  min_y = 65536;
+  max_x = 0;
+  max_y = 0;
+  cs_selected_foreach (G_CALLBACK (find_extent), data);
   clutter_actor_set_position (cs->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
 
   return TRUE;

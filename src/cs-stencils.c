@@ -224,7 +224,6 @@ void templates_container_init_hack (ClutterActor  *actor)
   path = g_strdup_printf ("%s%s", PKGDATADIR, "templates");
   load_path (actor, path);
   g_free (path);
-                g_print ("AAA\n");
 }
 
 void annotation_templates_container_init_hack (ClutterActor  *actor)
