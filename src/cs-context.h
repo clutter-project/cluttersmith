@@ -146,6 +146,7 @@ struct _CSContext
   ClutterActor *resize_handle;
   ClutterActor *anchor_handle;
   ClutterActor *move_handle;
+  ClutterActor *depth_handle;
   ClutterActor *rotate_x_handle;
   ClutterActor *rotate_y_handle;
   ClutterActor *rotate_z_handle;

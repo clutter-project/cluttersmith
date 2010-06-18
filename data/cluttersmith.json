@@ -1049,6 +1049,31 @@
               "handler":"cs_canvas_handler_leave"
             }
           ]
+        },
+        {
+          "id":"depth-handle",
+          "anchor-gravity":"center",
+          "type":"ClutterText",
+          "color":"red",
+          "font-name":"Sans 40px",
+          "text":"⬍",
+          "reactive":true,
+          "rotation-angle-x": 60.0,
+          "opacity":100,
+          "signals":[
+            {
+              "name":"button-press-event",
+              "handler":"cs_depth_start"
+            },
+            {
+              "name":"enter-event",
+              "handler":"cs_canvas_handler_enter"
+            },
+            {
+              "name":"leave-event",
+              "handler":"cs_canvas_handler_leave"
+            }
+          ]
         }
 
       ],

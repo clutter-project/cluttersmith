@@ -424,5 +424,97 @@ void cs_move_snap_paint (void)
 
   cs_selected_paint ();
   cs_animator_editor_stage_paint ();
+}
 
+
+static void
+selection_to_depth_commands (GString *string)
+{
+  GList *s, *selected;
+
+  selected = cs_selected_get_list ();
+  for (s = selected; s; s = s->next)
+    {
+      ClutterActor *actor = s->data;
+      g_string_append_printf (string, "$('%s').depth = %f;\n",
+                              cs_get_id (actor), clutter_actor_get_depth (actor));
+    }
+  g_list_free (selected);
+}
+
+static gboolean
+manipulate_depth_capture (ClutterActor *stage,
+                          ClutterEvent *event,
+                          gpointer      data)
+{
+  switch (event->any.type)
+    {
+      case CLUTTER_MOTION:
+        {
+          gfloat delta[2];
+          delta[0]=manipulate_x-event->motion.x;
+          delta[1]=manipulate_y-event->motion.y;
+          {
+            if (cs_selected_count ()==1)
+              {
+                /* we only snap when there is only one selected item */
+
+                GList *selected = cs_selected_get_list ();
+                ClutterActor *actor = selected->data;
+                gfloat depth;
+                g_assert (actor);
+                depth = clutter_actor_get_depth (actor);
+                depth -= delta[1];
+                clutter_actor_set_depth (actor, depth);
+                cs_prop_tweaked (G_OBJECT (actor), "depth");
+                g_list_free (selected);
+              }
+            else
+              {
+#if 0
+                cs_selected_foreach (G_CALLBACK (each_move), &delta[0]);
+#endif
+              }
+          }
+          manipulate_x=event->motion.x;
+          manipulate_y=event->motion.y;
+        }
+        break;
+      case CLUTTER_BUTTON_RELEASE:
+        g_signal_handlers_disconnect_by_func (stage, manipulate_depth_capture, data);
+        hor_pos = 0;
+        ver_pos = 0;
+
+        selection_to_depth_commands (redo);
+        if (start_x != manipulate_x
+            || start_y != manipulate_y)
+          cs_history_add ("changce actor depths", redo->str, undo->str);
+        g_string_free (undo, TRUE);
+        g_string_free (redo, TRUE);
+        undo = redo = NULL;
+           
+        cs_dirtied ();
+
+        clutter_actor_queue_redraw (stage);
+      default:
+        break;
+    }
+  return TRUE;
+}
+
+gboolean cs_depth_start (ClutterActor  *actor,
+                         ClutterEvent  *event)
+{
+  start_x = manipulate_x = event->button.x;
+  start_y = manipulate_y = event->button.y;
+
+  undo = g_string_new ("");
+  redo = g_string_new ("");
+
+  selection_to_depth_commands (undo);
+
+  g_signal_connect (clutter_actor_get_stage (actor), "captured-event",
+                    G_CALLBACK (manipulate_depth_capture), actor);
+  clutter_actor_queue_redraw (actor);
+  return TRUE;
 }

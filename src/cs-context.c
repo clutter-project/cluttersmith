@@ -849,6 +849,7 @@ gboolean update_overlay_positions (gpointer data)
   if (cs_selected_count ()==0 && lasso == NULL)
     {
       clutter_actor_hide (cs->move_handle);
+      clutter_actor_hide (cs->depth_handle);
       clutter_actor_hide (cs->resize_handle);
       clutter_actor_hide (cs->anchor_handle);
       clutter_actor_hide (cs->rotate_x_handle);
@@ -858,6 +859,7 @@ gboolean update_overlay_positions (gpointer data)
     }
 
   clutter_actor_show (cs->move_handle);
+  clutter_actor_show (cs->depth_handle);
   clutter_actor_show (cs->resize_handle);
   clutter_actor_show (cs->anchor_handle);
   clutter_actor_show (cs->rotate_x_handle);
@@ -897,6 +899,7 @@ gboolean update_overlay_positions (gpointer data)
   max_y = 0;
   cs_selected_foreach (G_CALLBACK (find_extent), data);
   clutter_actor_set_position (cs->move_handle, (max_x+min_x)/2, (max_y+min_y)/2);
+  clutter_actor_set_position (cs->depth_handle, (max_x+min_x)/2 + 20, (max_y+min_y)/2);
 
   return TRUE;
 }
@@ -997,6 +1000,7 @@ gboolean idle_add_stage (gpointer stage)
   cs->rotate_z_handle = _A("rotate-z-handle");
   cs->animation_name = _A("cs-animation-name");
   cs->move_handle = _A("move-handle");
+  cs->depth_handle = _A("depth-handle");
   cs->active_container = _A("cs-active-container");
   cs->callbacks_container = _A("cs-callbacks-container");
   cs->dialog_callbacks = _A("cs-dialog-callbacks");
