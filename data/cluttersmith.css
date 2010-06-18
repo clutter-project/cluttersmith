@@ -101,7 +101,7 @@ MxBoxLayout.ParasiteTreeB2 {
   color: white;
 }
 
-
+/***********************************************/
 
 .parasite MxScrollBar,
 .sidebarscroll MxScrollBar
@@ -110,76 +110,53 @@ MxBoxLayout.ParasiteTreeB2 {
   padding: 2px;
 }
 
+.parasite      MxButton.backward-stepper,
+.sidebarscroll MxButton.backward-stepper,
+.parasite      MxButton.forward-stepper,
+.sidebarscroll MxButton.forward-stepper,
+.parasite      MxButton.up-stepper,
+.sidebarscroll MxButton.up-stepper,
+.parasite      MxButton.down-stepper,
+.sidebarscroll MxButton.down-stepper
+{
+  -mx-content-image: url("button-bg.png");
+}
 
-.parasite MxButton#backward-stepper,
-.sidebarscroll MxButton#backward-stepper
+.parasite MxButton.backward-stepper:hover,
+.parasite MxButton.backward-stepper:active,
+.parasite MxButton.forward-stepper:hover,
+.parasite MxButton.forward-stepper:active,
+.parasite MxButton.up-stepper:hover,
+.parasite MxButton.up-stepper:active,
+.parasite MxButton.down-stepper:hover,
+.parasite MxButton.down-stepper:active
+{
+  -mx-content-image: url("button-bg-hover.png");
+}
+
+.parasite MxScrollBar MxButton.vhandle,
+.parasite MxScrollBar *.htrough,
+.parasite MxScrollBar *.vtrough,
+.sidebarscroll MxButton.vhandle,
+.sidebarscroll MxScrollBar *.htrough,
+.sidebarscroll MxScrollBar *.vtrough
 {
   border-image: url("button-bg.png") 8;
 }
 
-.parasite MxButton#backward-stepper:hover,
-.parasite MxButton#backward-stepper:active
+.parasite MxScrollBar MxButton.hhandle:hover,
+.parasite MxScrollBar MxButton.vhandle:hover,
+.parasite MxScrollBar MxButton.hhandle:active,
+.parasite MxScrollBar MxButton.vhandle:active,
+.sidebarscroll MxScrollBar MxButton.hhandle:hover,
+.sidebarscroll MxScrollBar MxButton.vhandle:hover,
+.sidebarscroll MxScrollBar MxButton.hhandle:active,
+.sidebarscroll MxScrollBar MxButton.vhandle:active
 {
   border-image: url("button-bg-hover.png") 8;
 }
 
-.parasite MxButton#forward-stepper,
-.sidebarscroll MxButton#forward-stepper
-{
-  border-image: url("button-bg.png") 8;
-}
-
-.parasite MxButton#forward-stepper:hover,
-.parasite MxButton#forward-stepper:active
-{
-  border-image: url("button-bg-hover.png") 8;
-}
-
-.parasite MxButton#up-stepper,
-.sidebarscroll MxButton#up-stepper
-{
-  border-image: url("button-bg.png") 8;
-}
-
-.parasite MxButton#up-stepper:hover,
-.parasite MxButton#up-stepper:active
-{
-  border-image: url("button-bg-hover.png") 8;
-}
-
-.parasite MxButton#down-stepper,
-.sidebarscroll MxButton#down-stepper
-{
-  border-image: url("button-bg.png") 8;
-}
-
-.parasite MxButton#down-stepper:hover,
-.parasite MxButton#down-stepper:active
-{
-  border-image: url("button-bg-hover.png") 8;
-}
-
-.parasite MxScrollBar MxButton#vhandle,
-.sidebarscroll MxButton#vhandle
-{
-  border-image: url("button-bg.png") 8;
-}
-
-.parasite MxScrollBar MxButton#vhandle:hover
-{
-  border-image: url("button-bg-hover.png") 8;
-}
-
-.parasite MxScrollBar MxButton#hhandle,
-.sidebarscroll MxButton#hhandle
-{
-  border-image: url("button-bg.png") 8;
-}
-
-.parasite MxScrollBar MxButton#hhandle:hover
-{
-  border-image: url("button-bg-hover.png") 8;
-}
+/*****************************************************/
 
 .parasite MxComboBox {
   border-image: url("button-bg.png") 8;
