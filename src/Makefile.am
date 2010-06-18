@@ -13,7 +13,6 @@ CLEANFILES    = $(cluttersmith_built_sources)
   
 libcluttersmith_la_SOURCES = \
 cluttersmith.h \
-testss.c \
 cs-event-dispatch.c \
 cs-animator-editor.c \
 cs-animator-editor.h \
