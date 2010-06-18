@@ -200,10 +200,10 @@ static void load_path (ClutterActor *actor,
                 g_object_set_data_full (G_OBJECT (oi), "path", path2, g_free);
                 g_signal_connect (rectangle, "button-press-event", G_CALLBACK (add_stencil), oi);
               }
-              else
+            else
               {
                 g_free (path2);
-                }
+              }
           }
         clutter_container_add_actor (CLUTTER_CONTAINER (actor), group);
       }
@@ -224,6 +224,7 @@ void templates_container_init_hack (ClutterActor  *actor)
   path = g_strdup_printf ("%s%s", PKGDATADIR, "templates");
   load_path (actor, path);
   g_free (path);
+                g_print ("AAA\n");
 }
 
 void annotation_templates_container_init_hack (ClutterActor  *actor)
