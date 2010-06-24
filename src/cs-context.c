@@ -88,6 +88,7 @@ static void cs_context_set_property (GObject      *object,
 static void project_root_text_changed (ClutterActor *actor);
 static void state_machine_name_changed (ClutterActor *actor);
 static void project_title_text_changed (ClutterActor *actor);
+static void scene_title_text_changed (ClutterActor *actor);
 
 static void
 cs_context_dispose (GObject *object)
@@ -594,6 +595,7 @@ const gchar *cs_context_get_scene (CSContext *context)
 void cs_context_set_scene (CSContext   *context,
                            const gchar *new_title)
 {
+  g_print ("%s\n", G_STRLOC);
 
   if (context->scene_title)
     {
@@ -1032,12 +1034,14 @@ gboolean idle_add_stage (gpointer stage)
   cs->animator_editor = _A("cs-animator-editor");
 
   cs_animation_edit_init ();
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)), "text-changed",
-                    G_CALLBACK (project_root_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)),
+   "text-changed", G_CALLBACK (project_root_text_changed), NULL);
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_machine_name)),
    "text-changed", G_CALLBACK (state_machine_name_changed), NULL);
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_title)),
    "text-changed", G_CALLBACK (project_title_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->scene_title)),
+   "text-changed", G_CALLBACK (scene_title_text_changed), NULL);
 
   cs_set_active (clutter_actor_get_stage(cs->parasite_root));
 
@@ -1832,7 +1836,6 @@ static void project_root_text_changed (ClutterActor *actor)
   title_frozen = FALSE;
 }
 
-
 static void project_title_text_changed (ClutterActor *actor)
 {
   const gchar *new_title = clutter_text_get_text (CLUTTER_TEXT (actor));
@@ -1846,4 +1849,15 @@ static void project_title_text_changed (ClutterActor *actor)
                           new_title);
   cluttersmith_set_project_root (path);
   g_free (path);
+}
+
+static void scene_title_text_changed (ClutterActor *actor)
+{
+  const gchar *new_title = clutter_text_get_text (CLUTTER_TEXT (actor));
+
+  if (title_frozen)
+    return;
+  title_frozen = TRUE;
+  cs_context_set_scene (cs, new_title);
+  title_frozen = FALSE;
 }
