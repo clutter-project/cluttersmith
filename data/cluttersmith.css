@@ -13,7 +13,7 @@
 MxLabel, MxIMLabel
 {
   font-family: "Sans";
-  font-size: 12px;
+  font-size: 8px;
   color: black;
 }
 
@@ -53,20 +53,20 @@ MxBoxLayout.ParasiteTreeB2 {
 .parasite MxEntry {
   border-image: url("entry-bg.png") 8;
   color: yellow;
-  font-size: 10px;
+  font-size: 8px;
   padding: 2;
 }
 
 .parasite MxEntry:focus {
   border-image: url("entry-bg.png") 8;
   color: yellow;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .parasite MxButton {
   border-image: url("button-bg.png") 8;
   color: white;
-  font-size: 10px;
+  font-size: 8px;
   padding: 2;
 }
 
@@ -248,7 +248,7 @@ MxMenu > MxBoxLayout:active > MxLabel {
 }
 
 .parasite .ClutterSmithTitle {
-  font-size: 20px;
+  font-size: 10px;
 }
 
 #cs-templates-container MxLabel {
@@ -257,12 +257,12 @@ MxMenu > MxBoxLayout:active > MxLabel {
 
 .parasite MxLabel {
   color: white;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .parasite-paste MxLabel {
   color: white;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .ClutterSmithLink {
@@ -305,7 +305,7 @@ MxMenu > MxBoxLayout:active > MxLabel {
 .parasite MxExpander {
   border-image: url("button-bg.png") 3;
   color: white;
-  font-size: 10px;
+  font-size: 8px;
   padding: 2;
 }
 
