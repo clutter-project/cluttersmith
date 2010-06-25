@@ -44,10 +44,10 @@ property-editors.c
 
 
 libcluttersmith_la_LIBADD = $(DEPS_LIBS)
-libcluttersmith_la_LDFLAGS = -rdynamic
+libcluttersmith_la_LDFLAGS = -export-dynamic
 
 cluttersmith_LDADD  = libcluttersmith.la $(DEPS_LIBS)
-cluttersmith_LDFLAGS = -rdynamic
+cluttersmith_LDFLAGS = -export-dynamic
 cluttersmith_SOURCES = 		\
   $(BUILT_SOURCES) \
   cluttersmith.c 
