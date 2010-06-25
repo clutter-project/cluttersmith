@@ -264,7 +264,7 @@ cs_tree_populate_iter (ClutterActor *current_container,
 
                        //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",
 
-  label = clutter_text_new_with_text ("Liberation " FONTSIZE, G_OBJECT_TYPE_NAME (iter));
+  label = clutter_text_new_with_text ("Liberation " FONTSIZE, clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (iter)));
 
   clutter_actor_set_anchor_point (label, -INDENT, 0.0);
   if (iter == active_actor)

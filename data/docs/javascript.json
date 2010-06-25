@@ -48,12 +48,12 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"video",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
@@ -68,9 +68,9 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Sans 13px",
+          "font-name":"Liberation Sans 8",
           "text":"video",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -85,8 +85,7 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false         
-
+          "single-line-mode":false
         }
       ]
     }
@@ -106,18 +105,18 @@
       "rotation-angle-z":0.000,
       "anchor-x":0.000,
       "anchor-y":0.000,
-      
+      "disabled":false,
       "x-fill":false,
       "y-fill":false,
       "label":"index",
-      
-      
+      "is-toggle":false,
+      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
-          "x":10,
+          "x":13,
           "y":10,
-          "width":78,
+          "width":72,
           "height":11,
           "depth":0.000,
           "opacity":255,
@@ -126,9 +125,9 @@
           "rotation-angle-z":0.000,
           "anchor-x":0.000,
           "anchor-y":0.000,
-          "font-name":"Sans 13px",
+          "font-name":"Liberation Sans 8",
           "text":"index",
-          "color":"#000000ff",
+          "color":"#616261ff",
           "use-markup":false,
           "line-wrap":true,
           "justify":false,
@@ -143,7 +142,7 @@
           "activatable":false,
           "password-char":0,
           "max-length":0,
-          "single-line-mode":false      
+          "single-line-mode":false
         }
       ]
     }

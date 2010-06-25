@@ -341,6 +341,40 @@
                               ]
                             },
                             {
+                              "id":"cs-dialog-templates",
+                              "style-class":"parasite-paste",
+                              "type":"MxExpander",
+                              "label":"Stencils",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxScrollView",
+                                  "height":300,
+                                  "children":[
+                                    {
+                                      "type":"MxGrid",
+                                      "name":"cs-templates-container",
+                                      "id":"templates-container",
+                                      "width":260,
+                                      "horizontal-adjustment":0.5,
+                                      "vertical-adjustment":1.0,
+                                      "column-spacing":3,
+                                      "row-spacing":3,
+                                      "signals":[
+                                        {
+                                          "name":"paint",
+                                          "handler":"templates_container_init_hack"
+                                        }
+                                      ],
+                                      "children":[
+
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
                               "id":"cs-dialog-selected",
                               "style-class":"parasite",
                               "type":"MxExpander",
@@ -375,6 +409,39 @@
                                       "orientation":"vertical",
                                       "id":"property-editors-core",
                                       "spacing":2
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id":"cs-dialog-tree",
+                              "style-class":"parasite",
+                              "type":"MxExpander",
+                              "label":"Hierarchy",
+                              "expanded":true,
+                              "children":[
+                                {
+                                  "type":"MxScrollView",
+                                  "width":240,
+                                  "height":200,
+                                  "child::expand":true,
+                                  "children":[
+                                    {
+                                      "type":"MxViewport",
+                                      "children":[
+                                        {
+                                          "type":"ClutterGroup",
+                                          "id":"scene-graph",
+                                          "children":[
+                                            {
+                                              "type":"ClutterText",
+                                              "color":"gray",
+                                              "text":"......"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -633,73 +700,6 @@
                                             }
                                           ]
                                         }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "id":"cs-dialog-tree",
-                              "style-class":"parasite",
-                              "type":"MxExpander",
-                              "label":"Hierarchy",
-                              "expanded":true,
-                              "children":[
-                                {
-                                  "type":"MxScrollView",
-                                  "width":240,
-                                  "height":200,
-                                  "child::expand":true,
-                                  "children":[
-                                    {
-                                      "type":"MxViewport",
-                                      "children":[
-                                        {
-                                          "type":"ClutterGroup",
-                                          "id":"scene-graph",
-                                          "children":[
-                                            {
-                                              "type":"ClutterText",
-                                              "color":"gray",
-                                              "text":"......"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "id":"cs-dialog-templates",
-                              "style-class":"parasite-paste",
-                              "type":"MxExpander",
-                              "label":"Stencils",
-                              "expanded":true,
-                              "children":[
-                                {
-                                  "type":"MxScrollView",
-                                  "height":300,
-                                  "children":[
-                                    {
-                                      "type":"MxGrid",
-                                      "name":"cs-templates-container",
-                                      "id":"templates-container",
-                                      "width":260,
-                                      "horizontal-adjustment":0.5,
-                                      "vertical-adjustment":1.0,
-                                      "column-spacing":3,
-                                      "row-spacing":3,
-                                      "signals":[
-                                        {
-                                          "name":"paint",
-                                          "handler":"templates_container_init_hack"
-                                        }
-                                      ],
-                                      "children":[
-
                                       ]
                                     }
                                   ]

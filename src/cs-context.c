@@ -332,9 +332,14 @@ static gboolean return_to_ui (gpointer ignored)
 
 static void save_annotation (void)
 {
-  const gchar *annotation= clutter_text_get_text (CLUTTER_TEXT (cs->dialog_editor_annotation));
+  const gchar *annotation;
   gchar *annotationfilename;
   gint len;
+
+  if (!cs->dialog_editor_annotation)
+    return;
+
+  annotation = clutter_text_get_text (CLUTTER_TEXT (cs->dialog_editor_annotation));
   annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
                               cs->priv->title);
   len = strlen (annotation);
@@ -747,20 +752,33 @@ void cluttersmith_init (void)
   g_print ("initializing\n");
 
   cs = cs_context_new ();
-  clutter_script_load_from_data (script, "{'id':'actor','type':'ClutterGroup','children':[{'id':'fake-stage','type':'ClutterGroup'},{'id':'parasite-root','type':'ClutterGroup'},{'id':'cs-project-title','opacity':1,'type':'MxEntry','signals': [ {'name':'paint', 'handler':'project_title_init_hack'} ]},{'id':'project-root','type':'MxEntry','opacity':1,'y':50 }]}", -1, NULL);
+  clutter_script_load_from_data (script, "{'id':'actor','type':'ClutterGroup','children':[{'id':'fake-stage','type':'ClutterGroup'},{'id':'parasite-root','type':'ClutterGroup'},{'id':'cs-project-title','opacity':1,'type':'MxEntry'},{'id':'cs-scene-title','type':'MxEntry','opacity':1},{'id':'project-root','type':'MxEntry','opacity':1,'y':50 }]}", -1, NULL);
 
   stage = clutter_stage_get_default();
   actor = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
 
-  clutter_script_connect_signals (script, script);
+#define _A(actorname)  CLUTTER_ACTOR (clutter_script_get_object (script, actorname))
+  cs->project_root_entry = _A("project-root");
+  cs->project_title = _A("cs-project-title");
+  cs->scene_title = _A("cs-scene-title");
+
   g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)),
+   "text-changed", G_CALLBACK (project_root_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_title)),
+   "text-changed", G_CALLBACK (project_title_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->scene_title)),
+   "text-changed", G_CALLBACK (scene_title_text_changed), NULL);
+
+  cs_set_active (clutter_actor_get_stage(cs->parasite_root));
+
   cs->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
   /* initializing globals */
 
   /* this is the main initialization */
   g_signal_connect (stage, "captured-event", G_CALLBACK (runtime_capture), NULL);
-
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   clutter_actor_show (stage);
   clutter_actor_paint (stage);
@@ -991,7 +1009,6 @@ gboolean idle_add_stage (gpointer stage)
       }
   }
 
-#define _A(actorname)  CLUTTER_ACTOR (clutter_script_get_object (script, actorname))
 
   cs->fake_stage_canvas = _A("fake-stage-canvas");
   cs->project_root_entry = _A("project-root");
@@ -1127,6 +1144,7 @@ update_id (ClutterText *text,
   const gchar *set;
   const gchar *stem;
   stem = clutter_text_get_text (text);
+  clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), stem);
   cs_actor_make_id_unique (data, stem);
   set = clutter_scriptable_get_id (data);
   if (!g_str_equal (stem, set))
@@ -1444,11 +1462,6 @@ static void parsed_callback (const gchar *id,
 void cs_prop_tweaked (GObject     *object,
                       const gchar *property_name)
 {
-  /* XXX: if we are editing a state machine, update the
-   * state being adited with the new state for this
-   * property
-   */
-
   if (cs->current_animator)
     {
        gdouble progress = 0.0;
@@ -1472,14 +1485,12 @@ void cs_prop_tweaked (GObject     *object,
 
        cs_animator_editor_set_animator (CS_ANIMATOR_EDITOR (cs->animator_editor), cs->current_animator);
 
-       /* XXX: we should update with the real animator in this case */
        cs_update_animator_editor (cs->current_state_machine,
                                   NULL,
                                   cs->current_state);
     }
   else if (cs->current_state_machine &&
-      (cs->current_state != NULL &&
-       cs->current_state != g_intern_static_string ("default")))
+      (cs->current_state != NULL))
     {
        const gchar *source_state = NULL;
        GValue value = {0, };
@@ -1504,6 +1515,16 @@ void cs_prop_tweaked (GObject     *object,
           for (s = states; s; s = s->next)
             {
               GList *list;
+              GList *list2;
+
+              list2 = clutter_state_get_keys (cs->current_state_machine,
+                                              s->data,
+                                              cs->current_state,
+                                              NULL,
+                                              NULL);
+              if (list2)
+                {
+
               list = clutter_state_get_keys (cs->current_state_machine,
                                              s->data,
                                              cs->current_state,
@@ -1533,7 +1554,7 @@ void cs_prop_tweaked (GObject     *object,
 
                   g_list_free (list);
                 }
-              else
+              else if (s->data != cs->current_state)
                 {
                   /* otherwise, update with new value */
                   clutter_state_set_key (cs->current_state_machine,
@@ -1546,6 +1567,8 @@ void cs_prop_tweaked (GObject     *object,
                                          0.0,
                                          0.0);
                 }
+                g_list_free (list2);
+              }
             }
           g_list_free (states);
           /* otherwise, update with new value */
