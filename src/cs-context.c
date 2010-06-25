@@ -1490,22 +1490,75 @@ void cs_prop_tweaked (GObject     *object,
        g_object_get_property (object, property_name, &value);
 
        source_state = mx_label_get_text (MX_LABEL(cs->source_state));
-       if (g_str_equal (source_state, "*") ||
-           g_str_equal (source_state, ""))
+       if (g_str_equal (source_state, ""))
          {
            source_state = NULL;
          }
 
        if (cs_set_keys_freeze == 0)
-         clutter_state_set_key (cs->current_state_machine,
-                                source_state,
-                                cs->current_state,
-                                object,
-                                property_name,
-                                CLUTTER_LINEAR,
-                                &value,
-                                0.0,
-                                0.0);
+        {
+          GList *states, *s;
+
+          /* get list of states */
+          states = clutter_state_get_states (cs->current_state_machine);
+          for (s = states; s; s = s->next)
+            {
+              GList *list;
+              list = clutter_state_get_keys (cs->current_state_machine,
+                                             s->data,
+                                             cs->current_state,
+                                             object,
+                                             property_name);
+              if (list) /* does a transition key exist for this state */
+                {
+                  gulong mode;
+                  gdouble pre_delay, post_delay;
+                  g_assert (g_list_length (list)==1);
+
+                  /* fetch its current state */
+                  mode = clutter_state_key_get_mode (list->data);
+                  pre_delay  = clutter_state_key_get_pre_delay (list->data);
+                  post_delay  = clutter_state_key_get_post_delay (list->data);
+
+                  /* and update with new value */
+                  clutter_state_set_key (cs->current_state_machine,
+                                         s->data,
+                                         cs->current_state,
+                                         object,
+                                         property_name,
+                                         mode,
+                                         &value,
+                                         pre_delay,
+                                         post_delay);
+
+                  g_list_free (list);
+                }
+              else
+                {
+                  /* otherwise, update with new value */
+                  clutter_state_set_key (cs->current_state_machine,
+                                         s->data,
+                                         cs->current_state,
+                                         object,
+                                         property_name,
+                                         CLUTTER_LINEAR,
+                                         &value,
+                                         0.0,
+                                         0.0);
+                }
+            }
+          g_list_free (states);
+          /* otherwise, update with new value */
+          clutter_state_set_key (cs->current_state_machine,
+                                 source_state,
+                                 cs->current_state,
+                                 object,
+                                 property_name,
+                                 CLUTTER_LINEAR,
+                                 &value,
+                                 0.0,
+                                 0.0);
+        }
        g_value_unset (&value);
 
        cs_update_animator_editor (cs->current_state_machine,
