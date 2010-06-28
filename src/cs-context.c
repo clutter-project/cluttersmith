@@ -1151,6 +1151,7 @@ update_id (ClutterText *text,
     {
       clutter_text_set_text (CLUTTER_TEXT (text), set);
     }
+  cs_dirtied ();
   return TRUE;
 }
 
