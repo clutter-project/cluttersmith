@@ -186,13 +186,10 @@ void cs_dirtied (void)
   CS_REVISION++;
 }
 
-
-
 void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bin)
 {
   gfloat width, height;
   clutter_actor_get_size (stage, &width, &height);
-  g_print ("stage size changed %f %f\n", width, height);
   clutter_actor_set_size (bin, width, height);
 }
 
