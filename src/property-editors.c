@@ -262,9 +262,7 @@ ClutterActor *property_editor_new (GObject *object,
 static ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
 
 /* whitelist of properties for ClutterActor */
-gchar *actor_property_whitelist[]={"opacity",
-                                   "name",
-                                   "reactive",
+gchar *actor_property_whitelist[]={"reactive",
                                    NULL};
 
 void

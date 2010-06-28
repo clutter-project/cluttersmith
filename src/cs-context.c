@@ -1166,7 +1166,7 @@ void actor_defaults_populate (ClutterActor *container,
 
   /* position */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "x, y, z");
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "loc");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
   clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
@@ -1188,7 +1188,7 @@ void actor_defaults_populate (ClutterActor *container,
 
   /* dimensions */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "width, height");
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "size");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
   clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
@@ -1206,7 +1206,7 @@ void actor_defaults_populate (ClutterActor *container,
 
   /* rotation */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "rotation");
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "rot");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
   clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
@@ -1244,7 +1244,7 @@ void actor_defaults_populate (ClutterActor *container,
 
   /* anchor */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
-  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "anchor/pivot");
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "pivot");
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
   clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
   clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
@@ -1275,6 +1275,33 @@ void actor_defaults_populate (ClutterActor *container,
   clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
   clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
   clutter_text_set_color (CLUTTER_TEXT (label), &white);
+
+#if 0
+  /* 'name' property */
+  hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "name");
+
+  editor = property_editor_new (G_OBJECT (actor), "name");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+  clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+  clutter_text_set_color (CLUTTER_TEXT (label), &white);
+#endif
+
+  /* 'opacity' property */
+  hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);
+  label = clutter_text_new_with_text (CS_EDITOR_LABEL_FONT, "opacity");
+
+  editor = property_editor_new (G_OBJECT (actor), "opacity");
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+  clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+  clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
+  clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (container), hbox);
+  clutter_text_set_color (CLUTTER_TEXT (label), &white);
+
 }
 
 
