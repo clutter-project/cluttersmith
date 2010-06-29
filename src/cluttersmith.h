@@ -174,6 +174,7 @@ void cs_update_animator_editor (ClutterState *state,
                                 const gchar  *target_state);
 void cs_session_history_add    (const gchar *dir);
 
+gboolean cluttersmith_initialize_for_stage (gpointer stage);
 
 gboolean cs_move_start (ClutterActor  *actor,
                         ClutterEvent  *event);

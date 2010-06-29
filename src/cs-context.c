@@ -951,10 +951,10 @@ static gboolean playback_context (ClutterActor *actor,
  * ClutterSmith event handlers for a stage.
  *
  * Cluttersmith is designed to sit around an ClutterStage's
- * scene graph without impacting the exisitng behavior of
- * the actors in the graph.
+ * scene graph without impacting the exiisting behavior of
+ * the actors in the stage.
  */
-gboolean idle_add_stage (gpointer stage)
+gboolean cluttersmith_initialize_for_stage (gpointer stage)
 {
   ClutterActor *actor;
   ClutterScript *script;
@@ -1090,7 +1090,7 @@ gboolean idle_add_stage (gpointer stage)
 static void stage_added (ClutterStageManager *manager,
                          ClutterStage        *stage)
 {
-  g_timeout_add (100, idle_add_stage, stage);
+  g_timeout_add (100, cluttersmith_initialize_for_stage, stage);
 }
 
 static void _cs_init(void)

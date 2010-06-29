@@ -109,8 +109,6 @@ parse_args (gchar **argv)
 
 void gst_init (gpointer, gpointer);
 
-gboolean idle_add_stage (gpointer stage);
-
 void mode_edit2 (void);
 
 #ifndef COMPILEMODULE
@@ -148,17 +146,22 @@ static void load_project (void)
       cluttersmith_load_scene ("index");
     }
 
-  mode_edit2 ();
+  mode_edit2 (); /* make cluttersmith go to editing mode */
 
   clutter_actor_queue_redraw (clutter_stage_get_default());
 }
 
-
-static ClutterActor *
-initialize_stage ()
+gint
+main (gint    argc,
+      gchar **argv)
 {
   ClutterActor *stage;
   ClutterColor  color;
+  gst_init (&argc, &argv);
+  clutter_init (&argc, &argv);
+
+  if (!parse_args (argv))
+    return -1;
 
   stage = clutter_stage_get_default ();
   clutter_color_from_string (&color, "gray");
@@ -170,24 +173,7 @@ initialize_stage ()
   clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
   clutter_actor_set_size (stage, 1024, 600);
 
-  return stage;
-}
-
-
-gint
-main (gint    argc,
-      gchar **argv)
-{
-  ClutterActor    *stage;
-  gst_init (&argc, &argv);
-  clutter_init (&argc, &argv);
-
-  if (!parse_args (argv))
-    return -1;
-
-
-  stage = initialize_stage ();
-  idle_add_stage (stage);
+  cluttersmith_initialize_for_stage (stage);
   load_project ();
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
 
