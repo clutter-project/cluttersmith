@@ -1219,11 +1219,13 @@ static void update_duration (void)
   g_free (str);
 }
 
+#if 0
 static void state_source_name_text_changed (ClutterActor *actor)
 {
   update_duration ();
   update_animator_editor2 ();
 }
+#endif
 
 static void change_state_machine2 (MxAction *action,
                                    gpointer  data)
@@ -1387,54 +1389,6 @@ static void state_name_text_changed (ClutterActor *actor)
   update_animator_editor2 ();
 }
 
-void state_source_name_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_label_get_clutter_text (MX_LABEL (actor)), "text-changed",
-                    G_CALLBACK (state_source_name_text_changed), NULL);
-}
-
-void state_name_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to be
-   * available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_print ("AAAAAA!\n");
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_name_text_changed), NULL);
-}
-
-void state_machine_name_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_print ("AAAAAA!\n");
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_machine_name_text_changed), NULL);
-
-}
-
-
 static void state_duration_text_changed (ClutterActor *actor)
 {
   const gchar *text = clutter_text_get_text (CLUTTER_TEXT (actor));
@@ -1453,20 +1407,6 @@ static void state_duration_text_changed (ClutterActor *actor)
                               atoi (text));
   if (cs->current_animator)
     clutter_animator_set_duration (cs->current_animator, atoi (text));
-}
-
-void state_duration_init_hack (ClutterActor  *actor)
-{
-  /* we hook this up to the first paint, since no other signal seems to
-   * be available to hook up for some additional initialization
-   */
-  static gboolean done = FALSE; 
-  if (done)
-    return;
-  done = TRUE;
-
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (actor)), "text-changed",
-                    G_CALLBACK (state_duration_text_changed), NULL);
 }
 
 #if 0
@@ -1690,13 +1630,26 @@ static void animation_name_changed (ClutterActor *actor)
   cs_set_current_animator (animator);
 }
 
-void
-cs_animation_edit_init (void)
+void cs_animator_editor_init_hack (ClutterActor  *actor)
 {
-   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->animation_name)), "text-changed",
-                     G_CALLBACK (animation_name_changed), NULL);
-}
+  /* we hook this up to the first paint, since no other signal seems to be
+   * available to hook up for some additional initialization
+   */
+  static gboolean done = FALSE; 
+  if (done)
+    return;
+  done = TRUE;
 
+
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_name)), "text-changed",
+                    G_CALLBACK (state_name_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_machine_name)), "text-changed",
+                    G_CALLBACK (state_machine_name_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_duration)), "text-changed",
+                    G_CALLBACK (state_duration_text_changed), NULL);
+  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->animation_name)), "text-changed",
+                    G_CALLBACK (animation_name_changed), NULL);
+}
 
 void cs_set_current_animator (ClutterAnimator *animator)
 {

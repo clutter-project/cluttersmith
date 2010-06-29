@@ -105,6 +105,8 @@ cs_context_finalize (GObject *object)
 static void
 cs_context_class_init (CSContextClass *klass)
 {
+
+  
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GParamSpec   *pspec;
 
@@ -1035,19 +1037,18 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->dialog_animator = _A("cs-dialog-animator");
   cs->animator_props = _A("cs-animator-props");
   cs->state_duration = _A("cs-state-duration");
+  cs->source_state = _A("cs-source-state");
+  cs->state_machine_name = _A("cs-state-machine-name");
+  cs->state_name = _A("cs-state-name");
   cs->dialog_editor = _A("cs-dialog-editor");
   cs->dialog_type = _A("cs-dialog-type");
   cs->dialog_annotate = _A("cs-dialog-annotate");
   cs->dialog_editor_annotation = _A("cs-dialog-editor-annotation");
-  cs->source_state = _A("cs-source-state");
-  cs->state_machine_name = _A("cs-state-machine-name");
-  cs->state_name = _A("cs-state-name");
   cs->dialog_editor_text = _A("cs-dialog-editor-text");
   cs->dialog_editor_error = _A("cs-dialog-editor-error");
   cs->dialog_property_inspector = _A("cs-dialog-property-inspector");
   cs->animator_editor = _A("cs-animator-editor");
 
-  cs_animation_edit_init ();
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)),
    "text-changed", G_CALLBACK (project_root_text_changed), NULL);
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_machine_name)),
@@ -1151,7 +1152,6 @@ update_id (ClutterText *text,
   cs_dirtied ();
   return TRUE;
 }
-
 
 void actor_defaults_populate (ClutterActor *container,
                               ClutterActor *actor)

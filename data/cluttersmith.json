@@ -501,6 +501,9 @@
                                 {
                                   "name":"expand-complete",
                                   "handler":"cs_states_expand_complete"
+                                }, {
+                                  "name":"paint",
+                                  "handler":"cs_animator_editor_init_hack"
                                 }
                               ],
                               "children":[
@@ -527,13 +530,7 @@
                                           "type":"MxEntry",
                                           "text":"",
                                           "child::expand":true,
-                                          "id":"cs-state-machine-name",
-                                          "signals":[
-                                               {
-                                                 "name":"paint",
-                                                 "handler":"state_machine_name_init_hack"
-                                               }
-                                          ]
+                                          "id":"cs-state-machine-name"
                                         },
                                         {
                                           "type":"MxButton",
@@ -579,13 +576,7 @@
                                           "type":"MxEntry",
                                           "text":"",
                                           "child::expand":true,
-                                          "id":"cs-state-name",
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"state_name_init_hack"
-                                            }
-                                          ]
+                                          "id":"cs-state-name"
                                         },
                                         {
                                           "type":"MxButton",
@@ -611,13 +602,7 @@
                                           "type":"MxEntry",
                                           "text":"1000",
                                           "child::expand":true,
-                                          "id":"cs-state-duration",
-                                          "signals":[
-                                            {
-                                              "name":"paint",
-                                              "handler":"state_duration_init_hack"
-                                            }
-                                          ]
+                                          "id":"cs-state-duration"
                                         }
                                       ]
                                     },
