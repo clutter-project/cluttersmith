@@ -153,4 +153,14 @@ cs_bind_full (GObject     *objectA,
               gpointer     a_post_changed_userdata);
 
 void cluttersmith_print (const gchar *string);
+
+
+void
+cs_modal_editor (gfloat x,
+                 gfloat y,
+                 gfloat width,
+                 gfloat height,
+                 const gchar *start_text,
+                 void (*activate)(ClutterText *text));
+
 #endif

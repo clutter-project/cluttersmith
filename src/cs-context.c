@@ -1011,7 +1011,6 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->rotate_x_handle = _A("rotate-x-handle");
   cs->rotate_y_handle = _A("rotate-y-handle");
   cs->rotate_z_handle = _A("rotate-z-handle");
-  cs->animation_name = _A("cs-animation-name");
   cs->move_handle = _A("move-handle");
   cs->depth_handle = _A("depth-handle");
   cs->active_container = _A("cs-active-container");
@@ -1029,12 +1028,16 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->dialog_scenes = _A("cs-dialog-scenes");
   cs->dialog_export = _A("cs-dialog-export");
   cs->dialog_templates = _A("cs-dialog-templates");
+
+  cs->state_machine_name = _A("cs-state-machine-name");
+  cs->source_state = _A("cs-source-state");
+  cs->target_state = _A("cs-target-state");
+  cs->state_duration = _A("cs-state-duration");
+
+  cs->animation_name = _A("cs-animation-name");
   cs->dialog_animator = _A("cs-dialog-animator");
   cs->animator_props = _A("cs-animator-props");
-  cs->state_duration = _A("cs-state-duration");
-  cs->source_state = _A("cs-source-state");
-  cs->state_machine_name = _A("cs-state-machine-name");
-  cs->state_name = _A("cs-state-name");
+
   cs->dialog_editor = _A("cs-dialog-editor");
   cs->dialog_type = _A("cs-dialog-type");
   cs->dialog_annotate = _A("cs-dialog-annotate");
@@ -1373,6 +1376,9 @@ ensure_unique_ids (ClutterActor *start)
 void cs_save (gboolean force)
 {
   /* Save if we've changed */
+  if (!cs->fake_stage)
+    return;
+
   if (filename)
     {
       GFile *gf = g_file_new_for_path (filename);
@@ -1520,11 +1526,9 @@ void cs_prop_tweaked (GObject     *object,
        g_value_init (&value, pspec->value_type);
        g_object_get_property (object, property_name, &value);
 
-       source_state = mx_label_get_text (MX_LABEL(cs->source_state));
-       if (g_str_equal (source_state, ""))
-         {
-           source_state = NULL;
-         }
+       source_state = cs->current_source_state;
+       if (source_state && g_str_equal (source_state, ""))
+         source_state = NULL;
 
        if (cs_set_keys_freeze == 0)
         {

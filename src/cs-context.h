@@ -82,6 +82,7 @@ struct _CSContext
   GList        *state_machines;
   gchar        *project_root;
 
+  const gchar   *current_source_state;  /* interned string */
   const gchar   *current_state;  /* interned string */
   ClutterState  *current_state_machine;
 
@@ -136,8 +137,8 @@ struct _CSContext
   ClutterActor *dialog_states;
   ClutterActor *dialog_animator;
   ClutterActor *state_machine_name;
-  ClutterActor *state_name;
   ClutterActor *source_state;
+  ClutterActor *target_state;
   ClutterActor *animation_name;
   ClutterActor *animator_props;
   ClutterActor *animator_editor;

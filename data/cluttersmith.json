@@ -385,6 +385,7 @@
                                   "type":"MxBoxLayout",
                                   "id":"cs-dialog-type",
                                   "width":300,
+                                  "height":180,
                                   "style-class":"ClutterSmithPropertyPane",
                                   "orientation":"vertical",
                                   "children":[
@@ -457,7 +458,7 @@
                                 {
                                   "type":"MxScrollView",
                                   "child::expand":true,
-                                  "height":240,
+                                  "height":140,
                                   "children":[
                                     {
                                       "type":"MxBoxLayout",
@@ -511,7 +512,7 @@
                                   "type":"MxBoxLayout",
                                   "orientation":"vertical",
                                   "reactive":true,
-                                  "width":240,
+                                  "width":300,
                                   "style-class":"ClutterSmithPropertyPane",
                                   "spacing":9,
                                   "x":0,
@@ -550,44 +551,17 @@
                                       "type":"MxBoxLayout",
                                       "spacing":2,
                                       "children":[
-
                                         {
-                                          "type":"MxLabel",
-                                          "text":"",
-                                          "child::expand":true,
+                                          "type":"MxComboBox",
                                           "id":"cs-source-state"
                                         },
                                         {
-                                          "type":"MxButton",
-                                          "label":"  V  ",
-                                          "tooltip-text":"Work specify for a specify substate",
-                                          "signals":[
-                                            {
-                                              "name":"clicked",
-                                              "handler":"source_states_dropdown"
-                                            }
-                                          ]
-                                        },
-                                        {
                                           "type":"MxLabel",
-                                          "text":"->"
+                                          "text":"➔"
                                         },
                                         {
-                                          "type":"MxEntry",
-                                          "text":"",
-                                          "child::expand":true,
-                                          "id":"cs-state-name"
-                                        },
-                                        {
-                                          "type":"MxButton",
-                                          "label":"  V  ",
-                                          "tooltip-text":"States",
-                                          "signals":[
-                                            {
-                                              "name":"clicked",
-                                              "handler":"states_dropdown"
-                                            }
-                                          ]
+                                          "id":"cs-target-state",
+                                          "type":"MxComboBox"
                                         }
                                       ]
                                     },

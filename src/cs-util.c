@@ -1124,7 +1124,6 @@ gboolean cs_properties_get_value (GObject      *object,
   key.property_name = g_intern_string (property_name);
 
   tval = g_hash_table_lookup (default_values_ht, &key);
-  g_print ("get %p:%s %i ..%p\n", key.object, key.property_name, g_hash_table_size (default_values_ht), tval);
 
   if (tval)
     {
@@ -1192,8 +1191,6 @@ static void cs_actor_store_defaults (ClutterActor *actor)
           g_value_init (&value->value, properties[i]->value_type);
           g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
           g_hash_table_insert (default_values_ht, value, value);
-
-          g_print ("set %p:%s\n", value->object, value->property_name);
         }
     }
   g_free (properties);
@@ -1423,3 +1420,65 @@ cs_state_has_state (ClutterState *state,
   g_list_free (states);
   return found;
 }
+
+
+static gboolean modal_key_capture (ClutterText *text,
+                                   ClutterEvent *event,
+                                   gpointer      group)
+{
+  if (clutter_event_type (event) == CLUTTER_KEY_PRESS && 
+      clutter_event_get_key_symbol (event) == CLUTTER_Escape)
+    {
+      clutter_actor_destroy (group);
+      return TRUE;
+    }
+  return FALSE;
+}
+
+
+void
+cs_modal_editor (gfloat x,
+                 gfloat y,
+                 gfloat width,
+                 gfloat height,
+                 const gchar *start_text,
+                 void (*activate)(ClutterText *text))
+{
+  ClutterActor *stage = clutter_actor_get_stage (cs->parasite_root);
+  ClutterActor *group;
+  ClutterActor *rectangle;
+  ClutterActor *text;
+  ClutterColor black = {0x0,0x0,0x0,0xff};
+  ClutterColor white = {0xff,0xff,0xff,0xff};
+
+  group = clutter_group_new ();
+  rectangle = clutter_rectangle_new_with_color (&black);
+  clutter_actor_set_size (rectangle, clutter_actor_get_width (stage),
+                                     clutter_actor_get_height (stage));
+  text = g_object_new (CLUTTER_TYPE_TEXT,
+                       "x", x,
+                       "y", y,
+                       "width", width,
+                       "height", height,
+                       "text", start_text,
+                       "editable", TRUE,
+                       "reactive", TRUE,
+                       "activatable", TRUE,
+                       "color", &white,
+                       NULL);
+  clutter_actor_set_opacity (rectangle, 0xbb);
+  clutter_actor_set_reactive (rectangle, TRUE);
+
+  clutter_container_add (CLUTTER_CONTAINER (group), rectangle, text, NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (cs->parasite_root), group);
+  clutter_stage_set_key_focus (CLUTTER_STAGE (stage), text);
+
+  g_signal_connect (text, "captured-event",
+                    G_CALLBACK (modal_key_capture), group);
+  g_signal_connect_swapped (rectangle, "button-release-event",
+                    G_CALLBACK (clutter_actor_destroy), group);
+  g_signal_connect (text, "activate", G_CALLBACK (activate), NULL);
+  g_signal_connect_swapped (text, "activate",
+                    G_CALLBACK (clutter_actor_destroy), group);
+}
+
