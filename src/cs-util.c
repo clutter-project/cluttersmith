@@ -439,7 +439,7 @@ cs_build_transient (ClutterActor *actor)
 
         {
           TransientValue *value = g_new0 (TransientValue, 1);
-          value->property_name = properties[i]->name;
+          value->property_name = g_intern_string (properties[i]->name);
           value->value_type = properties[i]->value_type;
           g_value_init (&value->value, properties[i]->value_type);
           g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
@@ -548,7 +548,7 @@ cs_build_child_transient (ClutterActor *actor)
 
         {
           TransientValue *value = g_new0 (TransientValue, 1);
-          value->property_name = properties[i]->name;
+          value->property_name = g_intern_string (properties[i]->name);
           value->value_type = properties[i]->value_type;
           g_value_init (&value->value, properties[i]->value_type);
           g_object_get_property (G_OBJECT (child_meta), properties[i]->name, &value->value);
@@ -1079,7 +1079,7 @@ tval_free (TransientValue *tval)
 
 static guint tval_hash (TransientValue *tval)
 {
-  return 0;
+  return GPOINTER_TO_INT (tval->object) ^ GPOINTER_TO_INT (tval->property_name);
 }
 
 static gboolean
@@ -1117,14 +1117,18 @@ gboolean cs_properties_get_value (GObject      *object,
                                   const gchar  *property_name,
                                   GValue       *value)
 {
-  TransientValue key = {object, g_intern_string (property_name), };
+  TransientValue key;
   TransientValue *tval;
 
+  key.object = object;
+  key.property_name = g_intern_string (property_name);
+
   tval = g_hash_table_lookup (default_values_ht, &key);
+  g_print ("get %p:%s %i ..%p\n", key.object, key.property_name, g_hash_table_size (default_values_ht), tval);
 
   if (tval)
     {
-      g_value_init (value, tval->value_type);
+      g_value_copy (&tval->value, value);
       return TRUE;
     }
   return FALSE;
@@ -1187,7 +1191,9 @@ static void cs_actor_store_defaults (ClutterActor *actor)
 
           g_value_init (&value->value, properties[i]->value_type);
           g_object_get_property (G_OBJECT (actor), properties[i]->name, &value->value);
-          g_hash_table_insert (default_values_ht, value, NULL);
+          g_hash_table_insert (default_values_ht, value, value);
+
+          g_print ("set %p:%s\n", value->object, value->property_name);
         }
     }
   g_free (properties);
@@ -1211,6 +1217,7 @@ static void cs_actor_store_defaults (ClutterActor *actor)
 
 void cs_properties_store_defaults (void)
 {
+  g_print ("Storing defaults\n");
   cs_properties_init ();
   g_hash_table_remove_all (default_values_ht);
   cs_actor_store_defaults (cs->fake_stage);
@@ -1221,6 +1228,7 @@ void cs_properties_restore_defaults (void)
   GHashTableIter iter;
   gpointer key, value;
   cs_properties_init ();
+  g_print ("re-Storing defaults\n");
 
   g_hash_table_iter_init (&iter, default_values_ht);
   while (g_hash_table_iter_next (&iter, &key, &value))

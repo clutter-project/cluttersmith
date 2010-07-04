@@ -354,7 +354,6 @@ static void page_run_start (void)
 {
   gchar *scriptfilename;
   gchar *annotationfilename;
-  g_print ("entering browse mode\n");
   scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                               cs->priv->title);
   annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
@@ -477,7 +476,6 @@ static void cs_load (void);
 static void browse_end (void)
 {
   page_run_end ();
-  g_print ("leaving browse mode\n");
   clutter_actor_show (cs->fake_stage_canvas);
   cs_load (); /* reverting back to saved state */
 }
@@ -599,8 +597,6 @@ const gchar *cs_context_get_scene (CSContext *context)
 void cs_context_set_scene (CSContext   *context,
                            const gchar *new_title)
 {
-  g_print ("%s\n", G_STRLOC);
-
   if (context->scene_title)
     {
       g_object_set (context->scene_title, "text", new_title, NULL);
@@ -748,7 +744,6 @@ void cluttersmith_init (void)
   ClutterScript *script = clutter_script_new ();
   ClutterActor *actor;
   ClutterActor *stage;
-  g_print ("initializing\n");
 
   cs = cs_context_new ();
   clutter_script_load_from_data (script, "{'id':'actor','type':'ClutterGroup','children':[{'id':'fake-stage','type':'ClutterGroup'},{'id':'parasite-root','type':'ClutterGroup'},{'id':'cs-project-title','opacity':1,'type':'MxEntry'},{'id':'cs-scene-title','type':'MxEntry','opacity':1},{'id':'project-root','type':'MxEntry','opacity':1,'y':50 }]}", -1, NULL);
@@ -1396,7 +1391,7 @@ void cs_save (gboolean force)
       gchar *tmp;
       gfloat x, y;
 
-      g_print ("saving\n");
+      g_print ("Auto saving %s\n", filename);
 
       clutter_actor_get_position (cs->fake_stage, &x, &y);
       clutter_actor_set_position (cs->fake_stage, 0.0, 0.0);
@@ -1539,7 +1534,6 @@ void cs_prop_tweaked (GObject     *object,
           states = clutter_state_get_states (cs->current_state_machine);
           for (s = states; s; s = s->next)
             {
-              GList *list;
               GList *list2;
 
               list2 = clutter_state_get_keys (cs->current_state_machine,
@@ -1547,56 +1541,53 @@ void cs_prop_tweaked (GObject     *object,
                                               cs->current_state,
                                               NULL,
                                               NULL);
-              if (list2)
+              if (list2) /* if transitions to current state exist */
                 {
+                  GList *list;
+                  list = clutter_state_get_keys (cs->current_state_machine,
+                                                 s->data,
+                                                 cs->current_state,
+                                                 object,
+                                                 property_name);
+                  if (list) 
+                    { /* if transition key exist for this state, update it */
+                      gulong mode;
+                      gdouble pre_delay, post_delay;
+                      g_assert (g_list_length (list)==1);
 
-              list = clutter_state_get_keys (cs->current_state_machine,
+                      /* fetch its current state */
+                      mode = clutter_state_key_get_mode (list->data);
+                      pre_delay  = clutter_state_key_get_pre_delay (list->data);
+                      post_delay  = clutter_state_key_get_post_delay (list->data);
+
+                      /* and update with new value */
+                      clutter_state_set_key (cs->current_state_machine,
                                              s->data,
                                              cs->current_state,
                                              object,
-                                             property_name);
-              if (list) /* does a transition key exist for this state */
-                {
-                  gulong mode;
-                  gdouble pre_delay, post_delay;
-                  g_assert (g_list_length (list)==1);
+                                             property_name,
+                                             mode,
+                                             &value,
+                                             pre_delay,
+                                             post_delay);
 
-                  /* fetch its current state */
-                  mode = clutter_state_key_get_mode (list->data);
-                  pre_delay  = clutter_state_key_get_pre_delay (list->data);
-                  post_delay  = clutter_state_key_get_post_delay (list->data);
-
-                  /* and update with new value */
-                  clutter_state_set_key (cs->current_state_machine,
-                                         s->data,
-                                         cs->current_state,
-                                         object,
-                                         property_name,
-                                         mode,
-                                         &value,
-                                         pre_delay,
-                                         post_delay);
-
-                  g_list_free (list);
+                      g_list_free (list);
+                    }
+                  else if (s->data != cs->current_state)
+                    { /* otherwise, update with new value */
+                      clutter_state_set_key (cs->current_state_machine,
+                                             s->data,
+                                             cs->current_state,
+                                             object,
+                                             property_name,
+                                             CLUTTER_LINEAR,
+                                             &value,
+                                             0.0,
+                                             0.0);
+                    }
+                  g_list_free (list2);
                 }
-              else if (s->data != cs->current_state)
-                {
-                  /* otherwise, update with new value */
-                  clutter_state_set_key (cs->current_state_machine,
-                                         s->data,
-                                         cs->current_state,
-                                         object,
-                                         property_name,
-                                         CLUTTER_LINEAR,
-                                         &value,
-                                         0.0,
-                                         0.0);
-                }
-                g_list_free (list2);
-              }
             }
-          g_list_free (states);
-          /* otherwise, update with new value */
           clutter_state_set_key (cs->current_state_machine,
                                  source_state,
                                  cs->current_state,
@@ -1606,6 +1597,61 @@ void cs_prop_tweaked (GObject     *object,
                                  &value,
                                  0.0,
                                  0.0);
+
+#if 1
+          /* Then go through (possible and existing) transitions to other
+           * states, ensuring keys do exist, ensuring consistent behavior.
+           */
+          for (s = states; s; s = s->next)
+            {
+              GList *list2;
+
+              if (s->data == cs->current_state)
+                continue;
+
+              list2 = clutter_state_get_keys (cs->current_state_machine,
+                                              NULL,
+                                              s->data,
+                                              NULL,
+                                              NULL);
+              if (list2) /* if transitions to this state exist */
+                {
+                  GList *list;
+
+                  list = clutter_state_get_keys (cs->current_state_machine,
+                                                 NULL,
+                                                 s->data,
+                                                 object,
+                                                 property_name);
+                  if (list) 
+                    { 
+                      /* do nothing if matching keys exist */
+                      g_list_free (list);
+                    }
+                  else 
+                    { 
+                      /* the value set here should ideally be copied from
+                       * the netural state saved before starting state-machine
+                       * editing.
+                       */
+                      g_assert (cs_properties_get_value (object, property_name,
+                                               &value));
+
+                      clutter_state_set_key (cs->current_state_machine,
+                                             NULL,
+                                             s->data,
+                                             object,
+                                             property_name,
+                                             CLUTTER_LINEAR,
+                                             &value,
+                                             0.0,
+                                             0.0);
+                    }
+                  g_list_free (list2);
+                }
+            }
+#endif
+          g_list_free (states);
         }
        g_value_unset (&value);
 
@@ -1902,6 +1948,7 @@ static void state_machine_name_changed (ClutterActor *actor)
       if (id && g_str_equal (id, name))
         {
           cs_set_current_state_machine (a->data);
+          cs_properties_store_defaults ();
           return;
         }
     }
@@ -1909,6 +1956,7 @@ static void state_machine_name_changed (ClutterActor *actor)
   clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (state), name);
   cs->state_machines = g_list_append (cs->state_machines, state);
   cs_set_current_state_machine (state);
+  cs_properties_store_defaults ();
 }
 
 static void project_root_text_changed (ClutterActor *actor)

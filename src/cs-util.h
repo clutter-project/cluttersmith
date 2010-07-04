@@ -104,6 +104,9 @@ char         * cs_make_config_file                 (const char   *filename);
 
 void           cs_properties_store_defaults        (void);
 void           cs_properties_restore_defaults      (void);
+gboolean       cs_properties_get_value             (GObject      *object,
+                                                    const gchar  *property_name,
+                                                    GValue       *value);
 
 ClutterAnimator * cs_state_make_animator (ClutterState *states,
                                           const gchar  *source_state,
