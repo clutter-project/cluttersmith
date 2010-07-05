@@ -562,6 +562,11 @@
                                         {
                                           "id":"cs-target-state",
                                           "type":"MxComboBox"
+                                        },
+                                        {
+                                          "id":"cs-remove-transition",
+                                          "type":"MxButton",
+                                          "label":" X "
                                         }
                                       ]
                                     },

@@ -1657,6 +1657,24 @@ static void source_state_changed (MxComboBox *combo_box,
   cb_blocked --;
 }
 
+static void
+remove_transition (ClutterActor *button,
+                   gpointer      data)
+{
+  if (!cs->current_state_machine)
+    return;
+  g_print ("remove it %s %s\n", cs->current_source_state, cs->current_state);
+  clutter_state_remove_key (cs->current_state_machine,
+                            cs->current_source_state,
+                            cs->current_state,
+                            NULL,
+                            NULL);
+  cs->current_state = NULL;
+  cs->current_source_state = NULL;
+
+  update_animator_editor2 ();
+}
+
 void cs_animator_editor_init_hack (ClutterActor  *actor)
 {
   /* we hook this up to the first paint, since no other signal seems to be
@@ -1669,6 +1687,9 @@ void cs_animator_editor_init_hack (ClutterActor  *actor)
 
   g_signal_connect (cs->target_state, "notify::index", G_CALLBACK (target_state_changed), NULL);
   g_signal_connect (cs->source_state, "notify::index", G_CALLBACK (source_state_changed), NULL);
+  g_signal_connect (cs->remove_transition, "clicked",
+                    G_CALLBACK (remove_transition), NULL);
+
 
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_machine_name)), "text-changed",
                     G_CALLBACK (state_machine_name_text_changed), NULL);

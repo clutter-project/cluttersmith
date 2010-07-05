@@ -1032,6 +1032,7 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->state_machine_name = _A("cs-state-machine-name");
   cs->source_state = _A("cs-source-state");
   cs->target_state = _A("cs-target-state");
+  cs->remove_transition = _A("cs-remove-transition");
   cs->state_duration = _A("cs-state-duration");
 
   cs->animation_name = _A("cs-animation-name");
@@ -1136,7 +1137,6 @@ static gboolean
 update_id (ClutterText *text,
            gpointer     data)
 {
-  //clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), clutter_text_get_text (text));
   const gchar *set;
   const gchar *stem;
   stem = clutter_text_get_text (text);

@@ -139,6 +139,7 @@ struct _CSContext
   ClutterActor *state_machine_name;
   ClutterActor *source_state;
   ClutterActor *target_state;
+  ClutterActor *remove_transition;
   ClutterActor *animation_name;
   ClutterActor *animator_props;
   ClutterActor *animator_editor;
