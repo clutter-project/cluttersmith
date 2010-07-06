@@ -1579,6 +1579,7 @@ static void animation_name_changed (ClutterActor *actor)
 static void add_new_state (ClutterText *text)
 {
   const gchar * state = clutter_text_get_text (text);
+  GList *k, *keys;
 
   state = g_intern_string (state);
 
@@ -1590,10 +1591,30 @@ static void add_new_state (ClutterText *text)
   else
     g_print ("no state %s .. (yet)\n", state);
 
+  /* clone the current state to the new one */
+  keys = clutter_state_get_keys (cs->current_state_machine,
+                                 NULL, cs->current_target_state,
+                                 NULL, NULL);
+  for (k = keys; k; k = k->next)
+    {
+      ClutterStateKey *key = k->data;
+      GValue value = {0, };
+      GObject *object = clutter_state_key_get_object (key);
+      const gchar *property_name = clutter_state_key_get_property_name (key);
+      GType type = clutter_state_key_get_property_type (key);
+      gdouble pre_delay = clutter_state_key_get_pre_delay (key);
+      gdouble post_delay = clutter_state_key_get_post_delay (key);
+      gulong mode = clutter_state_key_get_mode (key);
+
+      g_value_init (&value, type);
+      clutter_state_key_get_value (key, &value);
+
+      clutter_state_set_key (cs->current_state_machine, NULL, state,
+                             object, property_name, mode, &value, pre_delay, post_delay);
+    }
+  g_list_free (keys);
+
   cs->current_target_state = g_intern_string (state);
-  /* XXX: should clone the previous current state,
-   *      allowing to more easily build an animation
-   */
 
   cs->current_source_state = NULL;
   update_duration ();
