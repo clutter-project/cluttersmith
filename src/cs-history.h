@@ -53,6 +53,9 @@ void cs_history_redo (ClutterActor *ignored);
 void cs_history_start_group (const gchar *group_name);
 void cs_history_end_group   (const gchar *group_name);
 
+void cs_history_record_pre (const gchar *undo_name);
+void cs_history_record_post (const gchar *undo_name);
+
 void cs_history_add  (const gchar *name,
                       const gchar *javascript_do,
                       const gchar *javascript_undo);

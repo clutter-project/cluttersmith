@@ -92,10 +92,10 @@ void cs_draw_actor_outline (ClutterActor *actor,
 ClutterActor  *cs_show                             (const gchar  *name);
 ClutterActor  *cs_load_json                        (const gchar  *name);
 ClutterScript *cs_get_script                       (ClutterActor *actor);
-ClutterActor  *cs_replace_content2                 (ClutterActor *actor,
+ClutterActor  *cs_replace_content                  (ClutterActor *actor,
                                                     const gchar  *name,
-                                                    const gchar  *new_script);
-
+                                                    const gchar  *filename,
+                                                    const gchar  *inline_script);
 
 ClutterActor * cs_find_nearest                     (ClutterActor *actor,
                                                     gboolean      vertical,

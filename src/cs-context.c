@@ -1373,6 +1373,61 @@ ensure_unique_ids (ClutterActor *start)
   g_list_free (children);
 }
 
+gchar *
+cs_serialize (void)
+{
+  gchar *ret;
+  GString *str = g_string_new ("");
+  gchar *tmp;
+  gfloat x, y;
+
+  clutter_actor_get_position (cs->fake_stage, &x, &y);
+  clutter_actor_set_position (cs->fake_stage, 0.0, 0.0);
+
+  /* make sure all ids are unique, ideally this would
+   * already be the case, but we ensure it here as a
+   * last resort, needed to make the resulting files
+   * loadable
+   */
+  ensure_unique_ids (cs->fake_stage);
+
+  tmp = json_serialize_subtree (cs->fake_stage);
+  g_string_append (str, tmp);
+  g_free (tmp);
+
+  if (cs->animators)
+    {
+      GList *a;
+      g_string_append (str, "\n");
+      for (a = cs->animators; a; a=a->next)
+        {
+          tmp = json_serialize_animator (a->data);
+          g_string_append (str, ",");
+          g_string_append (str, tmp);
+          g_free (tmp);
+        }
+    }
+  if (cs->state_machines)
+    {
+      GList *a;
+      g_string_append (str, "\n");
+      for (a = cs->state_machines; a; a=a->next)
+        {
+          tmp = json_serialize_state (a->data);
+          g_string_append (str, ",");
+          g_string_append (str, tmp);
+          g_free (tmp);
+        }
+    }
+  g_string_append (str, "]");
+
+  clutter_actor_set_position (cs->fake_stage, x, y);
+
+  ret = str->str;
+  g_string_free (str, FALSE);
+  return ret;
+}
+
 void cs_save (gboolean force)
 {
   /* Save if we've changed */
@@ -1393,58 +1448,16 @@ void cs_save (gboolean force)
 
   if (CS_REVISION != CS_STORED_REVISION || force)
     {
-      GString *str = g_string_new ("[");
-      gchar *tmp;
-      gfloat x, y;
+      gchar *str;
 
       g_print ("Auto saving %s\n", filename);
+      str = cs_serialize ();
 
-      clutter_actor_get_position (cs->fake_stage, &x, &y);
-      clutter_actor_set_position (cs->fake_stage, 0.0, 0.0);
-
-      /* make sure all ids are unique, ideally this would
-       * already be the case, but we ensure it here as a
-       * last resort, needed to make the resulting files
-       * loadable
-       */
-      ensure_unique_ids (cs->fake_stage);
-
-      tmp = json_serialize_subtree (cs->fake_stage);
-      g_string_append (str, tmp);
-      g_free (tmp);
-
-      if (cs->animators)
-        {
-          GList *a;
-          g_string_append (str, "\n");
-          for (a = cs->animators; a; a=a->next)
-            {
-              tmp = json_serialize_animator (a->data);
-              g_string_append (str, ",");
-              g_string_append (str, tmp);
-              g_free (tmp);
-            }
-        }
-      if (cs->state_machines)
-        {
-          GList *a;
-          g_string_append (str, "\n");
-          for (a = cs->state_machines; a; a=a->next)
-            {
-              tmp = json_serialize_state (a->data);
-              g_string_append (str, ",");
-              g_string_append (str, tmp);
-              g_free (tmp);
-            }
-        }
-      g_string_append (str, "]");
-
-      clutter_actor_set_position (cs->fake_stage, x, y);
       if (filename)
         {
-          g_file_set_contents (filename, str->str, -1, NULL);
+          g_file_set_contents (filename, str, -1, NULL);
         }
-      g_string_free (str, TRUE);
+      g_free (str);
       CS_STORED_REVISION = CS_REVISION;
     }
 }
@@ -1638,18 +1651,17 @@ void cs_prop_tweaked (GObject     *object,
                        * the netural state saved before starting state-machine
                        * editing.
                        */
-                      g_assert (cs_properties_get_value (object, property_name,
-                                               &value));
-
-                      clutter_state_set_key (cs->current_state_machine,
-                                             NULL,
-                                             s->data,
-                                             object,
-                                             property_name,
-                                             CLUTTER_LINEAR,
-                                             &value,
-                                             0.0,
-                                             0.0);
+                      if (cs_properties_get_value (object, property_name,
+                                               &value))
+                        clutter_state_set_key (cs->current_state_machine,
+                                               NULL,
+                                               s->data,
+                                               object,
+                                               property_name,
+                                               CLUTTER_LINEAR,
+                                               &value,
+                                               0.0,
+                                               0.0);
                     }
                   g_list_free (list2);
                 }
@@ -1681,6 +1693,33 @@ static void remove_state_machines (void)
   cs->animators = NULL;
 }
 
+
+void cs_post_load (void)
+{
+  ClutterScript *script = cs_get_script (cs->fake_stage);
+  GList *o, *objects;
+  g_assert (script);
+  objects = clutter_script_list_objects (script);
+  
+  remove_state_machines ();
+
+  for (o = objects; o; o = o->next)
+    {
+      if (CLUTTER_IS_ANIMATOR (o->data))
+       {
+          ClutterAnimator *animator = o->data;
+          cs->animators = g_list_append (cs->animators, animator);
+       }
+      else if (CLUTTER_IS_STATE (o->data))
+       {
+          ClutterState *state = o->data;
+          cs->state_machines = g_list_append (cs->state_machines, state);
+          g_object_ref (state);
+       }
+    }
+  g_list_free (objects);
+}
+
 /* filename has already been set when cs_load is called */
 static void cs_load (void)
 {
@@ -1696,32 +1735,8 @@ static void cs_load (void)
       gchar *annotationfilename;
       cs_session_history_add (cs_get_project_root ());
       cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
-      cs->fake_stage = cs_replace_content2 (cs->parasite_root, "fake-stage", filename);
-
-      {
-        ClutterScript *script = cs_get_script (cs->fake_stage);
-        GList *o, *objects;
-        g_assert (script);
-        objects = clutter_script_list_objects (script);
-
-        for (o = objects; o; o = o->next)
-          {
-            if (CLUTTER_IS_ANIMATOR (o->data))
-             {
-                ClutterAnimator *animator = o->data;
-                cs->animators = g_list_append (cs->animators, animator);
-             }
-            else if (CLUTTER_IS_STATE (o->data))
-             {
-                ClutterState *state = o->data;
-                cs->state_machines = g_list_append (cs->state_machines, state);
-                g_object_ref (state);
-             }
-          }
-        /* Add a fake state machine at first, to bootstrap things.. */
-
-        g_list_free (objects);
-      }
+      cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", filename, NULL);
+      cs_post_load ();
 
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                                   cs->priv->title);
@@ -1869,7 +1884,7 @@ static void cs_load (void)
   else
     {
       cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
-      cs->fake_stage = cs_replace_content2 (cs->parasite_root, "fake-stage", NULL);
+      cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", NULL, NULL);
     }
   cs_set_current_container (cs->fake_stage);
   CS_REVISION = CS_STORED_REVISION = 0;

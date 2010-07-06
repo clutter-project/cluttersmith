@@ -175,6 +175,8 @@ CSContext *cluttersmith_context (void);
 
 void cs_context_set_scene (CSContext   *cs_context,
                            const gchar *scene);
+void cs_post_load    (void);
+gchar * cs_serialize (void);
 
 G_END_DECLS
 

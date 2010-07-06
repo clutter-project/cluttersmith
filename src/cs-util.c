@@ -75,6 +75,24 @@ gboolean cs_dismiss_cb (ClutterActor *actor,
   return TRUE;
 }
 
+
+ClutterActor *cs_parse_json (const gchar *json)
+{
+  ClutterActor *actor;
+  ClutterScript *script = clutter_script_new ();
+  GError *error = NULL;
+
+  clutter_script_load_from_data (script, json, -1, &error);
+
+  actor = CLUTTER_ACTOR (clutter_script_get_object (script, "actor"));
+  if (!actor)
+     g_warning ("failed parsing from json %s\n", error?error->message:"");
+  clutter_script_connect_signals (script, script);
+  g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
+
+  return actor;
+}
+
 ClutterActor *cs_load_json (const gchar *name)
 {
   ClutterActor *actor;
@@ -189,9 +207,10 @@ static ClutterActor *empty_scene_new (void)
 /* replaces a toplevel (as in loaded scripts) container with id "content"
  * with a newly loaded script.
  */
-ClutterActor *cs_replace_content2 (ClutterActor  *actor,
-                                   const gchar *name,
-                                   const gchar *new_script)
+ClutterActor *cs_replace_content (ClutterActor *actor,
+                                  const gchar  *name,
+                                  const gchar  *filename,
+                                  const gchar  *inline_script)
 {
   ClutterActor *ret = NULL;
   ClutterActor *iter;
@@ -229,17 +248,22 @@ ClutterActor *cs_replace_content2 (ClutterActor  *actor,
             clutter_actor_destroy (c->data);
         }
       g_list_free (children);
-      if (new_script)
-        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (new_script));
+      if (filename)
+        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (filename));
+      else if (inline_script)
+        clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_parse_json (inline_script));
       else
         clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
       return ret;
     }
 
   cs_container_remove_children (content);
-  if (new_script)
+  if (filename || inline_script)
     {
-      clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (new_script));
+      if (filename)
+      clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_load_json (filename));
+      else
+      clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = cs_parse_json (inline_script));
 
       /* force all actors that are loaded in this manner to have unique
        * id's, this is needed to make undo/redo work
@@ -258,15 +282,6 @@ ClutterActor *cs_replace_content2 (ClutterActor  *actor,
   else
     clutter_container_add_actor (CLUTTER_CONTAINER (content), ret = empty_scene_new ());
   return ret;
-}
-
-/* replaces a toplevel (as in loaded scripts) container with id "content"
- * with a newly loaded script.
- */
-gboolean cs_replace_content (ClutterActor  *actor)
-{
-  cs_replace_content2 (actor, "content", clutter_actor_get_name (actor));
-  return TRUE;
 }
 
 static guint movable_capture_handler = 0;
@@ -369,10 +384,10 @@ typedef struct TransientValue {
 
 
 /* XXX: this list is incomplete */
-static gchar *whitelist[]={"x","y","width","height", "depth", "opacity",
+static gchar *whitelist[]={"x", "y", "width","height", "depth", "opacity",
                            "scale-x","scale-y", "anchor-x", "color",
                            "anchor-y", "rotation-angle-z", "rotation-angle-x",
-                           "rotation-angle_y",
+                           "rotation-angle-y",
                            "name", "reactive",
                            NULL};
 

@@ -208,7 +208,7 @@
                                   "type":"MxBoxLayout",
                                   "style-class":"ClutterSmithPropertyPane",
                                   "orientation":"vertical",
-                                  "width":240,
+                                  "width":300,
                                   "spacing":2,
                                   "children":[
                                     {

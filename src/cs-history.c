@@ -47,6 +47,7 @@ typedef struct HistoryItem {
   const gchar    *name;
   gchar          *javascript_do;
   gchar          *javascript_undo;
+  gboolean        is_snapshot;
 } HistoryItem;
 
 static GList *undo_commands = NULL;
@@ -113,7 +114,6 @@ void cs_history_undo (ClutterActor *ignored)
   HistoryItem *hitem;
   gint group_level = 0;
    
-
   if (!undo_commands)
     {
       g_warning ("Undo attempted with no undos in history\n");
@@ -136,18 +136,27 @@ void cs_history_undo (ClutterActor *ignored)
         }
       else
         {
-          GjsContext *js_context;
-          GError     *error = NULL;
-          gint        code;
-
-          js_context = gjs_context_new_with_search_path (NULL);
-          gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
-          if (!gjs_context_eval (js_context, hitem->javascript_undo, strlen (hitem->javascript_undo),
-                                 "<code>", &code, &error))
+          if (hitem->is_snapshot)
             {
-              g_warning ("%s", error->message);
+               cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
+               cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", NULL, hitem->javascript_undo);
+               cs_post_load ();
             }
-          g_object_unref (js_context);
+          else
+            {
+              GjsContext *js_context;
+              GError     *error = NULL;
+              gint        code;
+
+              js_context = gjs_context_new_with_search_path (NULL);
+              gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
+              if (!gjs_context_eval (js_context, hitem->javascript_undo, strlen (hitem->javascript_undo),
+                                     "<code>", &code, &error))
+                {
+                  g_warning ("%s", error->message);
+                }
+              g_object_unref (js_context);
+            }
         }
 
       redo_commands = g_list_prepend (redo_commands, undo_commands->data);
@@ -183,18 +192,27 @@ void cs_history_redo (ClutterActor *ignored)
         }
       else
         {
-          GjsContext *js_context;
-          GError     *error = NULL;
-          gint        code;
-
-          js_context = gjs_context_new_with_search_path (NULL);
-          gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
-          if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
-                                 "<code>", &code, &error))
+          if (hitem->is_snapshot)
             {
-              g_warning ("%s", error->message);
+               cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
+               cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", NULL, hitem->javascript_do);
+               cs_post_load ();
             }
-          g_object_unref (js_context);
+          else
+            {
+              GjsContext *js_context;
+              GError     *error = NULL;
+              gint        code;
+
+              js_context = gjs_context_new_with_search_path (NULL);
+              gjs_context_eval (js_context, JS_PREAMBLE, strlen (JS_PREAMBLE), "<code>", &code, &error);
+              if (!gjs_context_eval (js_context, hitem->javascript_do, strlen (hitem->javascript_do),
+                                     "<code>", &code, &error))
+                {
+                  g_warning ("%s", error->message);
+                }
+              g_object_unref (js_context);
+            }
         }
       undo_commands = g_list_prepend (undo_commands, redo_commands->data);
       redo_commands = g_list_remove (redo_commands, undo_commands->data);
@@ -213,4 +231,31 @@ void cs_history_start_group (const gchar *group_name)
 void cs_history_end_group   (const gchar *group_name)
 {
   cs_history_add (")", NULL, NULL);
+}
+
+/*
+ * if performance doesnt become abmysal, it would be useful to
+ * have a tentative record_pre stored after every entry is
+ * placed in the undo history. This would allow inserting undo
+ * points completely arbitrarily using history_record_post.
+ */
+void cs_history_record_pre (const gchar *undo_name)
+{
+  HistoryItem *hitem;
+  gchar *state = cs_serialize ();
+
+  cs_history_add (undo_name, state, NULL);
+  g_free (state);
+  hitem = undo_commands->data;
+  hitem->is_snapshot = TRUE;
+}
+
+void cs_history_record_post (const gchar *undo_name)
+{
+  HistoryItem *hitem;
+  gchar *state = cs_serialize ();
+  hitem = undo_commands->data;
+  g_assert (hitem->is_snapshot);
+  hitem->javascript_undo = state;
+  g_free (state);
 }
