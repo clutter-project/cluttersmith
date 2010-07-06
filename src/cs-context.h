@@ -82,11 +82,11 @@ struct _CSContext
   GList        *state_machines;
   gchar        *project_root;
 
-  const gchar   *current_source_state;  /* interned string */
-  const gchar   *current_state;  /* interned string */
-  ClutterState  *current_state_machine;
-
   ClutterActor  *current_container;
+
+  ClutterState  *current_state_machine;
+  const gchar   *current_source_state;  /* interned string */
+  const gchar   *current_target_state;  /* interned string */
 
   ClutterAnimator *current_animator; /* (if any) */
   /* XXX: add currently edited state machine */

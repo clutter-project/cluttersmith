@@ -1195,7 +1195,7 @@ static void update_animator_editor2 (void)
   if (source_state && g_str_equal (source_state, ""))
       source_state = NULL;
   cs_update_animator_editor (cs->current_state_machine,
-                             source_state, cs->current_state);
+                             source_state, cs->current_target_state);
   if (!states_upd)
     states_upd = g_idle_add ((void*)states_update, NULL);
 }
@@ -1214,7 +1214,7 @@ static void update_duration (void)
 
   duration = clutter_state_get_duration (cs->current_state_machine,
                                          source_state,
-                                         cs->current_state);
+                                         cs->current_target_state);
   str = g_strdup_printf ("%i", duration);
   g_object_set (cs->state_duration, "text", str, NULL);
   g_free (str);
@@ -1273,6 +1273,8 @@ static gboolean states_update (void)
       return FALSE;
     }
 
+  cb_blocked ++;
+
   current_source = cs->current_source_state;
 
   /* XXX: evil emptying of combo-boxes */
@@ -1285,8 +1287,8 @@ static gboolean states_update (void)
   for (i = states, j=0; i; i=i->next, j++)
     {
       mx_combo_box_append_text (MX_COMBO_BOX (cs->target_state), i->data);
-      if (cs->current_state &&
-          g_str_equal (cs->current_state, i->data))
+      if (cs->current_target_state &&
+          g_str_equal (cs->current_target_state, i->data))
         found_target = j;
       else
         {
@@ -1300,12 +1302,20 @@ static gboolean states_update (void)
 
     }
 
-  if (found_target == -1 && 
-      cs->current_state && cs->current_state[0]!='\0')
+  if (j == 0)
+    found_target = 0;
+
+  if (found_target == -1
+      && cs->current_target_state && cs->current_target_state[0]!='\0')
     {
-      mx_combo_box_append_text (MX_COMBO_BOX (cs->target_state), cs->current_state);
+      mx_combo_box_append_text (MX_COMBO_BOX (cs->target_state), cs->current_target_state);
       found_target = j;
     }
+  else if (found_target == -1 && cs->current_target_state == NULL)
+    {
+      found_target = j;
+    }
+
   if (found_source == -1)
     found_source = any_source_pos;
 
@@ -1318,6 +1328,7 @@ static gboolean states_update (void)
 
   g_list_free (states);
   states_upd = 0;
+  cb_blocked --;
   return FALSE;
 }
 
@@ -1338,7 +1349,7 @@ static void state_duration_text_changed (ClutterActor *actor)
 
   clutter_state_set_duration (cs->current_state_machine,
                               source_state,
-                              cs->current_state,
+                              cs->current_target_state,
                               atoi (text));
   if (cs->current_animator)
     clutter_animator_set_duration (cs->current_animator, atoi (text));
@@ -1356,10 +1367,10 @@ void state_elaborate_clicked (ClutterActor  *actor)
 
   animator = cs_states_make_animator (cs->current_state_machine,
                                       source_state,
-                                      cs->current_state);
+                                      cs->current_target_state);
   clutter_states_set_animator (cs->current_state_machine,
                                source_state,
-                               cs->current_state,
+                               cs->current_target_state,
                                animator);
   cs->current_animator = animator;
 
@@ -1391,7 +1402,7 @@ void state_test_clicked (ClutterActor  *actor)
     }
 
   clutter_states_change (cs->current_state_machine,
-                         cs->current_state);
+                         cs->current_target_state);
 #endif
   if (cs->current_animator)
     {
@@ -1426,7 +1437,7 @@ void state_position_actors (gdouble progress)
     }
 
   timeline = clutter_states_change (cs->current_state_machine,
-                                    cs->current_state);
+                                    cs->current_target_state);
   clutter_timeline_pause (timeline);
 #endif
 
@@ -1579,7 +1590,7 @@ static void add_new_state (ClutterText *text)
   else
     g_print ("no state %s .. (yet)\n", state);
 
-  cs->current_state = g_intern_string (state);
+  cs->current_target_state = g_intern_string (state);
   /* XXX: should clone the previous current state,
    *      allowing to more easily build an animation
    */
@@ -1621,7 +1632,7 @@ static void target_state_changed (MxComboBox *combo_box,
   else
     g_print ("no state %s .. (yet)\n", state);
 
-  cs->current_state = g_intern_string (state);
+  cs->current_target_state = g_intern_string (state);
   cs->current_source_state = NULL;
 
   update_duration ();
@@ -1663,16 +1674,18 @@ remove_transition (ClutterActor *button,
 {
   if (!cs->current_state_machine)
     return;
-  g_print ("remove it %s %s\n", cs->current_source_state, cs->current_state);
+  if (cs->current_target_state == NULL)
+    return;
   clutter_state_remove_key (cs->current_state_machine,
                             cs->current_source_state,
-                            cs->current_state,
+                            cs->current_target_state,
                             NULL,
                             NULL);
-  cs->current_state = NULL;
+  cs->current_target_state = NULL;
   cs->current_source_state = NULL;
 
   update_animator_editor2 ();
+  states_update ();
 }
 
 void cs_animator_editor_init_hack (ClutterActor  *actor)

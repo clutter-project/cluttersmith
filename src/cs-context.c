@@ -1513,10 +1513,10 @@ void cs_prop_tweaked (GObject     *object,
 
        cs_update_animator_editor (cs->current_state_machine,
                                   NULL,
-                                  cs->current_state);
+                                  cs->current_target_state);
     }
   else if (cs->current_state_machine &&
-      (cs->current_state != NULL))
+      (cs->current_target_state != NULL))
     {
        const gchar *source_state = NULL;
        GValue value = {0, };
@@ -1542,7 +1542,7 @@ void cs_prop_tweaked (GObject     *object,
 
               list2 = clutter_state_get_keys (cs->current_state_machine,
                                               s->data,
-                                              cs->current_state,
+                                              cs->current_target_state,
                                               NULL,
                                               NULL);
               if (list2) /* if transitions to current state exist */
@@ -1550,7 +1550,7 @@ void cs_prop_tweaked (GObject     *object,
                   GList *list;
                   list = clutter_state_get_keys (cs->current_state_machine,
                                                  s->data,
-                                                 cs->current_state,
+                                                 cs->current_target_state,
                                                  object,
                                                  property_name);
                   if (list) 
@@ -1567,7 +1567,7 @@ void cs_prop_tweaked (GObject     *object,
                       /* and update with new value */
                       clutter_state_set_key (cs->current_state_machine,
                                              s->data,
-                                             cs->current_state,
+                                             cs->current_target_state,
                                              object,
                                              property_name,
                                              mode,
@@ -1577,11 +1577,11 @@ void cs_prop_tweaked (GObject     *object,
 
                       g_list_free (list);
                     }
-                  else if (s->data != cs->current_state)
+                  else if (s->data != cs->current_target_state)
                     { /* otherwise, update with new value */
                       clutter_state_set_key (cs->current_state_machine,
                                              s->data,
-                                             cs->current_state,
+                                             cs->current_target_state,
                                              object,
                                              property_name,
                                              CLUTTER_LINEAR,
@@ -1594,7 +1594,7 @@ void cs_prop_tweaked (GObject     *object,
             }
           clutter_state_set_key (cs->current_state_machine,
                                  source_state,
-                                 cs->current_state,
+                                 cs->current_target_state,
                                  object,
                                  property_name,
                                  CLUTTER_LINEAR,
@@ -1610,7 +1610,7 @@ void cs_prop_tweaked (GObject     *object,
             {
               GList *list2;
 
-              if (s->data == cs->current_state)
+              if (s->data == cs->current_target_state)
                 continue;
 
               list2 = clutter_state_get_keys (cs->current_state_machine,
@@ -1660,7 +1660,7 @@ void cs_prop_tweaked (GObject     *object,
        g_value_unset (&value);
 
        cs_update_animator_editor (cs->current_state_machine,
-                                  source_state, cs->current_state);
+                                  source_state, cs->current_target_state);
     }
 }
 
