@@ -40,7 +40,7 @@
 #include "cluttersmith.h"
 #include <stdlib.h>
 #include <mx/mx.h>
-#include <cs-animator-editor.h>
+#include "cs-animation-editing.h"
 
 #define ANIM_PROPERTY_ROW_HEIGHT 20
 
