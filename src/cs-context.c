@@ -1377,7 +1377,7 @@ gchar *
 cs_serialize (void)
 {
   gchar *ret;
-  GString *str = g_string_new ("");
+  GString *str = g_string_new ("[\n");
   gchar *tmp;
   gfloat x, y;
 
