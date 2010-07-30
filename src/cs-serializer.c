@@ -119,8 +119,7 @@ properties_to_string (GString      *str,
                 {
                   gchar *whitelist[]={"x","y", "depth", "opacity", "width", "height",
                                       "scale-x","scale-y", "anchor-x", "color",
-                                      "anchor-y", "rotation-angle-z",
-                                      "name", 
+                                      "anchor-y", "rotation-angle-z", "reactive", "name", "rotation-angle-y", "rotation-angle-x",
                                       NULL};
                   gint k;
                   skip = TRUE;
@@ -136,6 +135,13 @@ properties_to_string (GString      *str,
           ))
         skip = TRUE;
 
+      /* XXX should not be needed */
+      if (!strcmp (properties[i]->name, "subtitle-font-desc")||
+          !strcmp (properties[i]->name, "subtitle-font-name")||
+          !strcmp (properties[i]->name, "user-agent")
+          )
+        skip = TRUE;
+
       if (skip)
         continue;
 
@@ -143,18 +149,22 @@ properties_to_string (GString      *str,
         if (properties[i]->value_type == G_TYPE_FLOAT)
           {
             gfloat value;
-            /* XXX: clutter fails to read it back in without truncation */
             g_object_get (actor, properties[i]->name, &value, NULL);
+
+            if (value == G_PARAM_SPEC_FLOAT (properties[i])->default_value)
+              continue;
+
             if (g_str_equal (properties[i]->name, "x")||
                 g_str_equal (properties[i]->name, "y")||
                 g_str_equal (properties[i]->name, "width")||
                 g_str_equal (properties[i]->name, "height"))
               {
+                /* XXX: clutter fails to read it back in without truncation */
                 g_string_append_printf (str, ",\n");
                 INDENT;g_string_append_printf (str,"\"%s\":%0.0f",
                                         properties[i]->name, value);
               }
-                else
+            else
               {
                 g_string_append_printf (str, ",\n");
                 INDENT;g_string_append_printf (str,"\"%s\":%0.3f",
@@ -165,6 +175,9 @@ properties_to_string (GString      *str,
           {
             gdouble value;
             g_object_get (actor, properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_DOUBLE (properties[i])->default_value)
+              continue;
+
             g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"%s\":%0.3f",
                                            properties[i]->name, value);
@@ -172,8 +185,10 @@ properties_to_string (GString      *str,
         else if (properties[i]->value_type == G_TYPE_UCHAR)
           {
             guchar value;
-            g_string_append_printf (str, ",\n");
             g_object_get (actor, properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_UCHAR (properties[i])->default_value)
+              continue;
+            g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"%s\":%i",
                                            properties[i]->name, value);
           }
@@ -181,6 +196,8 @@ properties_to_string (GString      *str,
           {
             gint value;
             g_object_get (actor, properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_INT (properties[i])->default_value)
+              continue;
             g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"%s\":%i",
                                            properties[i]->name, value);
@@ -199,7 +216,10 @@ properties_to_string (GString      *str,
             g_object_get (actor, properties[i]->name, &value, NULL);
             if (value)
               {
-                gchar *escaped = cs_json_escape_string (value);
+                gchar *escaped;
+                if (!g_strcmp0 (value, G_PARAM_SPEC_STRING (properties[i])->default_value))
+                  continue;
+                escaped  = cs_json_escape_string (value);
                 g_string_append_printf (str, ",\n");
                 INDENT;g_string_append_printf (str,"\"%s\":\"%s\"",
                                                properties[i]->name, escaped);
@@ -211,6 +231,8 @@ properties_to_string (GString      *str,
           {
             gboolean value;
             g_object_get (actor, properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_BOOLEAN (properties[i])->default_value)
+              continue;
             g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"%s\":%s",
                                            properties[i]->name, value?"true":"false");
@@ -231,6 +253,21 @@ properties_to_string (GString      *str,
             else
               {
               }
+          }
+        else if (g_type_is_a (properties[i]->value_type, G_TYPE_ENUM))
+          {
+            gboolean    value;
+            GEnumClass *enum_class;
+            GEnumValue *enum_value;
+
+            enum_class = g_type_class_peek (properties[i]->value_type);
+            g_object_get (actor, properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_ENUM (properties[i])->default_value)
+              continue;
+            enum_value = g_enum_get_value (enum_class, value);
+            g_string_append_printf (str, ",\n");
+            INDENT;g_string_append_printf (str,"\"%s\":\"%s\"",
+                                           properties[i]->name, enum_value->value_nick);
           }
         else
           {
@@ -326,6 +363,8 @@ properties_to_string (GString      *str,
             gfloat value;
             /* XXX: clutter fails to read it back in without truncation */
             g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_FLOAT (child_properties[i])->default_value)
+              continue;
             {
               g_string_append_printf (str, ",\n");
               INDENT;g_string_append_printf (str,"\"child::%s\":%0.3f",
@@ -335,16 +374,20 @@ properties_to_string (GString      *str,
         else if (child_properties[i]->value_type == G_TYPE_DOUBLE)
           {
             gdouble value;
-            g_string_append_printf (str, ",\n");
             g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_DOUBLE (child_properties[i])->default_value)
+              continue;
+            g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"child::%s\":%0.3f",
                                            child_properties[i]->name, value);
           }
         else if (child_properties[i]->value_type == G_TYPE_UCHAR)
           {
             guchar value;
-            g_string_append_printf (str, ",\n");
             g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_UCHAR (child_properties[i])->default_value)
+              continue;
+            g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"child::%s\":%i",
                                            child_properties[i]->name, value);
           }
@@ -368,6 +411,8 @@ properties_to_string (GString      *str,
           {
             gchar *value;
             g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (!g_strcmp0 (value, G_PARAM_SPEC_STRING (properties[i])->default_value))
+                  continue;
             if (value)
               {
                 gchar *escaped = cs_json_escape_string (value);
@@ -382,6 +427,8 @@ properties_to_string (GString      *str,
           {
             gboolean value;
             g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_BOOLEAN (child_properties[i])->default_value)
+              continue;
             g_string_append_printf (str, ",\n");
             INDENT;g_string_append_printf (str,"\"child::%s\":%s",
                                            child_properties[i]->name, value?"true":"false");
@@ -402,6 +449,21 @@ properties_to_string (GString      *str,
             else
               {
               }
+          }
+        else if (g_type_is_a (child_properties[i]->value_type, G_TYPE_ENUM))
+          {
+            gboolean    value;
+            GEnumClass *enum_class;
+            GEnumValue *enum_value;
+
+            enum_class = g_type_class_peek (child_properties[i]->value_type);
+            g_object_get (child_meta, child_properties[i]->name, &value, NULL);
+            if (value == G_PARAM_SPEC_ENUM (child_properties[i])->default_value)
+              continue;
+            enum_value = g_enum_get_value (enum_class, value);
+            g_string_append_printf (str, ",\n");
+            INDENT;g_string_append_printf (str,"\"%s\":\"%s\"",
+                                           child_properties[i]->name, enum_value->value_nick);
           }
         else
           {

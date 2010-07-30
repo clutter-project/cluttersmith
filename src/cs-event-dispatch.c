@@ -493,8 +493,13 @@ void cs_set_current_container (ClutterActor *actor)
  */
 ClutterActor *cs_get_current_container (void)
 {
+#ifdef COMPILEMODULE
+  if (!cs->current_container)
+    return clutter_actor_get_stage (cs->parasite_root);
+#else
   if (!cs->current_container)
     return cs->fake_stage;
+#endif
   return cs->current_container;
 }
 

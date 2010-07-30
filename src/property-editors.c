@@ -222,10 +222,10 @@ ClutterActor *property_editor_new (GObject *object,
         uc->update_editor_handler = g_signal_connect (object, detailed_signal,
                                     G_CALLBACK (update_editor_boolean), uc);
       if ((pspec->flags & G_PARAM_WRITABLE))
-      uc->update_object_handler =
-        g_signal_connect_data (MX_BUTTON (editor), "clicked",
-                             G_CALLBACK (update_object_boolean), uc,
-                             update_closure_free, 0);
+        uc->update_object_handler =
+          g_signal_connect_data (MX_BUTTON (editor), "clicked",
+                               G_CALLBACK (update_object_boolean), uc,
+                               update_closure_free, 0);
       update_editor_boolean (object, pspec, uc);
       
       g_object_weak_ref (object, object_vanished, uc);
@@ -307,6 +307,13 @@ props_populate (ClutterActor *container,
         }
 
       if (!(properties[i]->flags & G_PARAM_READABLE))
+        skip = TRUE;
+
+      /* XXX should not be needed */
+      if (!g_strcmp0 (properties[i]->name, "subtitle-font-desc")||
+          !g_strcmp0 (properties[i]->name, "subtitle-font-name")||
+          !g_strcmp0 (properties[i]->name, "user-agent")
+          )
         skip = TRUE;
 
       if (skip)

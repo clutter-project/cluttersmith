@@ -18,8 +18,6 @@
   "x-fill":false,
   "y-fill":false,
   
-  
-  "transition-duration":120,
   "children":[
   {
     "type":"ClutterText",

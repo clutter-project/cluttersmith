@@ -123,6 +123,9 @@ static void load_project (void)
 
       if (g_file_test (args.root_path, G_FILE_TEST_IS_REGULAR))
         {
+          if (strrchr (fullpath, '/'))
+           *(strrchr (fullpath, '/'))='\0';
+
           cluttersmith_set_project_root (fullpath);
           if (strrchr (bname, '.'))
             *strrchr (bname, '.') = '\0';
@@ -133,6 +136,7 @@ static void load_project (void)
         {
           gchar *fullpath = realpath (args.root_path, NULL);
           cluttersmith_set_project_root (fullpath);
+          cluttersmith_load_scene ("index");
           free (fullpath);
         }
       else

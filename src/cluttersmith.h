@@ -161,7 +161,7 @@ void cs_save (gboolean force);
                 "const GLib = imports.gi.GLib;\n"\
                 "const Lang = imports.lang;\n"\
                 "const Mainloop = imports.mainloop;\n"\
-                "function $(id) {return CS.get_actor(id);}"
+                "function $(id) {return CS.get_object(id);}"
 
 MxMenu *cs_menu_new (void);
 

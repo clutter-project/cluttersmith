@@ -87,7 +87,6 @@ static void cs_context_set_property (GObject      *object,
 
 static void project_root_text_changed (ClutterActor *actor);
 static void state_machine_name_changed (ClutterActor *actor);
-static void project_title_text_changed (ClutterActor *actor);
 static void scene_title_text_changed (ClutterActor *actor);
 
 static void
@@ -141,6 +140,7 @@ cs_context_class_init (CSContextClass *klass)
 }
 
 
+static gboolean scenes_combo_box_update (void);
 
 static void
 cs_context_init (CSContext *self)
@@ -198,67 +198,74 @@ void stage_size_changed (ClutterActor *stage, gpointer ignored, ClutterActor *bi
 static gboolean has_chrome = TRUE;
 static void cluttsmith_show_chrome (void)
 {
+#ifndef COMPILEMODULE
   gfloat x, y;
+#endif
   if (!cs->parasite_ui)
     return;
+  clutter_actor_show (cs->parasite_ui);
+#ifndef COMPILEMODULE
   clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "fake-stage-rect"), &x, &y);
 
   /* move fake_stage and canvas into a single group that is transformed? */
 #if 1
-    clutter_actor_set_position (cs->fake_stage, 
-      x-cs->priv->origin_x,
-      y-cs->priv->origin_y);
-    clutter_actor_set_position (cs->fake_stage_canvas, 
-      x-cs->priv->origin_x,
-      y-cs->priv->origin_y);
+  clutter_actor_set_position (cs->fake_stage, 
+    x-cs->priv->origin_x,
+    y-cs->priv->origin_y);
+  clutter_actor_set_position (cs->fake_stage_canvas, 
+    x-cs->priv->origin_x,
+    y-cs->priv->origin_y);
 #else
-    clutter_actor_animate (cs->fake_stage_canvas, CLUTTER_LINEAR, 100,
-      "x", x-cs->priv->origin_x, "y", y-cs->priv->origin_y, NULL);
-    clutter_actor_animate (cs->fake_stage, CLUTTER_LINEAR, 100,
-      "x", x-cs->priv->origin_x, "y", y-cs->priv->origin_y, NULL);
+  clutter_actor_animate (cs->fake_stage_canvas, CLUTTER_LINEAR, 100,
+    "x", x-cs->priv->origin_x, "y", y-cs->priv->origin_y, NULL);
+  clutter_actor_animate (cs->fake_stage, CLUTTER_LINEAR, 100,
+    "x", x-cs->priv->origin_x, "y", y-cs->priv->origin_y, NULL);
 #endif
 
 
-    clutter_actor_show (cs->parasite_ui);
+  /* Workaround for ClutterScript / json not obeying the x-fill
+   * specified in cluttersmith.json
+   */
+    {
+      gboolean x_fill;
+      g_object_get (cs->parasite_ui, "x-fill", &x_fill, NULL);
+      if (!x_fill)
+        {
+          g_print ("Warning: Forcing x-fill property of #parasite-ui\n");
+          g_object_set (cs->parasite_ui, "x-fill", TRUE, NULL);
+        }
+    }
+  clutter_actor_set_scale (cs->fake_stage, cs->priv->zoom/100.0,
+                                                     cs->priv->zoom/100.0);
 
-    /* Workaround for ClutterScript / json not obeying the x-fill
-     * specified in cluttersmith.json
-     */
-      {
-        gboolean x_fill;
-        g_object_get (cs->parasite_ui, "x-fill", &x_fill, NULL);
-        if (!x_fill)
-          {
-            g_print ("Warning: Forcing x-fill property of #parasite-ui\n");
-            g_object_set (cs->parasite_ui, "x-fill", TRUE, NULL);
-          }
-      }
-    clutter_actor_set_scale (cs->fake_stage, cs->priv->zoom/100.0,
-                                                       cs->priv->zoom/100.0);
+  clutter_actor_set_scale (cs->fake_stage_canvas, cs->priv->zoom/100.0,
+                                                     cs->priv->zoom/100.0);
 
-    clutter_actor_set_scale (cs->fake_stage_canvas, cs->priv->zoom/100.0,
-                                                       cs->priv->zoom/100.0);
+#endif
+  has_chrome = TRUE;
+}
 
-    has_chrome = TRUE;
-  }
+gfloat cluttersmith_get_origin_x (void)
+{
+  return cs->priv->origin_x;
+}
 
-  gfloat cluttersmith_get_origin_x (void)
-  {
-    return cs->priv->origin_x;
-  }
+gfloat cluttersmith_get_origin_y (void)
+{
+  return cs->priv->origin_y;
+}
 
-  gfloat cluttersmith_get_origin_y (void)
-  {
-    return cs->priv->origin_y;
-  }
+static void cluttsmith_hide_chrome (void)
+{
+#ifndef COMPILEMODULE
+  gfloat x, y;
+#endif
+  if (!cs->parasite_ui)
+    return;
 
-  static void cluttsmith_hide_chrome (void)
-  {
-    gfloat x, y;
-    if (!cs->parasite_ui)
-      return;
-    clutter_actor_hide (cs->parasite_ui);
-    clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "fake-stage-rect"), &x, &y);
+  clutter_actor_hide (cs->parasite_ui);
+#ifndef COMPILEMODULE
+  clutter_actor_get_transformed_position (cs_find_by_id_int (clutter_actor_get_stage (cs->parasite_root), "fake-stage-rect"), &x, &y);
 
 #if 1
   clutter_actor_set_position (cs->fake_stage, 
@@ -281,6 +288,7 @@ static void cluttsmith_show_chrome (void)
 
   clutter_actor_set_scale (cs->fake_stage_canvas, cs->priv->zoom/100.0,
                                                      cs->priv->zoom/100.0);
+#endif
 
   has_chrome = FALSE;
 }
@@ -296,9 +304,11 @@ static gboolean cs_sync_chrome_idle (gpointer data)
     return FALSE;
   if (!cs->fake_stage_canvas)
     return FALSE;
+#ifndef COMPILEMODULE
   clutter_actor_set_size (cs->fake_stage_canvas,
                           cs->priv->canvas_width,
                           cs->priv->canvas_height);
+#endif
   if (cs->ui_mode & CS_UI_MODE_UI)
     {
       cluttsmith_show_chrome ();
@@ -416,10 +426,13 @@ static void page_run_start (void)
 
       len = strlen (code);
 
-      g_assert (cs->priv->page_js_context == NULL);
-      cs->priv->page_js_context = gjs_context_new_with_search_path(NULL);
-      gjs_context_eval(cs->priv->page_js_context, (void*)code, len,
-  "<code>", NULL, NULL);
+      //g_assert (cs->priv->page_js_context == NULL);
+      if (!cs->priv->page_js_context)
+        {
+          cs->priv->page_js_context = gjs_context_new_with_search_path(NULL);
+          gjs_context_eval(cs->priv->page_js_context, (void*)code, len,
+      "<code>", NULL, NULL);
+        }
       if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
         {
            g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
@@ -453,12 +466,6 @@ static void page_run_start (void)
 
 static void page_run_end (void)
 {
-  if (cs->priv->page_js_context)
-    {
-      g_object_unref (cs->priv->page_js_context);
-      cs->priv->page_js_context = NULL;
-    }
-
 }
 
 static void browse_start (void)
@@ -735,6 +742,211 @@ runtime_capture (ClutterActor *actor,
   return FALSE;
 }
 
+static gboolean project_combo_box_update (void)
+{
+  gint j;
+  gint found_project = -1;
+
+  g_assert (cs->project_title);
+
+  /* XXX: evil emptying of combo-boxes */
+  for (j=0; j<40; j++)
+    mx_combo_box_remove_text (MX_COMBO_BOX (cs->project_title), 0);
+
+    {
+  gchar *config_path = cs_make_config_file ("session-history");
+  gchar *original = NULL;
+
+  if (g_file_get_contents (config_path, &original, NULL, NULL))
+    {
+      gint j=0;
+      gchar *start, *end;
+      start=end=original;
+      while (*start)
+        {
+          end = strchr (start, '\n');
+          if (*end)
+            {
+              *end = '\0';
+              mx_combo_box_append_text (MX_COMBO_BOX (cs->project_title), start);
+              /* XXX: if (cs->current_project_title &&
+                  g_str_equal (cs->current_project_title, i->data))
+                found_project = j; */
+              start = end+1;
+            }
+          else
+            {
+              start = end;
+            }
+          j++;
+        }
+      g_free (original);
+    }
+  }
+
+  if (j == 0)
+    found_project = 0;
+
+  /*if (found_project == -1 && cs->current_target_state == NULL)
+    {
+      found_project = j;
+    }*/
+
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->project_title), " - new - ");
+  if (found_project > -1)
+    mx_combo_box_set_index (MX_COMBO_BOX (cs->project_title), found_project);
+
+  return FALSE;
+}
+
+static void create_new_project (ClutterText *text)
+{
+  const gchar * new_title = clutter_text_get_text (text);
+  gchar *path;
+
+  path = g_strdup_printf ("%s/cluttersmith/%s",
+                          g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+                          new_title);
+  cluttersmith_set_project_root (path);
+  g_free (path);
+  project_combo_box_update ();
+  scenes_combo_box_update ();
+}
+
+static gboolean title_frozen = FALSE;
+
+static void project_title_changed (MxComboBox *combo_box,
+                                   GParamSpec *pspec,
+                                   gpointer    data)
+{
+  const gchar *new_title = mx_combo_box_get_active_text (combo_box);
+
+  if (title_frozen)
+    return;
+
+  if (!new_title)
+    return;
+
+  if (new_title && g_str_equal (new_title, " - new - "))
+    {
+      gfloat x, y;
+      /* modal text entry box, with possibility of abort? */
+      /* edit a fake ClutterText.. */
+      clutter_actor_get_transformed_position (CLUTTER_ACTOR (combo_box), &x, &y);
+      cs_modal_editor (x, y,
+        clutter_actor_get_width (CLUTTER_ACTOR (combo_box)),
+        clutter_actor_get_height (CLUTTER_ACTOR (combo_box)),
+        "",
+        create_new_project);
+      return;
+    }
+
+  cluttersmith_set_project_root (new_title);
+  scenes_combo_box_update ();
+}
+
+
+
+static gboolean scenes_combo_box_update (void)
+{
+  gint j;
+  gint found_project = -1;
+
+  if (!cs->scene_title2)
+    return FALSE;
+
+  g_assert (cs->project_title);
+
+  /* XXX: evil emptying of combo-boxes */
+  for (j=0; j<40; j++)
+    mx_combo_box_remove_text (MX_COMBO_BOX (cs->scene_title2), 0);
+
+
+  {
+    GDir *dir;
+    const gchar *path = cs_get_project_root ();
+    const gchar *name;
+
+    if (!path)
+      return FALSE;
+
+    dir = g_dir_open (path, 0, NULL);
+
+    while ((name = g_dir_read_name (dir)))
+      {
+        gchar *name2;
+        if (!g_str_has_suffix (name, ".json"))
+          continue;
+        name2 = g_strdup (name);
+        *strstr (name2, ".json")='\0';
+
+        mx_combo_box_append_text (MX_COMBO_BOX (cs->scene_title2), name2);
+        g_free (name2);
+      }
+    g_dir_close (dir);
+  }
+
+  if (j == 0)
+    found_project = 0;
+
+  /*if (found_project == -1 && cs->current_target_state == NULL)
+    {
+      found_project = j;
+    }*/
+
+  mx_combo_box_append_text (MX_COMBO_BOX (cs->scene_title2), " - new - ");
+  if (found_project > -1)
+    mx_combo_box_set_index (MX_COMBO_BOX (cs->scene_title2), found_project);
+
+  return FALSE;
+}
+
+static void create_new_scene (ClutterText *text)
+{
+  const gchar * new_title = clutter_text_get_text (text);
+  gchar *path;
+
+  path = g_strdup_printf ("%s/cluttersmith/%s",
+                          g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+                          new_title);
+  cluttersmith_set_project_root (path);
+  g_free (path);
+  scenes_combo_box_update ();
+}
+
+static void scene_changed (MxComboBox *combo_box,
+                           GParamSpec *pspec,
+                           gpointer    data)
+{
+  const gchar *new_title = mx_combo_box_get_active_text (combo_box);
+
+  if (title_frozen)
+    return;
+
+  if (!new_title)
+    return;
+
+  g_print ("go scene %s\n", new_title);
+
+  if (new_title && g_str_equal (new_title, " - new - "))
+    {
+      gfloat x, y;
+      /* modal text entry box, with possibility of abort? */
+      /* edit a fake ClutterText.. */
+      clutter_actor_get_transformed_position (CLUTTER_ACTOR (combo_box), &x, &y);
+      cs_modal_editor (x, y,
+        clutter_actor_get_width (CLUTTER_ACTOR (combo_box)),
+        clutter_actor_get_height (CLUTTER_ACTOR (combo_box)),
+        "",
+        create_new_scene);
+      return;
+    }
+
+  cluttersmith_load_scene (new_title);
+}
+
+
+
 
 /**
  * cluttersmith_init:
@@ -756,23 +968,31 @@ void cluttersmith_init (void)
   cs->project_root_entry = _A("project-root");
   cs->project_title = _A("cs-project-title");
   cs->scene_title = _A("cs-scene-title");
+  cs->scene_title2 = _A("cs-scene-title2");
 
   g_object_set_data_full (G_OBJECT (actor), "clutter-script", script, g_object_unref);
 
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_root_entry)),
    "text-changed", G_CALLBACK (project_root_text_changed), NULL);
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_title)),
-   "text-changed", G_CALLBACK (project_title_text_changed), NULL);
+
+
+  g_signal_connect (cs->project_title,
+   "notify::index", G_CALLBACK (project_title_changed), NULL);
+  if (cs->scene_title2)
+    g_signal_connect (cs->scene_title2,
+                      "notify::index", G_CALLBACK (scene_changed), NULL);
+
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->scene_title)),
    "text-changed", G_CALLBACK (scene_title_text_changed), NULL);
 
-  cs_set_active (clutter_actor_get_stage(cs->parasite_root));
 
   cs->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
   /* initializing globals */
 
   /* this is the main initialization */
   g_signal_connect (stage, "captured-event", G_CALLBACK (runtime_capture), NULL);
+
+  g_signal_connect (stage, "delete-event", G_CALLBACK (clutter_main_quit), NULL);
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   clutter_actor_show (stage);
   clutter_actor_paint (stage);
@@ -957,19 +1177,23 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   ClutterScript *script;
 
   cs = cs_context_new ();
-  mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "cluttersmith.css", NULL);
+  mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "style/cluttersmith.css", NULL);
 
-/*#ifdef COMPILEMODULE
+#ifdef COMPILEMODULE
   actor = cs_load_json (PKGDATADIR "cluttersmith-assistant.json");
-#else*/
+  clutter_script_load_from_file (cs_get_script (actor),  PKGDATADIR "cs-sidebar-assistant.json", NULL);
+#else
   actor = cs_load_json (PKGDATADIR "cluttersmith.json");
- /*#endif*/
+  clutter_script_load_from_file (cs_get_script (actor),  PKGDATADIR "cs-sidebar.json", NULL);
+#endif
+  clutter_script_load_from_file (cs_get_script (actor),  PKGDATADIR "cs-toolbar.json", NULL);
+  clutter_script_load_from_file (cs_get_script (actor),  PKGDATADIR "cs-animator.json", NULL);
+  clutter_script_load_from_file (cs_get_script (actor),  PKGDATADIR "cs-overlay.json", NULL);
+  clutter_script_connect_signals (cs_get_script (actor), cs_get_script (actor));
+
 
   g_object_set_data (G_OBJECT (actor), "clutter-smith", (void*)TRUE);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
-
-   //g_print ("%s", json_serialize_subtree (actor));
-   //exit (1);
 
   g_signal_connect_after (stage, "paint", G_CALLBACK (cs_overlay_paint), NULL);
   clutter_threads_add_repaint_func (update_overlay_positions, stage, NULL);
@@ -993,6 +1217,7 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   cs->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
+#ifndef COMPILEMODULE
   {
     if (cs->parasite_ui)
       {
@@ -1002,7 +1227,7 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
         stage_size_changed (stage, NULL, cs->parasite_ui);
       }
   }
-
+#endif
 
   cs->fake_stage_canvas = _A("fake-stage-canvas");
   cs->project_root_entry = _A("project-root");
@@ -1022,6 +1247,7 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->dialog_states = _A("cs-dialog-states");
   cs->project_title = _A("cs-project-title");
   cs->scene_title = _A("cs-scene-title");
+  cs->scene_title2 = _A("cs-scene-title2");
   cs->dialog_config = _A("cs-dialog-config");
   cs->dialog_tree = _A("cs-dialog-tree");
   cs->dialog_toolbar = _A("cs-dialog-toolbar");
@@ -1052,8 +1278,12 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
    "text-changed", G_CALLBACK (project_root_text_changed), NULL);
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->state_machine_name)),
    "text-changed", G_CALLBACK (state_machine_name_changed), NULL);
-  g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->project_title)),
-   "text-changed", G_CALLBACK (project_title_text_changed), NULL);
+  g_signal_connect (cs->project_title,
+   "notify::index", G_CALLBACK (project_title_changed), NULL);
+
+  g_signal_connect (cs->scene_title2,
+   "notify::index", G_CALLBACK (scene_changed), NULL);
+
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->scene_title)),
    "text-changed", G_CALLBACK (scene_title_text_changed), NULL);
 
@@ -1067,7 +1297,7 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
 
   /* XXX: all of this should be in the json */
   cs->cs_mode = CLUTTER_ACTOR (clutter_script_get_object (script, "cs-mode"));
-
+#ifndef COMPILEMODULE
   mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Browse (F1)");
   mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Annotate (F2)");
   mx_combo_box_append_text (MX_COMBO_BOX (cs->cs_mode), "Sketch (F3)");
@@ -1081,8 +1311,16 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   mx_combo_box_set_index (MX_COMBO_BOX (cs->cs_mode), 0);
 
   g_signal_connect (cs->cs_mode, "notify::index", G_CALLBACK (mode_switch), NULL);
+#else
+  clutter_actor_hide (cs->cs_mode);
+#endif
 
   init_types ();
+  project_combo_box_update ();
+  scenes_combo_box_update ();
+#ifdef COMPILEMODULE
+  cs_set_ui_mode (CS_UI_MODE_BROWSE);
+#endif
   return FALSE;
 }
 
@@ -1141,7 +1379,9 @@ update_id (ClutterText *text,
   const gchar *stem;
   stem = clutter_text_get_text (text);
   clutter_scriptable_set_id (CLUTTER_SCRIPTABLE (data), stem);
+#ifndef COMPILEMODULE
   cs_actor_make_id_unique (data, stem);
+#endif
   set = clutter_scriptable_get_id (data);
   if (!g_str_equal (stem, set))
     {
@@ -1363,14 +1603,17 @@ void cs_set_active (ClutterActor *item)
 static void
 ensure_unique_ids (ClutterActor *start)
 {
+#ifndef COMPILEMODULE
   GList *children = cs_container_get_children_recursive (CLUTTER_CONTAINER (start));
   GList *c;
+
   for (c = children; c; c = c->next)
     {
       cs_actor_make_id_unique (c->data, NULL);
     }
 
   g_list_free (children);
+#endif
 }
 
 gchar *
@@ -1433,6 +1676,9 @@ void cs_save (gboolean force)
   /* Save if we've changed */
   if (!cs->fake_stage)
     return;
+#ifdef COMPILEMODULE
+  return;
+#endif
 
   if (filename)
     {
@@ -1479,10 +1725,10 @@ static void parsed_callback (const gchar *id,
   GList *callbacks;
   ClutterActor *actor;
 
-  actor = cluttersmith_get_actor (id);
+  actor = CLUTTER_ACTOR (cluttersmith_get_object (id));
   if (!actor)
     {
-      g_warning ("didnt find actor %s", id);
+      g_print ("didnt find actor %s dropping callback for %s", id, signal);
       return;
     }
 
@@ -1787,7 +2033,6 @@ static void cs_load (void)
             {
               gchar *p = (void*)js;
               gchar *end = p;
-              g_print ("loaded: %s\n", scriptfilename);
               gint lineno=0;
               while (*p)
                 {
@@ -1866,8 +2111,6 @@ static void cs_load (void)
                   p++;
                 }
 
-              g_print ("end:{%s}\n", end);
-              
               if (cs->dialog_editor_text)
                 clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_text), (gchar*)end);
               g_free (js);
@@ -1896,8 +2139,6 @@ static void cs_load (void)
 
 
 
-static gboolean title_frozen = FALSE;
-
 /**
  * cluttersmith_set_project_root:
  * @new_root: new root
@@ -1918,6 +2159,7 @@ void cluttersmith_set_project_root (const gchar *new_root)
     g_free (filename);
   filename = g_strdup_printf ("%s/%s.json", cs_get_project_root(),
                               "index");
+  scenes_combo_box_update ();
 }
 
 gchar *cs_get_project_root (void)
@@ -1940,7 +2182,6 @@ void cs_set_current_state_machine (ClutterState *state_machine)
   cs->current_state_machine = state_machine;
   //cs_state_machine_editor_set_state_machine (CS_ANIMATOR_EDITOR (cs->state_machine_editor), state_machine);
 }
-
 
 static void state_machine_name_changed (ClutterActor *actor)
 {
@@ -1981,7 +2222,7 @@ static void state_machine_name_changed (ClutterActor *actor)
 static void project_root_text_changed (ClutterActor *actor)
 {
   const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
-  const gchar *project_title;
+//const gchar *project_title;
   title_frozen = TRUE;
   if (cs->project_root)
     g_free (cs->project_root);
@@ -1990,6 +2231,7 @@ static void project_root_text_changed (ClutterActor *actor)
   if (!new_text)
     return;
 
+#if 0
   project_title = strrchr (new_text, '/');
   if (project_title)
     {
@@ -2001,22 +2243,8 @@ static void project_root_text_changed (ClutterActor *actor)
       mx_entry_set_text (MX_ENTRY (cs->project_title),
                                    "-");
     }
+#endif
   title_frozen = FALSE;
-}
-
-static void project_title_text_changed (ClutterActor *actor)
-{
-  const gchar *new_title = clutter_text_get_text (CLUTTER_TEXT (actor));
-  gchar *path;
-
-  if (title_frozen)
-    return;
-
-  path = g_strdup_printf ("%s/cluttersmith/%s",
-                          g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
-                          new_title);
-  cluttersmith_set_project_root (path);
-  g_free (path);
 }
 
 static void scene_title_text_changed (ClutterActor *actor)
@@ -2029,3 +2257,20 @@ static void scene_title_text_changed (ClutterActor *actor)
   cs_context_set_scene (cs, new_title);
   title_frozen = FALSE;
 }
+
+void cs_link_text_changed (ClutterActor *actor)
+{
+  static gboolean in = FALSE;
+  const gchar *new_text;
+  new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
+
+  if (!in)
+    {
+      in = TRUE;
+      gchar *new_link = g_strdup_printf ("link=%s", new_text);
+      clutter_actor_set_name (clutter_actor_get_parent (actor), new_link);
+      mx_button_set_label (MX_BUTTON (clutter_actor_get_parent (actor)), new_text);
+      in = FALSE;
+    }
+}
+

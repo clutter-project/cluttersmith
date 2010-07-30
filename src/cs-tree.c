@@ -243,8 +243,8 @@ cs_tree_populate_iter (ClutterActor *current_container,
   ClutterActor *label;
 
   if (iter == NULL ||
-#ifdef EDIT_SELF
-      cs_actor_has_ancestor (iter, cs->scene_graph)
+#ifdef COMPILEMODULE
+      cs_actor_has_ancestor (iter, cs->parasite_root)
 #else
       !cs_actor_has_ancestor (iter, cs->fake_stage)
 #endif
@@ -264,7 +264,19 @@ cs_tree_populate_iter (ClutterActor *current_container,
 
                        //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",
 
-  label = clutter_text_new_with_text ("Liberation " FONTSIZE, clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (iter)));
+  {
+    const gchar *id = clutter_scriptable_get_id (CLUTTER_SCRIPTABLE (iter));
+    if (id && *id)
+      label = clutter_text_new_with_text ("Liberation " FONTSIZE, id);
+    else
+      {
+        id = clutter_actor_get_name (iter);
+        if (id && *id)
+          label = clutter_text_new_with_text ("Liberation " FONTSIZE, id);
+        else
+          label = clutter_text_new_with_text ("Liberation " FONTSIZE, G_OBJECT_TYPE_NAME (iter));
+      }
+  }
 
   clutter_actor_set_anchor_point (label, -INDENT, 0.0);
   if (iter == active_actor)
@@ -319,13 +331,20 @@ cs_tree_populate_iter (ClutterActor *current_container,
 
 void
 cs_tree_populate (ClutterActor *scene_graph,
-                            ClutterActor *active_actor)
+                  ClutterActor *active_actor)
 {
   gint level = 0;
   gint count = 0;
   cs_container_remove_children (scene_graph);
-#ifdef EDIT_SELF
-  cs_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
+#ifdef COMPILEMODULE
+  if (active_actor)
+    {
+      cs_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (active_actor), &level, &count);
+    }
+  else
+    {
+      cs_tree_populate_iter (scene_graph, active_actor, clutter_actor_get_stage (scene_graph), &level, &count);
+    }
 #else
   cs_tree_populate_iter (scene_graph, active_actor, cs->fake_stage, &level, &count);
 #endif

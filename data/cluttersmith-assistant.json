@@ -1,173 +1,88 @@
-{"type":"ClutterGroup",
- "width":1,
- "height":1,
- "id":"parasite",
- "children":[
-{"type":"ClutterGroup",
- "id":"parasite-ui",
- "x-fill":true,
- "y-fill":true,
-
- "children":
-  [
-   {"type":"ClutterGroup",
-      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
-      "children":
-        [
-
-     {
-     "id":"toolbar",
-     "type":"MxBoxLayout",
-     "style-class":"parasite",
-     "orientation":"vertical",
-     "reactive":true,
-     "width":300,
-     "spacing":9,
-     "x":0,
-     "y":0,
-     
-     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
-      
-      "children":
-        [
-
-          { "type":"MxGrid",
-            "column-spacing": 2.0,
-            "style-class":"ParasiteToolbar",
-            "children":
-              [
-
-                { "type":"MxButton",
-                  "label":"⿻",
-                  "signals": [ {"name":"clicked", "handler":"cs_copy"} ] }
-                { "type":"MxButton",
-                  "label":"✂",
-                  "signals": [ {"name":"clicked", "handler":"cs_cut"} ] }
-                { "type":"MxButton",
-                  "label":"⟴",
-                  "signals": [ {"name":"clicked", "handler":"cs_paste"} ] }
-
-                { "type":"MxButton",
-                  "label":"Ꙭ",
-                  "signals": [ {"name":"clicked", "handler":"cs_duplicate"} ] }
-                { "type":"MxButton",
-                  "label":"×",
-                  "signals": [ {"name":"clicked", "handler":"cs_remove"} ] }
-                { "type":"MxButton",
-                  "label":"⤒",
-                  "signals": [ {"name":"clicked", "handler":"cs_raise_top"} ] }
-                { "type":"MxButton",
-                  "label":"↥",
-                  "signals": [ {"name":"clicked", "handler":"cs_raise"} ] }
-                { "type":"MxButton",
-                  "label":"↧",
-                  "signals": [ {"name":"clicked", "handler":"cs_lower"} ] }
-                { "type":"MxButton",
-                  "label":"⤓",
-                  "signals": [ {"name":"clicked", "handler":"cs_lower_bottom"} ] }
-                { "type":"MxButton",
-                  "label":"⨀", 
-                  "signals": [ {"name":"clicked", "handler":"cs_reset_size"} ] }
+{
+  "type":"ClutterGroup",
+  "width":1,
+  "height":1,
+  "id":"parasite",
+  "children":[
+    {
+      "type":"ClutterRectangle",
+      "id":"fake-stage-canvas"
+    },
+    {
+      "type":"ClutterGroup",
+      "id":"fake-stage",
+      "width":1,
+      "height":1,
+      "children":[
+      ]
+    },
+    {
+      "type":"ClutterGroup",
+      "width":1,
+      "height":1,
+      "id":"parasite-root",
+      "children":[
+        {
+          "type":"MxFrame",
+          "id":"parasite-ui",
+          "reactive":true,
+          "height":500,
+          "x-fill":true,
+          "y-fill":true,
+          "children":[
+            {
+              "type":"MxBoxLayout",
+              "orientation":"vertical",
+              "signals":[
+                {
+                  "name":"pick",
+                  "handler":"parasite_pick"
+                }
               ],
-          },
-
-         { "type":"MxBoxLayout", 
-           "children":[
-            { "type":"ClutterText", "width":130, "height":24, "text":"type", "color":"white", "font-name":"Sans 12px",
-            },
-
-            { "type":"MxButton", "width":130, "height":24,
-              "children":[{"type":"ClutterText", "id":"name", "text":"-"}]
-              "signals": [ {"name":"clicked", "handler":"cb_change_type"} ] 
-            },
-              ]}
-
-          { "type":"MxScrollView",
-            "width":300,
-            "height":220,
-            "children":
-             [
-               { "type":"MxViewport",
-                 "children":
-                  [
-                    { "type":"MxBoxLayout", "orientation":"vertical",
-                       "children":[
-
-                         {"type":"MxBoxLayout", "orientation":"vertical", "id":"property-editors",
-                          "spacing":2},
-
-                         {"type":"ClutterText", "color":"gray", "text":"ancestors:"},
-                         { "type":"MxGrid",  "id":"parents", "column-spacing":2, "row-spacing":2, "width":270
-                           "children":[
-                           ]
-                         }
-
-
-                       ]
-                     }
+              "children":[
+                {
+                  "name":"toolbar",
+                  "height":20,
+                  "type":"MxBoxLayout",
+                  "spacing":1
+                },
+                {
+                  "type":"MxBoxLayout",
+                  "signals":[
+                    {
+                      "name":"pick",
+                      "handler":"parasite_pick"
+                    }
+                  ],
+                  "child::expand":true,
+                  "children":[
+                    {
+                      "type":"MxScrollView",
+                      "id":"cs-sidebar",
+                      "height":300
+                    }
                   ]
-               }
-            ]
-          }
-          { "type":"MxScrollView",
-            "width":300,
-            "height":210,
-            "children":
-             [
-               { "type":"MxViewport",
-                 "children":
-                  [
-                    { "type":"ClutterGroup", "id":"scene-graph",
-                       "children":[
-                         {"type":"ClutterText", "color":"gray", "text":"......"},
-                       ]
-                     }
-                  ]
-               }
-            ]
-          }
-        ]
-      }
-
-     {
-       "type":"ClutterRectangle",
-       "color":"#00000000",
-       "signals": [ {"name":"pick", "handler":"no_pick"},
-                    {"name":"paint", "handler":"parasite_rectangle_init_hack"} 
-                  ] 
-     },
-     {
-     "type":"MxBoxLayout",
-     "style-class":"parasite-paste",
-     "reactive":true,
-     "width":130,
-     "orientation":"vertical",
-     "spacing":9,
-     "x":0,
-     "y":60,
-     
-     "signals": [ {"name":"button-press-event", "handler":"cs_movable_press"} ] 
-      "children":
-        [
-        ]
-      }
-
-     ] }
-]
-      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
-}
-
- {"id":"resize-handle",
-  "type":"ClutterText",
-  "color":"red",
-  "reactive":true,
-  "signals": [ {"name":"button-press-event", "handler":"manipulate_resize_start"} ] 
-  "anchor-gravity":"center",
-  "font-name":"Sans 40px",
-  "text":"⇲"
- }
-
-
-]
-      "signals": [ {"name":"pick", "handler":"parasite_pick"} ] 
+                },
+                {
+                  "name":"toolbar",
+                  "height":20,
+                  "type":"MxBoxLayout",
+                  "spacing":1
+                }
+              ],
+              "signals":[
+                {
+                  "name":"pick",
+                  "handler":"parasite_pick"
+                }
+              ]
+            }
+          ],
+          "signals":[{"name":"button-press-event", "handler":"cs_movable_press"}]
+        },
+    {"id":"cs-overlay",
+     "type":"ClutterGroup"}
+      ]
+    }
+  ]
 }

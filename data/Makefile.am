@@ -1,4 +1,4 @@
-SUBDIRS = templates annotation-templates docs
+SUBDIRS = templates annotation-templates docs style
 
 applicationsdir = $(datadir)/applications
 applications_DATA = cluttersmith.desktop
@@ -8,19 +8,14 @@ icons_DATA = cluttersmith.png
 
 resdir = $(pkgdatadir)
 res_DATA = \
-  button-bg-hover.png \
-  button-bg.png \
-  button-checked-bg.png \
-  entry-bg.png \
-  link-bg.png \
-  cluttersmith.css \
   cluttersmith.json \
+  cs-toolbar.json \
+  cs-sidebar.json \
+  cs-sidebar-assistant.json \
+  cs-animator.json \
+  cs-overlay.json \
   cluttersmith-assistant.json \
-  cluttersmith.png \
-  expander-active.png \
-  expander-arrow-up.png \
-  expander-arrow-up-hover.png \
-  expander-arrow-down.png \
-  expander-arrow-down-hover.png
+  link-bg.png \
+  cluttersmith.png 
 
 EXTRA_DIST = $(icons_DATA) $(applications_DATA) $(res_DATA) 

@@ -927,19 +927,6 @@ ClutterActor *cs_actor_change_type (ClutterActor *actor,
 }
 
 
-/**
- * cluttersmith_get_actor:
- * @id: the id to lookup
- *
- * Return value: (transfer none): the actor if any or NULL
- */
-ClutterActor  *cluttersmith_get_actor (const gchar  *id)
-{
-  ClutterActor *ret;
-  ret = cs_find_by_id (clutter_stage_get_default(), id);
-  return ret;
-}
-
 
 void cluttersmith_print (const gchar *string)
 {
@@ -956,6 +943,27 @@ gint cs_actor_ancestor_depth (ClutterActor *actor)
 
 /* Functions below this line need cluttersmith infrastructure */
 #include "cluttersmith.h"
+
+
+/**
+ * cluttersmith_get_object:
+ * @id: the id to lookup
+ *
+ * Return value: (transfer none): the actor if any or NULL
+ */
+GObject *cluttersmith_get_object (const gchar  *id)
+{
+  if (cs->state_machines)
+    {
+      GList *a;
+      for (a = cs->state_machines; a; a=a->next)
+          if (!g_strcmp0 (clutter_scriptable_get_id (a->data), id))
+            return a->data;
+    }
+
+  return (void*)cs_find_by_id (clutter_stage_get_default(), id);
+}
+
 
 static void get_all_actors_int (GList         **list,
                                 ClutterActor   *actor,
@@ -1240,7 +1248,7 @@ void cs_properties_restore_defaults (void)
   GHashTableIter iter;
   gpointer key, value;
   cs_properties_init ();
-  g_print ("re-Storing defaults\n");
+  g_print ("restoring defaults\n");
 
   g_hash_table_iter_init (&iter, default_values_ht);
   while (g_hash_table_iter_next (&iter, &key, &value))
@@ -1356,7 +1364,9 @@ again:
             }
         }
     }
+#ifndef COMPILEMODULE
   clutter_scriptable_set_id (scriptable, str->str);
+#endif
 
   g_list_free (actors);
   g_string_free (str, TRUE);

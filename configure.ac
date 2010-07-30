@@ -45,5 +45,6 @@ data/Makefile
 data/templates/Makefile
 data/annotation-templates/Makefile
 data/docs/Makefile
+data/style/Makefile
 ])
 AC_OUTPUT

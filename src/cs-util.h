@@ -153,6 +153,7 @@ cs_bind_full (GObject     *objectA,
               gpointer     a_post_changed_userdata);
 
 void cluttersmith_print (const gchar *string);
+GObject *cluttersmith_get_object (const gchar  *id);
 
 
 void

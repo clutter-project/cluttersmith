@@ -1,17 +1,10 @@
-[{
+[
+{
   "type":"ClutterGroup",
   "id":"actor",
-  "x":0,
-  "y":0,
   "width":361,
   "height":403,
-  "depth":0.000,
   "opacity":255,
-  "scale-x":1.000,
-  "scale-y":1.000,
-  "rotation-angle-z":0.000,
-  "anchor-x":0.000,
-  "anchor-y":0.000,
   "children":[
     {
       "type":"ClutterText",
@@ -20,13 +13,7 @@
       "y":28,
       "width":335,
       "height":428,
-      "depth":0.000,
       "opacity":255,
-      "scale-x":1.000,
-      "scale-y":1.000,
-      "rotation-angle-z":0.000,
-      "anchor-x":0.000,
-      "anchor-y":0.000,
       "font-name":"Sans 8",
       "text":"Launching:
 cluttersmith [-fs] [path to working dir or json file]
@@ -54,21 +41,13 @@ Keybindings:
  
   F1-F9  - Switch between predefined modes for the sidebar ui groups, see names in toolbar combobox for details.",
       "color":"#000000ff",
-      "use-markup":false,
       "line-wrap":true,
-      "justify":false,
-      "position":-1,
       "selection-bound":473,
       "selection-color":"#000000ff",
-      "cursor-visible":true,
       "cursor-color":"#000000ff",
-      "cursor-size":2,
       "editable":false,
-      "selectable":true,
       "activatable":false,
-      "password-char":0,
-      "max-length":0,
-      "single-line-mode":false
+      "password-char":0
     }
     ,
     {
@@ -78,13 +57,7 @@ Keybindings:
       "y":28,
       "width":325,
       "height":316,
-      "depth":0.000,
       "opacity":255,
-      "scale-x":1.000,
-      "scale-y":1.000,
-      "rotation-angle-z":0.000,
-      "anchor-x":0.000,
-      "anchor-y":0.000,
       "font-name":"Sans 8",
       "text":"Mouse:
 
@@ -100,21 +73,12 @@ drag with middle mouse on canvas to pan, click to zoom (shift to zoom out). Whee
 
 double click selected item to edit it (or follow hyper link when in editing mode).",
       "color":"#000000ff",
-      "use-markup":false,
       "line-wrap":true,
-      "justify":false,
-      "position":-1,
-      "selection-bound":-1,
       "selection-color":"#000000ff",
-      "cursor-visible":true,
       "cursor-color":"#000000ff",
-      "cursor-size":2,
       "editable":false,
-      "selectable":true,
       "activatable":false,
-      "password-char":0,
-      "max-length":0,
-      "single-line-mode":false
+      "password-char":0
     }
     ,
     {
@@ -126,19 +90,9 @@ double click selected item to edit it (or follow hyper link when in editing mode
       "y":377,
       "width":130,
       "height":32,
-      "depth":0.000,
       "opacity":120,
-      "scale-x":1.000,
-      "scale-y":1.000,
-      "rotation-angle-z":0.000,
-      "anchor-x":0.000,
-      "anchor-y":0.000,
-      "disabled":false,
-      "x-fill":false,
-      "y-fill":false,
+      "reactive":true,
       "label":"index",
-      "is-toggle":false,
-      "toggled":false,
       "children":[
         {
           "type":"ClutterText",
@@ -147,31 +101,16 @@ double click selected item to edit it (or follow hyper link when in editing mode
           "y":10,
           "width":104,
           "height":12,
-          "depth":0.000,
           "opacity":255,
-          "scale-x":1.000,
-          "scale-y":1.000,
-          "rotation-angle-z":0.000,
-          "anchor-x":0.000,
-          "anchor-y":0.000,
           "font-name":"Sans 13px",
           "text":"index",
           "color":"#616261ff",
-          "use-markup":false,
           "line-wrap":true,
-          "justify":false,
-          "position":-1,
-          "selection-bound":-1,
           "selection-color":"#000000ff",
-          "cursor-visible":true,
           "cursor-color":"#000000ff",
-          "cursor-size":2,
           "editable":false,
-          "selectable":true,
           "activatable":false,
-          "password-char":0,
-          "max-length":0,
-          "single-line-mode":false
+          "password-char":0
         }
       ]
     }

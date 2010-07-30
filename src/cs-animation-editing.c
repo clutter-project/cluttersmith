@@ -1302,9 +1302,6 @@ static gboolean states_update (void)
 
     }
 
-  if (j == 0)
-    found_target = 0;
-
   if (found_target == -1
       && cs->current_target_state && cs->current_target_state[0]!='\0')
     {
@@ -1355,28 +1352,24 @@ static void state_duration_text_changed (ClutterActor *actor)
     clutter_animator_set_duration (cs->current_animator, atoi (text));
 }
 
-#if 0
 void state_elaborate_clicked (ClutterActor  *actor)
 {
+  /* Need to make id unique */
   ClutterAnimator *animator;
   const gchar *source_state;
-  source_state = mx_entry_get_text (MX_ENTRY (cs->source_state));
-  if (g_str_equal (source_state, "*") ||
-      g_str_equal (source_state, ""))
-    source_state = NULL;
+  source_state = cs->current_source_state;
 
-  animator = cs_states_make_animator (cs->current_state_machine,
+  animator = cs_state_make_animator (cs->current_state_machine,
                                       source_state,
                                       cs->current_target_state);
-  clutter_states_set_animator (cs->current_state_machine,
+  clutter_state_set_animator (cs->current_state_machine,
                                source_state,
                                cs->current_target_state,
                                animator);
   cs->current_animator = animator;
 
-  g_print ("elaborate\n");
+  g_print ("elaborated\n");
 }
-#endif
 
 void state_test_clicked (ClutterActor  *actor)
 {
@@ -1585,34 +1578,36 @@ static void add_new_state (ClutterText *text)
 
   if (cs_state_has_state (cs->current_state_machine, state))
     {
-      clutter_state_change (cs->current_state_machine, state, TRUE);
+      clutter_state_set_state (cs->current_state_machine, state);
       g_print ("This state already existed!");
     }
   else
-    g_print ("no state %s .. (yet)\n", state);
-
-  /* clone the current state to the new one */
-  keys = clutter_state_get_keys (cs->current_state_machine,
-                                 NULL, cs->current_target_state,
-                                 NULL, NULL);
-  for (k = keys; k; k = k->next)
     {
-      ClutterStateKey *key = k->data;
-      GValue value = {0, };
-      GObject *object = clutter_state_key_get_object (key);
-      const gchar *property_name = clutter_state_key_get_property_name (key);
-      GType type = clutter_state_key_get_property_type (key);
-      gdouble pre_delay = clutter_state_key_get_pre_delay (key);
-      gdouble post_delay = clutter_state_key_get_post_delay (key);
-      gulong mode = clutter_state_key_get_mode (key);
+      g_print ("no state %s .. (yet)\n", state);
 
-      g_value_init (&value, type);
-      clutter_state_key_get_value (key, &value);
+      /* clone the current state to the new one */
+      keys = clutter_state_get_keys (cs->current_state_machine,
+                                     NULL, cs->current_target_state,
+                                     NULL, NULL);
+      for (k = keys; k; k = k->next)
+        {
+          ClutterStateKey *key = k->data;
+          GValue value = {0, };
+          GObject *object = clutter_state_key_get_object (key);
+          const gchar *property_name = clutter_state_key_get_property_name (key);
+          GType type = clutter_state_key_get_property_type (key);
+          gdouble pre_delay = clutter_state_key_get_pre_delay (key);
+          gdouble post_delay = clutter_state_key_get_post_delay (key);
+          gulong mode = clutter_state_key_get_mode (key);
 
-      clutter_state_set_key (cs->current_state_machine, NULL, state,
-                             object, property_name, mode, &value, pre_delay, post_delay);
+          g_value_init (&value, type);
+          clutter_state_key_get_value (key, &value);
+
+          clutter_state_set_key (cs->current_state_machine, NULL, state,
+                                 object, property_name, mode, &value, pre_delay, post_delay);
+        }
+      g_list_free (keys);
     }
-  g_list_free (keys);
 
   cs->current_target_state = g_intern_string (state);
 
@@ -1649,7 +1644,7 @@ static void target_state_changed (MxComboBox *combo_box,
 
   cb_blocked ++;
   if (cs_state_has_state (cs->current_state_machine, state))
-    clutter_state_change (cs->current_state_machine, state, TRUE);
+    clutter_state_set_state (cs->current_state_machine, state);
   else
     g_print ("no state %s .. (yet)\n", state);
 

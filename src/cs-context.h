@@ -103,6 +103,7 @@ struct _CSContext
   ClutterActor *project_root_entry;
   ClutterActor *project_title;
   ClutterActor *scene_title;
+  ClutterActor *scene_title2;
 
   ClutterActor *scene_graph;
   ClutterActor *property_editors;
