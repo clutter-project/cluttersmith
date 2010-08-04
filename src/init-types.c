@@ -39,7 +39,6 @@
 
 
 #include <clutter/clutter.h>
-#include <clutter-gst/clutter-gst.h>
 #include <mx/mx.h>
 #include "cs-texture.h"
 
@@ -125,5 +124,4 @@ o(MX_TYPE_WIDGET);
 o(MX_TYPE_SLIDER);
 o(CB_TYPE_TEXTURE);
 o(CB_TYPE_TEXTURE);
-o(CLUTTER_GST_TYPE_VIDEO_TEXTURE);
 }

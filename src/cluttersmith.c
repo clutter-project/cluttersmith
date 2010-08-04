@@ -107,8 +107,6 @@ parse_args (gchar **argv)
   return TRUE;
 }
 
-void gst_init (gpointer, gpointer);
-
 void mode_edit2 (void);
 
 #ifndef COMPILEMODULE
@@ -161,7 +159,6 @@ main (gint    argc,
 {
   ClutterActor *stage;
   ClutterColor  color;
-  gst_init (&argc, &argv);
   clutter_init (&argc, &argv);
 
   if (!parse_args (argv))
