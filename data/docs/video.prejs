@@ -1,0 +1,4 @@
+{
+  let ClutterGST = imports.gi.ClutterGst;
+  ClutterGST.init("");
+}

@@ -157,11 +157,11 @@ void cs_save (gboolean force);
 
 #define JS_PREAMBLE \
      "const CS = imports.gi.ClutterSmith;\n"\
-                "const Clutter = imports.gi.Clutter;\n"\
-                "const GLib = imports.gi.GLib;\n"\
-                "const Lang = imports.lang;\n"\
-                "const Mainloop = imports.mainloop;\n"\
-                "function $(id) {return CS.get_object(id);}"
+     "const Clutter = imports.gi.Clutter;\n"\
+     "const GLib = imports.gi.GLib;\n"\
+     "const Lang = imports.lang;\n"\
+     "const Mainloop = imports.mainloop;\n"\
+     "function $(id) {return CS.get_object(id);}"
 
 MxMenu *cs_menu_new (void);
 

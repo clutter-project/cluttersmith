@@ -421,18 +421,10 @@ static void page_run_start (void)
     {
       GError      *error = NULL;
       guchar *js;
-      gchar *code = JS_PREAMBLE; 
       gsize len;
 
-      len = strlen (code);
+      g_assert (cs->priv->page_js_context);
 
-      //g_assert (cs->priv->page_js_context == NULL);
-      if (!cs->priv->page_js_context)
-        {
-          cs->priv->page_js_context = gjs_context_new_with_search_path(NULL);
-          gjs_context_eval(cs->priv->page_js_context, (void*)code, len,
-      "<code>", NULL, NULL);
-        }
       if (!g_file_get_contents (scriptfilename, (void*)&js, &len, &error))
         {
            g_printerr("failed loading file %s: %s\n", scriptfilename, error->message);
@@ -1978,22 +1970,44 @@ static void cs_load (void)
   if (g_file_test (filename, G_FILE_TEST_IS_REGULAR))
     {
       gchar *scriptfilename;
+      gchar *prescriptfilename;
       gchar *annotationfilename;
-      cs_session_history_add (cs_get_project_root ());
-      cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
-      cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", filename, NULL);
-      cs_post_load ();
 
+      cs_session_history_add (cs_get_project_root ());
+
+      prescriptfilename = g_strdup_printf ("%s/%s.prejs", cs_get_project_root(),
+                                  cs->priv->title);
       scriptfilename = g_strdup_printf ("%s/%s.js", cs_get_project_root(),
                                   cs->priv->title);
       annotationfilename = g_strdup_printf ("%s/%s.txt", cs_get_project_root(),
                                   cs->priv->title);
+
+
+      if (g_file_test (prescriptfilename, G_FILE_TEST_IS_REGULAR))
+        {
+          GError *error = NULL;
+          gchar  *txt;
+          gsize   len;
+          if (!g_file_get_contents (prescriptfilename, (void*)&txt, &len, &error))
+            {
+               g_printerr("failed loading file %s: %s\n", prescriptfilename, error->message);
+            }
+          else
+            {
+              gjs_context_eval(cs->priv->page_js_context, (void*)txt, len, "<code>", NULL, NULL);
+              g_free (txt);
+            }
+        }
+
+      cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
+      cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", filename, NULL);
+      cs_post_load ();
+
       if (g_file_test (annotationfilename, G_FILE_TEST_IS_REGULAR))
         {
           GError      *error = NULL;
           gchar *txt;
           gsize len;
-
 
           if (!g_file_get_contents (annotationfilename, (void*)&txt, &len, &error))
             {
@@ -2121,6 +2135,7 @@ static void cs_load (void)
           if (cs->dialog_editor_text)
             clutter_text_set_text (CLUTTER_TEXT(cs->dialog_editor_text), "/* */");
         }
+      g_free (prescriptfilename);
       g_free (scriptfilename);
       g_free (annotationfilename);
     }
@@ -2222,7 +2237,7 @@ static void state_machine_name_changed (ClutterActor *actor)
 static void project_root_text_changed (ClutterActor *actor)
 {
   const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
-//const gchar *project_title;
+  gchar *prescriptfilename;
   title_frozen = TRUE;
   if (cs->project_root)
     g_free (cs->project_root);
@@ -2230,6 +2245,37 @@ static void project_root_text_changed (ClutterActor *actor)
 
   if (!new_text)
     return;
+
+  prescriptfilename = g_strdup_printf ("%s/%s", new_text, "cluttersmith.prejs");
+
+  if (!cs->priv->page_js_context)
+    {
+      const gchar *code = JS_PREAMBLE;
+      cs->priv->page_js_context = gjs_context_new_with_search_path(NULL);
+      gjs_context_eval(cs->priv->page_js_context, (void*)code, strlen(code),
+      "<code>", NULL, NULL);
+    }
+
+ if (g_file_test (prescriptfilename, G_FILE_TEST_IS_REGULAR))
+   {
+     GError *error = NULL;
+     gchar  *txt;
+     gsize   len;
+     if (!g_file_get_contents (prescriptfilename, (void*)&txt, &len, &error))
+       {
+          g_printerr("failed loading file %s: %s\n", prescriptfilename, error->message);
+       }
+     else
+       {
+         gjs_context_eval(cs->priv->page_js_context, (void*)txt, len, "<code>", NULL, &error);
+         if (error)
+           {
+             g_print("Eeeek! %s\n", error->message);
+           }
+         g_free (txt);
+       }
+   }
+ g_free (prescriptfilename);
 
 #if 0
   project_title = strrchr (new_text, '/');
