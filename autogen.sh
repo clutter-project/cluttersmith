@@ -15,7 +15,7 @@ REQUIRED_AUTOMAKE_VERSION=1.10
 }
 
 which gnome-autogen.sh || {
-    echo "You need to install gnome-common from GNOME Subversion (or from"
+    echo "You need to install gnome-common from GNOME git (or from"
     echo "your distribution's package manager)."
     exit 1
 }
