@@ -120,6 +120,6 @@ init-types.c:
 
 
 cluttersmith.so: *.c Makefile
-	gcc -DCOMPILEMODULE $(AM_CFLAGS) -I. -g -shared -ldl *.c -o $@ `pkg-config clutter-1.0 gjs-1.0 mx-1.0 clutter-gst-1.0 --libs --cflags` 
+	gcc -DCOMPILEMODULE $(AM_CFLAGS) -I. -g -shared -ldl *.c -o $@ `pkg-config clutter-1.0 gjs-1.0 mx-1.0 --libs --cflags` 
 
 

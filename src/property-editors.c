@@ -116,6 +116,66 @@ update_object_boolean (MxButton *button,
   return TRUE;
 }
 
+static void
+update_editor_enum (GObject       *object,
+                    GParamSpec    *arg1,
+                    UpdateClosure *uc)
+{
+  int value;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+
+  if (!uc->object)
+    return;
+
+  g_object_get (object, arg1->name, &value, NULL);
+  enum_class = g_type_class_peek (arg1->value_type);
+  g_object_get (object, arg1->name, &value, NULL);
+  if (uc->update_object_handler)
+    g_signal_handler_block (uc->editor, uc->update_object_handler);
+  enum_value = g_enum_get_value (enum_class, value);
+
+  if (enum_value)
+    mx_combo_box_set_index (MX_COMBO_BOX (uc->editor), enum_value-enum_class->values);
+
+  if (uc->update_object_handler)
+    g_signal_handler_unblock (uc->editor, uc->update_object_handler);
+}
+
+static void 
+update_object_enum (MxComboBox *combo_box,
+                    GParamSpec *arg1,
+                    gpointer    data)
+{
+  UpdateClosure *uc = data;
+  const gchar *text;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+  GObjectClass *klass;
+  GParamSpec *pspec;
+
+  klass = G_OBJECT_GET_CLASS (uc->object);
+  pspec = g_object_class_find_property (klass, uc->property_name);
+
+  text = mx_combo_box_get_active_text (combo_box);
+
+  enum_class = g_type_class_peek (pspec->value_type);
+  enum_value = g_enum_get_value_by_nick (enum_class, text);
+
+  if (enum_value)
+    {
+      if (uc->update_editor_handler)
+        g_signal_handler_block (uc->object, uc->update_editor_handler);
+
+      g_object_set (uc->object, uc->property_name, enum_value->value, NULL);
+      if (uc->update_editor_handler)
+        g_signal_handler_unblock (uc->object, uc->update_editor_handler);
+    }
+
+  cs_dirtied ();
+  cs_prop_tweaked (uc->object, uc->property_name);
+}
+
 static gboolean
 a_pre_changed_callback (GObject     *objectA,
                         const gchar *propertyA,
@@ -201,14 +261,39 @@ ClutterActor *property_editor_new (GObject *object,
 
   detailed_signal = g_strdup_printf ("notify::%s", pspec->name);
 
-  /* Boolean values are special cased and get their own editor,
-   * for all other types we rely on binding an MxEntry to the
-   * respective value.
-   *
-   * (cs_bind increments the dirty count for the scene
-   *  when the values bound to are changed.)
-   */
-  if (pspec->value_type == G_TYPE_BOOLEAN)
+  if (g_type_is_a (pspec->value_type, G_TYPE_ENUM))
+    {
+      UpdateClosure *uc;
+      GEnumClass *enum_class;
+
+      uc = g_new0 (UpdateClosure, 1);
+      uc->property_name = g_strdup (pspec->name);
+      uc->object = object;
+
+      editor = mx_combo_box_new ();
+      enum_class = g_type_class_peek (pspec->value_type);
+
+      {
+        int i;
+        for (i = 0; i < enum_class->n_values; i++)
+          {
+            mx_combo_box_append_text (MX_COMBO_BOX (editor), enum_class->values[i].value_nick);
+          }
+      }
+
+      uc->editor = editor;
+        uc->update_editor_handler = g_signal_connect (object, detailed_signal,
+                                    G_CALLBACK (update_editor_enum), uc);
+      if ((pspec->flags & G_PARAM_WRITABLE))
+        uc->update_object_handler =
+          g_signal_connect_data (editor, "notify::index",
+                               G_CALLBACK (update_object_enum), uc,
+                               update_closure_free, 0);
+      update_editor_enum (object, pspec, uc);
+      
+      g_object_weak_ref (object, object_vanished, uc);
+    }
+  else if (pspec->value_type == G_TYPE_BOOLEAN)
     {
       UpdateClosure *uc;
 
@@ -310,10 +395,7 @@ props_populate (ClutterActor *container,
         skip = TRUE;
 
       /* XXX should not be needed */
-      if (!g_strcmp0 (properties[i]->name, "subtitle-font-desc")||
-          !g_strcmp0 (properties[i]->name, "subtitle-font-name")||
-          !g_strcmp0 (properties[i]->name, "user-agent")
-          )
+      if (!g_strcmp0 (properties[i]->name, "subtitle-font-name"))
         skip = TRUE;
 
       if (skip)
