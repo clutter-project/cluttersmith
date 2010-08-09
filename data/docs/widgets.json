@@ -315,7 +315,7 @@
     }
     ,
     {
-      "type":"CSTexture",
+      "type":"ClutterTexture",
       "id":"texture1",
       "x":230,
       "y":235,
@@ -324,7 +324,7 @@
       "opacity":255,
       "scale-x":0.500,
       "scale-y":0.500,
-      "image":"wtrabbit.jpg"
+      "filename":"wtrabbit.jpg"
     }
   ]
 }

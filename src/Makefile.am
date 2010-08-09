@@ -32,8 +32,6 @@ cs-anchor.c \
 cs-rotate.c \
 cs-move.c \
 cs-edit-text.c \
-cs-texture.c \
-cs-texture.h \
 cs-tree.c \
 cs-util.c \
 cs-util.h \
