@@ -363,17 +363,29 @@ cs_stage_capture (ClutterActor *actor,
 
 static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
 {
+  gboolean ret = FALSE;
   ClutterVertex verts[4];
+  cairo_surface_t *surface;
+  cairo_t *cr;
 
   clutter_actor_get_abs_allocation_vertices (actor,
                                              verts);
-  /* XXX: use cairo to check with the outline of the verts? */
-  if (x>verts[2].x && x<verts[1].x &&
-      y>verts[1].y && y<verts[2].y)
-    {
-      return TRUE;
-    }
-  return FALSE;
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1, 1);
+  cr = cairo_create (surface);
+
+  cairo_move_to (cr, verts[0].x, verts[0].y);
+  cairo_line_to (cr, verts[1].x, verts[1].y);
+  cairo_line_to (cr, verts[3].x, verts[3].y);
+  cairo_line_to (cr, verts[2].x, verts[2].y);
+
+  cairo_destroy (cr);
+  cairo_surface_destroy (surface);
+
+  if (cairo_in_fill (cr, x, y))
+    ret = TRUE;
+
+  return ret;
 }
 
 static gpointer
