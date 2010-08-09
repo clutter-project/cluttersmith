@@ -59,6 +59,7 @@ enum
   PROP_ZOOM,
   PROP_ORIGIN_X,
   PROP_ORIGIN_Y,
+  PROP_EXTENDED_HANDLES,
   PROP_CANVAS_WIDTH,
   PROP_CANVAS_HEIGHT,
   PROP_SCENE,
@@ -73,6 +74,7 @@ struct _CSContextPrivate
   gfloat canvas_width;
   gfloat canvas_height;
   GjsContext  *page_js_context;
+  gboolean extended_handles;
 };
 
 
@@ -137,6 +139,8 @@ cs_context_class_init (CSContextClass *klass)
   pspec = g_param_spec_boolean ("fullscreen", "Fullscreen", "fullscreen", FALSE, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_FULLSCREEN, pspec);
 
+  pspec = g_param_spec_boolean ("extended-handles", "Extended handles", "extended handles", FALSE, G_PARAM_READWRITE);
+  g_object_class_install_property (object_class, PROP_EXTENDED_HANDLES, pspec);
 }
 
 
@@ -527,6 +531,10 @@ cs_context_get_property (GObject    *object,
         g_value_set_int (value, priv->canvas_height);
         break;
 
+      case PROP_EXTENDED_HANDLES:
+        g_value_set_boolean (value, priv->extended_handles);
+        break;
+
       case PROP_FULLSCREEN:
 #if 0
           g_value_set_boolean (value,
@@ -571,6 +579,9 @@ cs_context_set_property (GObject      *object,
       case PROP_ORIGIN_Y:
         priv->origin_y = g_value_get_float (value);
         cs_sync_chrome_idle (NULL);
+        break;
+      case PROP_EXTENDED_HANDLES:
+        priv->extended_handles = g_value_get_boolean (value);
         break;
 
       case PROP_FULLSCREEN:
@@ -1084,13 +1095,24 @@ gboolean update_overlay_positions (gpointer data)
       return TRUE;
     }
 
-  clutter_actor_show (cs->move_handle);
-  clutter_actor_show (cs->depth_handle);
+  if (cs->priv->extended_handles)
+    {
+      clutter_actor_show (cs->depth_handle);
+      clutter_actor_show (cs->rotate_y_handle);
+      clutter_actor_show (cs->rotate_x_handle);
+      clutter_actor_show (cs->move_handle);
+    }
+  else
+    {
+      clutter_actor_hide (cs->rotate_x_handle);
+      clutter_actor_hide (cs->rotate_y_handle);
+      clutter_actor_hide (cs->depth_handle);
+      clutter_actor_hide (cs->move_handle);
+    }
+
+  clutter_actor_show (cs->rotate_z_handle);
   clutter_actor_show (cs->resize_handle);
   clutter_actor_show (cs->anchor_handle);
-  clutter_actor_show (cs->rotate_x_handle);
-  clutter_actor_show (cs->rotate_y_handle);
-  clutter_actor_show (cs->rotate_z_handle);
 
   actor = cs_selected_get_any ();
 
