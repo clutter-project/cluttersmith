@@ -135,10 +135,6 @@ properties_to_string (GString      *str,
           ))
         skip = TRUE;
 
-      /* XXX should not be needed */
-      if (!strcmp (properties[i]->name, "subtitle-font-name"))
-        skip = TRUE;
-
       if (skip)
         continue;
 

@@ -391,11 +391,9 @@ props_populate (ClutterActor *container,
             }
         }
 
-      if (!(properties[i]->flags & G_PARAM_READABLE))
-        skip = TRUE;
-
-      /* XXX should not be needed */
-      if (!g_strcmp0 (properties[i]->name, "subtitle-font-name"))
+      if (!((properties[i]->flags & G_PARAM_READABLE)
+            &&(properties[i]->flags & G_PARAM_WRITABLE))
+        || (properties[i]->flags & G_PARAM_CONSTRUCT_ONLY))
         skip = TRUE;
 
       if (skip)
