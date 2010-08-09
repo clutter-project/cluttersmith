@@ -119,7 +119,8 @@ properties_to_string (GString      *str,
                 {
                   gchar *whitelist[]={"x","y", "depth", "opacity", "width", "height",
                                       "scale-x","scale-y", "anchor-x", "color",
-                                      "anchor-y", "rotation-angle-z", "reactive", "name", "rotation-angle-y", "rotation-angle-x",
+                                      "anchor-y", "rotation-angle-z", "reactive",
+                                      "name", "rotation-angle-y", "rotation-angle-x",
                                       NULL};
                   gint k;
                   skip = TRUE;
@@ -207,6 +208,24 @@ properties_to_string (GString      *str,
           {
             gchar *value;
             g_object_get (actor, properties[i]->name, &value, NULL);
+
+            /* Make ClutterTextures used relative when saving */
+            if (CLUTTER_IS_TEXTURE (actor) &&
+                g_str_equal (properties[i]->name, "filename") &&
+                g_path_is_absolute (value))
+              {
+                if (g_str_has_prefix (value, cs_get_project_root ()))
+                  {
+                    gchar *oldvalue = value;
+                    value = strdup ((value + strlen (cs_get_project_root ()) + 1));
+                    g_free (oldvalue);
+                  }
+                else
+                  {
+                    g_warning ("Asset %s not under project root\n", value);
+                  }
+              }
+
             if (value)
               {
                 gchar *escaped;
