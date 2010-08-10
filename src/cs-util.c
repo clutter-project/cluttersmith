@@ -1507,3 +1507,43 @@ cs_modal_editor (gfloat x,
                     G_CALLBACK (clutter_actor_destroy), group);
 }
 
+
+void
+cs_actor_move_anchor_point (ClutterActor *self,
+                            gfloat        anchor_x,
+                            gfloat        anchor_y)
+{
+  gfloat old_anchor_x, old_anchor_y;
+  gfloat x, y;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  clutter_actor_get_anchor_point (self,
+                                  &old_anchor_x,
+                                  &old_anchor_y);
+
+  {
+    ClutterVertex new_anchor = {anchor_x, anchor_y, 0.0};
+    ClutterVertex old_anchor = {old_anchor_x, old_anchor_y, 0.0};
+    ClutterVertex new_anchor_parent, old_anchor_parent;
+
+    clutter_actor_apply_relative_transform_to_point (self,
+                             clutter_actor_get_parent (self),
+                             &new_anchor, &new_anchor_parent);
+    clutter_actor_apply_relative_transform_to_point (self,
+                             clutter_actor_get_parent (self),
+                             &old_anchor, &old_anchor_parent);
+
+    clutter_actor_get_position (self, &x, &y);
+
+    x += new_anchor_parent.x - old_anchor_parent.x;
+    y += new_anchor_parent.y - old_anchor_parent.y;
+
+    g_object_freeze_notify (G_OBJECT (self));
+
+    clutter_actor_set_anchor_point (self, anchor_x, anchor_y);
+    clutter_actor_set_position (self, x, y);
+
+    g_object_thaw_notify (G_OBJECT (self));
+  }
+}

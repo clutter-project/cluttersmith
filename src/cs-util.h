@@ -164,4 +164,10 @@ cs_modal_editor (gfloat x,
                  const gchar *start_text,
                  void (*activate)(ClutterText *text));
 
+void
+cs_actor_move_anchor_point (ClutterActor *self,
+                            gfloat        anchor_x,
+                            gfloat        anchor_y);
+
+
 #endif

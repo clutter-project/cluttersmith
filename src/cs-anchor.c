@@ -104,7 +104,7 @@ manipulate_anchor_capture (ClutterActor *stage,
           w-= manipulate_x-ex;
           h-= manipulate_y-ey;
 
-          clutter_actor_move_anchor_point (actor, w, h);
+          cs_actor_move_anchor_point (actor, w, h);
           cs_prop_tweaked (G_OBJECT (actor), "anchor-x");
           cs_prop_tweaked (G_OBJECT (actor), "anchor-y");
 
