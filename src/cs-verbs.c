@@ -39,6 +39,7 @@
 
 
 #include <string.h>
+#include <gtk/gtk.h>
 #include <clutter/clutter.h>
 #include <mx/mx.h>
 #include "cluttersmith.h"
@@ -240,7 +241,11 @@ void cs_reset_size (ClutterActor *ignored)
 
 void cs_quit (ClutterActor *ignored)
 {
+#ifdef COMPILEMODULE
   clutter_main_quit ();
+#else
+  gtk_main_quit ();
+#endif
 }
 
 /* This is the side effect tiny one, the other should have 

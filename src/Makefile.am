@@ -21,6 +21,7 @@ cs-callbacks.c \
 cs-context.c \
 cs-context.h \
 cs-export.c \
+cs-drag-drop.c \
 cs-history.c \
 cs-history.h \
 cs-selection.c \

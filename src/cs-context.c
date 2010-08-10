@@ -55,7 +55,6 @@ gint cs_set_keys_freeze = 0; /* XXX: global! */
 enum
 {
   PROP_0,
-  PROP_FULLSCREEN,
   PROP_ZOOM,
   PROP_ORIGIN_X,
   PROP_ORIGIN_Y,
@@ -135,9 +134,6 @@ cs_context_class_init (CSContextClass *klass)
 
   pspec = g_param_spec_string ("scene", "Scene", "current scene", "", G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_SCENE, pspec);
-
-  pspec = g_param_spec_boolean ("fullscreen", "Fullscreen", "fullscreen", FALSE, G_PARAM_READWRITE);
-  g_object_class_install_property (object_class, PROP_FULLSCREEN, pspec);
 
   pspec = g_param_spec_boolean ("extended-handles", "Extended handles", "extended handles", FALSE, G_PARAM_READWRITE);
   g_object_class_install_property (object_class, PROP_EXTENDED_HANDLES, pspec);
@@ -530,17 +526,8 @@ cs_context_get_property (GObject    *object,
       case PROP_CANVAS_HEIGHT:
         g_value_set_int (value, priv->canvas_height);
         break;
-
       case PROP_EXTENDED_HANDLES:
         g_value_set_boolean (value, priv->extended_handles);
-        break;
-
-      case PROP_FULLSCREEN:
-#if 0
-          g_value_set_boolean (value,
-                               clutter_stage_get_fullscreen (
-                                   CLUTTER_STAGE (clutter_stage_get_default())));
-#endif
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -582,14 +569,6 @@ cs_context_set_property (GObject      *object,
         break;
       case PROP_EXTENDED_HANDLES:
         priv->extended_handles = g_value_get_boolean (value);
-        break;
-
-      case PROP_FULLSCREEN:
-#if 0
-            clutter_stage_set_fullscreen (CLUTTER_STAGE (
-                                             clutter_stage_get_default()),
-                                          g_value_get_boolean (value));
-#endif
         break;
       default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -995,7 +974,6 @@ void cluttersmith_init (void)
   /* this is the main initialization */
   g_signal_connect (stage, "captured-event", G_CALLBACK (runtime_capture), NULL);
 
-  g_signal_connect (stage, "delete-event", G_CALLBACK (clutter_main_quit), NULL);
   cs_set_ui_mode (CS_UI_MODE_BROWSE);
   clutter_actor_show (stage);
   clutter_actor_paint (stage);

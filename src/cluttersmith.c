@@ -42,6 +42,8 @@
 #include "cluttersmith.h"
 
 #include <clutter/clutter.h>
+#include <gtk/gtk.h>
+#include <clutter-gtk/clutter-gtk.h>
 #include <mx/mx.h>
 #include <math.h>
 #include <string.h>
@@ -50,6 +52,7 @@
 #include <glib/gstdio.h>
 #include "cluttersmith.h"
 #include "cs-util.h"
+
 
 /* Global structure containing information parsed from commandline parameters
  */
@@ -112,6 +115,7 @@ void mode_edit2 (void);
 #ifndef COMPILEMODULE
   /* when compiling as an LD_PRELOAD module, we do not use main */
 
+
 static void load_project (void)
 {
   if (args.root_path)
@@ -153,32 +157,47 @@ static void load_project (void)
   clutter_actor_queue_redraw (clutter_stage_get_default());
 }
 
+void cs_drag_drop_init (GtkWidget *clutter);
+
 gint
 main (gint    argc,
       gchar **argv)
 {
+  GtkWidget    *window, *clutter;
   ClutterActor *stage;
   ClutterColor  color;
+  GError       *error = NULL;
+
+  gtk_clutter_init_with_args (&argc, &argv,
+                              NULL, NULL, NULL, &error);
   clutter_init (&argc, &argv);
 
   if (!parse_args (argv))
     return -1;
 
-  stage = clutter_stage_get_default ();
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+  clutter = gtk_clutter_embed_new ();
+  gtk_container_add (GTK_CONTAINER (window), clutter);
+  stage = gtk_clutter_embed_get_stage (GTK_CLUTTER_EMBED (clutter));
+
   clutter_color_from_string (&color, "gray");
   clutter_stage_set_color (CLUTTER_STAGE (stage), &color);
   clutter_actor_show (stage);
 
+  cs_drag_drop_init (clutter);
+
   if (args.fullscreen)
-    clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
-  clutter_actor_set_size (stage, 1024, 600);
+    gtk_window_fullscreen (GTK_WINDOW (window));
+    //clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), TRUE);
+  gtk_window_resize (GTK_WINDOW (window), 1024, 600);
+  gtk_widget_show_all (window);
 
   cluttersmith_initialize_for_stage (stage);
   load_project ();
   g_timeout_add (10000, cs_save_timeout, NULL); /* auto-save */
 
-  clutter_main ();
+  gtk_main ();
   return 0;
 }
 
