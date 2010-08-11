@@ -379,11 +379,11 @@ static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
   cairo_line_to (cr, verts[3].x, verts[3].y);
   cairo_line_to (cr, verts[2].x, verts[2].y);
 
-  cairo_destroy (cr);
-  cairo_surface_destroy (surface);
-
   if (cairo_in_fill (cr, x, y))
     ret = TRUE;
+
+  cairo_destroy (cr);
+  cairo_surface_destroy (surface);
 
   return ret;
 }
