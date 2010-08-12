@@ -221,7 +221,7 @@ void templates_container_init_hack (ClutterActor  *actor)
   if (done)
     return;
   done = TRUE;
-  path = g_strdup_printf ("%s%s", PKGDATADIR, "templates");
+  path = g_strdup_printf ("%s/cluttersmith/%s", g_get_user_data_dir (), "templates");
   load_path (actor, path);
   g_free (path);
 }
@@ -236,7 +236,7 @@ void annotation_templates_container_init_hack (ClutterActor  *actor)
   if (done)
     return;
   done = TRUE;
-  path = g_strdup_printf ("%s%s", PKGDATADIR, "annotation-templates");
+  path = g_strdup_printf ("%s/cluttersmith/%s", g_get_user_data_dir (), "annotation-templates");
   load_path (actor, path);
   g_free (path);
 }

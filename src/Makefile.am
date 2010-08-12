@@ -29,6 +29,7 @@ cs-serializer.c \
 cs-session-history.c \
 cs-stencils.c \
 cs-resize.c \
+cs-install.c \
 cs-anchor.c \
 cs-rotate.c \
 cs-move.c \

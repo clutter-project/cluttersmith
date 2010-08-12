@@ -148,7 +148,9 @@ static void load_project (void)
     }
   else
     {
-      cluttersmith_set_project_root (PKGDATADIR "docs");
+      gchar *path = g_strdup_printf ("%s/cluttersmith/docs",
+                                     g_get_user_data_dir ());
+      cluttersmith_set_project_root (path);
       cluttersmith_load_scene ("index");
     }
 
@@ -158,6 +160,7 @@ static void load_project (void)
 }
 
 void cs_drag_drop_init (GtkWidget *clutter);
+void cs_init_user_files (void);
 
 gint
 main (gint    argc,
@@ -174,6 +177,8 @@ main (gint    argc,
 
   if (!parse_args (argv))
     return -1;
+
+  cs_user_install ();
 
   window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
@@ -205,5 +210,6 @@ void* force_link_of_compilation_units_containting[]={
   session_history_init_hack,
   templates_container_init_hack
 };
+
 
 #endif

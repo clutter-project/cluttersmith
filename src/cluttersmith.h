@@ -181,6 +181,7 @@ gboolean cs_move_start (ClutterActor  *actor,
                         ClutterEvent  *event);
 gboolean cs_resize_start (ClutterActor  *actor,
                           ClutterEvent  *event);
+void cs_user_install (void);
 
 #define SNAP_THRESHOLD  2
 

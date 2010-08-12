@@ -15,7 +15,13 @@ res_DATA = \
   cs-animator.json \
   cs-overlay.json \
   cluttersmith-assistant.json \
+  stamp \
   link-bg.png \
   cluttersmith.png 
+
+stamp: ../src/ClutterSmith-0.0.gir
+	echo -n "ClutterSmith built " > $@
+	date >> $@
+CLEANFILES = stamp
 
 EXTRA_DIST = $(icons_DATA) $(applications_DATA) $(res_DATA) 
