@@ -69,6 +69,8 @@ static void each_add_to_list (ClutterActor *actor,
   g_string_append_printf (string, "$(\"%s\"),", cs_get_id (actor));
 }
 
+gint cs_drill_down = 0; /* if 2, then we're drilling down */
+
 gboolean
 cs_stage_capture (ClutterActor *actor,
                   ClutterEvent *event,
@@ -192,6 +194,9 @@ cs_stage_capture (ClutterActor *actor,
         break;
       case CLUTTER_MOTION:
         {
+          if (cs_last_x != event->motion.x ||
+              cs_last_y != event->motion.y)  /* ignore nop motions */
+            cs_drill_down = 0; /* we've moved so do not drill down */
           cs_last_x = event->motion.x;
           cs_last_y = event->motion.y;
         }
@@ -211,6 +216,7 @@ cs_stage_capture (ClutterActor *actor,
               return TRUE;
             }
 
+drill_down:
           hit = cs_selection_pick (x, y);
 
           if (hit) /* pressed part of initial selection */
@@ -265,6 +271,17 @@ cs_stage_capture (ClutterActor *actor,
                            SELECT_ACTION_POST ("select foo");
                          }
                      }
+
+                   if (cs_drill_down == 2 && CLUTTER_IS_CONTAINER (hit))
+                     {
+                       SELECT_ACTION_PRE();
+                       cs_selected_clear ();
+                       cs_set_current_container (hit);
+                       SELECT_ACTION_POST("select-dig-deeper");
+                       cs_drill_down = 0;
+                       goto drill_down;
+                     }
+
                    cs_move_start (cs->parasite_root, event);
                 }
             }
@@ -301,6 +318,7 @@ cs_stage_capture (ClutterActor *actor,
                   if (!((clutter_event_get_state (event) & CLUTTER_CONTROL_MASK) ||
                         (clutter_event_get_state (event) & CLUTTER_SHIFT_MASK)))
                     {
+#if 0
                       const gchar *name = clutter_actor_get_name (hit);
                       if (name &&  /* */
                          (g_str_equal (name, "cluttersmith-is-interactive"))) /* needs to happen earlier as
@@ -309,6 +327,7 @@ cs_stage_capture (ClutterActor *actor,
                         {
                           return FALSE;
                         }
+#endif
                       cs_selected_clear ();
                       if (stage_child)
                         {
@@ -338,6 +357,7 @@ cs_stage_capture (ClutterActor *actor,
                     {
                       cs_selected_add (hit);
                     }
+                  cs_drill_down = 1; /* we might be starting to drill down */
                   cs_move_start (cs->parasite_root, event);
                   SELECT_ACTION_POST("select");
                 }

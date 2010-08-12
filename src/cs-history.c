@@ -104,6 +104,7 @@ cs_history_do (const gchar *name,
       {
         g_warning ("%s", error->message);
       }
+    else g_warning ("%s", javascript_do);
     g_object_unref (js_context);
   }
 }

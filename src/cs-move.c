@@ -255,6 +255,8 @@ selection_to_position_commands (GString *string)
   g_list_free (selected);
 }
 
+extern gint cs_drill_down;
+
 static gboolean
 manipulate_move_capture (ClutterActor *stage,
                          ClutterEvent *event,
@@ -293,7 +295,7 @@ manipulate_move_capture (ClutterActor *stage,
 
           manipulate_x=event->motion.x;
           manipulate_y=event->motion.y;
-
+          cs_drill_down = 0; /* move so were not drilling down */
         }
         break;
       case CLUTTER_BUTTON_RELEASE:
@@ -302,9 +304,16 @@ manipulate_move_capture (ClutterActor *stage,
         ver_pos = 0;
 
         selection_to_position_commands (redo);
-        if (start_x != manipulate_x
+        if (   start_x != manipulate_x
             || start_y != manipulate_y)
           cs_history_add ("move actors", redo->str, undo->str);
+        else
+          {
+            if (cs_drill_down == 1)
+              cs_drill_down = 2;    /* we are ready to drill down */
+            else
+              cs_drill_down = 0;
+          }
         g_string_free (undo, TRUE);
         g_string_free (redo, TRUE);
         undo = redo = NULL;
