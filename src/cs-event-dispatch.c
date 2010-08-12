@@ -450,6 +450,8 @@ ClutterActor *cs_children_pick (ClutterActor *actor,
   GList *children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
   ClutterActor *ret;
   gfloat data[2]={x,y}; 
+  children = g_list_reverse (children); /* XXX: why do we need to reverse this
+                                           result? */
   ret = cs_list_match (children, G_CALLBACK (is_in_actor), data);
   g_list_free (children);
   return ret;
