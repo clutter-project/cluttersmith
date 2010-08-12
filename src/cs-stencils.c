@@ -167,7 +167,6 @@ static void load_path (ClutterActor *actor,
             gchar *path2;
             ClutterActor *oi;
             path2 = g_strdup_printf ("%s/%s", path, name);
-            g_print ("%s\n", path2);
             oi = cs_load_json (path2);
             if (oi)
               {
