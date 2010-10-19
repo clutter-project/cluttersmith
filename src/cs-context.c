@@ -624,9 +624,9 @@ void cs_context_set_scene (CSContext   *context,
 void cluttersmith_load_scene (const gchar *new_title)
 {
   gchar *undo, *redo;
-  redo = g_strdup_printf ("CS.context().scene='%s'", new_title);
+  redo = g_strdup_printf ("CS.get_context().scene='%s'", new_title);
   if (cs->priv->title != NULL)
-    undo = g_strdup_printf ("CS.context().scene='%s'", cs->priv->title);
+    undo = g_strdup_printf ("CS.get_context().scene='%s'", cs->priv->title);
   else
     undo = g_strdup (redo);
   cs_history_do ("change scene", redo, undo);
@@ -635,10 +635,10 @@ void cluttersmith_load_scene (const gchar *new_title)
 }
 
 /**
- * cluttersmith_context:
- * Return value: (transfer none): the clurresmith context.
+ * cs_get_context:
+ * Return value: (transfer none): the cluttersmith context.
  */
-CSContext *cluttersmith_context (void)
+CSContext *cs_get_context (void)
 {
   return cs;
 }

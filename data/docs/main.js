@@ -1,10 +1,10 @@
 #!/usr/bin/env gjs
 const GLib = imports.gi.GLib;
 const Clutter = imports.gi.Clutter;
-const ClutterGst  = imports.gi.ClutterGst;
+//const ClutterGst  = imports.gi.ClutterGst;
 const CS = imports.gi.ClutterSmith;
 
-ClutterGst.init ("");
+//ClutterGst.init ("");
 Clutter.init (0, null);
 CS.init (); 
 

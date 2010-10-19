@@ -143,7 +143,7 @@ ClutterActor *cs_show (const gchar *name)
       actor = cs_load_json (name);
       if (actor)
         {
-          clutter_group_add (CLUTTER_GROUP (clutter_stage_get_default ()), actor);
+          clutter_group_add (CLUTTER_GROUP (cluttersmith_get_stage ()), actor);
           g_hash_table_insert (layouts, g_strdup (name), actor);
         }
       else
@@ -961,7 +961,7 @@ GObject *cluttersmith_get_object (const gchar  *id)
             return a->data;
     }
 
-  return (void*)cs_find_by_id (clutter_stage_get_default(), id);
+  return (void*)cs_find_by_id (cluttersmith_get_stage (), id);
 }
 
 

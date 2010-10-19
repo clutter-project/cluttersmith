@@ -172,7 +172,7 @@ gfloat cluttersmith_get_origin_y (void);
 CSContext *cs_context_new (void);
 void cs_set_current_animator (ClutterAnimator *animator);
 ClutterTimeline *cluttersmith_animator_start (const gchar *animator);
-CSContext *cluttersmith_context (void);
+CSContext *cs_get_context (void);
 
 void cs_context_set_scene (CSContext   *cs_context,
                            const gchar *scene);

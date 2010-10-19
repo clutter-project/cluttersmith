@@ -49,11 +49,11 @@ G_BEGIN_DECLS
 #define CS_ANIMATOR_EDITOR(obj)    \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj),  \
                                CS_TYPE_ANIMATOR_EDITOR, \
-                               CsAnimatorEditor))
+                               CSAnimatorEditor))
 #define CS_ANIMATOR_EDITOR_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass),    \
                             CS_TYPE_ANIMATOR_EDITOR, \
-                            CsAnimatorEditorClass))
+                            CSAnimatorEditorClass))
 #define IS_CS_ANIMATOR_EDITOR(obj)    \
   (G_TYPE_CHECK_INSTANCE_TYPE ((obj), \
                                CS_TYPE_ANIMATOR_EDITOR))
@@ -63,32 +63,32 @@ G_BEGIN_DECLS
 #define CS_ANIMATOR_EDITOR_GET_CLASS(obj) \
   (G_TYPE_INSTANCE_GET_CLASS ((obj),     \
                               CS_TYPE_ANIMATOR_EDITOR, \
-                              CsAnimatorEditorClass))
+                              CSAnimatorEditorClass))
 
-typedef struct _CsAnimatorEditorPrivate CsAnimatorEditorPrivate;
-typedef struct _CsAnimatorEditor CsAnimatorEditor;
-typedef struct _CsAnimatorEditorClass CsAnimatorEditorClass;
+typedef struct _CSAnimatorEditorPrivate CSAnimatorEditorPrivate;
+typedef struct _CSAnimatorEditor CSAnimatorEditor;
+typedef struct _CSAnimatorEditorClass CSAnimatorEditorClass;
 
-struct _CsAnimatorEditor
+struct _CSAnimatorEditor
 {
   ClutterActor parent;
 
-  CsAnimatorEditorPrivate *priv;
+  CSAnimatorEditorPrivate *priv;
 };
 
-struct _CsAnimatorEditorClass
+struct _CSAnimatorEditorClass
 {
   ClutterActorClass parent_class;
 };
 
 GType cs_animator_editor_get_type (void) G_GNUC_CONST;
 
-void cs_animator_editor_set_animator (CsAnimatorEditor *animator_editor,
+void cs_animator_editor_set_animator (CSAnimatorEditor *animator_editor,
                                       ClutterAnimator  *animator);
 
-void cs_animator_editor_set_progress (CsAnimatorEditor *animator_editor,
+void cs_animator_editor_set_progress (CSAnimatorEditor *animator_editor,
                                       gdouble           progress); 
-gdouble cs_animator_editor_get_progress (CsAnimatorEditor *animator_editor);
+gdouble cs_animator_editor_get_progress (CSAnimatorEditor *animator_editor);
 void cs_animator_editor_stage_paint (void);
 
 G_END_DECLS

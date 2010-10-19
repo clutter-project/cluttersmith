@@ -186,7 +186,7 @@ static void change_scene (MxComboBox *combo_box,
       if (i==cbd->no)
         {
           g_free (c->data);
-          c->data = g_strdup_printf ("/*cs:scene scene='%s'*/ CS.context().scene='%s';\n", new_scene, new_scene);
+          c->data = g_strdup_printf ("/*cs:scene scene='%s'*/ CS.get_context().scene='%s';\n", new_scene, new_scene);
         }
     }
   cs_callbacks_populate (cbd->actor);
