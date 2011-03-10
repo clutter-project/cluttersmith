@@ -39,7 +39,9 @@
 
 #include "cluttersmith.h"
 #include "cs-context.h"
+#ifdef USE_GJS
 #include <gjs/gjs.h>
+#endif
 #include <gio/gio.h>
 #include <string.h>
 
@@ -72,7 +74,9 @@ struct _CSContextPrivate
   gfloat origin_y;
   gfloat canvas_width;
   gfloat canvas_height;
+#ifdef USE_GJS
   GjsContext  *page_js_context;
+#endif
   gboolean extended_handles;
 };
 
@@ -417,6 +421,7 @@ static void page_run_start (void)
         }
   }
 
+#ifdef USE_GJS
   if (g_file_test (scriptfilename, G_FILE_TEST_IS_REGULAR))
     {
       GError      *error = NULL;
@@ -454,6 +459,7 @@ static void page_run_start (void)
         }
       g_free (scriptfilename);
     }
+#endif
 }
 
 static void page_run_end (void)
@@ -1983,6 +1989,7 @@ static void cs_load (void)
                                   cs->priv->title);
 
 
+#ifdef USE_GJS
       if (g_file_test (prescriptfilename, G_FILE_TEST_IS_REGULAR))
         {
           GError *error = NULL;
@@ -1998,6 +2005,7 @@ static void cs_load (void)
               g_free (txt);
             }
         }
+#endif
 
       cs->fake_stage = NULL; /* forcing cs->fake_stage to NULL */
       cs->fake_stage = cs_replace_content (cs->parasite_root, "fake-stage", filename, NULL);
@@ -2237,7 +2245,9 @@ static void state_machine_name_changed (ClutterActor *actor)
 static void project_root_text_changed (ClutterActor *actor)
 {
   const gchar *new_text = clutter_text_get_text (CLUTTER_TEXT (actor));
+#ifdef USE_GJS
   gchar *prescriptfilename;
+#endif
   title_frozen = TRUE;
   if (cs->project_root)
     g_free (cs->project_root);
@@ -2246,6 +2256,7 @@ static void project_root_text_changed (ClutterActor *actor)
   if (!new_text)
     return;
 
+#ifdef USE_GJS
   prescriptfilename = g_strdup_printf ("%s/%s", new_text, "cluttersmith.prejs");
 
   if (!cs->priv->page_js_context)
@@ -2276,6 +2287,7 @@ static void project_root_text_changed (ClutterActor *actor)
        }
    }
  g_free (prescriptfilename);
+#endif
 
 #if 0
   project_title = strrchr (new_text, '/');

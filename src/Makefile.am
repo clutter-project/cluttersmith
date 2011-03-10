@@ -10,7 +10,6 @@ AM_CFLAGS = $(DEPS_CFLAGS) $(COMPILER_FLAGS) \
 BUILT_SOURCES = $(cluttersmith_built_sources)
 CLEANFILES    = $(cluttersmith_built_sources)
 
-  
 libcluttersmith_la_SOURCES = \
 cluttersmith.h \
 cs-event-dispatch.c \
@@ -50,50 +49,47 @@ cluttersmith_LDADD  = libcluttersmith.la $(DEPS_LIBS)
 cluttersmith_LDFLAGS = -export-dynamic
 cluttersmith_SOURCES = 		\
   $(BUILT_SOURCES) \
-  cluttersmith.c 
+  cluttersmith.c
 
 CLEANFILES += libcluttersmith.la
 
-girdir = $(datadir)/gir-1.0
-gir_DATA = ClutterSmith-0.0.gir
+#girdir = $(datadir)/gir-1.0
+#gir_DATA = ClutterSmith-0.0.gir
 
 # strip the cs_ prefix, since this should be indicates that
 # the function is part of the ClutterSmith namespace.
-ClutterSmith-0.0.gir: tmp.gir 
-	cat $< > $@ # cat $< | sed 's/function name="cs_/function name="/' > $@
+#ClutterSmith-0.0.gir: tmp.gir
+#	cat $< > $@ # cat $< | sed 's/function name="cs_/function name="/' > $@
 
-tmp.gir: $(INTROSPECTION_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
-	$(AM_V_GEN) $(INTROSPECTION_SCANNER)		 \
-		--namespace=ClutterSmith		 \
-		--nsversion=0.1				 \
-		--identifier-prefix=CS                   \
-		--symbol-prefix=cs         		 \
-		--symbol-prefix=cluttersmith	 \
-		--include=Clutter-1.0			 \
-		--include=Mx-1.0			 \
-		--warn-all \
-		--libtool="$(LIBTOOL)"    		 \
-		--add-include-path=$(builddir)     	 \
-		--library=libcluttersmith.la 		 \
-		$(srcdir)/*.c $(srcdir)/*.h 		 \
-		$(libcluttersmith_la_CPPFLAGS)		 \
-		`pkg-config --cflags mx-1.0 clutter-1.0 ` \
-		-o $@
-CLEANFILES += ClutterSmith-0.0.gir
+#tmp.gir: $(INTROSPECTION_SCANNER) libcluttersmith.la Makefile $(libcluttersmith_la_SOURCES)
+#	$(AM_V_GEN) $(INTROSPECTION_SCANNER)		 \
+#		--namespace=ClutterSmith		 \
+#		--nsversion=0.1				 \
+#		--identifier-prefix=CS                   \
+#		--symbol-prefix=cs         		 \
+#		--symbol-prefix=cluttersmith	 \
+#		--include=Clutter-1.0			 \
+#		--include=Mx-1.0			 \
+#		--warn-all \
+#		--libtool="$(LIBTOOL)"    		 \
+#		--add-include-path=$(builddir)     	 \
+#		--library=libcluttersmith.la 		 \
+#		$(srcdir)/*.c $(srcdir)/*.h 		 \
+#		$(libcluttersmith_la_CPPFLAGS)		 \
+#		`pkg-config --cflags mx-1.0 clutter-1.0 ` \
+#		-o $@
+#CLEANFILES += ClutterSmith-0.0.gir
 
-typelibdir = $(libdir)/girepository-1.0/
-typelib_DATA = ClutterSmith-0.0.typelib
+#typelibdir = $(libdir)/girepository-1.0/
+#typelib_DATA = ClutterSmith-0.0.typelib
 
 # The dependency on libcluttersmith.la here is because g-ir-compiler opens it
 # (not the fake library, since we've already done the rewriting)
-ClutterSmith-0.0.typelib: ClutterSmith-0.0.gir libcluttersmith.la
-	$(AM_V_GEN) $(INTROSPECTION_COMPILER)		\
-		--includedir=.				\
-		ClutterSmith-0.0.gir -o $@
-CLEANFILES += ClutterSmith-0.0.typelib tmp.gir
-
-
-
+#ClutterSmith-0.0.typelib: ClutterSmith-0.0.gir libcluttersmith.la
+#	$(AM_V_GEN) $(INTROSPECTION_COMPILER)		\
+#		--includedir=.				\
+#		ClutterSmith-0.0.gir -o $@
+#CLEANFILES += ClutterSmith-0.0.typelib tmp.gir
 
 test: cluttersmith
 	./cluttersmith
@@ -124,6 +120,6 @@ init-types.c:
 
 
 cluttersmith.so: *.c Makefile
-	gcc -DCOMPILEMODULE $(AM_CFLAGS) -I. -g -shared -ldl *.c -o $@ `pkg-config clutter-1.0 gjs-1.0 mx-1.0 --libs --cflags` 
+	gcc -DCOMPILEMODULE $(AM_CFLAGS) -fPIC -I. -g -shared -ldl *.c -o $@ `pkg-config clutter-1.0 gjs-1.0 mx-1.0 --libs --cflags` 
 
 

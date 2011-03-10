@@ -19,7 +19,7 @@ res_DATA = \
   link-bg.png \
   cluttersmith.png 
 
-stamp: ../src/ClutterSmith-0.0.gir
+stamp: ../src/cs-util.lo
 	echo -n "ClutterSmith built " > $@
 	date >> $@
 CLEANFILES = stamp

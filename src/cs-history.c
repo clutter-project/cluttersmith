@@ -39,7 +39,9 @@
 
 
 #include <clutter/clutter.h>
+#ifdef USE_GJS
 #include <gjs/gjs.h>
+#endif
 #include <string.h>
 #include "cluttersmith.h"
 
@@ -91,6 +93,7 @@ cs_history_do (const gchar *name,
   cs_history_add (name, javascript_do, javascript_undo);
   hitem = undo_commands->data;
 
+#ifdef USE_GJS
   {
     GjsContext *js_context;
     GError     *error = NULL;
@@ -106,6 +109,7 @@ cs_history_do (const gchar *name,
       }
     g_object_unref (js_context);
   }
+#endif
 }
 
 
@@ -144,6 +148,7 @@ void cs_history_undo (ClutterActor *ignored)
             }
           else
             {
+#ifdef USE_GJS
               GjsContext *js_context;
               GError     *error = NULL;
               gint        code;
@@ -156,6 +161,7 @@ void cs_history_undo (ClutterActor *ignored)
                   g_warning ("%s", error->message);
                 }
               g_object_unref (js_context);
+#endif
             }
         }
 
@@ -200,6 +206,7 @@ void cs_history_redo (ClutterActor *ignored)
             }
           else
             {
+#ifdef USE_GJS
               GjsContext *js_context;
               GError     *error = NULL;
               gint        code;
@@ -212,6 +219,7 @@ void cs_history_redo (ClutterActor *ignored)
                   g_warning ("%s", error->message);
                 }
               g_object_unref (js_context);
+#endif
             }
         }
       undo_commands = g_list_prepend (undo_commands, redo_commands->data);

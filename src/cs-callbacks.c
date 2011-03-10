@@ -40,7 +40,9 @@
 
 #include "cluttersmith.h"
 #include "cs-context.h"
+#ifdef USE_GJS
 #include <gjs/gjs.h>
+#endif
 #include <gio/gio.h>
 #include <string.h>
 
