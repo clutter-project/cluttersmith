@@ -337,11 +337,15 @@ void cs_sync_chrome (void)
     }
 }
 
+#ifndef COMPILEMODULE
+#ifdef USE_GJS
 static gboolean return_to_ui (gpointer ignored)
 {
   cs_set_ui_mode (CS_UI_MODE_CHROME);
   return FALSE;
 }
+#endif
+#endif
 
 static void save_annotation (void)
 {
@@ -500,8 +504,8 @@ void cs_set_ui_mode (guint ui_mode)
     }
 
   cs->ui_mode = ui_mode;
-  cs_selected_clear ();
-  cs_sync_chrome ();
+  //cs_selected_clear ();
+  //cs_sync_chrome ();
 }
 
 static void
@@ -1106,7 +1110,6 @@ gboolean update_overlay_positions (gpointer data)
       ClutterVertex pos = {0,0,0};
       clutter_actor_get_anchor_point (actor, &pos.x, &pos.y);
       clutter_actor_apply_transform_to_point (actor, &pos, &pos);
-      
       clutter_actor_set_position (cs->anchor_handle, pos.x, pos.y);
 
       pos.x = pos.y = pos.z = 0;
@@ -1171,8 +1174,16 @@ static gboolean playback_context (ClutterActor *actor,
  */
 gboolean cluttersmith_initialize_for_stage (gpointer stage)
 {
+#ifdef COMPILEMODULE
+  static ClutterActor *parasite_stage = NULL;
+#endif
   ClutterActor *actor;
   ClutterScript *script;
+
+#ifdef COMPILEMODULE
+  if (parasite_stage)
+    return FALSE;
+#endif
 
   cs = cs_context_new ();
   mx_style_load_from_file (mx_style_get_default (), PKGDATADIR "style/cluttersmith.css", NULL);
@@ -1202,7 +1213,6 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   init_multi_select ();
   cs_edit_text_init ();
 
-
   script = cs_get_script (actor);
 
   /* initializing globals */
@@ -1212,11 +1222,25 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   cs->property_editors = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors"));
   cs->property_editors_core = CLUTTER_ACTOR (clutter_script_get_object (script, "property-editors-core"));
   cs->scene_graph = CLUTTER_ACTOR (clutter_script_get_object (script, "scene-graph"));
+
   cs->parasite_ui = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-ui"));
   cs->parasite_root = CLUTTER_ACTOR (clutter_script_get_object (script, "parasite-root"));
 
-#ifndef COMPILEMODULE
-  {
+#ifdef COMPILEMODULE
+    parasite_stage = clutter_stage_new ();
+    clutter_stage_set_title (CLUTTER_STAGE (parasite_stage), "cluttersmith");
+    clutter_actor_set_size (parasite_stage, 300, 700);
+    {
+      ClutterColor black={0,0,0,0xff};
+      clutter_stage_set_color (parasite_stage, &black);
+    }
+    clutter_stage_set_user_resizable (CLUTTER_STAGE (parasite_stage), TRUE);
+
+    clutter_actor_reparent (CLUTTER_ACTOR (cs->parasite_ui), parasite_stage);
+    g_signal_connect (parasite_stage, "notify::width", G_CALLBACK (stage_size_changed), cs->parasite_ui);
+    g_signal_connect (parasite_stage, "notify::height", G_CALLBACK (stage_size_changed), cs->parasite_ui);
+    clutter_actor_show (parasite_stage);
+#else
     if (cs->parasite_ui)
       {
         g_signal_connect (stage, "notify::width", G_CALLBACK (stage_size_changed), cs->parasite_ui);
@@ -1224,7 +1248,6 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
         /* do an initial sync of the ui-size */
         stage_size_changed (stage, NULL, cs->parasite_ui);
       }
-  }
 #endif
 
   cs->fake_stage_canvas = _A("fake-stage-canvas");
@@ -1285,12 +1308,12 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   g_signal_connect (mx_entry_get_clutter_text (MX_ENTRY (cs->scene_title)),
    "text-changed", G_CALLBACK (scene_title_text_changed), NULL);
 
-  cs_set_active (clutter_actor_get_stage(cs->parasite_root));
+  /*cs_set_active (clutter_actor_get_stage(cs->parasite_root));*/
 
   props_populate (_A("config-editors"), G_OBJECT (cs), FALSE);
 
 #ifdef COMPILEMODULE
-  clutter_actor_hide (cs->fake_stage_canvas);
+  cs_set_active (stage);
 #endif
 
   /* XXX: all of this should be in the json */
@@ -1316,8 +1339,8 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
   init_types ();
   project_combo_box_update ();
   scenes_combo_box_update ();
-#ifdef COMPILEMODULE
-  cs_set_ui_mode (CS_UI_MODE_BROWSE);
+#ifdef COMPILEMODUL
+  cs_set_ui_mode (CS_UI_MODE_CHROME);
 #endif
   return FALSE;
 }
@@ -1395,7 +1418,7 @@ void actor_defaults_populate (ClutterActor *container,
   ClutterColor  white = {0xff,0xff,0xff,0xff};  /* XXX: should be in CSS */
   ClutterActor *hbox;
   ClutterActor *label;
-  ClutterActor *editor; 
+  ClutterActor *editor;
 
   /* position */
   hbox = g_object_new (MX_TYPE_BOX_LAYOUT, "spacing", 5, NULL);

@@ -5,18 +5,6 @@
   "id":"parasite",
   "children":[
     {
-      "type":"ClutterRectangle",
-      "id":"fake-stage-canvas"
-    },
-    {
-      "type":"ClutterGroup",
-      "id":"fake-stage",
-      "width":1,
-      "height":1,
-      "children":[
-      ]
-    },
-    {
       "type":"ClutterGroup",
       "width":1,
       "height":1,
@@ -41,12 +29,6 @@
               ],
               "children":[
                 {
-                  "name":"toolbar",
-                  "height":20,
-                  "type":"MxBoxLayout",
-                  "spacing":1
-                },
-                {
                   "type":"MxBoxLayout",
                   "signals":[
                     {
@@ -62,23 +44,10 @@
                       "height":300
                     }
                   ]
-                },
-                {
-                  "name":"toolbar",
-                  "height":20,
-                  "type":"MxBoxLayout",
-                  "spacing":1
-                }
-              ],
-              "signals":[
-                {
-                  "name":"pick",
-                  "handler":"parasite_pick"
                 }
               ]
             }
-          ],
-          "signals":[{"name":"button-press-event", "handler":"cs_movable_press"}]
+          ]
         },
     {"id":"cs-overlay",
      "type":"ClutterGroup"}

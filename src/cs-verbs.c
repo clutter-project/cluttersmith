@@ -1314,8 +1314,13 @@ void cs_change_type (MxAction *action,
     }
   g_list_free (actor_types);
 
+#ifdef COMPILE_MODULE
+  clutter_group_add (clutter_actor_get_stage (cs->parasite_ui), menu);
+  clutter_actor_set_position (CLUTTER_ACTOR (menu), 0, 0);
+#else
   clutter_group_add (cs->parasite_root, menu);
   clutter_actor_set_position (CLUTTER_ACTOR (menu), x, 50 /* y */);
+#endif
   clutter_actor_show (CLUTTER_ACTOR (menu));
 }
 

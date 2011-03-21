@@ -105,7 +105,6 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
              * children 1 is after first child
              */
 
-
             if (dragged_actor &&
                 !cs_actor_has_ancestor (dropped_on_target, dragged_actor) &&
                 (dropped_on_target != dragged_actor))
@@ -201,7 +200,6 @@ tree_item_capture (ClutterActor *stage, ClutterEvent *event, gpointer data)
   return TRUE;
 }
 
-
 static gboolean tree_item_press (ClutterActor  *actor,
                                  ClutterEvent  *event)
 {
@@ -255,11 +253,9 @@ cs_tree_populate_iter (ClutterActor *current_container,
 
   vbox = g_object_new (MX_TYPE_BOX_LAYOUT, "min-width", 100.0, "natural-width", 500.0, "orientation", MX_ORIENTATION_VERTICAL,
                        "style-class", 
-                
                        ((*count)%2==0)?
                           ((*level)%2==0)?"ParasiteTreeA1":"ParasiteTreeB1":
                           ((*level)%2==0)?"ParasiteTreeA2":"ParasiteTreeB2",
-                      
                        NULL);
 
                        //((*level)%2==0)?"ParasiteTreeA":"ParasiteTreeB",

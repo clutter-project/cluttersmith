@@ -407,7 +407,9 @@ props_populate (ClutterActor *container,
         mx_label_set_text (MX_LABEL (label), properties[i]->name);
 
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), label);
+#ifdef COMPILE_MODULE
         clutter_actor_set_width (label, CS_PROPEDITOR_LABEL_WIDTH);
+#endif
         clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
         clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);
 
@@ -449,7 +451,13 @@ props_populate (ClutterActor *container,
                     clutter_text_set_color (CLUTTER_TEXT (label), &white);
                     clutter_text_set_ellipsize (CLUTTER_TEXT (label), PANGO_ELLIPSIZE_MIDDLE);
                     clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
+#ifdef COMPILE_MODULE
+                    clutter_actor_set_height (editor, CS_PROPEDITOR_EDITOR_WIDTH);
                     clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
+#else
+                    clutter_actor_set_size (label, CS_PROPEDITOR_LABEL_WIDTH, EDITOR_LINE_HEIGHT);
+                    clutter_actor_set_size (editor, CS_PROPEDITOR_EDITOR_WIDTH, EDITOR_LINE_HEIGHT);
+#endif
                     clutter_container_add_actor (CLUTTER_CONTAINER (container), label);
                     clutter_container_add_actor (CLUTTER_CONTAINER (hbox), editor);
                     clutter_container_child_set (CLUTTER_CONTAINER (hbox), editor, "expand", TRUE, NULL);

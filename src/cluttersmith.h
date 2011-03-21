@@ -151,8 +151,14 @@ gchar *json_serialize_animator (ClutterAnimator *animator);
 gchar *json_serialize_state (ClutterState *state);
 
 void cs_save (gboolean force);
+
+#ifdef COMPILE_MODULE
+#define CS_PROPEDITOR_LABEL_WIDTH  -1
+#define CS_PROPEDITOR_EDITOR_WIDTH -1
+#else
 #define CS_PROPEDITOR_LABEL_WIDTH  100
 #define CS_PROPEDITOR_EDITOR_WIDTH  80
+#endif
 #define EDITOR_LINE_HEIGHT          23
 #define CS_EDITOR_LABEL_FONT "Liberation 11px"
 

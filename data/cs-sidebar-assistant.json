@@ -23,7 +23,6 @@
               "type":"MxBoxLayout",
               "style-class":"ClutterSmithPropertyPane",
               "orientation":"vertical",
-              "width":330,
               "spacing":2,
               "children":[
                 {
@@ -91,13 +90,11 @@
             {
               "type":"MxBoxLayout",
               "orientation":"vertical",
-              "width":240,
               "height":400,
               "children":[
                 {
                   "style-class":"parasite-paste",
                   "type":"MxScrollView",
-                  "width":240,
                   "children":[
                     {
                       "type":"MxGrid",
@@ -121,7 +118,6 @@
                 {
                   "id":"cs-dialog-editor-annotation",
                   "type":"ClutterText",
-                  "width":240,
                   "height":400,
                   "line-wrap":true,
                   "font-name":"Liberation Sans 13",
@@ -153,7 +149,6 @@
                   "type":"MxGrid",
                   "name":"cs-templates-container",
                   "id":"templates-container",
-                  "width":330,
                   "horizontal-adjustment":0.5,
                   "vertical-adjustment":1.0,
                   "column-spacing":3,
@@ -182,7 +177,6 @@
             {
               "type":"MxBoxLayout",
               "id":"cs-dialog-type",
-              "width":330,
               "height":205,
               "style-class":"ClutterSmithPropertyPane",
               "orientation":"vertical",
@@ -222,7 +216,6 @@
           "children":[
             {
               "type":"MxScrollView",
-              "width":330,
               "height":200,
               "child::expand":true,
               "children":[
@@ -267,7 +260,6 @@
                       "type":"MxBoxLayout",
                       "orientation":"vertical",
                       "id":"property-editors",
-                      "width":330,
                       "spacing":2
                     },
                     {
@@ -279,7 +271,6 @@
                       "id":"parents",
                       "column-spacing":2,
                       "row-spacing":2,
-                      "width":190,
                       "children":[
 
                       ]
@@ -311,7 +302,6 @@
               "type":"MxBoxLayout",
               "orientation":"vertical",
               "reactive":true,
-              "width":330,
               "style-class":"ClutterSmithPropertyPane",
               "spacing":9,
               "x":0,
@@ -439,7 +429,6 @@
             {
               "type":"MxBoxLayout",
               "orientation":"vertical",
-              "width":300,
               "height":300,
               "spacing":9,
               "x":0,
@@ -449,7 +438,6 @@
                 {
                   "type":"MxScrollView",
                   "style-class":"parasite",
-                  "width":240,
                   "height":300,
                   "children":[
                     {
@@ -481,7 +469,6 @@
             {
               "type":"MxBoxLayout",
               "orientation":"vertical",
-              "width":240,
               "height":240,
               "style-class":"parasite",
               "children":[
@@ -523,7 +510,6 @@
               "style-class":"ClutterSmithPropertyPane",
               "orientation":"vertical",
               "reactive":true,
-              "width":240,
               "height":200,
               "spacing":9,
               "x":0,
@@ -588,7 +574,6 @@
                   "type":"MxBoxLayout",
                   "orientation":"vertical",
                   "id":"config-editors",
-                  "width":200,
                   "height":200,
                   "spacing":2
                 }

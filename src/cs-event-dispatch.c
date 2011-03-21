@@ -80,8 +80,10 @@ cs_stage_capture (ClutterActor *actor,
    * is perhaps not what is desired in the general
    * case, and the text editing should be reimplemented
    * to use an additional proxy. */
+  printf ("%p %p\n", actor, data);
+
   if (edited_actor)
-    { 
+    {
       if (event->any.type == CLUTTER_KEY_PRESS &&
           event->key.keyval == CLUTTER_Escape)
         {
@@ -160,7 +162,7 @@ cs_stage_capture (ClutterActor *actor,
                          }
                        hit = clutter_actor_get_parent (hit);
                      }
-                } 
+                }
           case CLUTTER_BUTTON_RELEASE:
               cs_last_x = event->button.x;
               cs_last_y = event->button.y;
@@ -174,7 +176,7 @@ cs_stage_capture (ClutterActor *actor,
         }
       return FALSE;
     }
-  
+
   if ((clutter_get_motion_events_enabled()==FALSE) ||
       cs_actor_has_ancestor (event->any.source, cs->parasite_root))
     {
@@ -285,8 +287,8 @@ drill_down:
                    cs_move_start (cs->parasite_root, event);
                 }
             }
-          else 
-            { 
+          else
+            {
               gboolean stage_child = FALSE;
               if (clutter_event_get_button (event) == 3)
                 {
@@ -378,9 +380,6 @@ drill_down:
   return TRUE;
 }
 
-
-
-
 static gboolean is_point_in_actor (ClutterActor *actor, gfloat x, gfloat y)
 {
   gboolean ret = FALSE;
@@ -429,7 +428,7 @@ static ClutterActor *
 cs_selection_pick (gfloat x,
                    gfloat y)
 {
-  gfloat data[2]={x,y}; 
+  gfloat data[2]={x,y};
   return cs_selected_match (G_CALLBACK (is_in_actor), data);
 }
 
@@ -437,7 +436,7 @@ ClutterActor *cs_siblings_pick (ClutterActor *actor, gfloat x, gfloat y)
 {
   GList *siblings = cs_actor_get_siblings (actor);
   ClutterActor *ret;
-  gfloat data[2]={x,y}; 
+  gfloat data[2]={x,y};
   ret = cs_list_match (siblings, G_CALLBACK (is_in_actor), data);
   g_list_free (siblings);
   return ret;
@@ -449,7 +448,7 @@ ClutterActor *cs_children_pick (ClutterActor *actor,
 {
   GList *children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
   ClutterActor *ret;
-  gfloat data[2]={x,y}; 
+  gfloat data[2]={x,y};
   children = g_list_reverse (children); /* XXX: why do we need to reverse this
                                            result? */
   ret = cs_list_match (children, G_CALLBACK (is_in_actor), data);
