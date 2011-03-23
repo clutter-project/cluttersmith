@@ -80,7 +80,6 @@ cs_stage_capture (ClutterActor *actor,
    * is perhaps not what is desired in the general
    * case, and the text editing should be reimplemented
    * to use an additional proxy. */
-  printf ("%p %p\n", actor, data);
 
   if (edited_actor)
     {

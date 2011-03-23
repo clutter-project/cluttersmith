@@ -1232,7 +1232,7 @@ gboolean cluttersmith_initialize_for_stage (gpointer stage)
     clutter_actor_set_size (parasite_stage, 300, 700);
     {
       ClutterColor black={0,0,0,0xff};
-      clutter_stage_set_color (parasite_stage, &black);
+      clutter_stage_set_color (CLUTTER_STAGE (parasite_stage), &black);
     }
     clutter_stage_set_user_resizable (CLUTTER_STAGE (parasite_stage), TRUE);
 
